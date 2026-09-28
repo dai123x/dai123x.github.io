@@ -1424,6 +1424,141 @@ function buildActivityCenter(b, campus) {
   return grp;
 }
 
+/* 4d. 长春工业大学数学与统计学院（数学与统计科技楼 · 6层现代主楼 + 3层学术报告厅 + 顶层大数据智能计算中心） */
+function buildMathStatsBuilding(b, campus) {
+  var grp = new THREE.Group();
+  var h = b.h || 22;
+
+  // ① 6层科技主楼
+  var mainW = 76, mainD = 28;
+  var mainGeo = new THREE.BoxGeometry(mainW, h, mainD);
+  var whiteMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.4, metalness: 0.2 });
+  var glassRibbonMat = new THREE.MeshPhysicalMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.85 });
+  buildingMats.push(whiteMat);
+  buildingMats.push(glassRibbonMat);
+
+  var mainMesh = new THREE.Mesh(mainGeo, whiteMat);
+  mainMesh.position.set(6, h / 2, 0);
+  mainMesh.castShadow = mainMesh.receiveShadow = true;
+  grp.add(mainMesh);
+
+  var mainEdges = new THREE.LineSegments(new THREE.EdgesGeometry(mainGeo, 40), getSharedNeonMaterial());
+  mainMesh.add(mainEdges);
+
+  // 幕墙横向 Low-E 采光玻璃窗带（6 层）
+  for (var f = 1; f <= 5; f++) {
+    var winRibbon = new THREE.Mesh(
+      new THREE.BoxGeometry(mainW + 0.2, 1.8, mainD + 0.2),
+      glassRibbonMat
+    );
+    winRibbon.position.set(6, f * 3.6, 0);
+    grp.add(winRibbon);
+  }
+
+  // ② 西侧 3 层学术报告厅与学术交流中心（弧形屋顶，深蓝色金属包边）
+  var hallW = 28, hallD = 34, hallH = 12;
+  var hallMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(hallW, hallH, hallD),
+    new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5, metalness: 0.4 })
+  );
+  hallMesh.position.set(-hallW / 2 - 10, hallH / 2, 6);
+  hallMesh.castShadow = hallMesh.receiveShadow = true;
+  grp.add(hallMesh);
+
+  var hallEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(hallW, hallH, hallD), 40), getSharedNeonMaterial());
+  hallMesh.add(hallEdges);
+
+  // 报告厅声学拱形穹顶
+  var archGeo = new THREE.CylinderGeometry(hallD * 0.52, hallD * 0.52, hallW * 0.98, 24, 1, false, 0, Math.PI);
+  var archMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3, side: THREE.DoubleSide });
+  var hallArch = new THREE.Mesh(archGeo, archMat);
+  hallArch.rotation.z = Math.PI / 2;
+  hallArch.position.set(-hallW / 2 - 10, hallH, 6);
+  hallArch.castShadow = true;
+  grp.add(hallArch);
+
+  // ③ 4层通高中庭采光玻璃连廊（连接主楼与学术报告厅）
+  var linkMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(16, 14, 16),
+    new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, roughness: 0.1, metalness: 0.3 })
+  );
+  linkMesh.position.set(-10, 7, 2);
+  linkMesh.castShadow = true;
+  grp.add(linkMesh);
+
+  // ④ 主楼屋顶：大数据与智能计算中心机房 + 太阳能光伏阵列
+  var pentMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(28, 4.0, 16),
+    new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6, metalness: 0.5 })
+  );
+  pentMesh.position.set(12, h + 2.0, 0);
+  pentMesh.castShadow = true;
+  grp.add(pentMesh);
+
+  // 楼顶光伏电池板
+  [-12, 0, 12].forEach(function(ox) {
+    var pv = new THREE.Mesh(
+      new THREE.BoxGeometry(8, 0.3, 10),
+      new THREE.MeshStandardMaterial({ color: 0x1d4ed8, metalness: 0.8, roughness: 0.2 })
+    );
+    pv.rotation.x = -0.2;
+    pv.position.set(ox, h + 1.2, -6);
+    pv.castShadow = true;
+    grp.add(pv);
+  });
+
+  // ⑤ 西迎宾主入口：出挑大雨棚、立柱、汉白玉石阶与迎宾铜匾
+  var canopyW = 20, canopyD = 6.5, canopyH = 5.2;
+  var canopyMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(canopyW, 0.7, canopyD),
+    new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.6 })
+  );
+  canopyMesh.position.set(6, canopyH, mainD / 2 + canopyD / 2 - 0.5);
+  canopyMesh.castShadow = true;
+  grp.add(canopyMesh);
+
+  [-7.5, 7.5].forEach(function(cx) {
+    var col = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.45, 0.45, canopyH, 12),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 })
+    );
+    col.position.set(6 + cx, canopyH / 2, mainD / 2 + canopyD - 1.0);
+    col.castShadow = true;
+    grp.add(col);
+  });
+
+  // 迎宾石阶
+  for (var st = 0; st < 4; st++) {
+    var step = new THREE.Mesh(
+      new THREE.BoxGeometry(canopyW + 2 - st * 1.0, 0.28, 2.2 + st * 0.8),
+      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.8 })
+    );
+    step.position.set(6, (4 - st) * 0.14, mainD / 2 + 1.5 + st * 0.8);
+    step.receiveShadow = true;
+    entGrp.add(step);
+  }
+
+  // 门楣金色铜匾牌匾（正反双面渲染，朝南向迎宾）
+  var sc = textCanvas('数学与统计学院', { fs: 36, color: '#fef08a', bg: 'rgba(15,23,42,0.92)', border: '#38bdf8' });
+  var sp = new THREE.Mesh(
+    new THREE.PlaneGeometry(16, 2.6),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+  );
+  sp.position.set(6, canopyH + 1.6, mainD / 2 + 0.2);
+  grp.add(sp);
+
+  // 楼顶朝南发光字：“长春工业大学 数学与统计学院”
+  var roofSignCanvas = textCanvas('长春工业大学 数学与统计学院 · 数据科学重点实验室', { fs: 32, color: '#f8fafc', bg: 'rgba(2,132,199,0.92)', border: '#67e8f9' });
+  var roofSign = new THREE.Mesh(
+    new THREE.PlaneGeometry(36, 3.2),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(roofSignCanvas), transparent: true, side: THREE.DoubleSide })
+  );
+  roofSign.position.set(6, h + 2.2, mainD / 2 + 0.1);
+  grp.add(roofSign);
+
+  return grp;
+}
+
 /* 计算建筑最长主迎宾外墙立面位置与法线偏角（消除穿模、错位与反面剔除） */
 function getPrimaryFacade(b) {
   if (!b.pts || b.pts.length < 3) {
@@ -2041,7 +2176,7 @@ function buildAuditorium(b, campus) {
 }
 
 function isCollegeBuilding(id) {
-  return ['osm32', 'osm33', 'osm35', 'osm36', 'osm37', 'osm38', 'osm51', 'osm52', 'osm1', 'osm5', 'osm6', 'osm61', 'osm62'].indexOf(id) !== -1;
+  return ['osm32', 'osm33', 'osm35', 'osm36', 'osm37', 'osm38', 'osm51', 'osm52', 'osm1', 'osm5', 'osm6', 'osm61', 'osm62', 'osm64'].indexOf(id) !== -1;
 }
 function isDormBuilding(id) {
   return ['osm15', 'osm16', 'osm18', 'osm20', 'osm22', 'osm24', 'osm25', 'osm27', 'osm29', 'osm31',
@@ -2056,6 +2191,7 @@ function isServiceYuan(id) {
 function buildTrack(b) {
   var grp = new THREE.Group();
   var rx = b.rx || 85, rz = b.rz || 55;
+  var isVertical = (rz > rx);
 
   // 400米塑胶跑道（聚氨酯标准砖红色）
   var trackGeo = new THREE.RingGeometry(0.68, 1.0, 64);
@@ -2067,7 +2203,7 @@ function buildTrack(b) {
   trackMesh.receiveShadow = true;
   grp.add(trackMesh);
 
-  // 8条白色分道线
+  // 4条白色主分道线
   for (var lane = 1; lane <= 4; lane++) {
     var laneR = 0.68 + (1.0 - 0.68) * (lane / 5);
     var lineGeo = new THREE.RingGeometry(laneR - 0.005, laneR + 0.005, 64);
@@ -2099,7 +2235,8 @@ function buildTrack(b) {
   boundEdge.rotation.x = -Math.PI / 2;
   linesGroup.add(boundEdge);
 
-  var midLine = new THREE.Mesh(new THREE.PlaneGeometry(0.4, pitchD * 0.88), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+  var midLineGeo = isVertical ? new THREE.PlaneGeometry(pitchW * 0.92, 0.4) : new THREE.PlaneGeometry(0.4, pitchD * 0.88);
+  var midLine = new THREE.Mesh(midLineGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
   midLine.rotation.x = -Math.PI / 2;
   linesGroup.add(midLine);
 
@@ -2111,44 +2248,83 @@ function buildTrack(b) {
   grp.add(linesGroup);
 
   // 真实3D白色足球门
-  [-pitchW * 0.44, pitchW * 0.44].forEach(function(gx) {
-    var goal = new THREE.Group();
-    goal.position.set(gx, 0.28, 0);
-    var barGeo = new THREE.CylinderGeometry(0.12, 0.12, 7.32, 8);
-    var barMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
-    var topBar = new THREE.Mesh(barGeo, barMat);
-    topBar.rotation.x = Math.PI / 2;
-    topBar.position.set(0, 2.44, 0);
-    goal.add(topBar);
+  var barMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+  if (isVertical) {
+    [-pitchD * 0.44, pitchD * 0.44].forEach(function(gz) {
+      var goal = new THREE.Group();
+      goal.position.set(0, 0.28, gz);
+      var topBar = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 7.32, 8), barMat);
+      topBar.rotation.z = Math.PI / 2;
+      topBar.position.set(0, 2.44, 0);
+      goal.add(topBar);
 
-    [-3.66, 3.66].forEach(function(py) {
-      var post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.44, 8), barMat);
-      post.position.set(0, 1.22, py);
-      goal.add(post);
+      [-3.66, 3.66].forEach(function(px) {
+        var post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.44, 8), barMat);
+        post.position.set(px, 1.22, 0);
+        goal.add(post);
+      });
+      grp.add(goal);
     });
-    grp.add(goal);
-  });
+  } else {
+    [-pitchW * 0.44, pitchW * 0.44].forEach(function(gx) {
+      var goal = new THREE.Group();
+      goal.position.set(gx, 0.28, 0);
+      var topBar = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 7.32, 8), barMat);
+      topBar.rotation.x = Math.PI / 2;
+      topBar.position.set(0, 2.44, 0);
+      goal.add(topBar);
 
-  // 西侧现代观众看台与白色张拉膜结构挑篷（若设置 noStand 则由独立建筑实体如南湖主看台精细化构建）
+      [-3.66, 3.66].forEach(function(py) {
+        var post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.44, 8), barMat);
+        post.position.set(0, 1.22, py);
+        goal.add(post);
+      });
+      grp.add(goal);
+    });
+  }
+
+  // 现代观众看台与白色张拉膜结构挑篷
   if (!b.noStand) {
-    var standW = rx * 1.1, standD = 16, standH = 8;
-    var standBase = new THREE.Mesh(
-      new THREE.BoxGeometry(standW, standH, standD),
-      new THREE.MeshStandardMaterial({ color: 0xd6d3cb, roughness: 0.8 })
-    );
-    standBase.position.set(0, standH / 2, -rz * 1.1);
-    standBase.castShadow = standBase.receiveShadow = true;
-    grp.add(standBase);
+    if (isVertical) {
+      // 垂直田径场看台位于西侧（X 负向），沿南北向长轴延伸
+      var standLen = rz * 1.2, standDepth = 14, standH = 7.5;
+      var standBase = new THREE.Mesh(
+        new THREE.BoxGeometry(standDepth, standH, standLen),
+        new THREE.MeshStandardMaterial({ color: 0xd6d3cb, roughness: 0.8 })
+      );
+      standBase.position.set(-rx - 8, standH / 2, 0);
+      standBase.castShadow = standBase.receiveShadow = true;
+      grp.add(standBase);
 
-    var canopyArch = new THREE.Mesh(
-      new THREE.CylinderGeometry(standW * 0.52, standW * 0.52, standD * 1.2, 24, 1, true, 0, Math.PI * 0.65),
-      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3, side: THREE.DoubleSide })
-    );
-    canopyArch.rotation.z = Math.PI / 2;
-    canopyArch.rotation.x = Math.PI * 0.18;
-    canopyArch.position.set(0, standH + 6, -rz * 1.1);
-    canopyArch.castShadow = true;
-    grp.add(canopyArch);
+      var canopyArch = new THREE.Mesh(
+        new THREE.CylinderGeometry(standDepth * 0.6, standDepth * 0.6, standLen * 1.05, 24, 1, true, 0, Math.PI * 0.65),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3, side: THREE.DoubleSide })
+      );
+      canopyArch.rotation.x = 0;
+      canopyArch.rotation.z = Math.PI * 0.35;
+      canopyArch.position.set(-rx - 8, standH + 5.5, 0);
+      canopyArch.castShadow = true;
+      grp.add(canopyArch);
+    } else {
+      var standW = rx * 1.1, standD = 16, standH = 8;
+      var standBase = new THREE.Mesh(
+        new THREE.BoxGeometry(standW, standH, standD),
+        new THREE.MeshStandardMaterial({ color: 0xd6d3cb, roughness: 0.8 })
+      );
+      standBase.position.set(0, standH / 2, -rz * 1.1);
+      standBase.castShadow = standBase.receiveShadow = true;
+      grp.add(standBase);
+
+      var canopyArch = new THREE.Mesh(
+        new THREE.CylinderGeometry(standW * 0.52, standW * 0.52, standD * 1.2, 24, 1, true, 0, Math.PI * 0.65),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3, side: THREE.DoubleSide })
+      );
+      canopyArch.rotation.z = Math.PI / 2;
+      canopyArch.rotation.x = Math.PI * 0.18;
+      canopyArch.position.set(0, standH + 6, -rz * 1.1);
+      canopyArch.castShadow = true;
+      grp.add(canopyArch);
+    }
   }
 
   return grp;
@@ -3147,6 +3323,7 @@ function buildCampus(campus) {
     else if (b.id === 'osm59') grp = buildGuoLiLou(b, campus);
     else if (b.id === 'osm0') grp = buildNanhuLibrary(b, campus);
     else if (b.id === 'osm2') grp = buildAuditorium(b, campus);
+    else if (b.shape === 'mathStats' || b.id === 'osm64') grp = buildMathStatsBuilding(b, campus);
     else if (b.id === 'osm28' || b.id === 'osm54' || b.id === 'osm14' || /食堂/.test(b.name)) grp = buildCanteenBuilding(b, campus);
     else if (isCollegeBuilding(b.id) || /学院楼|科研楼|实验楼|基础楼|逸夫楼|工训|办公|行政/.test(b.name)) grp = buildCollegeBuilding(b, campus);
     else if (isDormBuilding(b.id) || /公寓|宿舍|寝/.test(b.name)) grp = buildDormBuilding(b, campus);
