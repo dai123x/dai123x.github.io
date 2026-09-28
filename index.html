@@ -462,12 +462,65 @@
         <!-- Filter Tabs -->
         <div class="filter-tabs">
           <button class="tab-btn active" data-filter="all">全部精选</button>
+          <button class="tab-btn" data-filter="github">⭐ GitHub 开源仓库</button>
           <button class="tab-btn" data-filter="tech">Web 3D & 研发</button>
           <button class="tab-btn" data-filter="ie">工业工程 & 统计实践</button>
         </div>
 
         <div class="projects-grid">
-          <!-- Project 1: 长工大全景立体地图 -->
+          <!-- Project 1: 华为杯研究生数模 LaTeX 模板 -->
+          <article class="project-card" data-category="github tech">
+            <div class="project-cover">
+              <img src="assets/images/project-mathmodel.svg" alt="华为杯研究生数学建模 LaTeX 模板">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">⭐ 4 Stars</span>
+                <span class="tag-badge">LaTeX / TeX</span>
+                <span class="tag-badge">Overleaf 在线编译</span>
+                <span class="tag-badge">华为杯研究生数模</span>
+              </div>
+              <h3 class="project-title">“华为杯”第23届研究生数模 LaTeX 模板</h3>
+              <p class="project-desc">
+                为“华为杯”中国研究生数学建模竞赛量身打造的高可用 LaTeX 论文模板（支持 Overleaf / 本地 XeLaTeX）。深度对齐最新官方 Word 格式（西安交通大学承办），彻底解决中文字体缺失报错，内置楷体、隶书、新魏等多款中文字体包，开箱即用。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">仓库：dai123x/2026-</span>
+                <a href="https://github.com/dai123x/2026-" class="project-link" target="_blank" rel="noopener noreferrer">
+                  <span>查看 GitHub 仓库</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 2: AI 云资源运营与成本优化分析 -->
+          <article class="project-card" data-category="github ie">
+            <div class="project-cover">
+              <img src="assets/images/project-cloudops.svg" alt="AI 云资源运营与成本优化分析">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">Python / pandas</span>
+                <span class="tag-badge">SQLite / SQL</span>
+                <span class="tag-badge">GPU 算力监控</span>
+                <span class="tag-badge">降本增效容量规划</span>
+              </div>
+              <h3 class="project-title">AI 云资源运营与算力成本优化分析系统</h3>
+              <p class="project-desc">
+                基于大规模 GPU/CPU 算力集群运行日志与资源流水数据，利用 SQLite 与高阶 SQL 提取多维算力指标；结合 Python (pandas) 对低利用率闲置算力进行精准聚类与潜在浪费成本测算，输出面向生产环境的弹性容量规划与降本增效建议。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">仓库：ai-cloud-resource-ops-analysis</span>
+                <a href="https://github.com/dai123x/ai-cloud-resource-ops-analysis" class="project-link" target="_blank" rel="noopener noreferrer">
+                  <span>查看 GitHub 仓库</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 3: 长工大全景立体地图 -->
           <article class="project-card" data-category="tech">
             <div class="project-cover">
               <img src="assets/images/project-3dmap.svg" alt="长春工业大学全景立体地图封面">
@@ -484,7 +537,7 @@
                 纯原生、零构建依赖的高性能三维校园地图。对齐真实测绘精确还原北湖与南湖校区 84 处建筑，集成沉浸漫游、卫星航拍底图、四季生态天气（夏绿/金秋/冬雪）与动态自然声场。
               </p>
               <div class="project-footer">
-                <span style="font-size: 0.85rem; color: var(--text-muted);">独立开发 · 标志性代表作</span>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">独立研发 · 空间可视化</span>
                 <a href="../长工大全景立体地图/index.html" class="project-link" target="_blank">
                   <span>查看作品详情</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
@@ -493,7 +546,33 @@
             </div>
           </article>
 
-          <!-- Project 2: 一汽丰田生产线测定与 AGV 路径优化 -->
+          <!-- Project 4: 个人数字门户 daixuan.cloud -->
+          <article class="project-card" data-category="github tech">
+            <div class="project-cover">
+              <img src="assets/images/project-cloud.svg" alt="daixuan.cloud 个人主页封面">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">GitHub Pages</span>
+                <span class="tag-badge">daixuan.cloud</span>
+                <span class="tag-badge">原生前端</span>
+                <span class="tag-badge">全端响应式</span>
+              </div>
+              <h3 class="project-title">daixuan.cloud · 个人学术与工程数字门户</h3>
+              <p class="project-desc">
+                托管于 GitHub 仓库（<code>dai123x/dai123x.github.io</code>），绑定独立顶级域名 <code>daixuan.cloud</code>。支持深浅双主题切换，兼顾极速轻量与现代毛玻璃 Bento 视觉设计。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">当前站点 · 自动化集成</span>
+                <a href="https://github.com/dai123x/dai123x.github.io" class="project-link" target="_blank" rel="noopener noreferrer">
+                  <span>查看 GitHub 仓库</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 5: 一汽丰田生产线测定与 AGV 路径优化 -->
           <article class="project-card" data-category="ie">
             <div class="project-cover">
               <img src="assets/images/project-media.svg" alt="一汽丰田生产线与 AGV 路径优化">
@@ -519,33 +598,7 @@
             </div>
           </article>
 
-          <!-- Project 3: 个人数字门户 daixuan.cloud -->
-          <article class="project-card" data-category="tech">
-            <div class="project-cover">
-              <img src="assets/images/project-cloud.svg" alt="daixuan.cloud 个人主页封面">
-            </div>
-            <div class="project-body">
-              <div class="project-tags">
-                <span class="tag-badge">GitHub Pages</span>
-                <span class="tag-badge">daixuan.cloud</span>
-                <span class="tag-badge">原生前端</span>
-                <span class="tag-badge">全端响应式</span>
-              </div>
-              <h3 class="project-title">daixuan.cloud · 个人学术与工程数字门户</h3>
-              <p class="project-desc">
-                托管于 GitHub 仓库（<code>dai123x/dai123x.github.io</code>），绑定独立顶级域名 <code>daixuan.cloud</code>。支持深浅双主题切换，兼顾极速轻量与现代毛玻璃 Bento 视觉设计。
-              </p>
-              <div class="project-footer">
-                <span style="font-size: 0.85rem; color: var(--text-muted);">当前站点 · 自动化集成</span>
-                <a href="#hero" class="project-link">
-                  <span>回到顶部</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
-                </a>
-              </div>
-            </div>
-          </article>
-
-          <!-- Project 4: 注塑厂房通风与环境改善 -->
+          <!-- Project 6: 注塑厂房通风与环境改善 -->
           <article class="project-card" data-category="ie">
             <div class="project-cover">
               <img src="assets/images/project-study.svg" alt="注塑厂房通风与环境改善">
@@ -570,6 +623,18 @@
               </div>
             </div>
           </article>
+        </div>
+
+        <!-- GitHub More Repos Banner -->
+        <div style="margin-top: 36px; text-align: center; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px;">
+          <h4 style="font-size: 1.1rem; margin-bottom: 8px;">📂 探索更多开源仓库与案例研究</h4>
+          <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 16px;">
+            包含持续更新的《案例分析知识库》与 AI 实验探索项目。
+          </p>
+          <a href="https://github.com/dai123x?tab=repositories" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.9rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            <span>访问 @dai123x 全部 GitHub 仓库</span>
+          </a>
         </div>
       </div>
     </section>
