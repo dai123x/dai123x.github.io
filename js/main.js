@@ -241,9 +241,9 @@ function initScrollSpy() {
    -------------------------------------------------------------------------- */
 function initTypewriter() {
   const phrases = [
-    '3D WebGL / 全景立体地图开发者',
-    '现代前端工程与自媒体创作者',
-    '探索数字交互与创意技术'
+    '长春工业大学 · 应用统计硕士研究生（在读）',
+    '工业工程 (IE) × 统计建模 × Web 3D 研发',
+    '时间序列分析 · 生产线作业测定 · 精益改善'
   ];
 
   const target = document.getElementById('typing-role');

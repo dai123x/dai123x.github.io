@@ -52,46 +52,29 @@ personal-portfolio/
 
 ### 第一步：在 GitHub 上创建新仓库
 
-1. 登录您的 [GitHub 账号](https://github.com)。
-2. 点击右上角的 **`+` -> New repository**。
-3. 仓库名（Repository name）推荐以下两种之一：
-   - 方式 A（推荐，作为个人根站点）：**`<您的GitHub用户名>.github.io`**（例如 `daixuan.github.io`）
-   - 方式 B：**`daixuan-cloud`** 或 **`personal-portfolio`**
-4. 勾选 **Public**（公开仓库）。
-5. **不要**勾选 "Initialize this repository with a README"（因为本地已有完备文件）。
-6. 点击 **Create repository**。
+从您的仓库截图已知，您的 GitHub 用户名是 **`dai123x`**，目标仓库是 **`dai123x.github.io`**：
+1. 仓库名称：**`dai123x.github.io`**（作为 GitHub 用户专属 Pages 站点）
+2. 仓库属性：**Public**（公开）
+3. 远程地址：`https://github.com/dai123x/dai123x.github.io.git`
 
 ---
 
-### 第二步：在本地初始化 Git 并提交代码
+### 第二步：在本地直接推送到 GitHub
 
-在终端（PowerShell 或 CMD）中进入本项目目录：
+由于本地仓库已完成 `git init` 与初始提交，并已将远程分支设为您的仓库，您只需在终端（PowerShell 或 CMD）执行推送：
 
 ```bash
 cd "d:\自媒体\personal-portfolio"
-```
 
-依次执行以下命令：
-
-```bash
-# 1. 初始化 Git 仓库
-git init
-
-# 2. 将所有文件加入暂存区
-git add .
-
-# 3. 提交初始版本
-git commit -m "feat: 初次提交个人主页 (daixuan.cloud)"
-
-# 4. 将默认分支切换为 main
-git branch -M main
-
-# 5. 关联到你在 GitHub 新建的远程仓库（将 YOUR_USERNAME 替换为你的 GitHub 用户名，REPO_NAME 替换为你的仓库名）
-git remote add origin https://github.com/YOUR_USERNAME/REPO_NAME.git
-
-# 6. 推送至 GitHub
+# 一键推送至 GitHub main 分支
 git push -u origin main
 ```
+
+> 若尚未添加远程源或需重新配置，可运行：
+> ```bash
+> git remote add origin https://github.com/dai123x/dai123x.github.io.git
+> git push -u origin main
+> ```
 
 ---
 
