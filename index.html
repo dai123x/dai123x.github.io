@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>戴璇 · Dai Xuan | 数字创作者 & 开发者 · daixuan.cloud</title>
+  <meta name="description" content="戴璇的个人主页与作品集。探索 Web 3D 图形交互 (Three.js)、现代前端工程与数字化自媒体内容创作。">
+  <meta name="keywords" content="戴璇, daixuan, daixuan.cloud, Three.js, WebGL, 个人主页, 全景地图, 自媒体, 前端开发">
+  <meta name="author" content="戴璇">
+
+  <!-- Open Graph / Social Cards -->
+  <meta property="og:title" content="戴璇 · Dai Xuan | 个人数字门户">
+  <meta property="og:description" content="代码构筑世界，光影记录思考。Web 3D 与自媒体创作者。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://daixuan.cloud">
+  <meta property="og:image" content="assets/images/favicon.svg">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Ambient Light Orbs -->
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="container">
+      <a href="#hero" class="nav-brand">
+        <div class="brand-icon">DX</div>
+        <div class="brand-text">戴璇 · <span>daixuan.cloud</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="#hero" class="nav-link active">首页</a></li>
+          <li><a href="#about" class="nav-link">关于我</a></li>
+          <li><a href="#skills" class="nav-link">专业技能</a></li>
+          <li><a href="#projects" class="nav-link">精选项目</a></li>
+          <li><a href="#timeline" class="nav-link">经历足迹</a></li>
+          <li><a href="#media" class="nav-link">自媒体矩阵</a></li>
+          <li><a href="#contact" class="nav-link">取得联系</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="btn-icon" aria-label="切换色彩主题" title="切换深色/浅色模式">
+          <span id="theme-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+              <path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-toggle" class="btn-icon mobile-toggle" aria-label="移动端菜单">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section" id="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="status-dot"></span>
+              探索前沿图形技术 & 持续创作中
+            </div>
+            <h1 class="hero-title">
+              你好，我是 <span class="gradient-text">戴璇</span> 👋<br>
+              <span id="typing-role" style="font-size: 0.72em; font-weight: 700; color: var(--text-secondary);">3D WebGL / 全景立体地图开发者</span>
+            </h1>
+            <p class="hero-desc">
+              深耕 Web 前端与三维图形互动（Three.js），融合自媒体视听表达与数字化内容创作。以工匠精神打磨每一个交互细节，用代码构筑数字世界，用光影记录灵感思考。
+            </p>
+            <div class="hero-actions">
+              <a href="#projects" class="btn btn-primary">
+                <span>浏览精选项目</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </a>
+              <a href="#media" class="btn btn-secondary">
+                <span>自媒体平台</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              </a>
+              <a href="#contact" class="btn btn-secondary">
+                <span>联系交流</span>
+              </a>
+            </div>
+
+            <!-- Quick Social Pills -->
+            <div class="hero-socials">
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="social-pill" title="GitHub">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                <span>GitHub</span>
+              </a>
+              <a href="https://space.bilibili.com" target="_blank" rel="noopener noreferrer" class="social-pill" title="哔哩哔哩">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+                <span>Bilibili</span>
+              </a>
+              <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener noreferrer" class="social-pill" title="小红书">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+                <span>小红书</span>
+              </a>
+              <button class="social-pill" id="wechat-modal-trigger" style="cursor: pointer; background: var(--bg-secondary); border: 1px solid var(--border-color);" title="微信交流">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9h8"/><path d="M8 13h6"/><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+                <span>微信</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Avatar Illustration Card -->
+          <div class="hero-avatar-wrapper">
+            <div class="avatar-card">
+              <img src="assets/images/avatar.svg" alt="戴璇 头像" class="avatar-img">
+              <div class="avatar-floating-badge">
+                <span class="status-dot"></span>
+                <span>常驻：daixuan.cloud</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Me / Bento Grid -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">About Me</span>
+          <h2 class="section-title">关于戴璇 · 核心特质</h2>
+          <p class="section-desc">结合工科严谨思维与自媒体创作者灵感，追求极致视觉与交互体验。</p>
+        </div>
+
+        <div class="bento-grid">
+          <!-- Card 1: 3D Graphics -->
+          <div class="bento-card bento-highlight">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 6.27a2 2 0 0 0-1 1.73v7.94a2 2 0 0 0 1 1.73l9.9 4.06a2 2 0 0 0 2.15 0l6.12-4.06A2 2 0 0 0 22 15.94V8.13a2 2 0 0 0-.88-1.73z"/><line x1="12" y1="22" x2="12" y2="12"/><line x1="2.4" y1="7.4" x2="12" y2="12"/><line x1="21.6" y1="7.4" x2="12" y2="12"/></svg>
+            </div>
+            <h3>3D WebGL / 全景立体地图研发</h3>
+            <p>
+              具备独立主导复杂三维 Web 项目的开发能力。代表作《长春工业大学·全景立体地图》完整对齐真实测绘，涵盖 84 处建筑单体建模、第一人称沉浸漫游、卫星航拍底图与三季气象渲染系统。
+            </p>
+          </div>
+
+          <!-- Card 2: Media Creation -->
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15.5 8.5 5-3a1 1 0 0 1 1.5.87v11.26a1 1 0 0 1-1.5.87l-5-3"/><rect width="14" height="14" x="2" y="5" rx="2"/></svg>
+            </div>
+            <h3>自媒体视听与内容创作</h3>
+            <p>
+              结合 3D 数字资产与航拍镜头，产出兼具视觉冲击力与实用价值的短视频，覆盖 Bilibili、小红书等平台，打造技术与美学融合的个人 IP。
+            </p>
+          </div>
+
+          <!-- Card 3: Modern Engineering -->
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h3>现代前端与极速轻量化</h3>
+            <p>
+              崇尚纯粹与零冗余，善于利用现代化原生 Web API（Web Audio、WebGL、CSS Grid），打造零构建依赖、离线即用的极速 Web 应用。
+            </p>
+          </div>
+
+          <!-- Card 4: Open Source -->
+          <div class="bento-card bento-highlight">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>
+            </div>
+            <h3>开源共享与知识传播</h3>
+            <p>
+              坚信技术的价值在于分享。从大学校园全景系统到结构化英语备考知识库，持续将个人研究沉淀为开箱即用的数字资产，赋能更多学习者与创作者。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="section" id="skills">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Capabilities</span>
+          <h2 class="section-title">专业技能与工具矩阵</h2>
+          <p class="section-desc">贯穿“三维图形交互 - 前端全栈开发 - 自媒体视觉表达”的复合技能链条。</p>
+        </div>
+
+        <div class="skills-container">
+          <!-- Column 1: 前端与图形 -->
+          <div class="skill-category-card">
+            <div class="category-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+              <h3>图形开发与前端工程</h3>
+            </div>
+            <div class="chips-list">
+              <span class="skill-chip">Three.js 3D 渲染</span>
+              <span class="skill-chip">WebGL 原生交互</span>
+              <span class="skill-chip">JavaScript (ES6+)</span>
+              <span class="skill-chip">HTML5 / 现代 CSS3</span>
+              <span class="skill-chip">响应式布局 (Grid/Flex)</span>
+              <span class="skill-chip">Web Audio API</span>
+              <span class="skill-chip">Canvas 2D/3D</span>
+              <span class="skill-chip">Three.js 第一人称漫游</span>
+              <span class="skill-chip">OSM 地理测绘对齐</span>
+            </div>
+          </div>
+
+          <!-- Column 2: 自媒体与内容创作 -->
+          <div class="skill-category-card">
+            <div class="category-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+              <h3>自媒体与多模态创作</h3>
+            </div>
+            <div class="chips-list">
+              <span class="skill-chip">校园实景与航拍剪辑</span>
+              <span class="skill-chip">3D 场景虚拟运镜</span>
+              <span class="skill-chip">短视频分镜与节奏编排</span>
+              <span class="skill-chip">视觉封面与海报设计</span>
+              <span class="skill-chip">知识库结构化梳理</span>
+              <span class="skill-chip">多平台内容矩阵运营</span>
+              <span class="skill-chip">技术文案与脚本策划</span>
+            </div>
+          </div>
+
+          <!-- Column 3: 工具与基础设施 -->
+          <div class="skill-category-card">
+            <div class="category-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <h3>工具流与托管部署</h3>
+            </div>
+            <div class="chips-list">
+              <span class="skill-chip">Git / GitHub 协作</span>
+              <span class="skill-chip">GitHub Pages 自动部署</span>
+              <span class="skill-chip">自定义域名 DNS (daixuan.cloud)</span>
+              <span class="skill-chip">VS Code 深度配置</span>
+              <span class="skill-chip">Chrome DevTools 性能调优</span>
+              <span class="skill-chip">Markdown 笔记体系</span>
+              <span class="skill-chip">静态托管与 CDN 加速</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Portfolio</span>
+          <h2 class="section-title">精选作品与开源项目</h2>
+          <p class="section-desc">凝聚技术探索与创作实践的代表性成果。</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-filter="all">全部作品</button>
+          <button class="tab-btn" data-filter="tech">3D交互 & 前端</button>
+          <button class="tab-btn" data-filter="media">自媒体 & 创作</button>
+        </div>
+
+        <div class="projects-grid">
+          <!-- Project 1: 长春工业大学全景立体地图 -->
+          <article class="project-card" data-category="tech">
+            <div class="project-cover">
+              <img src="assets/images/project-3dmap.svg" alt="长春工业大学全景立体地图封面">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">Three.js</span>
+                <span class="tag-badge">WebGL</span>
+                <span class="tag-badge">第一人称漫游</span>
+                <span class="tag-badge">校园实景测绘</span>
+              </div>
+              <h3 class="project-title">长春工业大学 · 全景立体地图</h3>
+              <p class="project-desc">
+                一个纯原生、零外部构建依赖的高性能三维校园全景系统。1:1还原北湖校区与南湖校区84处单体建筑，提供第一人称漫游碰撞、卫星航拍底图、四季天气气象与程序化自然声场。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">独立开发 · 开源精选</span>
+                <a href="../长工大全景立体地图/index.html" class="project-link" target="_blank">
+                  <span>查看作品详情</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 2: 个人数字门户 daixuan.cloud -->
+          <article class="project-card" data-category="tech">
+            <div class="project-cover">
+              <img src="assets/images/project-cloud.svg" alt="daixuan.cloud 个人主页封面">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">GitHub Pages</span>
+                <span class="tag-badge">自定义域名</span>
+                <span class="tag-badge">响应式设计</span>
+                <span class="tag-badge">无依赖原生</span>
+              </div>
+              <h3 class="project-title">daixuan.cloud · 个人数字门户</h3>
+              <p class="project-desc">
+                基于 GitHub Pages 与顶级域名 daixuan.cloud 搭建的现代个人主页。采用深色/浅色双主题自适应设计，纯原生前端编写，兼具极致性能与卓越视觉美感。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">当前站点 · 持续迭代</span>
+                <a href="#hero" class="project-link">
+                  <span>回到顶部</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 3: 校园航拍与三维数字孪生短视频 -->
+          <article class="project-card" data-category="media">
+            <div class="project-cover">
+              <img src="assets/images/project-media.svg" alt="自媒体短视频封面">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">自媒体创作</span>
+                <span class="tag-badge">无人机航拍</span>
+                <span class="tag-badge">3D数字孪生</span>
+                <span class="tag-badge">全景漫游</span>
+              </div>
+              <h3 class="project-title">校园实景航拍与三维数字孪生矩阵</h3>
+              <p class="project-desc">
+                融合航拍实景拍摄与 Web 3D 虚拟渲染视角，制作系列校园数字孪生与迎新导览短视频，发布于 Bilibili 与小红书平台，打造高赞视听传播案例。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">自媒体视听系列</span>
+                <a href="#media" class="project-link">
+                  <span>访问平台主页</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 4: 英语六级备考与数字化知识库 -->
+          <article class="project-card" data-category="media">
+            <div class="project-cover">
+              <img src="assets/images/project-study.svg" alt="英语六级备考知识库封面">
+            </div>
+            <div class="project-body">
+              <div class="project-tags">
+                <span class="tag-badge">知识管理</span>
+                <span class="tag-badge">CET-6</span>
+                <span class="tag-badge">思维导图</span>
+                <span class="tag-badge">高效方法论</span>
+              </div>
+              <h3 class="project-title">英语六级备考与数字化高频知识库</h3>
+              <p class="project-desc">
+                针对大学英语六级建立的结构化复习知识体系。包含词汇根缀联想、长难句破解技巧与听力同义替换笔记，以模块化形式沉淀并进行学习自媒体输出。
+              </p>
+              <div class="project-footer">
+                <span style="font-size: 0.85rem; color: var(--text-muted);">知识沉淀 · 学习笔记</span>
+                <a href="#contact" class="project-link">
+                  <span>交流探讨</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience / Timeline -->
+    <section class="section" id="timeline">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Journey</span>
+          <h2 class="section-title">经历与探索足迹</h2>
+          <p class="section-desc">每一段历程都是技术沉淀与自我进阶的脚印。</p>
+        </div>
+
+        <div class="timeline">
+          <!-- Item 1 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2026 - 至今</div>
+              <h3 class="timeline-role">深耕 3D 图形技术 & 全景地图体系完善</h3>
+              <p class="timeline-detail">
+                重构校园全景立体地图渲染管线，引入移动端虚拟摇杆操控、自适应 Bottom Sheet 抽屉、双校区一键直达及 Web Audio 动态自然音效系统，达到准产品级交互体验。
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2025 - 2026</div>
+              <h3 class="timeline-role">搭建自媒体矩阵 & 数字化个人品牌 (daixuan.cloud)</h3>
+              <p class="timeline-detail">
+                注册域名 daixuan.cloud 并开通 GitHub Pages 自动化集成发布，统一全网社交媒体名片。开始在各大主流平台发布 3D 可视化与校园主题内容。
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2024 - 2025</div>
+              <h3 class="timeline-role">工科理论实践 & 现代前端全栈筑基</h3>
+              <p class="timeline-detail">
+                系统钻研现代 JavaScript、CSS 响应式布局设计系统、Git 版本控制与空间数据解析。开启 WebGL 与 Three.js 探索之旅。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Media Matrix Section -->
+    <section class="section" id="media">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Social Matrix</span>
+          <h2 class="section-title">自媒体矩阵与关注渠道</h2>
+          <p class="section-desc">欢迎在各大平台关注我的日常创作与技术输出。</p>
+        </div>
+
+        <div class="media-grid">
+          <!-- Bilibili -->
+          <a href="https://space.bilibili.com" target="_blank" rel="noopener noreferrer" class="media-card bilibili">
+            <div class="media-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/></svg>
+            </div>
+            <h3 class="media-title">哔哩哔哩 (Bilibili)</h3>
+            <p class="media-handle">@戴璇 · 视频与漫游展示</p>
+          </a>
+
+          <!-- Xiaohongshu -->
+          <a href="https://www.xiaohongshu.com" target="_blank" rel="noopener noreferrer" class="media-card xiaohongshu">
+            <div class="media-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            </div>
+            <h3 class="media-title">小红书</h3>
+            <p class="media-handle">@戴璇 · 图文与创作日常</p>
+          </a>
+
+          <!-- Zhihu -->
+          <a href="https://www.zhihu.com" target="_blank" rel="noopener noreferrer" class="media-card zhihu">
+            <div class="media-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3 class="media-title">知乎</h3>
+            <p class="media-handle">@戴璇 · 深度专栏与问答</p>
+          </a>
+
+          <!-- GitHub -->
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="media-card github">
+            <div class="media-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            </div>
+            <h3 class="media-title">GitHub</h3>
+            <p class="media-handle">@戴璇 · 开源项目与代码库</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact & Callout -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="contact-box">
+          <div class="contact-domain-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>官方独立域名：daixuan.cloud</span>
+          </div>
+
+          <h2 class="section-title">保持联络 · 开启新对话</h2>
+          <p class="section-desc">
+            无论是技术交流、项目合作、3D 数字孪生开发探讨，还是自媒体灵感碰撞，都随时欢迎与我取得联系！
+          </p>
+
+          <div class="contact-grid">
+            <!-- Email -->
+            <div class="contact-item" data-copy="contact@daixuan.cloud" title="点击复制邮箱">
+              <span class="contact-item-icon">📬</span>
+              <h4>电子邮箱 (点击复制)</h4>
+              <p>contact@daixuan.cloud</p>
+            </div>
+
+            <!-- WeChat -->
+            <div class="contact-item" id="wechat-box-trigger" title="点击查看微信二维码">
+              <span class="contact-item-icon">💬</span>
+              <h4>微信交流 (点击查看)</h4>
+              <p>戴璇 (Dai Xuan)</p>
+            </div>
+
+            <!-- Location -->
+            <div class="contact-item">
+              <span class="contact-item-icon">📍</span>
+              <h4>所在地区</h4>
+              <p>中国 · 吉林长春</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div>
+        <p>© 2026 <strong>戴璇 (Dai Xuan)</strong> · 保留所有权利</p>
+        <p style="font-size: 0.8rem; margin-top: 4px; color: var(--text-muted);">
+          托管于 <strong>GitHub Pages</strong> · 自定义域名 <strong>daixuan.cloud</strong>
+        </p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="#hero">回到顶部</a></li>
+        <li><a href="#about">关于我</a></li>
+        <li><a href="#projects">精选作品</a></li>
+        <li><a href="https://daixuan.cloud">daixuan.cloud</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Floating Back to Top Button -->
+  <button id="back-to-top" class="back-to-top" aria-label="回到顶部" title="回到顶部">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <!-- WeChat QR Code Modal -->
+  <div class="modal-overlay" id="wechat-modal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="关闭">&times;</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">扫码添加微信</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">欢迎交流 3D 图形技术与自媒体创作</p>
+      
+      <!-- Placeholder QR Code Graphic -->
+      <div style="background: #ffffff; padding: 16px; border-radius: 12px; display: inline-block; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <svg width="180" height="180" viewBox="0 0 180 180" fill="#0f172a">
+          <!-- QR Code Styling Mockup -->
+          <rect x="10" y="10" width="50" height="50" fill="#0f172a" rx="6"/>
+          <rect x="18" y="18" width="34" height="34" fill="#ffffff" rx="3"/>
+          <rect x="25" y="25" width="20" height="20" fill="#0f172a" rx="2"/>
+
+          <rect x="120" y="10" width="50" height="50" fill="#0f172a" rx="6"/>
+          <rect x="128" y="18" width="34" height="34" fill="#ffffff" rx="3"/>
+          <rect x="135" y="25" width="20" height="20" fill="#0f172a" rx="2"/>
+
+          <rect x="10" y="120" width="50" height="50" fill="#0f172a" rx="6"/>
+          <rect x="18" y="128" width="34" height="34" fill="#ffffff" rx="3"/>
+          <rect x="25" y="135" width="20" height="20" fill="#0f172a" rx="2"/>
+
+          <!-- Decorative QR pattern modules -->
+          <rect x="70" y="20" width="10" height="10" />
+          <rect x="90" y="20" width="10" height="10" />
+          <rect x="70" y="40" width="20" height="10" />
+          <rect x="100" y="40" width="10" height="20" />
+          
+          <rect x="20" y="70" width="20" height="10" />
+          <rect x="50" y="70" width="10" height="20" />
+          <rect x="70" y="70" width="40" height="40" rx="8" fill="#6366f1"/>
+          <circle cx="90" cy="90" r="10" fill="#ffffff"/>
+          <circle cx="90" cy="90" r="5" fill="#6366f1"/>
+
+          <rect x="120" y="70" width="20" height="10" />
+          <rect x="150" y="70" width="10" height="20" />
+
+          <rect x="70" y="120" width="10" height="30" />
+          <rect x="90" y="130" width="20" height="10" />
+          <rect x="120" y="120" width="20" height="20" />
+          <rect x="150" y="140" width="10" height="20" />
+          <rect x="130" y="150" width="20" height="10" />
+        </svg>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        提示：可将个人微信真实二维码图片覆盖至 <br><code style="background: rgba(99,102,241,0.1); padding: 2px 6px; border-radius: 4px;">assets/images/wechat-qr.png</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast Element -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+</body>
+</html>

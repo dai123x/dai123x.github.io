@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="50%" stop-color="#4c1d95"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="100%" stop-color="#fdba74"/>
+    </linearGradient>
+    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="clothesGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="240" height="240" rx="48" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle tech grid/rings -->
+  <circle cx="120" cy="120" r="95" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="4 6"/>
+  <circle cx="120" cy="120" r="108" fill="none" stroke="url(#accentGrad)" stroke-width="1" opacity="0.4"/>
+
+  <!-- Body / Hoodie -->
+  <g filter="url(#softShadow)">
+    <path d="M 45 225 C 45 180, 80 160, 120 160 C 160 160, 195 180, 195 225 Z" fill="url(#clothesGrad)"/>
+    <path d="M 95 165 L 120 195 L 145 165 Z" fill="#4338ca"/>
+    <line x1="110" y1="185" x2="105" y2="215" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+    <line x1="130" y1="185" x2="135" y2="215" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Neck -->
+  <rect x="106" y="132" width="28" height="26" rx="6" fill="#fbcfe8" opacity="0.6"/>
+  <rect x="108" y="130" width="24" height="24" rx="4" fill="url(#skinGrad)"/>
+
+  <!-- Head -->
+  <g filter="url(#softShadow)">
+    <path d="M 82 92 C 82 60, 158 60, 158 92 C 158 126, 142 142, 120 142 C 98 142, 82 126, 82 92 Z" fill="url(#skinGrad)"/>
+    
+    <!-- Ears -->
+    <circle cx="80" cy="98" r="8" fill="#fdba74"/>
+    <circle cx="160" cy="98" r="8" fill="#fdba74"/>
+
+    <!-- Hair -->
+    <path d="M 76 86 C 74 54, 100 40, 120 40 C 148 40, 166 52, 164 82 C 156 74, 140 70, 126 74 C 112 74, 98 70, 86 78 Z" fill="url(#hairGrad)"/>
+    <path d="M 78 84 C 84 75, 96 74, 106 75 C 98 84, 88 88, 78 84 Z" fill="#2e1065"/>
+
+    <!-- Modern Glasses -->
+    <rect x="88" y="86" width="26" height="18" rx="6" fill="rgba(15, 23, 42, 0.2)" stroke="#1e293b" stroke-width="2.5"/>
+    <rect x="126" y="86" width="26" height="18" rx="6" fill="rgba(15, 23, 42, 0.2)" stroke="#1e293b" stroke-width="2.5"/>
+    <line x1="114" y1="94" x2="126" y2="94" stroke="#1e293b" stroke-width="2.5"/>
+    <line x1="82" y1="93" x2="88" y2="94" stroke="#1e293b" stroke-width="2"/>
+    <line x1="152" y1="94" x2="158" y2="93" stroke="#1e293b" stroke-width="2"/>
+    
+    <!-- Eyes behind glasses -->
+    <circle cx="101" cy="95" r="2.5" fill="#0f172a"/>
+    <circle cx="139" cy="95" r="2.5" fill="#0f172a"/>
+    <circle cx="102" cy="94" r="0.8" fill="#ffffff"/>
+    <circle cx="140" cy="94" r="0.8" fill="#ffffff"/>
+
+    <!-- Eyebrows -->
+    <path d="M 90 82 Q 101 79 111 82" stroke="#1e1b4b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M 129 82 Q 139 79 150 82" stroke="#1e1b4b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+    <!-- Smile -->
+    <path d="M 112 118 Q 120 125 128 118" stroke="#ea580c" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- Glowing indicator badge -->
+  <g transform="translate(162, 162)">
+    <circle cx="14" cy="14" r="14" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+    <circle cx="14" cy="14" r="7" fill="#10b981"/>
+    <circle cx="14" cy="14" r="10" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>
+  </g>
+</svg>
