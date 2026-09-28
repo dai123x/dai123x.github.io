@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>长春工业大学 · 全景立体地图 | CCUT 3D Campus Map</title>
+<meta name="description" content="长春工业大学全景立体校园地图：北湖校区（主校区 · 西区/东区）、南湖校区（老校区）84 处建筑、场馆与主要校门 1:1 真实还原，支持三维检索、步行测距、导览路线、光影季节切换、全景漫游与高清海报导出。">
+<meta name="keywords" content="长春工业大学,长工大,CCUT,全景立体地图,3D校园地图,北湖校区,南湖校区,博厚图书馆,科技大楼">
+<meta name="theme-color" content="#0b1526">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:title" content="长春工业大学 · 全景立体地图">
+<meta property="og:description" content="长春工业大学 3D 全景立体校园地图：84 处建筑、场馆与校门地标真实对齐还原，支持建筑检索、步行测距、季节光影切换、导览路线与沉浸漫游。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🏫</text></svg>">
+</head>
+<body>
+
+<canvas id="c3d"></canvas>
+
+<!-- 加载页 -->
+<div id="loader">
+  <div class="logo-ring"></div>
+  <h1>长春工业大学</h1>
+  <div class="en">CHANGCHUN UNIVERSITY OF TECHNOLOGY · 全景立体地图</div>
+  <div class="bar"><i id="loadProgress"></i></div>
+  <div class="tip" id="loadTip">正在构建三维校园…</div>
+</div>
+
+<!-- 顶栏 -->
+<div id="topbar">
+  <div class="brand">
+    <h1><span class="dot"></span>长春工业大学 · 全景立体地图</h1>
+    <div class="sub">三维实景导览 · 84 处建筑、场馆与校门单体实测对齐 · 依据基建规划与 OSM 遥感测绘绘制</div>
+    <div class="addr">地址：吉林省长春市朝阳区延安大街2055号（北湖校区：宽城区北远达大街3000号）</div>
+  </div>
+  <div class="top-right-group">
+    <div class="campus-tabs">
+      <button data-key="beiHu" title="切换至北湖校区（主校区）">北湖校区<small>主校区 · 西区 / 东区</small></button>
+      <button data-key="nanHu" title="切换至南湖校区（老校区）">南湖校区<small>老校区 · 延安大街2055号</small></button>
+    </div>
+    <div class="top-actions">
+      <a href="../" class="btn-top" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem;" title="返回戴璇个人主页 (daixuan.cloud)">🏠 主页</a>
+      <button id="btnCampus" class="btn-top" title="切换校区 (快捷键: 1/2)">🔄 校区</button>
+      <button id="btnWeather" class="btn-top" title="切换季节风貌：夏绿 / 金秋 / 冬雪 (快捷键: W)">🌿 夏绿</button>
+      <button id="btnTime" class="btn-top" title="切换昼夜 (快捷键: Space)">☀️ 白天</button>
+      <button id="btnSat" class="btn-top" title="卫星地图 (快捷键: M)">🛰️ 卫星</button>
+      <button id="btnVR" class="btn-top" title="第一人称校园漫游(V)">🚶‍♂️ 漫游</button>
+      <button id="btnSound" class="btn-top" title="开关原生音效">🔊</button>
+      <button id="btnFullscreen" class="btn-top" title="全屏沉浸浏览 (快捷键: F)">⛶</button>
+      <button id="btnHelp" class="btn-top" title="使用帮助与键盘快捷键 (快捷键: ?)">❓</button>
+    </div>
+  </div>
+</div>
+
+<!-- 校区简介 -->
+<div id="campusIntro"></div>
+
+<!-- 指北针 -->
+<div id="compass" title="点击视角归北 (快捷键: N)">
+  <div class="ring"></div>
+  <svg width="62" height="62" viewBox="0 0 62 62">
+    <g id="needle">
+      <polygon points="31,9 36,31 26,31" fill="#ff6b57"/>
+      <polygon points="31,53 36,31 26,31" fill="#cfe0f2"/>
+      <text x="31" y="20" text-anchor="middle" font-size="9" fill="#fff" font-weight="bold" dy="2">N</text>
+    </g>
+    <circle cx="31" cy="31" r="2.6" fill="#ffd54d"/>
+  </svg>
+</div>
+
+  <div id="crosshair"></div>
+  <div id="gameOverlay">
+    <div class="go-title">🎮 校园漫游模式</div>
+    <div class="go-keys"><span>W</span> <span>A</span> <span>S</span> <span>D</span> 移动&nbsp;&nbsp;&nbsp;&nbsp;<span>Shift</span> 奔跑&nbsp;&nbsp;&nbsp;&nbsp;<span>Space</span> 跳跃&nbsp;&nbsp;&nbsp;&nbsp;<span>ESC</span> 退出</div>
+  </div>
+  <div id="mobileJoystick" class="mobile-joy-overlay">
+    <div class="joy-stick-zone" id="joyZone">
+      <div class="joy-thumb" id="joyThumb"></div>
+    </div>
+    <div class="joy-actions">
+      <button id="btnJoyJump" class="joy-btn" title="跳跃">⬆<small>跳跃</small></button>
+      <button id="btnJoyShift" class="joy-btn" title="加速奔跑">⚡<small>加速</small></button>
+      <button id="btnJoyExit" class="joy-btn" title="退出漫游">✕<small>退出</small></button>
+    </div>
+  </div>
+  <canvas id="radarMap" width="200" height="200"></canvas>
+
+<div id="sidebar" class="hidden">
+  <div class="sheet-grab" id="sheetGrab" title="下拉关闭"><span></span></div>
+  <div class="hd">
+    <div class="sidebar-title">
+      <b>📍 建筑索引</b>
+      <div class="sidebar-hd-right">
+        <span class="count-badge" id="bcount"></span>
+        <button class="btn-close-sidebar" id="btnCloseSidebar" title="收起列表">✕</button>
+      </div>
+    </div>
+    <div class="cat-filter" id="catFilter">
+      <button class="c-chip active" data-cat="all">全部</button>
+      <button class="c-chip" data-cat="teach">教学</button>
+      <button class="c-chip" data-cat="lib">图书</button>
+      <button class="c-chip" data-cat="sport">运动</button>
+      <button class="c-chip" data-cat="life">生活</button>
+      <button class="c-chip" data-cat="admin">门户</button>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#9db8d6" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="bsearch" type="text" placeholder="搜索建筑名称 / 拼音缩写 (如 tsg, st)…" autocomplete="off">
+      <button id="searchClear" class="search-clear" title="清空搜索">✕</button>
+    </div>
+    <div class="hot-chips" id="hotChips">
+      <span class="hot-label">🔥 热门:</span>
+      <button class="h-chip" data-name="图书馆">图书馆</button>
+      <button class="h-chip" data-name="科技大楼">科技大楼</button>
+      <button class="h-chip" data-name="食堂">食堂</button>
+      <button class="h-chip" data-name="体育馆">体育馆</button>
+      <button class="h-chip" data-name="门">校门</button>
+    </div>
+  </div>
+  <div id="blist"></div>
+</div>
+
+<!-- 信息卡 -->
+<div id="infoCard">
+  <div class="ic-hd">
+    <span class="cat" id="icCat"></span>
+    <div>
+      <h3 id="icName">建筑名称</h3>
+      <div class="campus" id="icCampus"></div>
+    </div>
+    <span class="ic-x" id="icClose" title="关闭 (Esc)">✕</span>
+  </div>
+  <div class="ic-pic" id="icPic"></div>
+  <div class="ic-bd">
+    <div class="ic-walk" id="icWalk"></div>
+    <span class="stats" id="icStats"></span>
+    <div class="desc" id="icDesc"></div>
+    <div class="ic-ft">
+      <button id="icNav" title="规划从最近校门到该建筑的迎新步行路线">🚶 路线导航</button>
+      <button id="icFly">🎯 视角聚焦</button>
+      <button id="icShare">🔗 分享建筑</button>
+    </div>
+  </div>
+</div>
+
+<!-- 底部控制 -->
+<div id="dock">
+  <button id="btnSidebar">📋 列表</button>
+  <div class="sep"></div>
+  <button id="btnTour">🎬 全景漫游</button>
+  <button id="btnTimeMode" title="切换光照环境：白天 / 黄昏 / 夜景">☀️ 白天</button>
+  <button id="btnWeatherDock" title="切换季节风貌：夏日葱郁 / 金秋银杏 / 北国冬雪 (W)">🌿 夏绿</button>
+  <button id="btnRoute" title="切换迎新与校园推荐导览路线 (L)">🚶 导览路线</button>
+  <button id="btnRotate">🔄 自动旋转</button>
+  <div class="sep"></div>
+  <button id="btnSnap" title="生成并下载无UI全景高清海报 (S)">📸 截屏分享</button>
+  <button id="btnShareAll" title="复制当前视角链接，一键分享给好友">🔗 分享</button>
+  <button id="btnReset">🏠 重置视角</button>
+</div>
+
+<div id="hint">左键/单指拖拽平移 · 右键/双指旋转 · 滚轮缩放 · 点击建筑查看详情 · 按 ? 查看快捷键</div>
+
+<!-- 帮助与使用指南弹窗 -->
+<div id="helpModal" class="modal-overlay hide">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <h3>💡 校园全景地图 · 使用指南</h3>
+      <span class="modal-x" id="helpClose">✕</span>
+    </div>
+    <div class="modal-bd">
+      <div class="help-sec">
+        <h4>🖱️ 鼠标与触控手势</h4>
+        <ul>
+          <li><b>单指滑动 / 左键拖拽</b>：平移漫游校园地图视野</li>
+          <li><b>双指旋转 / 右键拖拽</b>：360° 环顾与俯仰旋转视角</li>
+          <li><b>双指捏合 / 鼠标滚轮</b>：推远拉近平滑缩放</li>
+          <li><b>点击建筑 / 标签</b>：立即选中并在右下角查看实景效果图与步行耗时</li>
+          <li><b>点击指北针 (N)</b>：一键平滑将相机视角回正对准正北</li>
+        </ul>
+      </div>
+      <div class="help-sec">
+        <h4>⌨️ 键盘快捷键 (Desktop)</h4>
+        <div class="kbd-grid">
+          <div><kbd>1</kbd> / <kbd>2</kbd> 切换北湖 / 南湖校区</div>
+          <div><kbd>N</kbd> 视角平滑归北</div>
+          <div><kbd>Space</kbd> / <kbd>T</kbd> 切换微气候昼夜</div>
+          <div><kbd>V</kbd> 第一人称漫游模式</div>
+          <div><kbd>M</kbd> 切换高德卫星遥感图</div>
+          <div><kbd>W</kbd> 切换季节 (夏绿 / 冬雪)</div>
+          <div><kbd>L</kbd> 开关迎新导览光带</div>
+          <div><kbd>S</kbd> 一键全景截屏分享</div>
+          <div><kbd>/</kbd> 快速聚焦搜索框</div>
+          <div><kbd>F</kbd> 切换全屏沉浸浏览</div>
+          <div><kbd>Esc</kbd> 退出漫游 / 关闭面板</div>
+        </div>
+      </div>
+      <div class="help-sec">
+        <h4>🌟 实用新生功能</h4>
+        <p>选中建筑后，自动根据主校门实时测算<b>步行距离与耗时</b>；支持输入拼音缩写（如 <code>tsg</code> 查图书馆、<code>st</code> 查食堂、<code>zly</code> 查知理苑）；支持一键复制建筑专属链接发送至微信/QQ好友直接精准定位。</p>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <span>长春工业大学 2026 版 · 纯前端零依赖</span>
+      <button id="helpOk" class="modal-btn">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/three.min.js"></script>
+<script src="js/OrbitControls.js"></script>
+<script src="js/CopyShader.js"></script>
+<script src="js/LuminosityHighPassShader.js"></script>
+<script src="js/EffectComposer.js"></script>
+<script src="js/RenderPass.js"></script>
+<script src="js/ShaderPass.js"></script>
+<script src="js/UnrealBloomPass.js"></script>
+<script src="js/campus-data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
