@@ -2476,7 +2476,9 @@ function buildGate(b, campus) {
  * ============================================================ */
 function buildProp(p, campus) {
   var grp = new THREE.Group();
+  grp.name = 'prop';
   if (p.type === 'plaza') {
+    grp.isGroundProp = true;
     var geo = p.r ? new THREE.CircleGeometry(p.r, 48) : new THREE.PlaneGeometry(p.w, p.d);
     var plaza = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.85, metalness: 0.1, color: p.color || PAVE }));
     plaza.rotation.x = -Math.PI / 2;
@@ -2484,6 +2486,7 @@ function buildProp(p, campus) {
     plaza.receiveShadow = true;
     grp.add(plaza);
   } else if (p.type === 'parking') {
+    grp.isGroundProp = true;
     var lot = new THREE.Mesh(new THREE.PlaneGeometry(p.w, p.d), new THREE.MeshStandardMaterial({ roughness: 0.85, metalness: 0.1, color: 0x50565c }));
     lot.rotation.x = -Math.PI / 2;
     lot.position.set(p.pos[0], 0.13, p.pos[1]);
@@ -2648,6 +2651,7 @@ function buildProp(p, campus) {
 
     grp.add(stoneGrp);
   } else if (p.type === 'flower') {
+    grp.isGroundProp = true;
     var bed = new THREE.Mesh(new THREE.CircleGeometry(p.r, 24), new THREE.MeshStandardMaterial({ roughness: 0.85, metalness: 0.1, color: 0xb55a44 }));
     bed.rotation.x = -Math.PI / 2;
     bed.position.set(p.pos[0], 0.12, p.pos[1]);
@@ -3177,7 +3181,7 @@ function clearCampus() {
   if (routeGroup) { scene.remove(routeGroup); routeGroup = null; }
   if (cloudGroup) { scene.remove(cloudGroup); cloudGroup = null; }
   if (satGroup) {
-    scene.remove(satGroup);
+    if (scene) scene.remove(satGroup);
     satGroup.children.forEach(function (c) {
       if (c.material && c.material.map) c.material.map.dispose();
       if (c.material) c.material.dispose();
@@ -3214,6 +3218,7 @@ function addRoad(a, b, w, grp) {
   mesh.rotation.z = -Math.atan2(dz, dx);
   mesh.position.set((a[0] + b[0]) / 2, 0.12, (a[1] + b[1]) / 2);
   mesh.receiveShadow = true;
+  mesh.name = 'road';
   grp.add(mesh);
 }
 
@@ -3263,6 +3268,7 @@ function isMajorLandmark(b) {
 
 function buildBoundaryLines(campus) {
   var grp = new THREE.Group();
+  grp.name = 'boundaryLines';
   if (!campus.groundPolys || !campus.groundPolys.length) return grp;
   campus.groundPolys.forEach(function (poly) {
     var pts = poly.map(function (p) { return new THREE.Vector3(p[0], 0.16, p[1]); });
@@ -3585,26 +3591,9 @@ function filterCategory(cat) {
         var mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach(function (m) {
           if (m._shared) return;
-          if (isSatellite) {
-            m.visible = true;
-            m.transparent = true;
-            m.transmission = 0.85; // game-level glass refraction
-            m.opacity = 1.0;
-            m.roughness = 0.15;
-            m.metalness = 0.1;
-            m.clearcoat = 1.0;
-            m.clearcoatRoughness = 0.1;
-            m.envMapIntensity = 2.5;
-          } else {
-            m.visible = true;
-            m.transparent = !match;
-            m.transmission = 0;
-            m.opacity = match ? 1 : 0.22;
-            m.roughness = m.map ? 1.0 : 0.9;
-            m.metalness = m.map ? 1.0 : 0.1;
-            m.clearcoat = 0;
-            m.envMapIntensity = 1.0;
-          }
+          m.visible = true;
+          m.transparent = !match;
+          m.opacity = match ? 1.0 : 0.22;
         });
       }
     });
@@ -4950,20 +4939,25 @@ function toggleSatellite() {
   }
   
   if (groundMesh) groundMesh.visible = !isSatellite;
+  if (cloudGroup) cloudGroup.visible = !isSatellite;
+  if (riverMesh) riverMesh.visible = !isSatellite;
+
   if (campusGroup) {
     campusGroup.children.forEach(function (c) {
       if (c.name === 'ground_patch') c.visible = !isSatellite;
+      if (c.name === 'road') c.visible = !isSatellite;
+      if (c.name === 'prop' && c.isGroundProp) c.visible = !isSatellite;
+      if (c.name === 'boundaryLines') c.visible = !isSatellite;
       if (c.isInstancedMesh) c.visible = !isSatellite; // Hide trees and lamps
     });
   }
-  if (cloudGroup) cloudGroup.visible = !isSatellite;
 
   if (isSatellite) {
     setupSatelliteMap();
-    showToast('🛰️ 已开启高德卫星遥感影像底图');
+    showToast('🛰️ 已开启高德实时卫星遥感影像与路网注记');
   } else {
     if (satGroup) {
-      scene.remove(satGroup);
+      if (scene) scene.remove(satGroup);
       satGroup.children.forEach(function (c) {
         if (c.material && c.material.map) c.material.map.dispose();
         if (c.material) c.material.dispose();
@@ -4971,16 +4965,15 @@ function toggleSatellite() {
       });
       satGroup = null;
     }
-    showToast('🗺️ 已切换回标准矢量底图');
+    showToast('🗺️ 已切换回标准三维矢量地图');
   }
   updateBloom();
-  filterCategory(activeCategory);
   filterCategory(activeCategory);
 }
 
 function setupSatelliteMap() {
   if (satGroup) {
-    scene.remove(satGroup);
+    if (scene) scene.remove(satGroup);
     satGroup.children.forEach(function(c) {
       if (c.material && c.material.map) c.material.map.dispose();
       if (c.material) c.material.dispose();
@@ -5003,52 +4996,72 @@ function setupSatelliteMap() {
   var texLoader = new THREE.TextureLoader();
   texLoader.crossOrigin = 'anonymous';
 
+  var tileGeo = new THREE.PlaneGeometry(scale, scale);
+  tileGeo.rotateX(-Math.PI / 2);
+
   for (var i = -num; i <= num; i++) {
     for (var j = -num; j <= num; j++) {
       (function(i, j) {
         var tx = cx + i;
         var ty = cy + j;
-        var url = 'https://webst01.is.autonavi.com/appmaptile?style=6&x=' + tx + '&y=' + ty + '&z=' + z;
+        var sub = 'webst0' + (1 + (Math.abs(tx + ty) % 4));
+        var satUrl = 'https://' + sub + '.is.autonavi.com/appmaptile?style=6&x=' + tx + '&y=' + ty + '&z=' + z;
+        var labelUrl = 'https://' + sub + '.is.autonavi.com/appmaptile?style=8&x=' + tx + '&y=' + ty + '&z=' + z;
         
-        var geo = new THREE.PlaneGeometry(scale, scale);
-        geo.rotateX(-Math.PI / 2);
-        
-        var mat = new THREE.MeshStandardMaterial({
+        // 1. 卫星影像地表瓦片
+        var satMat = new THREE.MeshStandardMaterial({
           color: 0xffffff,
-          roughness: 0.9,
-          metalness: 0.1,
+          roughness: 0.95,
+          metalness: 0.05,
           transparent: true,
-          opacity: 0 // fade in
+          opacity: 0
         });
+        var satMesh = new THREE.Mesh(tileGeo.clone(), satMat);
+        satMesh.position.set(i * scale + ox, 0.05, j * scale + oz);
+        satMesh.receiveShadow = true;
+        satGroup.add(satMesh);
+
+        // 2. 高德实时路网与POI地理注记透明图层 (style=8)
+        var labelMat = new THREE.MeshBasicMaterial({
+          transparent: true,
+          opacity: 0,
+          depthWrite: false
+        });
+        var labelMesh = new THREE.Mesh(tileGeo.clone(), labelMat);
+        labelMesh.position.set(i * scale + ox, 0.056, j * scale + oz);
+        satGroup.add(labelMesh);
         
-        var mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(i * scale + ox, 0.05, j * scale + oz);
-        mesh.receiveShadow = true;
-        
-        texLoader.load(url, function(tex) {
-          tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        texLoader.load(satUrl, function(tex) {
+          if (renderer && renderer.capabilities) tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
           if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
           else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-          mat.map = tex;
-          mat.needsUpdate = true;
+          satMat.map = tex;
+          satMat.needsUpdate = true;
           
           var start = Date.now();
           function fade() {
-            var t = (Date.now() - start) / 500;
-            if (t >= 1) { mat.opacity = 1; }
-            else { mat.opacity = t; requestAnimationFrame(fade); }
+            var t = (Date.now() - start) / 400;
+            if (t >= 1) { satMat.opacity = 1; }
+            else { satMat.opacity = t; requestAnimationFrame(fade); }
           }
           fade();
-        }, undefined, function(err) {
-          mat.color.setHex(0x334433);
-          mat.opacity = 1;
+        }, undefined, function() {
+          satMat.color.setHex(0x2a382c);
+          satMat.opacity = 1;
         });
-        
-        satGroup.add(mesh);
+
+        texLoader.load(labelUrl, function(tex) {
+          if (renderer && renderer.capabilities) tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+          if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+          else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+          labelMat.map = tex;
+          labelMat.needsUpdate = true;
+          labelMat.opacity = 0.92;
+        });
       })(i, j);
     }
   }
-  scene.add(satGroup);
+  if (scene) scene.add(satGroup);
   satGroup.visible = true;
 }
 
