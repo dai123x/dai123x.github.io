@@ -612,8 +612,33 @@ body {
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 28px;
+}
+
+/* Featured Case Study Card layout */
+.project-card.featured {
+  grid-column: 1 / -1; /* Span full width on all screens by default */
+  display: grid;
+}
+@media (min-width: 900px) {
+  .project-card.featured {
+    grid-template-columns: 1.2fr 1fr;
+  }
+  .project-card.featured .project-cover {
+    height: 100%;
+    min-height: 320px;
+    border-right: 1px solid var(--border-color);
+  }
+  .project-card.featured .project-body {
+    padding: 48px 40px;
+    justify-content: center;
+  }
+}
+@media (max-width: 899px) {
+  .project-card.featured {
+    grid-template-columns: 1fr;
+  }
 }
 
 .project-card {
@@ -629,13 +654,14 @@ body {
 }
 
 .project-card:hover {
-  transform: translateY(-6px);
-  border-color: var(--border-hover);
+  transform: translateY(-8px);
+  border-color: rgba(56, 189, 248, 0.5); /* Brand accent color */
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(56, 189, 248, 0.2);
 }
 
 .project-cover {
   width: 100%;
-  height: 220px;
+  height: 240px; /* Slightly taller */
   position: relative;
   overflow: hidden;
   background: #020617;
@@ -645,11 +671,11 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .project-card:hover .project-cover img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .project-body {
