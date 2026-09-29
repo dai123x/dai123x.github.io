@@ -68,6 +68,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Prevent fixed header from overlapping anchors */
   font-size: 16px;
 }
 
@@ -1178,6 +1179,11 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: var(--transition);
+  }
+  .nav-menu.active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 /* Education Cards Grid */
