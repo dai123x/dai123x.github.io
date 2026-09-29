@@ -147,6 +147,10 @@ var PINYIN_DICT = {
   '图书馆': ['tsg', 'tushuguan', 'lib', 'library'],
   '郭力楼': ['gll', 'guolilou', 'gl'],
   '数学与统计': ['sxtj', 'shuxueyutongji', 'math', 'stat', 'tongji', 'tj'],
+  '数统': ['st', 'shutong', 'sxtj', 'math', 'stat', 'stats'],
+  '数学与统计学院': ['sxtjxy', 'shuxueyutongjixueyuan', 'sxtj', 'math', 'stat', 'stats', 'doctor'],
+  '统计学': ['tjx', 'tongjixue', 'stat', 'stats'],
+  '大数据': ['dsj', 'dashuju', 'bigdata'],
   '西区教学主楼': ['xqjxzjl', 'xiquzhujiaoxuelou', 'xqzl', 'kjdl', 'kejidalou'],
   '东区主教学楼': ['dqzjxl', 'dongquzhujiaoxuelou', 'dqzl', 'sxtj'],
   '教学主楼': ['jxzjl', 'zhujiaoxuelou', 'zjl'],
@@ -166,6 +170,11 @@ var PINYIN_DICT = {
   '马克思': ['mks', 'makesi'],
   '统计': ['tj', 'tongji'],
   '食堂': ['st', 'shitang', 'canteen'],
+  '服务中心': ['fwzx', 'fuwuzhongxin'],
+  '大学生服务中心': ['dxsfwzx', 'fuwuzhongxin', 'kudi', 'cotti', 'shitang', 'canteen'],
+  '库迪咖啡': ['kdkf', 'kudi', 'cotti', 'coffee', 'cafe'],
+  '咖啡': ['kf', 'kafei', 'coffee', 'cotti'],
+  '湖畔社区': ['hpsq', 'hupan', 'hupanshequ'],
   '浴池': ['yc', 'yuchi'],
   '体育馆': ['tyg', 'tiyuguan', 'gym'],
   '体育场': ['tyc', 'tiyuchang', 'track'],
@@ -191,6 +200,7 @@ var PINYIN_DICT = {
   '东区西门': ['dqxm', 'ximen', 'xm'],
   '东区南门': ['dqnm', 'nanmen', 'nm'],
   '东区北门': ['dqbm', 'beimen', 'bm'],
+  '东区西北门': ['dqxbm', 'xibeimen', 'xbm'],
   '延安大街': ['yadj', 'yanandajie', 'zhengmen', 'zm'],
   '宽平大路': ['kpdl', 'kuanpingdalu', 'ceimen', 'cm'],
   '国防生': ['gfs', 'guofangsheng', 'dfsg'],
@@ -239,8 +249,15 @@ function calcGateDistance(b, campusKey) {
       gatePos = [-774, 254]; // 西区南门（实测坐标）
       gateName = '西区南门报到点';
     } else {
-      gatePos = [54, 248]; // 东区西门（实测坐标）
-      gateName = '东区西门报到点';
+      var dSouth = Math.hypot(b.pos[0] - 565, b.pos[1] - 375);
+      var dWest = Math.hypot(b.pos[0] - 54, b.pos[1] - 248);
+      if (dSouth < dWest) {
+        gatePos = [565, 375]; // 东区南门（大学城路正门）
+        gateName = '东区南门(大学城路正门)';
+      } else {
+        gatePos = [54, 248]; // 东区西门（盛北大街连廊）
+        gateName = '东区西门(盛北大街连廊)';
+      }
     }
   } else {
     gatePos = [272, -7]; // 南湖延安大街正门（实测坐标）
@@ -1535,7 +1552,7 @@ function buildMathStatsBuilding(b, campus) {
     );
     step.position.set(6, (4 - st) * 0.14, mainD / 2 + 1.5 + st * 0.8);
     step.receiveShadow = true;
-    entGrp.add(step);
+    grp.add(step);
   }
 
   // 门楣金色铜匾牌匾（正反双面渲染，朝南向迎宾）
