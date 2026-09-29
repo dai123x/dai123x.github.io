@@ -1153,6 +1153,7 @@ body {
     pointer-events: none;
     transition: var(--transition);
   }
+}
 /* Education Cards Grid */
 .edu-grid {
   display: grid;
