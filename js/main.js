@@ -96,7 +96,7 @@ function initProjectFilter() {
       projectCards.forEach(card => {
         const category = card.getAttribute('data-category');
         if (filter === 'all' || category.includes(filter)) {
-          card.style.display = 'flex';
+          card.style.display = ''; // Let CSS dictate flex vs grid
           setTimeout(() => {
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
