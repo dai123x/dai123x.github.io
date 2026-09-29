@@ -3448,7 +3448,7 @@ function buildCampus(campus) {
     if (groundMesh) groundMesh.visible = false;
     if (campusGroup) {
       campusGroup.children.forEach(function (c) {
-        if (c.name === 'ground_patch') c.visible = false;
+        if ((c.name === 'ground_patch' || c.name === 'ground')) c.visible = false;
         if (c.isInstancedMesh) c.visible = false;
       });
     }
@@ -3947,7 +3947,7 @@ function applyWeatherMode(mode) {
 
   if (campusGroup) {
     campusGroup.children.forEach(function (c) {
-      if (c.name === 'ground_patch' && c.material) {
+      if ((c.name === 'ground_patch' || c.name === 'ground') && c.material) {
         if (isSnow) {
           c.visible = false;
         } else if (isAutumn) {
@@ -4944,7 +4944,7 @@ function toggleSatellite() {
 
   if (campusGroup) {
     campusGroup.children.forEach(function (c) {
-      if (c.name === 'ground_patch') c.visible = !isSatellite;
+      if ((c.name === 'ground_patch' || c.name === 'ground')) c.visible = !isSatellite;
       if (c.name === 'road') c.visible = !isSatellite;
       if (c.name === 'prop' && c.isGroundProp) c.visible = !isSatellite;
       if (c.name === 'boundaryLines') c.visible = !isSatellite;
@@ -5008,16 +5008,23 @@ function setupSatelliteMap() {
         var satUrl = 'https://' + sub + '.is.autonavi.com/appmaptile?style=6&x=' + tx + '&y=' + ty + '&z=' + z;
         var labelUrl = 'https://' + sub + '.is.autonavi.com/appmaptile?style=8&x=' + tx + '&y=' + ty + '&z=' + z;
         
+        var exactScale = (40075016.68 / 65536) * Math.cos(43.93 * Math.PI / 180);
+        if (currentKey === 'nanHu') exactScale = (40075016.68 / 131072) * Math.cos(43.83 * Math.PI / 180); // z=17
+        
+        var tileGeo = new THREE.PlaneGeometry(exactScale, exactScale);
+        tileGeo.rotateX(-Math.PI / 2);
+        
         // 1. 卫星影像地表瓦片
         var satMat = new THREE.MeshStandardMaterial({
           color: 0xffffff,
           roughness: 0.95,
           metalness: 0.05,
           transparent: true,
-          opacity: 0
+          opacity: 0,
+          depthWrite: false // Prevents early Z-fighting before opacity=1
         });
-        var satMesh = new THREE.Mesh(tileGeo.clone(), satMat);
-        satMesh.position.set(i * scale + ox, 0.05, j * scale + oz);
+        var satMesh = new THREE.Mesh(tileGeo, satMat);
+        satMesh.position.set(i * exactScale + ox, 0.04, j * exactScale + oz);
         satMesh.receiveShadow = true;
         satGroup.add(satMesh);
 
@@ -5025,10 +5032,12 @@ function setupSatelliteMap() {
         var labelMat = new THREE.MeshBasicMaterial({
           transparent: true,
           opacity: 0,
-          depthWrite: false
+          depthWrite: false,
+          depthTest: false // Ensures labels are always readable over buildings
         });
-        var labelMesh = new THREE.Mesh(tileGeo.clone(), labelMat);
-        labelMesh.position.set(i * scale + ox, 0.056, j * scale + oz);
+        var labelMesh = new THREE.Mesh(tileGeo, labelMat);
+        labelMesh.position.set(i * exactScale + ox, 0.056, j * exactScale + oz);
+        labelMesh.renderOrder = 999;
         satGroup.add(labelMesh);
         
         texLoader.load(satUrl, function(tex) {
@@ -5041,13 +5050,20 @@ function setupSatelliteMap() {
           var start = Date.now();
           function fade() {
             var t = (Date.now() - start) / 400;
-            if (t >= 1) { satMat.opacity = 1; }
+            if (t >= 1) { 
+              satMat.opacity = 1; 
+              satMat.transparent = false; 
+              satMat.depthWrite = true; 
+              satMat.needsUpdate = true;
+            }
             else { satMat.opacity = t; requestAnimationFrame(fade); }
           }
           fade();
         }, undefined, function() {
           satMat.color.setHex(0x2a382c);
           satMat.opacity = 1;
+          satMat.transparent = false;
+          satMat.depthWrite = true;
         });
 
         texLoader.load(labelUrl, function(tex) {
@@ -5056,7 +5072,7 @@ function setupSatelliteMap() {
           else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
           labelMat.map = tex;
           labelMat.needsUpdate = true;
-          labelMat.opacity = 0.92;
+          labelMat.opacity = 0.95;
         });
       })(i, j);
     }
