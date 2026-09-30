@@ -1158,6 +1158,7 @@
           <div class="vr-controls">
             <button class="vr-btn" id="btnGalleryOpen" style="color:var(--gold); border-color:var(--gold)">📸 风光图鉴</button>
             <button class="vr-btn" id="btnVrWeather">❄️ 暴雪</button>
+            <button class="vr-btn" id="btnVrPitch" title="一键切换：45°斜俯视 / 82°卫星鸟瞰 / 12°宏伟平视">📐 俯仰切换</button>
             <button class="vr-btn" id="btnVrReset">🔄 复位视角</button>
             <button class="vr-btn" id="btnVrExpand" title="全屏查看 3D 沙盘">⛶ 展开</button>
           </div>
@@ -1592,6 +1593,9 @@
           <b style="color:#fff;">鼠标滚轮</b> : 在 3D 沙盘中缩放视角
         </div>
         <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--mint);">↑ / ↓</b> : 3D沙盘上下俯仰 (鸟瞰 ↔ 平视)
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">Esc</b> : 关闭任意弹窗或退出巡航
         </div>
       </div>
@@ -1660,6 +1664,7 @@
           ▶ 支持鼠标左键拖拽旋转 · 滚轮视角缩放 · <span style="color:var(--gold);">直接点击画面地标光标选中城市</span>
         </div>
         <div style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;">
+          <button class="vr-btn" id="btnExpandPitch" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">📐 俯仰视角切换</button>
           <button class="vr-btn" id="btnExpandReset" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">🔄 复位视角</button>
           <button class="vr-btn" id="btnExpandWeather" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">❄️ 粒子系统切换</button>
         </div>
@@ -3238,7 +3243,8 @@
         const dx = e.clientX - vrStartX;
         const dy = e.clientY - vrStartY;
         targetYaw -= dx * 0.006;
-        targetPitch = Math.max(0.15, Math.min(1.1, targetPitch - dy * 0.005));
+        // Expanded vertical pitch range: 0.05 (near-horizontal) to 1.48 (nearly top-down 85° satellite view)
+        targetPitch = Math.max(0.05, Math.min(1.48, targetPitch - dy * 0.007));
         vrStartX = e.clientX;
         vrStartY = e.clientY;
       }
@@ -3250,17 +3256,40 @@
         const dx = e.touches[0].clientX - vrStartX;
         const dy = e.touches[0].clientY - vrStartY;
         targetYaw -= dx * 0.008;
-        targetPitch = Math.max(0.15, Math.min(1.1, targetPitch - dy * 0.006));
+        targetPitch = Math.max(0.05, Math.min(1.48, targetPitch - dy * 0.009));
         vrStartX = e.touches[0].clientX;
         vrStartY = e.touches[0].clientY;
       }
     }, {passive: true});
     window.addEventListener('touchend', () => { vrDragging = false; });
 
+    // Quick Pitch Angle Presets: 45° Natural -> 82° Top-down Satellite -> 12° Grand Horizon
+    const PITCH_PRESETS = [
+      { name: '45° 黄金斜俯', pitch: 0.45, dist: 480 },
+      { name: '82° 卫星鸟瞰', pitch: 1.42, dist: 530 },
+      { name: '12° 宏伟平视', pitch: 0.16, dist: 440 }
+    ];
+    let pitchPresetIdx = 0;
+
+    function cyclePitchPreset() {
+      playCrystalClick();
+      pitchPresetIdx = (pitchPresetIdx + 1) % PITCH_PRESETS.length;
+      const p = PITCH_PRESETS[pitchPresetIdx];
+      targetPitch = p.pitch;
+      targetDist = p.dist;
+      if ($('btnVrPitch')) $('btnVrPitch').textContent = `📐 ${p.name}`;
+      if ($('btnExpandPitch')) $('btnExpandPitch').textContent = `📐 ${p.name}`;
+    }
+    if ($('btnVrPitch')) $('btnVrPitch').onclick = cyclePitchPreset;
+    if ($('btnExpandPitch')) $('btnExpandPitch').onclick = cyclePitchPreset;
+
     $('btnVrReset').onclick = () => {
       targetYaw = 0.45;
       targetPitch = 0.42;
       targetDist = 480;
+      pitchPresetIdx = 0;
+      if ($('btnVrPitch')) $('btnVrPitch').textContent = '📐 俯仰切换';
+      if ($('btnExpandPitch')) $('btnExpandPitch').textContent = '📐 俯仰视角切换';
     };
     $('btnExpandReset').onclick = $('btnVrReset').onclick;
 
@@ -3773,6 +3802,12 @@
         } else {
           startAutoTour();
         }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        targetPitch = Math.min(1.48, targetPitch + 0.08);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        targetPitch = Math.max(0.05, targetPitch - 0.08);
       } else if (e.key >= '1' && e.key <= '8') {
         selectPlace(parseInt(e.key, 10) - 1);
       }
