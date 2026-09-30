@@ -682,6 +682,72 @@
       color: var(--dim);
     }
 
+    /* Culture & Tourism Official Section */
+    .culture-routes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .culture-card {
+      background: rgba(11, 28, 37, 0.75);
+      border: 1px solid rgba(117, 216, 237, 0.2);
+      border-radius: 8px;
+      padding: 14px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .culture-card:hover {
+      border-color: var(--ice);
+      background: rgba(15, 38, 50, 0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    .culture-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .culture-card-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .culture-card-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(244, 198, 109, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .culture-card-route {
+      font-size: 11px;
+      color: var(--mint);
+      background: rgba(148, 227, 202, 0.08);
+      padding: 6px 8px;
+      border-radius: 4px;
+      border-left: 2px solid var(--mint);
+      font-family: monospace;
+      line-height: 1.5;
+    }
+    .culture-card-desc {
+      font-size: 11px;
+      color: #b8ced1;
+      line-height: 1.6;
+    }
+    .culture-science-box {
+      background: rgba(117, 216, 237, 0.05);
+      border: 1px solid rgba(117, 216, 237, 0.25);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+
     /* Tour Progress Bar */
     #tourBanner {
       display: none;
@@ -976,6 +1042,7 @@
       table { display: block; overflow-x: auto; white-space: nowrap; }
       .chart-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; }
       .chart-tab-btn { white-space: nowrap; }
+      .culture-routes-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1004,6 +1071,7 @@
         <button class="btn btn-gold" id="btnReport" title="生成并查看 AI 冰雪经济分析报告" style="border-color: var(--gold); color: var(--gold);">📑 AI 分析报告</button>
         <button class="btn btn-gold" id="btnAnalysis" title="交互式投资回报与客流测算模型" style="background: rgba(148, 227, 202, 0.15); border-color: var(--mint); color: var(--mint);">🧮 投资推演引擎</button>
         <button class="btn" id="btnAlgorithm" title="查看系统底层的算法公式与数学模型白皮书" style="border-color: #8aa4ab; color: #edf5f4;">📐 算法模型说明</button>
+        <button class="btn btn-gold" id="btnCultureGuide" title="查看吉林省文化和旅游厅官方推荐线路与文化图鉴" style="border-color: var(--gold); color: var(--gold);">🏛️ 文旅官方推荐</button>
         <button class="btn" id="btnExport" title="一键导出政策对比数据表 (CSV)">📥 导出数据</button>
         <button class="btn" id="btnHelp" title="查看键盘快捷键帮助 (H / ?)">⌨️ 快捷键</button>
         <button class="btn" id="btnPresent" title="16:9 全屏展示 (快捷键 F)">🖥️ 演示模式</button>
@@ -1223,6 +1291,30 @@
           <div><b style="color:#fff;">口径严谨：</b>展示的均系政府公开规划目标，绝不混淆为实际已达成数据；不进行未经证实的地理空间插值。</div>
           <div><b style="color:#fff;">零依赖交付：</b>纯原生 HTML5/Canvas/CSS 架构，免网络环境依赖，可离线双击秒开。</div>
         </div>
+      </article>
+
+      <!-- Row 3 Full Width: Jilin Provincial Culture & Tourism Official Experience & Itineraries -->
+      <article class="card" id="cultureGuideSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(8,24,33,0.92) 0%, rgba(5,15,22,0.95) 100%); border: 1px solid rgba(117,216,237,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(117,216,237,0.25); flex-wrap: wrap; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">🏛️</span>
+            <div>
+              <h3 style="color:#fff; font-size:15px; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>吉林省文化和旅游厅 · 官方推荐精品线路与冰雪文化图鉴</span>
+                <span class="badge" style="background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); font-size:11px;">“温暖相约·冬季到吉林来玩雪”</span>
+              </h3>
+              <small style="color:#8aa4ab; font-size:11px;">参照吉林省文旅厅重点推广之“四大经典IP、四大黄金线路、非遗舌尖与地理科学解密”全景矩阵</small>
+            </div>
+          </div>
+          <div class="chart-tabs" id="cultureTabs" style="background:rgba(5,16,22,0.8);">
+            <button class="chart-tab-btn active" data-ctab="routes">🗺️ 四大精品黄金线路</button>
+            <button class="chart-tab-btn" data-ctab="cuisine">🥢 舌尖吉林·非遗美馔</button>
+            <button class="chart-tab-btn" data-ctab="science">🔬 41°N粉雪与雾凇解密</button>
+            <button class="chart-tab-btn" data-ctab="transit">🚄 极速直达·交通枢纽</button>
+          </div>
+        </div>
+
+        <div id="cultureContent" style="padding-top: 8px;"></div>
       </article>
     </section>
 
@@ -3825,10 +3917,208 @@
       }
     });
 
+    // 12. Jilin Provincial Culture & Tourism Promotion & Itineraries Engine
+    let currentCultureTab = 'routes';
+
+    const CULTURE_DATA = {
+      routes: [
+        {
+          title: '01 · 粉雪圣殿 · 长白秘境奢享线',
+          days: '5天4晚',
+          badge: '世界级粉雪度假',
+          route: '长春龙嘉机场 ➔ 敦白高铁“长白山号” ➔ 长白山北景区天池 ➔ 聚龙火山自溢温泉 ➔ 泰格岭/万达高山滑雪 ➔ 讷殷古城木屋村',
+          desc: '<b>文旅内涵：</b>长白山脉与欧洲阿尔卑斯山、北美落基山同处北纬41-42°世界黄金粉雪带。冬登长白山看银峰素裹与十六峰天池冰面，下山在零下20℃的林海雪原中浸泡火山自溢富锶温泉，享受“头顶雪花飘飘、身在热汤融融”的极致冰火交融体验。'
+        },
+        {
+          title: '02 · 长吉双核 · 顶流雪场畅滑线',
+          days: '4天3晚',
+          badge: '百亿级冰雪商圈',
+          route: '长春冰雪新天地（156万㎡超级冰雪乐园） ➔ 这有山室内沉浸小镇 ➔ 万科松花湖滑雪场 ➔ 北大湖滑雪度假区夜滑 ➔ 吉林市乌拉火锅',
+          desc: '<b>文旅内涵：</b>白天在万科松花湖挑战最高落差605米的国际标准竞技雪道，傍晚移步北大湖体验亚洲单体规模最大的顶级滑雪场与梦幻夜滑灯光秀。深夜在吉林市品尝热腾腾的满族乌拉铜锅火锅，感受“白天激情戏雪、夜间烟火人间”的吉林都市文旅律动。'
+        },
+        {
+          title: '03 · 渔猎长歌 · 千年非遗冬捕线',
+          days: '3天2晚',
+          badge: '国家级非遗活化',
+          route: '松原市区 ➔ 查干湖国家5A级旅游景区 ➔ 祭湖·醒网仪式现场 ➔ 查干淖尔渔猎文化博物馆 ➔ 前郭尔罗斯草原雪乡',
+          desc: '<b>文旅内涵：</b>完整传承辽金时期延续千年的古老原始捕鱼技艺。几十匹蒙古骏马在广阔无垠的坚厚冰面上拉动绞盘，千米大网在零下30℃的深水冰层下穿梭合围。伴随“万尾鲜鱼跃玉门”的壮丽奇观，品尝柴火铁锅一品全鱼宴，领略古老渔猎文明与现代生态旅游的和谐共生。'
+        },
+        {
+          title: '04 · 边境风情 · 红色记忆与舌尖延边',
+          days: '4天3晚',
+          badge: '多民族跨境文旅',
+          route: '通化东昌万峰滑雪场（新中国滑雪起源地） ➔ 红色起源馆 ➔ 延吉中国朝鲜族民俗园（换装旅拍） ➔ 延吉西市场（特色美食） ➔ 珲春防川（一眼望三国）',
+          desc: '<b>文旅内涵：</b>通化铭刻着新中国第一座高山滑雪场的拓荒荣光，延边则绽放着醇厚浓郁的朝鲜族边境民俗魅力。在延吉民俗园身着民族服饰打卡雪景旅拍，在百年老集市品鉴人参参鸡汤与延吉冷面，在珲春极目远眺中俄朝三国风光，感受独特而博大的边疆冰雪文化。'
+        }
+      ],
+      cuisine: [
+        {
+          title: '🍲 吉林乌拉满族紫铜火锅',
+          badge: '关东传统非遗',
+          tag: '吉林市名菜',
+          desc: '以传统纯铜炭火铜锅慢煮，高汤取自松花江肥美鲤鱼、老母鸡与棒骨长时间文火吊制。锅底铺满东北农家传统古法发酵酸菜，下入切得薄如蝉翼的白肉与手工血肠。酸爽解腻、醇香回甘，炭火通红暖意融融，是吉林冬季驱寒第一名馔。'
+        },
+        {
+          title: '🐟 查干湖非遗一品全鱼宴',
+          badge: '国家级非遗美味',
+          tag: '松原生态佳肴',
+          desc: '采用查干湖冬捕出水的新鲜无污染深水胖头鱼，以东北纯正农家大豆油先煎后焖，配以长白山泉水、铁锅柴火与农家大酱慢火收汁。鱼肉肥嫩滑爽无土腥味，鱼汤浓白醇厚如奶汁，热气蒸腾，象征“岁岁有余、吉庆长留”。'
+        },
+        {
+          title: '🥢 延吉参鸡汤与朝鲜族米肠打糕',
+          badge: '边境风味瑰宝',
+          tag: '延边特色美馔',
+          desc: '选用优质童子鸡，在腹内填入吉林长白山名贵鲜人参、金丝红枣、香糯大米与甘草枸杞，砂锅细火熬炖至肉烂骨酥、参香四溢。搭配现蒸现打的黄豆香粉打糕与爽口酸辣的朝鲜族泡菜，温中补气、养生怡神。'
+        },
+        {
+          title: '🥚 长白山天然地热温泉煮蛋',
+          badge: '长白山一绝',
+          tag: '自然火山地热',
+          desc: '位于长白山北景区的聚龙泉火山自溢地热群，泉水出水水温常年高达 83℃，富含重碳酸钠与数十种微量矿物质。天然温泉水漫过鲜鸡蛋，煮出的鸡蛋蛋白如布丁豆花般嫩滑微凝，蛋黄却凝固成绵密流沙状，带有淡淡矿物清香。'
+        }
+      ],
+      science: [
+        {
+          title: '❄️ 为什么长白山拥有世界顶尖的“黄金粉雪”？',
+          badge: '国际雪联官方认证',
+          desc: `
+            <b>1. 黄金粉雪纬度：</b>吉林长白山与欧洲阿尔卑斯山、北美落基山同处于北纬 41°-42° 的全球黄金粉雪走廊。<br>
+            <b>2. 气流与温差绝佳配比：</b>来自日本海与太平洋的水汽在受长白山脉隆起抬升时，与西伯利亚极地干冷陆气团剧烈碰撞，促使水汽在极寒环境下迅速凝华为细小片状结晶，<b>雪中含水率低于 5%</b>。<br>
+            <b>3. 丝滑悬浮滑行感：</b>粉雪由于颗粒轻盈、含水极低，捧在手心如雪白滑石粉般自然流散。滑雪板切入雪道时如同在轻柔云海中冲浪，几乎无板底阻滞感，被国际滑雪界誉为“滑雪爱好者的梦幻终极圣地”。
+          `
+        },
+        {
+          title: '🌫️ 为什么吉林市雾凇能跻身“中国四大自然奇观”？',
+          badge: '国家级自然遗产',
+          desc: `
+            <b>1. 严冬不冻江的自然奇迹：</b>流经吉林市区的松花江，其上游丰满水电站从数十米深的水库底层下泄的水流，常年恒定在 <b>4℃</b> 左右。这使得即便在气温低至 <b>-20℃ 至 -25℃</b> 的极寒严冬中，吉林市区数十里松花江水依然碧波浩荡、终冬不冻。<br>
+            <b>2. 过冷水滴的极致剧烈凝华：</b>4℃ 的温热江水与 -20℃ 的干燥冷空气形成巨大热力梯度，江面蒸腾起浓密水雾。当过冷水汽随风附着在江畔冷至冰点的垂柳与松柏枝桠上时，瞬间突破相变界限急速凝华为毛茸茸的白色针状冰晶。<br>
+            <b>3. “夜看雾，晨看挂，近午赏落花”：</b>十里江堤银装素裹、宛如琼楼玉宇，呈现大自然鬼斧神工的无双胜境。
+          `
+        }
+      ],
+      transit: [
+        {
+          title: '🚄 “长白山号”高铁旅游专列与极速高铁网络',
+          badge: '2小时高铁圈',
+          desc: '敦白高铁已全线贯通运营，从长春站乘“长白山号”动车组直达长白山站最快仅需 <b>2 小时 18 分钟</b>。沈佳高铁白敦段联通京哈高铁线，北京市民最快仅需 4 小时即可抵达吉林雪场核心圈，全方位实现“上午在北京开会、下午在长白山滑粉雪”的极速度假闭环。'
+        },
+        {
+          title: '✈️ “一主多辅”全域冰雪航空枢纽网络',
+          badge: '全国70+城市通航',
+          desc: '以<b>长春龙嘉国际机场</b>为全省航空复合枢纽，协同<b>长白山森林旅游机场</b>（国内首个森林旅游机场）与<b>延吉朝阳川国际机场</b>，开通直达北京、上海、广州、深圳、杭州、成都等全国 70 余个重要客源地城市的冰雪包机与日常直航专线，全域实现客流无缝落地集散。'
+        },
+        {
+          title: '🚌 全省无缝接驳“冰雪直通车”立体公铁联运',
+          badge: '雪板直托·一票直达',
+          desc: '全省推行“大交通+落地直通车”无缝联运体系。在长春龙嘉机场、吉林站、长白山站等枢纽中心，均设立冰雪度假服务驿站，开通直达万科松花湖、北大湖、泰格岭、长白山北景区等核心目的地的全天候直通大巴，提供雪具免费直托、行李一站送达酒店客房等尊享服务。'
+        }
+      ]
+    };
+
+    function renderCultureContent(tab) {
+      currentCultureTab = tab;
+      const container = $('cultureContent');
+      if (!container) return;
+
+      if ($('cultureTabs')) {
+        $('cultureTabs').querySelectorAll('.chart-tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.ctab === tab);
+        });
+      }
+
+      let h = '';
+      if (tab === 'routes') {
+        h += `<div class="culture-routes-grid">`;
+        CULTURE_DATA.routes.forEach(r => {
+          h += `
+            <div class="culture-card">
+              <div class="culture-card-header">
+                <span class="culture-card-title">${r.title}</span>
+                <div style="display:flex; gap:6px;">
+                  <span class="culture-card-badge" style="border-color:var(--mint); color:var(--mint);">${r.days}</span>
+                  <span class="culture-card-badge">${r.badge}</span>
+                </div>
+              </div>
+              <div class="culture-card-route">📍 核心途经：${r.route}</div>
+              <div class="culture-card-desc">${r.desc}</div>
+            </div>
+          `;
+        });
+        h += `</div>`;
+      } else if (tab === 'cuisine') {
+        h += `<div class="culture-routes-grid">`;
+        CULTURE_DATA.cuisine.forEach(c => {
+          h += `
+            <div class="culture-card">
+              <div class="culture-card-header">
+                <span class="culture-card-title">${c.title}</span>
+                <div style="display:flex; gap:6px;">
+                  <span class="culture-card-badge" style="border-color:var(--ice); color:var(--ice);">${c.tag}</span>
+                  <span class="culture-card-badge">${c.badge}</span>
+                </div>
+              </div>
+              <div class="culture-card-desc">${c.desc}</div>
+            </div>
+          `;
+        });
+        h += `</div>`;
+      } else if (tab === 'science') {
+        h += `<div>`;
+        CULTURE_DATA.science.forEach(s => {
+          h += `
+            <div class="culture-science-box">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h4 style="color:#fff; font-size:14px; margin:0;">${s.title}</h4>
+                <span class="culture-card-badge">${s.badge}</span>
+              </div>
+              <div style="font-size:12px; color:#b8ced1; line-height:1.7;">${s.desc}</div>
+            </div>
+          `;
+        });
+        h += `</div>`;
+      } else if (tab === 'transit') {
+        h += `<div class="culture-routes-grid">`;
+        CULTURE_DATA.transit.forEach(t => {
+          h += `
+            <div class="culture-card" style="grid-column: span 1;">
+              <div class="culture-card-header">
+                <span class="culture-card-title">${t.title}</span>
+                <span class="culture-card-badge" style="border-color:var(--mint); color:var(--mint);">${t.badge}</span>
+              </div>
+              <div class="culture-card-desc">${t.desc}</div>
+            </div>
+          `;
+        });
+        h += `</div>`;
+      }
+
+      container.innerHTML = h;
+    }
+
+    if ($('cultureTabs')) {
+      $('cultureTabs').querySelectorAll('.chart-tab-btn').forEach(btn => {
+        btn.onclick = () => {
+          playCrystalClick();
+          renderCultureContent(btn.dataset.ctab);
+        };
+      });
+    }
+
+    if ($('btnCultureGuide')) {
+      $('btnCultureGuide').onclick = () => {
+        playCrystalClick();
+        if ($('cultureGuideSection')) {
+          $('cultureGuideSection').scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+    }
+
     // Initial Execution
     applyBranding();
     updateKPIs();
     renderPolicyNodes();
+    renderCultureContent('routes');
     selectPlace(0);
     initBgParticles();
     drawBg();
