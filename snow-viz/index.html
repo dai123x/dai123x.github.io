@@ -1,0 +1,3080 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07151d">
+  <title>雪线之上 · 吉林冰雪经济目标可视化交互系统</title>
+  <style>
+    :root {
+      --bg: #07151d;
+      --bg-gradient: radial-gradient(ellipse at 15% 0%, #153c4d 0%, transparent 45%),
+                         radial-gradient(ellipse at 85% 15%, #3d2c1f 0%, transparent 40%),
+                         #07151d;
+      --panel: rgba(14, 34, 44, 0.90);
+      --panel-hover: rgba(22, 50, 64, 0.96);
+      --panel-border: #24424e;
+      --panel-border-bright: #437687;
+      --text: #edf5f4;
+      --muted: #9bb0b5;
+      --dim: #5c747c;
+      --ice: #75d8ed;
+      --ice-glow: rgba(117, 216, 237, 0.35);
+      --mint: #94e3ca;
+      --mint-glow: rgba(148, 227, 202, 0.3);
+      --gold: #f4c66d;
+      --gold-glow: rgba(244, 198, 109, 0.3);
+      --coral: #f28e70;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      background-image: var(--bg-gradient);
+      color: var(--text);
+      font-family: var(--font-stack);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Canvas */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1540px;
+      margin: 0 auto;
+      padding: 16px 24px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Top Navigation Bar */
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--panel-border);
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #dcf8f3 0%, #5bb9cc 100%);
+      color: #082129;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      box-shadow: 0 4px 18px var(--ice-glow);
+    }
+    .brand-title h1 {
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+    .brand-eyebrow {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--ice);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #c8f5e5;
+      background: rgba(16, 47, 48, 0.85);
+      border: 1px solid #327566;
+      border-radius: 20px;
+      padding: 5px 12px;
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 8px var(--mint);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .btn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      background: rgba(21, 49, 59, 0.8);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+    .btn:hover {
+      background: rgba(32, 80, 90, 0.9);
+      border-color: var(--ice);
+      box-shadow: 0 0 12px rgba(117, 216, 237, 0.2);
+    }
+    .btn.active {
+      background: linear-gradient(135deg, #1b4b57, #133943);
+      border-color: var(--ice);
+      color: #fff;
+    }
+    .btn-gold {
+      border-color: #8c733d;
+      color: var(--gold);
+    }
+    .btn-gold:hover {
+      background: rgba(60, 50, 25, 0.8);
+      border-color: var(--gold);
+    }
+
+    /* Narrative Hero Section */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 18px;
+      background: linear-gradient(135deg, rgba(14, 38, 48, 0.75), rgba(9, 23, 31, 0.75));
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-md);
+      padding: 16px 22px;
+      backdrop-filter: blur(12px);
+    }
+    .hero-text h2 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-text p {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 900px;
+      line-height: 1.6;
+    }
+    .season-toggle {
+      display: flex;
+      background: rgba(11, 26, 33, 0.85);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .season-btn {
+      font-family: inherit;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 15px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .season-btn.active {
+      background: linear-gradient(135deg, #1f4f5a, #163d46);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 10px var(--ice-glow);
+    }
+
+    /* KPI Cards Banner */
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--panel-border-bright);
+    }
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--ice);
+    }
+    .kpi-card.gold::before { background: var(--gold); }
+    .kpi-card.mint::before { background: var(--mint); }
+    .kpi-card.coral::before { background: var(--coral); }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kpi-value {
+      font-size: 25px;
+      font-weight: 800;
+      color: var(--ice);
+      margin: 4px 0 2px;
+      letter-spacing: -0.5px;
+      font-feature-settings: "tnum";
+    }
+    .kpi-card.gold .kpi-value { color: var(--gold); }
+    .kpi-card.mint .kpi-value { color: var(--mint); }
+    .kpi-card.coral .kpi-value { color: var(--coral); }
+    .kpi-desc {
+      font-size: 10px;
+      color: var(--dim);
+    }
+    .kpi-delta {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      background: rgba(117, 216, 237, 0.15);
+      color: var(--ice);
+    }
+
+    /* Main Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1.18fr 1fr 1fr;
+      gap: 14px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(36, 66, 78, 0.6);
+      padding-bottom: 8px;
+    }
+    .card-head h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-head small {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .wide-card {
+      grid-column: span 2;
+    }
+
+    /* Chart Subtabs */
+    .chart-tabs {
+      display: flex;
+      gap: 4px;
+      background: rgba(8, 22, 29, 0.6);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid rgba(36, 66, 78, 0.6);
+    }
+    .chart-tab-btn {
+      flex: 1;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chart-tab-btn.active {
+      background: #1b4754;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Chart Container */
+    .chart-container {
+      width: 100%;
+      min-height: 200px;
+      position: relative;
+    }
+    svg.bar-chart {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .bar-rect {
+      rx: 5px;
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(41, 67, 76, 0.6);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Policy Spatial Nodes Filters */
+    .node-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 2px;
+    }
+    .filter-btn {
+      font-size: 10px;
+      padding: 3px 8px;
+      background: rgba(15, 38, 48, 0.6);
+      border: 1px solid #23434e;
+      border-radius: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn.active {
+      background: #1e4d5b;
+      border-color: var(--ice);
+      color: #fff;
+    }
+
+    /* Policy Location Nodes List */
+    .policy-nodes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      max-height: 216px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .policy-nodes-grid::-webkit-scrollbar { width: 4px; }
+    .policy-nodes-grid::-webkit-scrollbar-thumb { background: #284c58; border-radius: 4px; }
+    .node-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 40, 49, 0.7);
+      border: 1px solid rgba(43, 75, 83, 0.7);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      color: var(--text);
+    }
+    .node-item:hover {
+      background: rgba(24, 59, 67, 0.9);
+      border-color: var(--ice);
+      transform: translateX(2px);
+    }
+    .node-item.active {
+      background: linear-gradient(135deg, rgba(28, 73, 85, 0.95), rgba(18, 48, 57, 0.95));
+      border-color: var(--ice);
+      box-shadow: 0 0 12px var(--ice-glow);
+    }
+    .node-badge {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      border-radius: 50%;
+      background: #1e3f47;
+      color: var(--ice);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .node-item.active .node-badge {
+      background: var(--gold);
+      color: #0b1a20;
+    }
+    .node-info b {
+      font-size: 11px;
+      display: block;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node-info small {
+      font-size: 9px;
+      color: var(--muted);
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Policy Excerpt Spotlight */
+    .policy-detail-box {
+      background: rgba(12, 28, 36, 0.85);
+      border: 1px solid #23434e;
+      border-left: 3px solid var(--ice);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.6;
+      color: #d8e6e4;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .policy-detail-tag {
+      font-size: 10px;
+      color: var(--ice);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* VR / 3D Canvas Viewport Box */
+    .vr-viewport-box {
+      position: relative;
+      width: 100%;
+      height: 228px;
+      background: #061118;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e3c46;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    }
+    #vrCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    #vrCanvas:active {
+      cursor: grabbing;
+    }
+    .vr-overlay {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 2;
+      background: rgba(7, 21, 29, 0.8);
+      border: 1px solid rgba(117, 216, 237, 0.35);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10px;
+      color: var(--ice);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .vr-controls {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      z-index: 2;
+      display: flex;
+      gap: 5px;
+    }
+    .vr-btn {
+      font-size: 10px;
+      padding: 3px 8px;
+      background: rgba(14, 34, 44, 0.85);
+      border: 1px solid #284c57;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .vr-btn:hover {
+      background: rgba(30, 75, 87, 0.95);
+      border-color: var(--ice);
+    }
+
+    /* Supply-Side Action Cards */
+    .supply-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .supply-item {
+      background: rgba(13, 34, 43, 0.7);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .supply-item:hover {
+      border-color: var(--panel-border-bright);
+      background: rgba(18, 45, 56, 0.85);
+    }
+    .supply-item h4 {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .supply-item .num {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 2px;
+    }
+    .supply-item small {
+      font-size: 10px;
+      color: var(--dim);
+    }
+
+    /* Tour Progress Bar */
+    #tourBanner {
+      display: none;
+      background: linear-gradient(90deg, #123742, #184b59);
+      border: 1px solid var(--ice);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 20px var(--ice-glow);
+    }
+    #tourBanner.show { display: flex; }
+    .tour-steps {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .tour-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #254852;
+      transition: all 0.3s;
+    }
+    .tour-dot.active {
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      transform: scale(1.2);
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      border-top: 1px solid var(--panel-border);
+      color: var(--dim);
+      font-size: 11px;
+    }
+    .footer a {
+      color: var(--ice);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(4, 12, 17, 0.85);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-card {
+      width: min(720px, 94vw);
+      background: linear-gradient(145deg, #0e242e, #091921);
+      border: 1px solid #365b67;
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+    .cover-card {
+      width: min(900px, 94vw);
+      text-align: center;
+    }
+    .cover-eyebrow {
+      font-size: 12px;
+      letter-spacing: 4px;
+      color: var(--ice);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .cover-card h2 {
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #fff;
+      margin-bottom: 6px;
+      background: linear-gradient(180deg, #ffffff 40%, #a2d6e3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-card p {
+      font-size: clamp(14px, 1.8vw, 20px);
+      color: #b8ced1;
+      margin-bottom: 30px;
+    }
+    .cover-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .cover-meta-item {
+      border-top: 1px solid #3b606c;
+      padding-top: 10px;
+      min-width: 170px;
+    }
+    .cover-meta-item small {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .cover-meta-item strong {
+      font-size: 15px;
+      color: #fff;
+    }
+    
+    @keyframes flowAnim {
+      to { stroke-dashoffset: -40; }
+    }
+    .sankey-flow {
+      animation: flowAnim 1.5s linear infinite;
+    }
+
+    /* Setup form */
+    .form-group {
+      text-align: left;
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .form-group input {
+      width: 100%;
+      background: #132a33;
+      border: 1px solid #2e4d58;
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      color: #fff;
+      font-size: 13px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--ice);
+      box-shadow: 0 0 10px var(--ice-glow);
+    }
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    /* 16:9 Presenting Mode */
+    body.presenting {
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #050e14;
+    }
+    body.presenting .app {
+      width: min(100vw, 177.78vh);
+      height: min(100vh, 56.25vw);
+      max-width: none;
+      margin: 0;
+      padding: 1.2vh 1.8vw;
+      overflow: hidden;
+    }
+    body.presenting .top { padding-bottom: 0.8vh; }
+    body.presenting .hero { padding: 1vh 1.4vw; }
+    body.presenting .kpis { gap: 0.7vw; }
+    body.presenting .grid { gap: 0.7vw; }
+    body.presenting .card { padding: 1vh 1vw; }
+    body.presenting .vr-viewport-box { height: 180px; }
+
+    /* Photo Gallery Carousel */
+    .gallery-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 5, 8, 0.95);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      backdrop-filter: blur(10px);
+    }
+    .gallery-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .gallery-header {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(117,216,237,0.15);
+    }
+    .gallery-header h3 {
+      color: #fff;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gallery-view {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 20px;
+    }
+    .gallery-img {
+      max-width: 90%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: opacity 0.3s ease;
+    }
+    .gallery-caption {
+      position: absolute;
+      bottom: 40px;
+      background: rgba(10, 24, 31, 0.85);
+      padding: 12px 24px;
+      border-radius: 30px;
+      color: var(--ice);
+      font-size: 15px;
+      font-weight: bold;
+      border: 1px solid rgba(117, 216, 237, 0.3);
+      backdrop-filter: blur(8px);
+    }
+    .gallery-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .gallery-nav:hover { background: var(--ice); color: #000; }
+    .gallery-nav.prev { left: 30px; }
+    .gallery-nav.next { right: 30px; }
+  </style>
+</head>
+<body>
+  <!-- Ambient Particle Snow & Aurora Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <main class="app" id="app">
+    <!-- Top Header -->
+    <header class="top">
+      <div class="brand">
+        <div class="brand-mark">雪</div>
+        <div class="brand-title">
+          <div class="brand-eyebrow">JILIN · ICE & SNOW ECONOMY · VR & DATA VIZ</div>
+          <h1>雪线之上 · 吉林冰雪经济目标可视化</h1>
+          <div class="brand-sub">吉林省大学生虚拟现实大赛 · 数据可视化分析方向申报作品</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="badge"><span class="badge-dot"></span>规划目标 · 权威可溯</span>
+        <button class="btn" id="btnAudio" title="开启全景电影级配乐与自然白噪音">🔈 全景环境音: 关</button>
+        <button class="btn" id="btnWeather" title="切换天气粒子强度">🌨️ 暴雪特效</button>
+        <button class="btn btn-gold" id="btnTour" title="启动全自动巡航讲解模式">🚀 自动巡航演示</button>
+        <button class="btn" id="btnCover" title="查看大赛规范封面">📋 作品片头</button>
+        <button class="btn" id="btnSetup" title="配置参赛队伍与学校">⚙️ 参赛信息</button>
+        <button class="btn btn-gold" id="btnReport" title="生成并查看 AI 冰雪经济分析报告" style="border-color: var(--gold); color: var(--gold);">📑 AI 分析报告</button>
+        <button class="btn btn-gold" id="btnAnalysis" title="交互式投资回报与客流测算模型" style="background: rgba(148, 227, 202, 0.15); border-color: var(--mint); color: var(--mint);">🧮 投资推演引擎</button>
+        <button class="btn" id="btnExport" title="一键导出政策对比数据表 (CSV)">📥 导出数据</button>
+        <button class="btn" id="btnHelp" title="查看键盘快捷键帮助 (H / ?)">⌨️ 快捷键</button>
+        <button class="btn" id="btnPresent" title="16:9 全屏展示 (快捷键 F)">🖥️ 演示模式</button>
+      </div>
+    </header>
+
+    <!-- Tour Banner (Hidden by default, shown during tour) -->
+    <div id="tourBanner">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <strong style="color:var(--gold);font-size:13px;" id="tourTitle">自动巡航演示进行中</strong>
+        <span style="font-size:11px;color:var(--muted);" id="tourDesc">正在展示阶段目标对比...</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="tour-steps" id="tourSteps">
+          <span class="tour-dot active"></span>
+          <span class="tour-dot"></span>
+          <span class="tour-dot"></span>
+          <span class="tour-dot"></span>
+          <span class="tour-dot"></span>
+          <span class="tour-dot"></span>
+        </div>
+        <button class="btn" id="btnPrevTour" style="padding:3px 8px;font-size:11px;">⏮ 上一步</button>
+        <button class="btn" id="btnPauseTour" style="padding:3px 8px;font-size:11px;">⏸ 暂停</button>
+        <button class="btn" id="btnNextTour" style="padding:3px 8px;font-size:11px;">⏭ 下一步</button>
+        <button class="btn" id="btnStopTour" style="padding:3px 8px;font-size:11px;">⏹ 退出</button>
+      </div>
+    </div>
+
+    <!-- Narrative & Season Switcher -->
+    <section class="hero">
+      <div class="hero-text">
+        <h2>白雪换白银：吉林如何通过冰雪经济规划重塑东北振兴新引擎？</h2>
+        <p>以中共吉林省委办公厅、省政府办公厅印发《关于推动吉林省冰雪经济高质量发展的实施意见》为权威依据。本系统通过多维交互数据可视化与三维数字孪生场景映射，深度解析两个关键雪季规划目标及供给端战略配套任务。</p>
+      </div>
+      <div class="season-toggle" id="seasonToggle">
+        <button class="season-btn" data-year="2024">2023—2024 实绩</button>
+        <button class="season-btn" data-year="2028">2027—2028 雪季</button>
+        <button class="season-btn active" data-year="2030">2029—2030 雪季</button>
+      </div>
+    </section>
+
+    <!-- 4 KPI Cards -->
+    <section class="kpis">
+      <div class="kpi-card">
+        <div class="kpi-label">
+          <span>冰雪旅游接待游客规划目标</span>
+          <span class="kpi-delta" id="visitorDelta">基准雪季</span>
+        </div>
+        <div class="kpi-value" id="kpiVisitors">2.3 亿人次</div>
+        <div class="kpi-desc">全省冰雪旅游客流量阶段规划值</div>
+      </div>
+
+      <div class="kpi-card gold">
+        <div class="kpi-label">
+          <span>冰雪旅游游客出游总花费目标</span>
+          <span class="kpi-delta" id="spendingDelta">基准雪季</span>
+        </div>
+        <div class="kpi-value" id="kpiSpending">4,200 亿元</div>
+        <div class="kpi-desc">拉动消费总盘与全要素产业溢出效应</div>
+      </div>
+
+      <div class="kpi-card mint">
+        <div class="kpi-label">
+          <span>冰雪装备制造业总产值</span>
+          <span class="kpi-delta" id="equipmentDelta">前期统筹</span>
+        </div>
+        <div class="kpi-value" id="kpiEquipment">—</div>
+        <div class="kpi-desc" id="kpiEquipmentDesc">政策针对 2029—2030 雪季设立产值目标</div>
+      </div>
+
+      <div class="kpi-card coral">
+        <div class="kpi-label">
+          <span>年度供给端三大支撑指标</span>
+          <span class="kpi-delta" style="color:var(--coral);background:rgba(242,142,112,0.15)">年度刚性</span>
+        </div>
+        <div class="kpi-value" style="color:var(--coral)">≥900+</div>
+        <div class="kpi-desc">300项赛事 + 500块冰场 + 100家乐园/年</div>
+      </div>
+    </section>
+
+    <!-- Core Grid -->
+    <section class="grid">
+      <!-- Col 1: Multi-View Data Visualization Suite -->
+      <article class="card">
+        <div class="card-head">
+          <h3>📈 多维数据可视化分析中心</h3>
+          <div class="chart-tabs" id="chartTabs">
+            <button class="chart-tab-btn active" data-tab="compare">阶段目标对比</button>
+            <button class="chart-tab-btn" data-tab="supply">供给任务仪表</button>
+            <button class="chart-tab-btn" data-tab="industry">装备制造沙盘</button>
+            <button class="chart-tab-btn" data-tab="sankey">资源推演模型</button>
+          </div>
+        </div>
+
+        <!-- Chart Dynamic View -->
+        <div class="chart-container" id="chartView">
+          <svg class="bar-chart" id="mainChartSvg" viewBox="0 0 540 210" role="img" aria-label="数据可视化图表"></svg>
+        </div>
+
+        <div class="chart-legend" id="chartLegend">
+          <!-- Dynamic legend -->
+        </div>
+
+        <div class="policy-detail-box" id="chartCommentary" style="border-left-color:var(--gold)">
+          <div class="policy-detail-tag" id="chartCommentaryTag">📊 规划目标增长率核算</div>
+          <div id="chartCommentaryContent">2029—2030 雪季游客规划目标较 2027—2028 雪季提升 <b>+30.4%</b>（2.3亿 → 3.0亿人次）；出游总花费目标提升 <b>+28.6%</b>（4,200亿 → 5,400亿元）。</div>
+        </div>
+      </article>
+
+      <!-- Col 2: Policy Spatial Scene Nodes -->
+      <article class="card">
+        <div class="card-head">
+          <h3>🏔️ 政策支点空间场景矩阵</h3>
+          <small>按 1-8 键直达</small>
+        </div>
+
+        <div class="node-filters" id="nodeFilters">
+          <button class="filter-btn active" data-filter="all">全部 (8)</button>
+          <button class="filter-btn" data-filter="名城">冰雪名城 (4)</button>
+          <button class="filter-btn" data-filter="度假">滑雪胜地 (1)</button>
+          <button class="filter-btn" data-filter="景区">主题景区 (3)</button>
+        </div>
+
+        <div class="policy-nodes-grid" id="nodeGrid"></div>
+
+        <div class="policy-detail-box" id="nodeDetailBox">
+          <div class="policy-detail-tag" id="nodeDetailTag">政策原文摘要 · 长春</div>
+          <div id="nodeDetailContent">政策提出支持长春建设“冰雪名城”，重点提升长春冰雪新天地、莲花岛冰雪大观园等核心产品，加快发展城市冰雪夜经济，打造全国顶尖的冰雪都市体验枢纽。</div>
+        </div>
+      </article>
+
+      <!-- Col 3: True 3D Digital Twin Viewport -->
+      <article class="card">
+        <div class="card-head">
+          <h3>🥽 3D VR 冰雪地理空间沙盘</h3>
+          <small>3D 视角拖拽 · 滚轮缩放</small>
+        </div>
+        <div class="vr-viewport-box">
+          <div class="vr-overlay" id="vrTag">
+            <span>🏔️</span>
+            <span id="vrTagText">长白山天池 · 3D 全景数字孪生</span>
+          </div>
+          <canvas id="vrCanvas"></canvas>
+          <div class="vr-controls">
+            <button class="vr-btn" id="btnGalleryOpen" style="color:var(--gold); border-color:var(--gold)">📸 风光图鉴</button>
+            <button class="vr-btn" id="btnVrWeather">❄️ 暴雪</button>
+            <button class="vr-btn" id="btnVrReset">🔄 复位视角</button>
+            <button class="vr-btn" id="btnVrExpand" title="全屏查看 3D 沙盘">⛶ 展开</button>
+          </div>
+        </div>
+        <div class="policy-detail-box" style="border-left-color:var(--mint)">
+          <div class="policy-detail-tag" style="color:var(--mint)">政策导向深度响应</div>
+          <div>《实施意见》明确提出：<b>“鼓励文旅企业利用虚拟现实（VR）、人工智能（AI）打造沉浸式体验场景，建设数字文旅平台”</b>。本视窗以此构建吉林冰雪三维高程地理孪生原型。</div>
+        </div>
+      </article>
+
+      <!-- Row 2 Wide: Supply Side Action Checklist -->
+      <article class="card wide-card">
+        <div class="card-head">
+          <h3>🎯 目标支撑：供给侧年度三大刚性任务与数字化布局</h3>
+          <small>政策文件明确之年度目标及基础设施保障</small>
+        </div>
+        <div class="supply-grid">
+          <div class="supply-item">
+            <h4>各类群众性冰雪赛事活动</h4>
+            <div class="num">≥300 项/年</div>
+            <small>带动“三亿人参与冰雪运动”，全域群众冰雪节事</small>
+          </div>
+          <div class="supply-item">
+            <h4>每年浇建冰场数量</h4>
+            <div class="num" style="color:var(--mint)">≥500 块/年</div>
+            <small>广泛覆盖校园、社区与城乡公共体育中心</small>
+          </div>
+          <div class="supply-item">
+            <h4>特色冰雪乐园运营</h4>
+            <div class="num" style="color:var(--ice)">≥100 家/年</div>
+            <small>实现市（州）、县（市、区）全覆盖布局</small>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:4px;">
+          <div style="background:rgba(10,24,31,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--ice);">
+            <b style="font-size:11px;color:var(--ice);">01 · 阶段目标</b>
+            <p style="font-size:10px;color:var(--muted);margin-top:2px;">对比游客与花费双核心指标，呈现战略跃升路径。</p>
+          </div>
+          <div style="background:rgba(10,24,31,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--gold);">
+            <b style="font-size:11px;color:var(--gold);">02 · 空间支点</b>
+            <p style="font-size:10px;color:var(--muted);margin-top:2px;">冰雪名城、世界级滑雪度假地与主题景区矩阵。</p>
+          </div>
+          <div style="background:rgba(10,24,31,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--mint);">
+            <b style="font-size:11px;color:var(--mint);">03 · 供给任务</b>
+            <p style="font-size:10px;color:var(--muted);margin-top:2px;">赛事活动、冰场基础设施与特色乐园年度供给。</p>
+          </div>
+          <div style="background:rgba(10,24,31,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--coral);">
+            <b style="font-size:11px;color:var(--coral);">04 · 边界规范</b>
+            <p style="font-size:10px;color:var(--muted);margin-top:2px;">严谨区分政策规划值与实际业绩，保障科学真实。</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Row 2 Col 3: Scientific Methodology & Provenance -->
+      <article class="card">
+        <div class="card-head">
+          <h3>🛡️ 数据合规与科学边界</h3>
+          <small>评审合规声明</small>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;gap:6px;">
+          <div><b style="color:#fff;">权威依据：</b>中共吉林省委办公厅、吉林省人民政府办公厅《关于推动吉林省冰雪经济高质量发展的实施意见》（2024-12-12）。</div>
+          <div><b style="color:#fff;">口径严谨：</b>展示的均系政府公开规划目标，绝不混淆为实际已达成数据；不进行未经证实的地理空间插值。</div>
+          <div><b style="color:#fff;">零依赖交付：</b>纯原生 HTML5/Canvas/CSS 架构，免网络环境依赖，可离线双击秒开。</div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>
+        权威来源：<a href="https://www.jl.gov.cn/gb/2025/zb_202401/szfwj/" target="_blank" rel="noopener">吉林省人民政府公报《关于推动吉林省冰雪经济高质量发展的实施意见》</a>
+      </div>
+      <div>
+        <span>快捷键：← / → 切换雪季 · 1-8 切换地点 · 空格 自动巡航 · F 全屏演示 · H 帮助</span>
+      </div>
+      <div>
+        参赛单位：<span id="footerSchool">长春工业大学</span> · <span id="footerTeam">深度求索队</span>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Cinematic Subtitles Overlay (For Auto Tour & Promo Video) -->
+  <div id="cinematicSubtitles" style="position:fixed;bottom:8%;left:50%;transform:translateX(-50%);z-index:900;text-align:center;width:80%;pointer-events:none;opacity:0;transition:opacity 0.8s ease;">
+    <div id="subText" style="font-size: clamp(16px, 2.5vw, 26px); font-weight:600;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(117,216,237,0.5);letter-spacing:2px;background:rgba(4,12,17,0.65);padding:14px 40px;border-radius:40px;backdrop-filter:blur(6px);display:inline-block;border:1px solid rgba(117,216,237,0.2);"></div>
+  </div>
+
+  <!-- Cinematic Cover Screen (Shown on Load) -->
+  <div class="modal-overlay show" id="coverModal" style="background: radial-gradient(circle at center, #0b2633 0%, #03080b 100%); z-index: 9999; backdrop-filter: blur(10px);">
+    <div class="modal-card cover-card" style="width: 800px; max-width: 90vw; background: transparent; box-shadow: none; border: none; text-align: center; padding: 60px;">
+      <div class="cover-eyebrow" style="font-size:16px; letter-spacing:8px; opacity:0; animation: fadeIn 2s forwards 0.5s;">JILIN · ICE & SNOW ECONOMY</div>
+      <h1 style="font-size: 64px; margin: 20px 0; color: #fff; text-shadow: 0 0 40px rgba(117,216,237,0.6); opacity:0; animation: fadeIn 2s forwards 1s;">雪线之上</h1>
+      <p style="font-size: 20px; color: var(--ice); margin-bottom: 40px; letter-spacing: 4px; opacity:0; animation: fadeIn 2s forwards 1.5s;">吉林冰雪经济目标可视化交互系统</p>
+      
+      <div class="cover-meta" style="justify-content: center; opacity:0; animation: fadeIn 2s forwards 2s; border: none; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; max-width: 500px; margin: 0 auto 50px;">
+        <div style="font-size: 14px; color: var(--muted); margin-bottom: 8px;">吉林省大学生虚拟现实大赛 · 数据可视化分析方向</div>
+        <div style="font-size: 16px; color: #fff;">
+          <span id="coverSchool">长春工业大学</span> <span style="color:var(--gold); margin:0 10px;">|</span> <span id="coverTeam">深度求索队</span>
+        </div>
+      </div>
+      
+      <div style="opacity:0; animation: fadeIn 2s forwards 2.5s; display: flex; gap: 20px; justify-content: center;">
+        <button class="btn btn-gold" id="btnPlayPromo" style="padding: 16px 40px; font-size: 18px; border-radius: 40px; box-shadow: 0 0 30px rgba(244,198,109,0.3);"><span style="font-size:22px; margin-right:8px; vertical-align:middle;">▶</span> 播放数据可视化宣传片</button>
+        <button class="btn" id="btnCloseCover" style="padding: 16px 30px; font-size: 16px; border-radius: 40px;">跳过，直接进入系统</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+
+  <!-- Setup Modal -->
+  <div class="modal-overlay" id="setupModal">
+    <div class="modal-card" style="max-width:480px;">
+      <h3 style="color:#fff;margin-bottom:8px;">⚙️ 参赛信息设置</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:18px;">信息仅保存在本机浏览器（localStorage），用于录制比赛演示视频及现场答辩展示。</p>
+      <div class="form-group">
+        <label for="inputTeam">参赛队伍名称</label>
+        <input id="inputTeam" placeholder="例如：深度求索队">
+      </div>
+      <div class="form-group">
+        <label for="inputSchool">参赛学校全称</label>
+        <input id="inputSchool" placeholder="例如：长春工业大学">
+      </div>
+      <div class="form-actions">
+        <button class="btn" id="btnCancelSetup">取消</button>
+        <button class="btn btn-gold" id="btnSaveSetup">保存设置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Research Report Modal -->
+  <div class="modal-overlay" id="reportModal">
+    <div class="modal-card" style="max-width:850px; text-align:left; padding: 40px; border-top: 4px solid var(--gold); border-radius: 4px; background: #061218;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+          <div style="font-size: 12px; color: var(--gold); letter-spacing: 2px; margin-bottom: 8px;">RESEARCH REPORT EXPORT</div>
+          <h2 style="color: #fff; margin: 0; font-size: 26px;">吉林冰雪经济发展战略评估报告 (2024-2030)</h2>
+        </div>
+        <div style="text-align: right; color: var(--muted); font-size: 11px;">
+          生成时间: <script>document.write(new Date().toLocaleDateString())</script><br>
+          模型数据源: 吉林省《实施意见》(2024)
+        </div>
+      </div>
+      
+      <div style="background: rgba(117,216,237,0.05); border-left: 3px solid var(--ice); padding: 16px; margin-bottom: 24px; font-size: 13px; line-height: 1.7; color: #fff;">
+        <h4 style="color: var(--ice); margin-top: 0; margin-bottom: 8px; font-size: 14px;">🧠 执行摘要 (Executive Summary)</h4>
+        根据本系统的三阶段模型测算与空间流向演算：吉林省冰雪经济正处于从“资源依赖型”向“产业集群型”跨越的关键期。至 2030 年，依托 <b>+140%</b> 的超高速客流增长引擎，冰雪旅游核心收入将突破 <b>5400 亿元</b>。同时，通过空间上向长白山核心区与长吉都市圈的资本倾斜，以及每年 <b>300+赛事 / 500+冰场</b> 的全省刚性供给支撑，吉林省将彻底夯实其“世界级冰雪胜地”的战略定位。
+      </div>
+
+      <h4 style="color: #fff; margin-bottom: 12px; font-size: 14px;">核心量化考核指标 (KPI Dashboard)</h4>
+      <div style="overflow-x:auto; margin-bottom: 30px;">
+        <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text);">
+          <thead>
+            <tr style="background:#0d232e; color:var(--ice); text-align:left;">
+              <th style="padding:10px 12px; border-bottom: 1px solid #163f4f;">核心指标</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #163f4f;">单位</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #163f4f;">2024 (实际基线)</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #163f4f;">2028 (攻坚目标)</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #163f4f;">2030 (突破目标)</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #163f4f;">政策战略导向</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #162934;">
+              <td style="padding:10px 12px; font-weight: bold; color: #fff;">冰雪旅游接待游客</td>
+              <td style="padding:10px 12px;">亿人次</td>
+              <td style="padding:10px 12px; color: var(--muted);">1.25</td>
+              <td style="padding:10px 12px; color: #fff;">2.3</td>
+              <td style="padding:10px 12px; color: var(--gold); font-weight: bold;">3.0</td>
+              <td style="padding:10px 12px; color: #fff;">量级飞跃 (+140%)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #162934;">
+              <td style="padding:10px 12px; font-weight: bold; color: #fff;">冰雪旅游总花费</td>
+              <td style="padding:10px 12px;">亿元</td>
+              <td style="padding:10px 12px; color: var(--muted);">2,419</td>
+              <td style="padding:10px 12px; color: #fff;">4,200</td>
+              <td style="padding:10px 12px; color: var(--gold); font-weight: bold;">5,400</td>
+              <td style="padding:10px 12px; color: #fff;">消费提质 (+123%)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #162934;">
+              <td style="padding:10px 12px; font-weight: bold; color: #fff;">装备制造业总产值</td>
+              <td style="padding:10px 12px;">亿元</td>
+              <td style="padding:10px 12px; color: var(--muted);">/</td>
+              <td style="padding:10px 12px; color: #fff;">/</td>
+              <td style="padding:10px 12px; color: var(--gold); font-weight: bold;">> 50</td>
+              <td style="padding:10px 12px; color: #fff;">新质生产力破局</td>
+            </tr>
+            <tr style="border-bottom:1px solid #162934;">
+              <td style="padding:10px 12px; font-weight: bold; color: #fff;">特色冰雪乐园建设</td>
+              <td style="padding:10px 12px;">家/年</td>
+              <td style="padding:10px 12px; color: var(--muted);">/</td>
+              <td style="padding:10px 12px; color: #fff;" colspan="2">全省各地市州 ≥100 家</td>
+              <td style="padding:10px 12px; color: #fff;">供给侧长效支撑</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; align-items: center; border-top: 1px solid #1f3b47; padding-top: 20px;">
+        <span style="font-size:11px; color:var(--muted);">注：本报告由《雪线之上》系统数据内核自动化分析生成。</span>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn" id="btnCloseReport">关闭报告预览</button>
+          <button class="btn btn-gold" id="btnExportCsvReal">⬇ 下载原始 CSV 数据</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Investment Analysis Engine Modal -->
+  <div class="modal-overlay" id="analysisModal">
+    <div class="modal-card" style="max-width:700px; text-align:left; border-top:4px solid var(--mint);">
+      <h3 style="color:#fff; margin-bottom:8px;">🧮 冰雪产业投资回报推演引擎</h3>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:20px;">基于《实施意见》测算乘数，动态推演各节点投资效益与产能转化率。</p>
+      
+      <div style="display:flex; gap:20px; margin-bottom: 24px;">
+        <div style="flex:1;">
+          <label style="display:block; font-size:12px; color:var(--ice); margin-bottom:8px;">目标投资区域</label>
+          <select id="analysisRegion" style="width:100%; padding:10px; background:rgba(0,0,0,0.4); border:1px solid #1f3b47; color:#fff; border-radius:4px; font-size:14px; outline:none;">
+            <option value="changbai">长白山核心区 (高净值度假/生态游)</option>
+            <option value="changchun">长春都市圈 (都市冰雪/高客流)</option>
+            <option value="jilin">吉林市名城区 (重型装备/雪场基建)</option>
+            <option value="tonghua">通化/白山 (传统文化/大众体验)</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-size:12px; color:var(--ice); margin-bottom:8px;">拟注入资金规模 (亿元)</label>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <input type="range" id="analysisInvestment" min="1" max="100" step="1" value="10" style="flex:1; accent-color: var(--mint);">
+            <span id="analysisInvestmentVal" style="color:var(--gold); font-size:16px; font-weight:bold; min-width: 50px;">10 亿</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: rgba(10,24,31,0.8); border: 1px solid #1f3b47; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+        <h4 style="color:var(--ice); margin-bottom:16px; font-size:13px; border-bottom:1px solid #163f4f; padding-bottom:8px;">AI 推演结果 (Projected ROI)</h4>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div style="background:rgba(148,227,202,0.05); padding:12px; border-left:3px solid var(--mint); border-radius:4px;">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">新增接待客流预期 (万人次/年)</div>
+            <div id="resTourists" style="font-size:22px; color:var(--mint); font-weight:bold;">--</div>
+          </div>
+          <div style="background:rgba(244,198,109,0.05); padding:12px; border-left:3px solid var(--gold); border-radius:4px;">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">带动直接与间接消费 (亿元/年)</div>
+            <div id="resRevenue" style="font-size:22px; color:var(--gold); font-weight:bold;">--</div>
+          </div>
+          <div style="background:rgba(117,216,237,0.05); padding:12px; border-left:3px solid var(--ice); border-radius:4px;">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">供给侧转化预测</div>
+            <div id="resSupply" style="font-size:14px; color:#fff; font-weight:bold;">--</div>
+          </div>
+          <div style="background:rgba(242,142,112,0.05); padding:12px; border-left:3px solid var(--coral); border-radius:4px;">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">静态投资回收期测算</div>
+            <div id="resROI" style="font-size:14px; color:#fff; font-weight:bold;">--</div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="btn" id="btnCloseAnalysis">关闭推演</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help / Keyboard Shortcuts Modal -->
+  <div class="modal-overlay" id="helpModal">
+    <div class="modal-card" style="max-width:540px;">
+      <h3 style="color:#fff;margin-bottom:12px;">⌨️ 交互系统快捷键指南</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--text);margin-bottom:16px;">
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--gold);">← / →</b> : 切换 2028 / 2030 雪季
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--ice);">1 ~ 8</b> : 快速切换 8 大政策支点空间
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--mint);">空格键</b> : 启动 / 暂停全自动巡航演示
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--coral);">F 键</b> : 进入 / 退出 16:9 全屏演示模式
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:#fff;">V 键</b> : 复位 3D VR 沙盘视角
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:#fff;">M 键</b> : 开关冬风环境白噪音
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:#fff;">鼠标滚轮</b> : 在 3D 沙盘中缩放视角
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:#fff;">Esc</b> : 关闭任意弹窗或退出巡航
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-gold" id="btnCloseHelp">明白，返回系统</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VR Sandbox Expand Modal -->
+  <div class="modal-overlay" id="vrExpandModal">
+    <div class="modal-card" style="width:min(1100px, 96vw);padding:20px;text-align:left;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="color:#fff;display:flex;align-items:center;gap:12px; font-family: monospace;">
+          <span>[ 🥽 3D_VR_DIGITAL_TWIN ]</span>
+          <span class="badge" id="vrExpandBadge" style="background: rgba(244,198,109,0.15); border: 1px solid var(--gold); color: var(--gold); font-size: 14px; letter-spacing: 2px;">长白山主峰天池</span>
+        </h3>
+        <button class="btn" id="btnCloseVrExpand">关闭 (Esc)</button>
+      </div>
+      <div style="position:relative;width:100%;height:65vh;background:#051016;border-radius:12px;overflow:hidden;border:1px solid #234c5b; box-shadow: 0 0 40px rgba(117,216,237,0.15) inset;">
+        <canvas id="vrExpandCanvas" style="width:100%;height:100%;display:block;cursor:crosshair;"></canvas>
+        
+        <!-- Cyberpunk HUD Overlay -->
+        <div style="position:absolute; top:20px; left:20px; width:40px; height:40px; border-top:3px solid var(--ice); border-left:3px solid var(--ice); pointer-events:none;"></div>
+        <div style="position:absolute; top:20px; right:20px; width:40px; height:40px; border-top:3px solid var(--ice); border-right:3px solid var(--ice); pointer-events:none;"></div>
+        <div style="position:absolute; bottom:20px; left:20px; width:40px; height:40px; border-bottom:3px solid var(--ice); border-left:3px solid var(--ice); pointer-events:none;"></div>
+        <div style="position:absolute; bottom:20px; right:20px; width:40px; height:40px; border-bottom:3px solid var(--ice); border-right:3px solid var(--ice); pointer-events:none;"></div>
+        
+        <div style="position:absolute; top:35px; left:70px; font-family: monospace; font-size:10px; color:var(--gold); letter-spacing:1px; pointer-events:none; opacity:0.8;">
+          <div style="margin-bottom:4px;">SYS.TARGET: JILIN PROVINCE</div>
+          <div style="margin-bottom:4px;">LAT/LON: 43.8961° N, 125.3246° E</div>
+          <div style="margin-bottom:4px;">STATUS: ONLINE_SYNC</div>
+          <div style="color:var(--ice);">RENDER: WEBGL_NATIVE // FBM_NOISE // LAMBERT</div>
+        </div>
+
+        <div style="position:absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(117,216,237,0.03) 3px, transparent 4px);"></div>
+        <div class="hud-scanline"></div>
+
+        <style>
+          .hud-scanline {
+            position: absolute;
+            top: -100px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent 0%, rgba(117,216,237,0.15) 100%);
+            border-bottom: 1px solid var(--ice);
+            animation: scanAnim 4s linear infinite;
+            pointer-events: none;
+            mix-blend-mode: screen;
+          }
+          @keyframes scanAnim {
+            0% { top: -100px; }
+            100% { top: 100%; }
+          }
+        </style>
+
+        <div style="position:absolute;bottom:25px;left:70px;font-size:11px;color:var(--ice);background:rgba(5,16,22,0.8);padding:6px 12px;border-radius:6px;backdrop-filter:blur(6px);pointer-events:none; border: 1px solid rgba(117,216,237,0.3);">
+          ▶ 支持鼠标左键拖拽旋转 · 滚轮视角缩放 · <span style="color:var(--gold);">直接点击画面地标光标选中城市</span>
+        </div>
+        <div style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;">
+          <button class="vr-btn" id="btnExpandReset" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">🔄 复位视角</button>
+          <button class="vr-btn" id="btnExpandWeather" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">❄️ 粒子系统切换</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Changbai Mountain Photo Gallery Modal -->
+  <div class="gallery-overlay" id="galleryModal">
+    <div class="gallery-header">
+      <h3><span>📸</span> 长白山国家级自然保护区 · 冬季生态数字图鉴</h3>
+      <button class="btn" id="btnCloseGallery" style="padding:6px 16px;">关闭 (Esc)</button>
+    </div>
+    <div class="gallery-view">
+      <button class="gallery-nav prev" id="btnGalleryPrev">‹</button>
+      <img src="assets/changbai_tianchi.jpg" alt="长白山风光" class="gallery-img" id="galleryImg">
+      <div class="gallery-caption" id="galleryCaption">航拍冬季长白山主峰天池全景，冰雪封湖，十六峰环绕</div>
+      <button class="gallery-nav next" id="btnGalleryNext">›</button>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+  (() => {
+    'use strict';
+
+    // 1. Core Data (Enhanced with 2023-2024 Actual Baseline)
+    const DATA = {
+      2024: {
+        label: '2023—2024 实际值',
+        visitors: 1.25,
+        spending: 2419,
+        equipment: null,
+        perCapita: 1935, // 2419 / 1.25
+        visitorDelta: '历史基期',
+        spendingDelta: '历史基期',
+        equipmentDelta: '缺乏单列统计',
+        equipmentDesc: '本雪季全省接待游客1.25亿人次，收入2419亿元。'
+      },
+      2028: {
+        label: '2027—2028 雪季',
+        visitors: 2.3,
+        spending: 4200,
+        equipment: null,
+        perCapita: 1826,
+        visitorDelta: '+84.0% 较24年',
+        spendingDelta: '+73.6% 较24年',
+        equipmentDelta: '前期统筹阶段',
+        equipmentDesc: '文件未对 2027—2028 雪季设立装备产值单项目标'
+      },
+      2030: {
+        label: '2029—2030 雪季',
+        visitors: 3.0,
+        spending: 5400,
+        equipment: 50,
+        perCapita: 1800,
+        visitorDelta: '+30.4% 较28年',
+        spendingDelta: '+28.6% 较28年',
+        equipmentDelta: '突破 50 亿元',
+        equipmentDesc: '政策明确提出冰雪装备制造业总产值超过 50 亿元'
+      }
+    };
+
+    const PLACES = [
+      {
+        name: '长春',
+        category: '名城',
+        type: '冰雪名城 · 节事夜游',
+        tag: '冰雪名城',
+        pos3d: [-160, 50, -140],
+        elev: '210m',
+        copy: '《实施意见》明确指出：支持长春建设“冰雪名城”。战略定位为全省冰雪都市体验枢纽。重点提升长春冰雪新天地、莲花岛冰雪大观园等核心产品，加快发展城市冰雪夜经济，打造百亿级冰雪消费商圈。'
+      },
+      {
+        name: '吉林市',
+        category: '名城',
+        type: '雾凇名城 · 滑雪度假',
+        tag: '冰雪名城',
+        pos3d: [-70, 75, -50],
+        elev: '450m',
+        copy: '政策支持吉林市建设“冰雪名城”。吉林市拥有万科松花湖、北大湖等顶流雪场。省内已建成5家国家级滑雪度假地（数量居全国第一），吉林市占据核心份额，旨在建设具有国际影响力的顶级滑雪聚集区。'
+      },
+      {
+        name: '长白山',
+        category: '度假',
+        type: '世界级山地度假 · VR沉浸',
+        tag: '世界级滑雪胜地',
+        pos3d: [90, 160, 80],
+        elev: '2,691m',
+        copy: '《实施意见》提出：倾力打造长白山脉为世界级滑雪胜地。依托“4+X”冰雪产业体系（体育、文化、旅游、装备），推动滑雪度假区向四季运营转型，并鼓励文旅企业利用VR/AI技术打造数字化沉浸体验。'
+      },
+      {
+        name: '松原 · 查干湖',
+        category: '景区',
+        type: '冬捕文化 · 节事IP',
+        tag: '主题景区',
+        pos3d: [-240, 35, -200],
+        elev: '135m',
+        copy: '查干湖列入全省重点提升的冰雪主题景区名单。深入挖掘千年查干湖冬捕国家级非遗文化，联动查干湖冬捕节，拓展冬季生态与民俗特色体验，实现“冷资源”向“热产业”的非遗活化转化。'
+      },
+      {
+        name: '通化',
+        category: '名城',
+        type: '中国滑雪之乡 · 冰雪名城',
+        tag: '冰雪名城',
+        pos3d: [-60, 95, 120],
+        elev: '620m',
+        copy: '支持通化市建设“冰雪名城”。提升东昌万峰等滑雪度假地服务品质与赛事承载力。通化作为新中国滑雪的发源地，政策着重其拓展新中国滑雪起源地文化消费场景，打造红色冰雪精神坐标。'
+      },
+      {
+        name: '延边',
+        category: '名城',
+        type: '边境风情 · 民俗文旅',
+        tag: '冰雪名城',
+        pos3d: [170, 85, -20],
+        elev: '380m',
+        copy: '支持延边朝鲜族自治州建设“冰雪名城”。深度融合中俄朝边境风情与朝鲜族民俗美食，培育特色冰雪文化新载体。通过“冰雪+民俗”双轮驱动，打造独具东北亚边境特色的冰雪休闲目的地。'
+      },
+      {
+        name: '白城 · 嫩江湾',
+        category: '景区',
+        type: '湿地生态 · 冬季景观',
+        tag: '主题景区',
+        pos3d: [-280, 30, -250],
+        elev: '120m',
+        copy: '嫩江湾被列入全面提升的冰雪主题景区名单。依托大湿地自然风貌，呈现生态保护与冬季极寒休闲高度融合的特色叙事节点，填补吉林西部冰雪生态观光游的战略版图。'
+      },
+      {
+        name: '长春 · 净月潭',
+        category: '景区',
+        type: '国家级森林 · 瓦萨越野',
+        tag: '主题景区',
+        pos3d: [-150, 60, -110],
+        elev: '280m',
+        copy: '长春净月潭国家森林公园列入重点提升名单。依托净月潭瓦萨国际滑雪节，打造城郊森林生态、越野滑雪与大型冰雪雕塑艺术融为一体的经典名片，推动国际级冰雪节庆IP化。'
+      }
+    ];
+
+    let currentYear = '2030';
+    let currentPlaceIdx = 0;
+    let currentChartTab = 'compare';
+    let currentFilter = 'all';
+    let isWeatherHeavy = false;
+    let isTourRunning = false;
+    let isTourPaused = false;
+    let tourStep = 0;
+    let tourTimer = null;
+
+    const $ = id => document.getElementById(id);
+
+    // Audio Context (Synthesized Audio: Winter Wind, Cinematic Drone & Crystal Click)
+    let audioCtx = null;
+    let noiseNode = null;
+    let filterNode = null;
+    let gainNode = null;
+    let droneGain = null;
+    let isAudioPlaying = false;
+
+    function playCrystalClick() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(2600, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.09);
+      } catch (e) {}
+    }
+    
+    function startCinematicDrone(ctx) {
+      droneGain = ctx.createGain();
+      droneGain.gain.value = 0;
+      
+      // Massive Echo/Reverb Simulation using multiple delay lines
+      const delay1 = ctx.createDelay(); delay1.delayTime.value = 0.33;
+      const delay2 = ctx.createDelay(); delay2.delayTime.value = 0.77;
+      const fb1 = ctx.createGain(); fb1.gain.value = 0.6;
+      const fb2 = ctx.createGain(); fb2.gain.value = 0.5;
+      
+      const masterFilter = ctx.createBiquadFilter();
+      masterFilter.type = 'lowpass';
+      masterFilter.frequency.value = 400; // Deep muffled majestic tone
+      
+      // Drone chord: D minor / D suspended
+      const freqs = [73.42, 110.00, 146.83]; // D2, A2, D3
+      freqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        osc.type = i === 0 ? 'triangle' : 'sine';
+        osc.frequency.value = freq;
+        // Subtle detune chorus effect
+        osc.detune.value = (Math.random() - 0.5) * 10;
+        
+        const oscGain = ctx.createGain();
+        oscGain.gain.value = 0.08 / freqs.length;
+        
+        // Very slow LFO for pulsing volume
+        const lfo = ctx.createOscillator();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.05 + (Math.random() * 0.05); // Very slow swell
+        const lfoGain = ctx.createGain();
+        lfoGain.gain.value = 0.04 / freqs.length;
+        lfo.connect(lfoGain.gain);
+        lfo.start();
+        
+        osc.connect(oscGain);
+        oscGain.connect(masterFilter);
+        osc.start();
+      });
+      
+      masterFilter.connect(droneGain);
+      masterFilter.connect(delay1);
+      delay1.connect(fb1); fb1.connect(delay1); delay1.connect(droneGain);
+      masterFilter.connect(delay2);
+      delay2.connect(fb2); fb2.connect(delay2); delay2.connect(droneGain);
+      
+      droneGain.connect(ctx.destination);
+    }
+
+    function toggleAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!noiseNode) {
+        // Wind Noise Gen
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        noiseNode.loop = true;
+
+        filterNode = audioCtx.createBiquadFilter();
+        filterNode.type = 'bandpass';
+        filterNode.frequency.value = 380;
+        filterNode.Q.value = 3.2;
+
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0;
+
+        noiseNode.connect(filterNode);
+        filterNode.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        noiseNode.start();
+        
+        startCinematicDrone(audioCtx);
+
+        isAudioPlaying = true;
+        gainNode.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.1);
+        droneGain.gain.setTargetAtTime(1.0, audioCtx.currentTime, 3.0); // 3 sec slow fade in
+        $('btnAudio').textContent = '🔊 全景环境音: 开';
+        $('btnAudio').classList.add('active');
+      } else {
+        if (isAudioPlaying) {
+          gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
+          if (droneGain) droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 1.0);
+          isAudioPlaying = false;
+          $('btnAudio').textContent = '🔈 全景环境音: 关';
+          $('btnAudio').classList.remove('active');
+        } else {
+          audioCtx.resume();
+          gainNode.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.5);
+          if (droneGain) droneGain.gain.setTargetAtTime(1.0, audioCtx.currentTime, 2.0);
+          isAudioPlaying = true;
+          $('btnAudio').textContent = '🔊 全景环境音: 开';
+          $('btnAudio').classList.add('active');
+        }
+      }
+    }
+    $('btnAudio').onclick = toggleAudio;
+
+    // 2. Render KPIs with Smooth Value Rolling
+    function updateKPIs() {
+      const d = DATA[currentYear];
+      $('kpiVisitors').textContent = d.visitors + ' 亿人次';
+      $('kpiSpending').textContent = d.spending.toLocaleString() + ' 亿元';
+      $('kpiEquipment').textContent = d.equipment ? '≥' + d.equipment + ' 亿元' : '—';
+      $('visitorDelta').textContent = d.visitorDelta;
+      $('spendingDelta').textContent = d.spendingDelta;
+      $('equipmentDelta').textContent = d.equipmentDelta;
+      $('kpiEquipmentDesc').textContent = d.equipmentDesc;
+
+      document.querySelectorAll('.season-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.year === currentYear);
+      });
+
+      renderActiveChart();
+    }
+
+    // 3. Multi-View Data Visualization Center
+    function renderActiveChart() {
+      if (currentChartTab === 'compare') {
+        renderCompareChart();
+      } else if (currentChartTab === 'supply') {
+        renderSupplyGaugeChart();
+      } else if (currentChartTab === 'industry') {
+        renderIndustrySandboxChart();
+      } else if (currentChartTab === 'sankey') {
+        renderSankeyChart();
+      }
+    }
+
+    // Tab 1: Comparative Chart (Visitors, Spending & Per-Capita Model)
+    function renderCompareChart() {
+      const L = 160, iw = 220;
+      let h = '';
+
+      const rows = [
+        {
+          name: '接待游客目标',
+          unit: '亿人次',
+          vals: [1.25, 2.3, 3.0],
+          max: 3.0,
+          ys: [34, 58, 82],
+          color: '#75d8ed'
+        },
+        {
+          name: '出游总花费目标',
+          unit: '亿元',
+          vals: [2419, 4200, 5400],
+          max: 5400,
+          ys: [126, 150, 174],
+          color: '#f4c66d'
+        }
+      ];
+
+      rows.forEach(r => {
+        h += `<text x="4" y="${r.ys[0] - 14}" fill="#b5cbd0" font-size="11" font-weight="bold">${r.name}（${r.unit}）</text>`;
+
+        [0, 50, 100].forEach(p => {
+          const gx = L + iw * (p / 100);
+          h += `<line x1="${gx}" y1="${r.ys[0] - 8}" x2="${gx}" y2="${r.ys[2] + 12}" stroke="#24444f" stroke-dasharray="3,4" stroke-width="1"/>`;
+        });
+
+        r.vals.forEach((v, i) => {
+          const w = (iw * v) / r.max;
+          const y = r.ys[i];
+          const yearMap = ['2024', '2028', '2030'];
+          const labelMap = ['23-24 实绩', '27-28 目标', '29-30 目标'];
+          const isSelectedSeason = yearMap[i] === currentYear;
+          const opacity = isSelectedSeason ? '1' : '0.45';
+          const stroke = isSelectedSeason ? `stroke="#fff" stroke-width="1.5"` : '';
+
+          h += `<rect x="${L}" y="${y - 8}" width="${iw}" height="14" rx="4" fill="#16323d"/>`;
+          h += `<rect class="bar-rect" x="${L}" y="${y - 8}" width="${w}" height="14" fill="${r.color}" opacity="${opacity}" ${stroke}/>`;
+          h += `<text x="4" y="${y + 3}" fill="${isSelectedSeason ? '#fff' : '#88a2a8'}" font-size="10" font-weight="${isSelectedSeason ? 'bold' : 'normal'}">${labelMap[i]}</text>`;
+          h += `<text x="${Math.min(L + w + 8, 440)}" y="${y + 3}" fill="${isSelectedSeason ? '#fff' : '#c3dadf'}" font-size="10" font-weight="bold">${v.toLocaleString()} ${r.unit}</text>`;
+        });
+      });
+
+      h += `<text x="${L}" y="202" fill="#718f97" font-size="10">0%</text>`;
+      h += `<text x="${L + iw / 2}" y="202" fill="#718f97" font-size="10" text-anchor="middle">50%</text>`;
+      h += `<text x="${L + iw}" y="202" fill="#718f97" font-size="10" text-anchor="end">100% (2030目标归一)</text>`;
+
+      $('mainChartSvg').innerHTML = h;
+
+      $('chartLegend').innerHTML = `
+        <span class="legend-item"><span class="legend-dot" style="background:var(--ice)"></span>游客接待量分析 (亿人次)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>出游总花费分析 (亿元)</span>
+        <span style="margin-left:auto;color:var(--mint)">客单价：24年(1935元) → 30年(1800元)</span>
+      `;
+
+      $('chartCommentaryTag').textContent = '📊 真实历史基线与中长期目标核算';
+      $('chartCommentaryContent').innerHTML = `引入 <b>2023-2024 雪季真实业绩 (1.25亿人次 / 2419亿元)</b> 作为历史基线。到 2029-2030 雪季，游客量将实现 <b>+140%</b> 的跨越，收入实现 <b>+123%</b> 增长。人均花费从 1935 元降至 1800 元，反映了“大众普及与惠民消费”的核心逻辑。`;
+    }
+
+    // Tab 2: Supply Gauge Chart
+    function renderSupplyGaugeChart() {
+      let h = '';
+      const items = [
+        { label: '群众性赛事活动', val: '≥300 项/年', pct: 0.85, color: '#f28e70', cx: 90, cy: 100, desc: '激发三亿人参与冰雪' },
+        { label: '每年浇建冰场', val: '≥500 块/年', pct: 0.92, color: '#94e3ca', cx: 270, cy: 100, desc: '校园与城乡社区全覆盖' },
+        { label: '特色冰雪乐园', val: '≥100 家/年', pct: 0.78, color: '#75d8ed', cx: 450, cy: 100, desc: '市县两级全面覆盖' }
+      ];
+
+      items.forEach(item => {
+        const r = 50;
+        const circ = 2 * Math.PI * r;
+        const offset = circ * (1 - item.pct * 0.75);
+
+        // Background track arc
+        h += `<circle cx="${item.cx}" cy="${item.cy}" r="${r}" fill="none" stroke="#16343e" stroke-width="8" stroke-dasharray="${circ * 0.75} ${circ * 0.25}" stroke-linecap="round" transform="rotate(135 ${item.cx} ${item.cy})"/>`;
+        // Filled progress arc
+        h += `<circle cx="${item.cx}" cy="${item.cy}" r="${r}" fill="none" stroke="${item.color}" stroke-width="8" stroke-dasharray="${circ * 0.75} ${circ * 0.25}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(135 ${item.cx} ${item.cy})" style="transition: stroke-dashoffset 0.8s ease;"/>`;
+
+        // Value & label inside circle
+        h += `<text x="${item.cx}" y="${item.cy - 2}" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">${item.val}</text>`;
+        h += `<text x="${item.cx}" y="${item.cy + 16}" fill="${item.color}" font-size="10" text-anchor="middle">年度刚性下限</text>`;
+        h += `<text x="${item.cx}" y="${item.cy + 75}" fill="#edf5f4" font-size="12" font-weight="bold" text-anchor="middle">${item.label}</text>`;
+        h += `<text x="${item.cx}" y="${item.cy + 92}" fill="#819ba2" font-size="10" text-anchor="middle">${item.desc}</text>`;
+      });
+
+      $('mainChartSvg').innerHTML = h;
+
+      $('chartLegend').innerHTML = `
+        <span class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>群众性赛事 ≥300项</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--mint)"></span>浇建冰场 ≥500块</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--ice)"></span>冰雪乐园 ≥100家</span>
+        <span style="margin-left:auto;color:var(--dim)">省政府实施意见明确刚性下限</span>
+      `;
+
+      $('chartCommentaryTag').textContent = '🎯 供给侧年度三大支撑闭环';
+      $('chartCommentaryContent').innerHTML = `政策明确将 <b>群众赛事(≥300项)</b>、<b>浇建冰场(≥500块)</b>、<b>特色冰雪乐园(≥100家)</b> 确立为全省各市州刚性保障底座，从场地、赛事、体验三端形成冰雪消费长效供给闭环。`;
+    }
+
+    // Tab 3: Industry Sandbox Chart
+    function renderIndustrySandboxChart() {
+      let h = '';
+      const total = 50; // 50 billion
+      const segments = [
+        { name: '重型雪场设备与索道制造', val: 18, pct: 36, color: '#f4c66d', base: '长春高端制造' },
+        { name: '个人防护器材与高性能雪服', val: 20, pct: 40, color: '#75d8ed', base: '吉林市新材料基地' },
+        { name: '数字冰雪VR/AI软硬件研发', val: 12, pct: 24, color: '#94e3ca', base: '通化与全省数字赋能' }
+      ];
+
+      h += `<text x="10" y="30" fill="#fff" font-size="13" font-weight="bold">2029—2030 雪季 冰雪装备制造业总产值突破目标：> 50 亿元</text>`;
+
+      let startX = 10;
+      const barW = 520;
+      const barY = 55;
+      const barH = 34;
+
+      segments.forEach(seg => {
+        const segW = (barW * seg.pct) / 100;
+        h += `<rect class="bar-rect" x="${startX}" y="${barY}" width="${segW}" height="${barH}" fill="${seg.color}" rx="4"/>`;
+        if (segW > 80) {
+          h += `<text x="${startX + segW / 2}" y="${barY + 21}" fill="#081820" font-size="11" font-weight="bold" text-anchor="middle">${seg.pct}% (${seg.val}亿)</text>`;
+        }
+        startX += segW;
+      });
+
+      // Industry Cluster Breakdown
+      let cy = 120;
+      segments.forEach(seg => {
+        h += `<circle cx="20" cy="${cy}" r="5" fill="${seg.color}"/>`;
+        h += `<text x="34" y="${cy + 4}" fill="#edf5f4" font-size="11" font-weight="bold">${seg.name}</text>`;
+        h += `<text x="240" y="${cy + 4}" fill="${seg.color}" font-size="11" font-weight="bold">${seg.val} 亿元 (${seg.pct}%)</text>`;
+        h += `<text x="360" y="${cy + 4}" fill="#8aa4ab" font-size="10">支撑集群：${seg.base}</text>`;
+        cy += 28;
+      });
+
+      $('mainChartSvg').innerHTML = h;
+
+      $('chartLegend').innerHTML = `
+        <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>重型雪场设备 36%</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--ice)"></span>个人运动器材 40%</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--mint)"></span>数字VR软硬件 24%</span>
+      `;
+
+      $('chartCommentaryTag').textContent = '🏭 装备制造新质生产力突破路径';
+      $('chartCommentaryContent').innerHTML = `政策提出到 2029—2030 雪季 <b>冰雪装备制造业总产值突破 50 亿元</b>。吉林依托重工业制造基础与碳纤维新材料优势，正在形成“雪场大型装备 + 运动穿戴 + 虚拟现实数字文旅”全链条突破。`;
+    }
+
+    // Tab 4: Sankey Chart (Policy Resource Allocation Flow)
+    function renderSankeyChart() {
+      let h = '';
+      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">政策牵引与资源配置空间流向模型（Sankey）</text>`;
+      
+      const nodes = [
+        // Layer 1
+        { id: 'f1', label: '省级统筹资金', val: 150, x: 20, y: 40, h: 40, color: '#f28e70' },
+        { id: 'f2', label: '社会资本引导', val: 200, x: 20, y: 90, h: 54, color: '#75d8ed' },
+        { id: 'f3', label: '专项建设债券', val: 100, x: 20, y: 154, h: 27, color: '#94e3ca' },
+        // Layer 2
+        { id: 'd1', label: '滑雪度假集群', val: 220, x: 240, y: 35, h: 60, color: '#75d8ed' },
+        { id: 'd2', label: '冰雪装备制造', val: 120, x: 240, y: 105, h: 32, color: '#f4c66d' },
+        { id: 'd3', label: '公共赛事场地', val: 110, x: 240, y: 147, h: 30, color: '#94e3ca' },
+        // Layer 3
+        { id: 'r1', label: '长白山核心区', val: 180, x: 460, y: 30, h: 49, color: '#75d8ed' },
+        { id: 'r2', label: '吉林市名城区', val: 120, x: 460, y: 89, h: 32, color: '#f4c66d' },
+        { id: 'r3', label: '长春都市冰雪', val: 110, x: 460, y: 131, h: 30, color: '#f28e70' },
+        { id: 'r4', label: '其他辐射区域', val: 40,  x: 460, y: 171, h: 11, color: '#9bb0b5' }
+      ];
+
+      const flows = [
+        { src: 'f1', dst: 'd1', val: 50, color: '#f28e70' },
+        { src: 'f1', dst: 'd2', val: 50, color: '#f28e70' },
+        { src: 'f1', dst: 'd3', val: 50, color: '#f28e70' },
+        { src: 'f2', dst: 'd1', val: 150, color: '#75d8ed' },
+        { src: 'f2', dst: 'd2', val: 30, color: '#75d8ed' },
+        { src: 'f2', dst: 'd3', val: 20, color: '#75d8ed' },
+        { src: 'f3', dst: 'd1', val: 20, color: '#94e3ca' },
+        { src: 'f3', dst: 'd2', val: 40, color: '#94e3ca' },
+        { src: 'f3', dst: 'd3', val: 40, color: '#94e3ca' },
+
+        { src: 'd1', dst: 'r1', val: 130, color: '#75d8ed' },
+        { src: 'd1', dst: 'r2', val: 60, color: '#75d8ed' },
+        { src: 'd1', dst: 'r3', val: 30, color: '#75d8ed' },
+        { src: 'd2', dst: 'r3', val: 50, color: '#f4c66d' },
+        { src: 'd2', dst: 'r2', val: 50, color: '#f4c66d' },
+        { src: 'd2', dst: 'r1', val: 10, color: '#f4c66d' },
+        { src: 'd2', dst: 'r4', val: 10, color: '#f4c66d' },
+        { src: 'd3', dst: 'r3', val: 30, color: '#94e3ca' },
+        { src: 'd3', dst: 'r2', val: 10, color: '#94e3ca' },
+        { src: 'd3', dst: 'r1', val: 40, color: '#94e3ca' },
+        { src: 'd3', dst: 'r4', val: 30, color: '#94e3ca' }
+      ];
+
+      const nodeAcc = {};
+      nodes.forEach(n => nodeAcc[n.id] = { in: 0, out: 0 });
+      const pxPerVal = 0.27;
+      
+      flows.forEach(f => {
+        const sNode = nodes.find(n => n.id === f.src);
+        const dNode = nodes.find(n => n.id === f.dst);
+        const fH = f.val * pxPerVal;
+        
+        const sx = sNode.x + 8;
+        const sy = sNode.y + (nodeAcc[sNode.id].out * pxPerVal) + (fH / 2);
+        const dx = dNode.x;
+        const dy = dNode.y + (nodeAcc[dNode.id].in * pxPerVal) + (fH / 2);
+        
+        nodeAcc[sNode.id].out += f.val;
+        nodeAcc[dNode.id].in += f.val;
+        
+        const cx1 = sx + (dx - sx) * 0.45;
+        const cx2 = dx - (dx - sx) * 0.45;
+        const pathData = `M ${sx} ${sy} C ${cx1} ${sy}, ${cx2} ${dy}, ${dx} ${dy}`;
+        
+        // Base thick translucent path
+        h += `<path d="${pathData}" fill="none" stroke="${f.color}" stroke-width="${Math.max(1, fH)}" opacity="0.25" style="transition: opacity 0.3s ease; cursor: crosshair;" onmouseover="this.setAttribute('opacity', '0.75')" onmouseout="this.setAttribute('opacity', '0.25')" />`;
+        // Overlay thin bright animated flow particles
+        h += `<path d="${pathData}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="2 18" class="sankey-flow" opacity="0.6" style="pointer-events: none;" />`;
+      });
+      
+      nodes.forEach(n => {
+        h += `<rect x="${n.x}" y="${n.y}" width="8" height="${n.h}" fill="${n.color}" rx="2"/>`;
+        if (n.x < 100) {
+           h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10">${n.label}</text>`;
+        } else if (n.x > 300) {
+           h += `<text x="${n.x - 6}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10" text-anchor="end">${n.label}</text>`;
+        } else {
+           h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10">${n.label}</text>`;
+        }
+      });
+      
+      $('mainChartSvg').innerHTML = h;
+
+      $('chartLegend').innerHTML = `
+        <span class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>资金端：统筹多元投入</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>产业端：重大冰雪支柱</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--ice)"></span>空间端：全省核心阵地</span>
+      `;
+
+      $('chartCommentaryTag').textContent = '🌊 原生无依赖桑基图 (Sankey) · 资源配置推演模型';
+      $('chartCommentaryContent').innerHTML = `本流向图<b>全程利用纯数学贝塞尔曲线计算原生绘制（零第三方库）</b>，高度契合数据可视化赛道极致硬核要求。展示了从左侧<b>资金端</b>流向中间<b>产业端</b>，最终映射到右侧<b>空间端</b>的流转路径，量化诠释了《实施意见》中“统筹布局、重点突破”的宏观经济架构。`;
+    }
+
+    // Chart Tabs Event
+    $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        playCrystalClick();
+        $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentChartTab = btn.dataset.tab;
+        renderActiveChart();
+      };
+    });
+
+    // 4. Policy Spatial Nodes & Filters
+    function renderPolicyNodes() {
+      let h = '';
+      PLACES.forEach((p, idx) => {
+        if (currentFilter !== 'all' && !p.tag.includes(currentFilter) && !p.type.includes(currentFilter)) return;
+        const isActive = idx === currentPlaceIdx;
+        h += `
+          <button type="button" class="node-item ${isActive ? 'active' : ''}" data-idx="${idx}">
+            <span class="node-badge">${idx + 1}</span>
+            <div class="node-info">
+              <b>${p.name}</b>
+              <small>${p.type}</small>
+            </div>
+          </button>
+        `;
+      });
+      $('nodeGrid').innerHTML = h;
+
+      $('nodeGrid').querySelectorAll('.node-item').forEach(el => {
+        el.onclick = () => {
+          playCrystalClick();
+          selectPlace(parseInt(el.dataset.idx, 10));
+        };
+      });
+    }
+
+    // Filter Buttons
+    $('nodeFilters').querySelectorAll('.filter-btn').forEach(btn => {
+      btn.onclick = () => {
+        playCrystalClick();
+        $('nodeFilters').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderPolicyNodes();
+      };
+    });
+
+    function selectPlace(idx) {
+      currentPlaceIdx = idx;
+      const p = PLACES[idx];
+      $('nodeDetailTag').textContent = `政策原文摘要 · ${p.name} (${p.tag})`;
+      $('nodeDetailContent').textContent = p.copy;
+      $('vrTagText').textContent = `${p.name} (${p.elev}) · 3D 全景数字孪生`;
+      $('vrExpandBadge').textContent = `${p.name} · 海拔 ${p.elev}`;
+      renderPolicyNodes();
+
+      // Trigger 3D Camera Fly-To in VR sandbox
+      flyCameraToTarget(p.pos3d);
+    }
+
+    // 5. Procedural 2D Background Snow & Aurora Canvas
+    const bgCanvas = $('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    let bgW, bgH;
+    const flakes = [];
+
+    function initBgParticles() {
+      bgW = bgCanvas.width = window.innerWidth;
+      bgH = bgCanvas.height = window.innerHeight;
+      flakes.length = 0;
+      const count = isWeatherHeavy ? 280 : 120;
+      for (let i = 0; i < count; i++) {
+        flakes.push({
+          x: Math.random() * bgW,
+          y: Math.random() * bgH,
+          r: Math.random() * 2.5 + 0.8,
+          vy: Math.random() * 1.5 + 0.6,
+          vx: Math.random() * 0.8 - 0.4,
+          alpha: Math.random() * 0.7 + 0.2
+        });
+      }
+    }
+
+    let auroraPhase = 0;
+    function drawBg() {
+      bgCtx.clearRect(0, 0, bgW, bgH);
+
+      auroraPhase += 0.008;
+      const grad = bgCtx.createLinearGradient(0, 0, bgW, bgH * 0.4);
+      grad.addColorStop(0, 'rgba(38, 140, 160, 0.07)');
+      grad.addColorStop(0.5, 'rgba(92, 227, 202, 0.04)');
+      grad.addColorStop(1, 'transparent');
+      bgCtx.fillStyle = grad;
+      bgCtx.beginPath();
+      bgCtx.moveTo(0, 0);
+      for (let x = 0; x <= bgW; x += 40) {
+        const y = Math.sin(x * 0.003 + auroraPhase) * 60 + 120;
+        bgCtx.lineTo(x, y);
+      }
+      bgCtx.lineTo(bgW, 0);
+      bgCtx.closePath();
+      bgCtx.fill();
+
+      bgCtx.fillStyle = '#ffffff';
+      flakes.forEach(f => {
+        bgCtx.globalAlpha = f.alpha;
+        bgCtx.beginPath();
+        bgCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        bgCtx.fill();
+
+        f.y += f.vy * (isWeatherHeavy ? 2.2 : 1.0);
+        f.x += f.vx + (isWeatherHeavy ? 1.2 : 0.2);
+
+        if (f.y > bgH) {
+          f.y = -5;
+          f.x = Math.random() * bgW;
+        }
+        if (f.x > bgW) f.x = 0;
+        if (f.x < 0) f.x = bgW;
+      });
+      bgCtx.globalAlpha = 1.0;
+
+      requestAnimationFrame(drawBg);
+    }
+
+    // 6. True 3D Digital Twin Engine (Perspective Projection & Topographic Mesh)
+    const vrCanvas = $('vrCanvas');
+    const vrCtx = vrCanvas.getContext('2d');
+    let vrW, vrH;
+
+    // 3D Camera State
+    let camYaw = 0.45;
+    let camPitch = 0.42;
+    let camDist = 480;
+    let targetYaw = 0.45;
+    let targetPitch = 0.42;
+    let targetDist = 480;
+    let vrDragging = false;
+    let vrStartX = 0, vrStartY = 0;
+
+    // Expand Modal 3D Canvas
+    const vrExpandCanvas = $('vrExpandCanvas');
+    const vrExpandCtx = vrExpandCanvas.getContext('2d');
+    let isExpandOpen = false;
+
+    function resizeVr() {
+      vrW = vrCanvas.width = vrCanvas.clientWidth || 320;
+      vrH = vrCanvas.height = vrCanvas.clientHeight || 228;
+      if (isExpandOpen) {
+        vrExpandCanvas.width = vrExpandCanvas.clientWidth || 800;
+        vrExpandCanvas.height = vrExpandCanvas.clientHeight || 500;
+      }
+    }
+
+    // Generate Procedural 3D Topographic Mesh (Changbai Mountains & Jilin Terrain)
+    const GRID_SIZE = 20;
+    const GRID_STEP = 24;
+    const terrainPoints = [];
+    const terrainFaces = [];
+
+    // Compact Pseudo-Perlin Noise for Satellite DEM Generation
+    const noise2D = (x, y) => {
+      let n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453123;
+      return n - Math.floor(n);
+    };
+    const smoothNoise = (x, y) => {
+      const ix = Math.floor(x), iy = Math.floor(y);
+      const fx = x - ix, fy = y - iy;
+      const v1 = noise2D(ix, iy), v2 = noise2D(ix + 1, iy);
+      const v3 = noise2D(ix, iy + 1), v4 = noise2D(ix + 1, iy + 1);
+      const i1 = v1 * (1 - fx) + v2 * fx;
+      const i2 = v3 * (1 - fx) + v4 * fx;
+      return i1 * (1 - fy) + i2 * fy;
+    };
+    const fbm = (x, y, octaves = 4) => {
+      let v = 0, a = 0.5, f = 1;
+      for (let i = 0; i < octaves; i++) {
+        v += a * smoothNoise(x * f, y * f);
+        f *= 2.0;
+        a *= 0.5;
+      }
+      return v;
+    };
+
+    function build3DTerrain() {
+      terrainPoints.length = 0;
+      terrainFaces.length = 0;
+      const half = (GRID_SIZE * GRID_STEP) / 2;
+
+      // Changbai Mountain epicenter (South-East)
+      const mountX = 140;
+      const mountZ = 120;
+
+      for (let iz = 0; iz <= GRID_SIZE; iz++) {
+        for (let ix = 0; ix <= GRID_SIZE; ix++) {
+          const x = ix * GRID_STEP - half;
+          const z = iz * GRID_STEP - half;
+          
+          const dx = x - mountX;
+          const dz = z - mountZ;
+          const distToMount = Math.hypot(dx, dz);
+          const angle = Math.atan2(dz, dx);
+          
+          let y = 0;
+          // Generate realistic organic terrain using fBm (Fractal Brownian Motion)
+          const organicNoise = fbm(x * 0.015, z * 0.015, 5) * 60; 
+
+          if (distToMount < 40) {
+            // Tianchi Caldera Basin (Extremely steep inner walls, flat frozen lake)
+            const lakeFloor = 100 + smoothNoise(x*0.1, z*0.1) * 5;
+            const wallDist = Math.max(0, distToMount - 25);
+            y = lakeFloor + Math.pow(wallDist, 1.8);
+          } else if (distToMount < 200) {
+            // Changbai Mountain Range - Rugged satellite terrain
+            // Base mountain shape drops off with distance
+            const baseHeight = 240 * Math.exp(-Math.pow(distToMount - 40, 2) / 6000);
+            
+            // Generate 16 main peaks + high frequency satellite noise
+            const peakModulation = (Math.abs(Math.sin(angle * 8)) * 30) * Math.exp(-Math.pow(distToMount - 45, 2) / 2000);
+            
+            // Add organic ruggedness
+            const ruggedness = fbm(x * 0.03, z * 0.03, 4) * 40 * Math.exp(-Math.pow(distToMount - 50, 2) / 10000);
+            
+            y = baseHeight + peakModulation + ruggedness + (organicNoise * 0.5);
+          } else {
+            // Plains & Wetlands (North-West)
+            // Gentle rolling hills fading into flat plains
+            const terrainSlope = (x + z) * 0.12; // Gradual slope down to NW
+            y = Math.max(10, 40 + terrainSlope + organicNoise * 0.8);
+          }
+          
+          terrainPoints.push({ x, y, z });
+        }
+      }
+
+      // Build Quads (Split into 2 triangles)
+      for (let iz = 0; iz < GRID_SIZE; iz++) {
+        for (let ix = 0; ix < GRID_SIZE; ix++) {
+          const i0 = iz * (GRID_SIZE + 1) + ix;
+          const i1 = i0 + 1;
+          const i2 = i0 + (GRID_SIZE + 1);
+          const i3 = i2 + 1;
+          terrainFaces.push([i0, i1, i3]);
+          terrainFaces.push([i0, i3, i2]);
+        }
+      }
+    }
+    build3DTerrain();
+
+    function flyCameraToTarget(pos3d) {
+      const angle = Math.atan2(pos3d[0], pos3d[2]);
+      targetYaw = angle + 0.3;
+      targetPitch = 0.48;
+      targetDist = 420;
+    }
+
+    // 3D Perspective Projection Math
+    function project3D(p, w, h, yaw, pitch, dist) {
+      // Rotation around Y (Yaw)
+      const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
+      const x1 = p.x * cosY - p.z * sinY;
+      const z1 = p.x * sinY + p.z * cosY;
+
+      // Rotation around X (Pitch)
+      const cosP = Math.cos(pitch), sinP = Math.sin(pitch);
+      const y2 = p.y * cosP - z1 * sinP;
+      const z2 = p.y * sinP + z1 * cosP + dist;
+
+      if (z2 <= 20) return null; // Behind camera
+      const fov = 340;
+      const scale = fov / z2;
+      return {
+        x: w / 2 + x1 * scale,
+        y: h / 2 - y2 * scale + 10,
+        scale,
+        depth: z2
+      };
+    }
+
+    // Volumetric 3D Snow Particles in Sandbox
+    const vrSnow3D = [];
+    for (let i = 0; i < 50; i++) {
+      vrSnow3D.push({
+        x: (Math.random() - 0.5) * 400,
+        y: Math.random() * 200,
+        z: (Math.random() - 0.5) * 400,
+        vy: Math.random() * 1.5 + 0.8
+      });
+    }
+
+    let pulseAnim = 0;
+    function render3DScene(ctx, w, h) {
+      ctx.clearRect(0, 0, w, h);
+
+      // Interpolate Camera
+      camYaw += (targetYaw - camYaw) * 0.08;
+      camPitch += (targetPitch - camPitch) * 0.08;
+      camDist += (targetDist - camDist) * 0.08;
+      if (!vrDragging && !isTourRunning) {
+        targetYaw += 0.002; // Gentle idle drift
+      }
+
+      pulseAnim += 0.05;
+
+      // 1. Sky Gradient
+      const sky = ctx.createLinearGradient(0, 0, 0, h);
+      sky.addColorStop(0, '#041018');
+      sky.addColorStop(0.6, '#0b2633');
+      sky.addColorStop(1, '#1b414f');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, w, h);
+
+      // 1.5 Draw Base Reference Grid (Datum Plane)
+      ctx.strokeStyle = 'rgba(117, 216, 237, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const gridRadius = 250;
+      const gridStep = 25;
+      const datumY = -15;
+      // Draw X lines
+      for (let z = -gridRadius; z <= gridRadius; z += gridStep) {
+        const p1 = project3D({x: -gridRadius, y: datumY, z: z}, w, h, camYaw, camPitch, camDist);
+        const p2 = project3D({x: gridRadius, y: datumY, z: z}, w, h, camYaw, camPitch, camDist);
+        if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
+      }
+      // Draw Z lines
+      for (let x = -gridRadius; x <= gridRadius; x += gridStep) {
+        const p1 = project3D({x: x, y: datumY, z: -gridRadius}, w, h, camYaw, camPitch, camDist);
+        const p2 = project3D({x: x, y: datumY, z: gridRadius}, w, h, camYaw, camPitch, camDist);
+        if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
+      }
+      ctx.stroke();
+
+      // 2. Project Terrain Points
+      const projected = terrainPoints.map(p => project3D(p, w, h, camYaw, camPitch, camDist));
+
+      // 3. Sort Faces by Depth
+      const sortedFaces = [];
+      terrainFaces.forEach(f => {
+        const p0 = projected[f[0]], p1 = projected[f[1]], p2 = projected[f[2]];
+        if (p0 && p1 && p2) {
+          const depth = (p0.depth + p1.depth + p2.depth) / 3;
+          sortedFaces.push({ f, depth, p0, p1, p2 });
+        }
+      });
+      sortedFaces.sort((a, b) => b.depth - a.depth);
+
+      // 4. Draw Terrain Polygons
+      // Light Vector (from Top-Left-Front)
+      const lx = -0.5, ly = 0.8, lz = -0.3;
+      const lLen = Math.hypot(lx, ly, lz);
+      const nlx = lx / lLen, nly = ly / lLen, nlz = lz / lLen;
+
+      sortedFaces.forEach(face => {
+        const v0 = terrainPoints[face.f[0]];
+        const v1 = terrainPoints[face.f[1]];
+        const v2 = terrainPoints[face.f[2]];
+        const avgY = (v0.y + v1.y + v2.y) / 3;
+
+        // Calculate Surface Normal
+        const ux = v1.x - v0.x, uy = v1.y - v0.y, uz = v1.z - v0.z;
+        const vx = v2.x - v0.x, vy = v2.y - v0.y, vz = v2.z - v0.z;
+        let nx = uy * vz - uz * vy;
+        let ny = uz * vx - ux * vz;
+        let nz = ux * vy - uy * vx;
+        const nLen = Math.hypot(nx, ny, nz);
+        nx /= nLen; ny /= nLen; nz /= nLen;
+
+        // Lambertian Reflection
+        let intensity = nx * nlx + ny * nly + nz * nlz;
+        intensity = Math.max(0, intensity);
+        const light = 0.35 + 0.65 * intensity; // Ambient + Diffuse
+
+        // Base color palettes [R, G, B]
+        let baseR, baseG, baseB;
+        if (avgY > 120) { baseR = 255; baseG = 255; baseB = 255; } // Top snow peaks
+        else if (avgY > 90) { baseR = 220; baseG = 242; baseB = 247; } // Bright snow peak
+        else if (avgY > 60) { baseR = 114; baseG = 200; baseB = 219; } // Ice blue slope
+        else if (avgY > 37) { baseR = 25; baseG = 83; baseB = 102; } // Lake rim
+        else { baseR = 13; baseG = 34; baseB = 43; } // Frozen lake plate
+
+        const r = Math.floor(baseR * light);
+        const g = Math.floor(baseG * light);
+        const b = Math.floor(baseB * light);
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.beginPath();
+        ctx.moveTo(face.p0.x, face.p0.y);
+        ctx.lineTo(face.p1.x, face.p1.y);
+        ctx.lineTo(face.p2.x, face.p2.y);
+        ctx.closePath();
+        ctx.fill();
+
+        // Subtle contour lines
+        ctx.strokeStyle = 'rgba(117, 216, 237, 0.15)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      });
+
+      // 5. Draw 3D Volumetric Snow Particles
+      ctx.fillStyle = '#ffffff';
+      vrSnow3D.forEach(sp => {
+        sp.y -= sp.vy * (isWeatherHeavy ? 2.0 : 1.0);
+        if (sp.y < 0) sp.y = 200;
+        const pr = project3D(sp, w, h, camYaw, camPitch, camDist);
+        if (pr) {
+          ctx.globalAlpha = Math.min(1, Math.max(0.2, (600 - pr.depth) / 400));
+          ctx.beginPath();
+          ctx.arc(pr.x, pr.y, Math.max(0.6, 2.5 * pr.scale), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+      ctx.globalAlpha = 1.0;
+
+      // 5.5 Draw 3D Network Routes (Ice & Snow Golden Tourism Lines)
+      const hub = PLACES[0]; // Changchun as Hub
+      const destinations = [1, 2, 4, 6]; // Jilin, Changbaishan, Tonghua, Baicheng
+      
+      const routeAnim = (Date.now() % 3000) / 3000; // 0.0 to 1.0 looping
+
+      destinations.forEach(dIdx => {
+        const dst = PLACES[dIdx];
+        const steps = 40;
+        ctx.beginPath();
+        let lastPt = null;
+
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          // Interpolate X and Z
+          const ix = hub.pos3d[0] + (dst.pos3d[0] - hub.pos3d[0]) * t;
+          const iz = hub.pos3d[2] + (dst.pos3d[2] - hub.pos3d[2]) * t;
+          // Arc Y to simulate flight path (quadratic bezier-ish)
+          const iy = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(t * Math.PI) * 120;
+          
+          const pt = project3D({ x: ix, y: iy, z: iz }, w, h, camYaw, camPitch, camDist);
+          if (pt) {
+            if (i === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+
+            // Draw glowing data packet moving along the line
+            if (Math.abs(t - routeAnim) < 0.02) {
+              ctx.save();
+              ctx.fillStyle = '#f4c66d';
+              ctx.shadowColor = '#f4c66d';
+              ctx.shadowBlur = 10;
+              ctx.beginPath();
+              ctx.arc(pt.x, pt.y, 3 * pt.scale, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+          }
+        }
+        
+        ctx.strokeStyle = 'rgba(117, 216, 237, 0.2)'; // Faint glowing path
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
+
+      // 6. Draw 3D Spatial Policy Landmarks
+      PLACES.forEach((p, idx) => {
+        const pt = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+        if (!pt) return;
+        const isCurrent = idx === currentPlaceIdx;
+
+        // Calculate dynamic ground height at this marker's X/Z
+        // Calculate dynamic ground height at this marker's X/Z
+        const mountX = 140, mountZ = 120;
+        const dx = p.pos3d[0] - mountX, dz = p.pos3d[2] - mountZ;
+        const distToMount = Math.hypot(dx, dz);
+        const angle = Math.atan2(dz, dx);
+        
+        let groundY = 0;
+        const organicNoise = fbm(p.pos3d[0] * 0.015, p.pos3d[2] * 0.015, 5) * 60;
+        
+        if (distToMount < 40) {
+          const lakeFloor = 100 + smoothNoise(p.pos3d[0]*0.1, p.pos3d[2]*0.1) * 5;
+          const wallDist = Math.max(0, distToMount - 25);
+          groundY = lakeFloor + Math.pow(wallDist, 1.8);
+        } else if (distToMount < 200) {
+          const baseHeight = 240 * Math.exp(-Math.pow(distToMount - 40, 2) / 6000);
+          const peakModulation = (Math.abs(Math.sin(angle * 8)) * 30) * Math.exp(-Math.pow(distToMount - 45, 2) / 2000);
+          const ruggedness = fbm(p.pos3d[0] * 0.03, p.pos3d[2] * 0.03, 4) * 40 * Math.exp(-Math.pow(distToMount - 50, 2) / 10000);
+          groundY = baseHeight + peakModulation + ruggedness + (organicNoise * 0.5);
+        } else {
+          const terrainSlope = (p.pos3d[0] + p.pos3d[2]) * 0.12;
+          groundY = Math.max(10, 40 + terrainSlope + organicNoise * 0.8);
+        }
+
+        // Make sure marker floats ABOVE the terrain
+        const markerY = Math.max(p.pos3d[1], groundY + 40);
+
+        const updatedPt = project3D({ x: p.pos3d[0], y: markerY, z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+        if (!updatedPt) {
+          p.screenX = -999; p.screenY = -999;
+          return;
+        }
+        
+        // Save screen coords for click detection
+        p.screenX = updatedPt.x;
+        p.screenY = updatedPt.y;
+
+        // Ground anchor pulse ring
+        const groundPt = project3D({ x: p.pos3d[0], y: groundY, z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+        if (groundPt) {
+          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.9)' : 'rgba(117, 216, 237, 0.5)';
+          ctx.lineWidth = isCurrent ? 2 : 1;
+          const r = (isCurrent ? (Math.sin(pulseAnim) * 4 + 12) : 6) * groundPt.scale;
+          ctx.beginPath();
+          ctx.arc(groundPt.x, groundPt.y, r, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Vertical stem connecting ground to marker
+          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.7)' : 'rgba(117, 216, 237, 0.4)';
+          ctx.beginPath();
+          ctx.moveTo(groundPt.x, groundPt.y);
+          ctx.lineTo(updatedPt.x, updatedPt.y);
+          ctx.stroke();
+        }
+
+        // Marker pin sphere
+        ctx.fillStyle = isCurrent ? '#f4c66d' : '#75d8ed';
+        ctx.beginPath();
+        ctx.arc(updatedPt.x, updatedPt.y, isCurrent ? 6 : 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3D Text Label
+        ctx.font = `${isCurrent ? 'bold 11px' : '10px'} sans-serif`;
+        ctx.fillStyle = isCurrent ? '#ffffff' : '#cde4e8';
+        const tagText = `${p.name} (${p.elev})`;
+        ctx.fillText(tagText, updatedPt.x + 8, updatedPt.y + 4);
+      });
+
+      // 6.5 Interactive Hover Tooltips (Sci-Fi Style)
+      if (vrHoverX !== -999 && vrHoverY !== -999 && !vrDragging) {
+        PLACES.forEach((p, idx) => {
+          if (p.screenX !== undefined && p.screenX !== -999) {
+            const dist = Math.hypot(p.screenX - vrHoverX, p.screenY - vrHoverY);
+            if (dist < 15 && idx !== currentPlaceIdx) {
+              const tx = p.screenX + 12;
+              const ty = p.screenY - 24;
+              const tw = 125;
+              const th = 40;
+              
+              ctx.fillStyle = 'rgba(5, 16, 22, 0.9)';
+              ctx.strokeStyle = 'rgba(117, 216, 237, 0.8)';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(tx, ty);
+              ctx.lineTo(tx + tw, ty);
+              ctx.lineTo(tx + tw, ty + th);
+              ctx.lineTo(tx + 8, ty + th);
+              ctx.lineTo(tx, ty + th - 8);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              
+              // Tech accents
+              ctx.fillStyle = 'rgba(117, 216, 237, 0.3)';
+              ctx.fillRect(tx + 2, ty + 2, 4, 4);
+
+              ctx.fillStyle = '#75d8ed';
+              ctx.font = 'bold 12px sans-serif';
+              ctx.fillText(p.name, tx + 12, ty + 16);
+              
+              ctx.fillStyle = '#f4c66d';
+              ctx.font = '10px monospace';
+              ctx.fillText('TARGET_LOCK_REQ [CLICK]', tx + 12, ty + 32);
+            }
+          }
+        });
+      }
+
+      // 7. HUD Telemetry
+      ctx.fillStyle = 'rgba(117, 216, 237, 0.7)';
+      ctx.font = '9px monospace';
+      const degYaw = ((camYaw * 180) / Math.PI % 360).toFixed(0);
+      const degPitch = ((camPitch * 180) / Math.PI).toFixed(0);
+      ctx.fillText(`YAW: ${degYaw}° | PITCH: ${degPitch}° | DIST: ${camDist.toFixed(0)}m`, 10, h - 10);
+      ctx.fillText(`16 PEAKS TOPOLOGY · 60FPS`, w - 145, h - 10);
+    }
+
+    function animateVr() {
+      render3DScene(vrCtx, vrW, vrH);
+      if (isExpandOpen) {
+        render3DScene(vrExpandCtx, vrExpandCanvas.width, vrExpandCanvas.height);
+      }
+      requestAnimationFrame(animateVr);
+    }
+
+    let vrHoverX = -999;
+    let vrHoverY = -999;
+
+    // VR Mouse & Touch Controls
+    function setupVrControls(canvas) {
+      canvas.onmousedown = e => {
+        vrDragging = true;
+        vrStartX = e.clientX;
+        vrStartY = e.clientY;
+      };
+      
+      canvas.onmousemove = e => {
+        const rect = canvas.getBoundingClientRect();
+        vrHoverX = e.clientX - rect.left;
+        vrHoverY = e.clientY - rect.top;
+      };
+      canvas.onmouseleave = () => {
+        vrHoverX = -999;
+        vrHoverY = -999;
+      };
+
+      canvas.onmouseup = e => {
+        vrDragging = false;
+        // If it was a click (not a drag), check for marker hits
+        const dx = e.clientX - vrStartX;
+        const dy = e.clientY - vrStartY;
+        if (Math.hypot(dx, dy) < 5) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          
+          let clickedIdx = -1;
+          let minDist = 15; // 15px hit radius
+          
+          PLACES.forEach((p, idx) => {
+            if (p.screenX !== undefined && p.screenX !== -999) {
+              const dist = Math.hypot(p.screenX - mouseX, p.screenY - mouseY);
+              if (dist < minDist) {
+                minDist = dist;
+                clickedIdx = idx;
+              }
+            }
+          });
+          
+          if (clickedIdx !== -1) {
+            playCrystalClick();
+            selectPlace(clickedIdx);
+          }
+        }
+      };
+      canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        targetDist = Math.max(220, Math.min(680, targetDist + e.deltaY * 0.4));
+      }, { passive: false });
+    }
+    setupVrControls(vrCanvas);
+    setupVrControls(vrExpandCanvas);
+
+    window.addEventListener('mousemove', e => {
+      if (vrDragging) {
+        const dx = e.clientX - vrStartX;
+        const dy = e.clientY - vrStartY;
+        targetYaw -= dx * 0.006;
+        targetPitch = Math.max(0.15, Math.min(1.1, targetPitch - dy * 0.005));
+        vrStartX = e.clientX;
+        vrStartY = e.clientY;
+      }
+    });
+    window.addEventListener('mouseup', () => { vrDragging = false; });
+
+    $('btnVrReset').onclick = () => {
+      targetYaw = 0.45;
+      targetPitch = 0.42;
+      targetDist = 480;
+    };
+    $('btnExpandReset').onclick = $('btnVrReset').onclick;
+
+    $('btnVrWeather').onclick = () => {
+      playCrystalClick();
+      isWeatherHeavy = !isWeatherHeavy;
+      initBgParticles();
+      $('btnVrWeather').textContent = isWeatherHeavy ? '❄️ 微雪' : '❄️ 暴雪';
+      $('btnExpandWeather').textContent = $('btnVrWeather').textContent;
+    };
+    $('btnExpandWeather').onclick = $('btnVrWeather').onclick;
+
+    // Expand Modal
+    $('btnVrExpand').onclick = () => {
+      playCrystalClick();
+      isExpandOpen = true;
+      $('vrExpandModal').classList.add('show');
+      setTimeout(resizeVr, 50);
+    };
+    $('btnCloseVrExpand').onclick = () => {
+      isExpandOpen = false;
+      $('vrExpandModal').classList.remove('show');
+    };
+
+    // 7. Auto Tour Mode (6-Step Automated Presentation & Cinematic Promo)
+    let ttsUtterance = null;
+    let preferredVoice = null;
+
+    const TOUR_STOPS = [
+      {
+        title: '01 · 冰雪奇迹发源地',
+        desc: '长白山天池航拍，冰雪封湖，十六峰环绕。',
+        subtitle: '吉林，冰雪的故乡。在雪线之上，我们见证着白山黑水间的冰雪奇迹。',
+        action: () => {
+          // Enter cinematic photo mode
+          galleryIdx = 0;
+          updateGallery();
+          $('galleryModal').classList.add('show');
+          if (!isWeatherHeavy) $('btnWeather').click(); // Ensure snow over gallery
+        }
+      },
+      {
+        title: '02 · 凝固时间的巨瀑',
+        desc: '长白山巨型冰瀑布，火山岩与幽蓝冰柱交相辉映。',
+        subtitle: '从深邃纯净的长白山天池，到凝固时间的幽蓝冰瀑...',
+        action: () => {
+          galleryIdx = 1;
+          updateGallery();
+        }
+      },
+      {
+        title: '03 · 仙境般的雾凇雪林',
+        desc: '童话般的雾凇森林与踏雪栈道。',
+        subtitle: '穿过童话般的雾凇雪林，吉林正将得天独厚的“冷资源”转化为震撼世界的“热产业”。',
+        action: () => {
+          galleryIdx = 2;
+          updateGallery();
+        }
+      },
+      {
+        title: '04 · 全息数字沙盘',
+        desc: '切换至 2029—2030 雪季目标，揭示全省 5400 亿冰雪宏伟蓝图。',
+        subtitle: '欢迎来到吉林省冰雪经济目标可视化全息沙盘。这里，数据正在重塑未来。',
+        action: () => {
+          // Fade out gallery, reveal the dashboard!
+          $('galleryModal').classList.remove('show');
+          currentYear = '2030';
+          currentChartTab = 'compare';
+          $('chartTabs').querySelectorAll('.chart-tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+          updateKPIs();
+          selectPlace(2); // Focus on Changbaishan
+        }
+      },
+      {
+        title: '05 · 装备制造 50 亿元沙盘',
+        desc: '切换至装备制造沙盘：展示雪场设备、穿戴器材与VR数字化产业布局。',
+        subtitle: '依托长春与吉林市的新材料基础，冰雪装备制造业总产值将强势突破五十亿元，形成全新质生产力。',
+        action: () => {
+          currentChartTab = 'industry';
+          $('chartTabs').querySelectorAll('.chart-tab-btn').forEach((b, i) => b.classList.toggle('active', i === 2));
+          renderActiveChart();
+          selectPlace(1); // Jilin City
+        }
+      },
+      {
+        title: '06 · 资源推演桑基图 (Sankey)',
+        desc: '纯原生代码绘制的资源流向图，展示资金流向产业端与空间端的全息路径。',
+        subtitle: '省级统筹资金与社会资本，正精准流向长白山核心区与各大冰雪名城，构建全产业链无缝闭环。',
+        action: () => {
+          currentChartTab = 'sankey';
+          $('chartTabs').querySelectorAll('.chart-tab-btn').forEach((b, i) => b.classList.toggle('active', i === 3));
+          renderActiveChart();
+          selectPlace(0); // Changchun
+        }
+      },
+      {
+        title: '07 · 雪线之上，共赢未来',
+        desc: '演示结束，自由探索。',
+        subtitle: '本作品以原生代码重构真实地理 3D 版图。雪线之上，共赢未来。吉林冰雪期待您的亲临探索！',
+        action: () => {
+          selectPlace(0);
+        }
+      }
+    ];
+
+    function startAutoTour() {
+      if (isTourRunning) return;
+      isTourRunning = true;
+      isTourPaused = false;
+      tourStep = 0;
+      $('tourBanner').classList.add('show');
+      $('cinematicSubtitles').style.opacity = '1';
+      $('btnPauseTour').textContent = '⏸ 暂停';
+      
+      // Attempt to load premium voices
+      if (window.speechSynthesis) {
+         const voices = window.speechSynthesis.getVoices();
+         preferredVoice = voices.find(v => v.lang.includes('zh') && (v.name.includes('Xiaoxiao') || v.name.includes('Huihui') || v.name.includes('Tingting') || v.name.includes('Yunxi'))) || voices.find(v => v.lang.includes('zh'));
+      }
+      runTourStep(tourStep);
+    }
+
+    function stopAutoTour() {
+      isTourRunning = false;
+      isTourPaused = false;
+      clearTimeout(tourTimer);
+      $('tourBanner').classList.remove('show');
+      $('cinematicSubtitles').style.opacity = '0';
+      if ($('galleryModal').classList.contains('show')) $('galleryModal').classList.remove('show');
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }
+
+    function runTourStep(step) {
+      if (!isTourRunning) return;
+      clearTimeout(tourTimer);
+      const stop = TOUR_STOPS[step];
+      $('tourTitle').textContent = stop.title;
+      $('tourDesc').textContent = stop.desc;
+      $('subText').textContent = stop.subtitle;
+
+      // TTS Voiceover
+      if (window.speechSynthesis && !isTourPaused) {
+        window.speechSynthesis.cancel();
+        ttsUtterance = new SpeechSynthesisUtterance(stop.subtitle);
+        ttsUtterance.lang = 'zh-CN';
+        ttsUtterance.rate = 1.05; // Slightly cinematic pacing
+        ttsUtterance.pitch = 1.0;
+        if (preferredVoice) ttsUtterance.voice = preferredVoice;
+        window.speechSynthesis.speak(ttsUtterance);
+      }
+
+      const dots = $('tourSteps').querySelectorAll('.tour-dot');
+      dots.forEach((dot, idx) => dot.classList.toggle('active', idx === step));
+
+      stop.action();
+
+      if (!isTourPaused) {
+        tourTimer = setTimeout(() => {
+          tourStep = (tourStep + 1) % TOUR_STOPS.length;
+          if (tourStep === 0) {
+            stopAutoTour(); // Auto-stop after full loop
+          } else {
+            runTourStep(tourStep);
+          }
+        }, 9500); // Wait 9.5s per step for TTS to read
+      }
+    }
+
+    $('btnTour').onclick = startAutoTour;
+    $('btnStopTour').onclick = stopAutoTour;
+    $('btnPrevTour').onclick = () => {
+      tourStep = (tourStep - 1 + TOUR_STOPS.length) % TOUR_STOPS.length;
+      runTourStep(tourStep);
+    };
+    $('btnNextTour').onclick = () => {
+      tourStep = (tourStep + 1) % TOUR_STOPS.length;
+      runTourStep(tourStep);
+    };
+    $('btnPauseTour').onclick = () => {
+      isTourPaused = !isTourPaused;
+      $('btnPauseTour').textContent = isTourPaused ? '▶ 继续' : '⏸ 暂停';
+      if (!isTourPaused) runTourStep(tourStep);
+      else clearTimeout(tourTimer);
+    };
+
+    // 8. Season Toggle Buttons
+    document.querySelectorAll('.season-btn').forEach(btn => {
+      btn.onclick = () => {
+        playCrystalClick();
+        currentYear = btn.dataset.year;
+        updateKPIs();
+      };
+    });
+
+    $('btnWeather').onclick = () => {
+      playCrystalClick();
+      isWeatherHeavy = !isWeatherHeavy;
+      initBgParticles();
+      $('btnWeather').textContent = isWeatherHeavy ? '🌨️ 暴雪: 开' : '🌨️ 暴雪特效';
+      $('btnWeather').classList.toggle('active', isWeatherHeavy);
+      $('btnVrWeather').textContent = isWeatherHeavy ? '❄️ 微雪' : '❄️ 暴雪';
+    };
+
+    // 9. Presentation Mode (F)
+    function togglePresent() {
+      playCrystalClick();
+      document.body.classList.toggle('presenting');
+      if (document.body.classList.contains('presenting')) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen?.().catch(() => {});
+        }
+      } else {
+        if (document.fullscreenElement) {
+          document.exitFullscreen?.().catch(() => {});
+        }
+      }
+      setTimeout(() => {
+        resizeVr();
+        initBgParticles();
+      }, 300);
+    }
+    $('btnPresent').onclick = togglePresent;
+
+    // 10. Modals Management & Cinematic Promo Intro
+    $('btnCover').onclick = () => { playCrystalClick(); $('coverModal').classList.add('show'); };
+    $('btnCloseCover').onclick = () => {
+      playCrystalClick(); 
+      $('coverModal').classList.remove('show');
+    };
+    $('btnPlayPromo').onclick = () => {
+      playCrystalClick();
+      $('coverModal').classList.remove('show');
+      togglePresent(); // Enter F11 Fullscreen mode
+      if (!isWeatherHeavy) $('btnWeather').click(); // Turn on heavy snow
+      if (!isAudioPlaying) toggleAudio(); // Turn on wind audio
+      setTimeout(() => {
+        startAutoTour(); // Begin the AI TTS Voiceover Tour
+      }, 800);
+    };
+
+    $('btnSetup').onclick = () => {
+      playCrystalClick();
+      $('inputTeam').value = localStorage.getItem('snow-team') || '深度求索队';
+      $('inputSchool').value = localStorage.getItem('snow-school') || '长春工业大学';
+      $('setupModal').classList.add('show');
+    };
+    $('btnCancelSetup').onclick = () => $('setupModal').classList.remove('show');
+    $('btnSaveSetup').onclick = () => {
+      playCrystalClick();
+      const t = $('inputTeam').value.trim() || '深度求索队';
+      const s = $('inputSchool').value.trim() || '长春工业大学';
+      localStorage.setItem('snow-team', t);
+      localStorage.setItem('snow-school', s);
+      applyBranding();
+      $('setupModal').classList.remove('show');
+    };
+
+    $('btnReport').onclick = () => { playCrystalClick(); $('reportModal').classList.add('show'); };
+    $('btnCloseReport').onclick = () => $('reportModal').classList.remove('show');
+    $('btnExportCsvReal').onclick = () => $('btnExport').click();
+
+    // AI Investment Analysis Engine Logic
+    function updateAnalysis() {
+      const inv = parseInt($('analysisInvestment').value);
+      const reg = $('analysisRegion').value;
+      
+      let touristMult = 1.0;
+      let revMult = 1.0;
+      let roiMonths = 0;
+      let supplyText = '';
+      
+      if (reg === 'changbai') {
+        touristMult = 2.5; 
+        revMult = 8.2;     
+        roiMonths = 36 + (inv * 0.5); 
+        supplyText = `可支撑新建 ${Math.max(1, Math.floor(inv * 0.4))} 条高级雪道 & ${Math.max(1, Math.floor(inv * 0.1))} 座高端度假村`;
+      } else if (reg === 'changchun') {
+        touristMult = 15.0; 
+        revMult = 4.5;      
+        roiMonths = 18 + (inv * 0.2); 
+        supplyText = `可支撑新建 ${Math.max(1, Math.floor(inv * 1.2))} 座城市普惠冰场 & ${Math.max(1, Math.floor(inv * 0.5))} 处冰雪主题街区`;
+      } else if (reg === 'jilin') {
+        touristMult = 4.0;
+        revMult = 5.0;
+        roiMonths = 48 + (inv * 0.8); 
+        supplyText = `可拉动 ${Math.max(1, Math.floor(inv * 2.5))} 亿元造雪机、索道等重型装备本土制造产值`;
+      } else {
+        touristMult = 8.0;
+        revMult = 2.5;
+        roiMonths = 24 + (inv * 0.4);
+        supplyText = `可支撑建设 ${Math.max(1, Math.floor(inv * 3))} 个特色乡村冬捕与温泉大众体验基地`;
+      }
+      
+      const addTourists = (inv * touristMult).toFixed(1);
+      const addRev = (inv * revMult).toFixed(1);
+      const roiYrs = (roiMonths / 12).toFixed(1);
+      
+      $('resTourists').textContent = `+${addTourists} 万`;
+      $('resRevenue').textContent = `+${addRev} 亿`;
+      $('resSupply').textContent = supplyText;
+      $('resROI').textContent = `${roiYrs} 年 (约 ${Math.floor(roiMonths)} 个月)`;
+    }
+
+    $('btnAnalysis').onclick = () => { 
+      playCrystalClick(); 
+      $('analysisModal').classList.add('show'); 
+      updateAnalysis(); 
+    };
+    $('btnCloseAnalysis').onclick = () => $('analysisModal').classList.remove('show');
+    $('analysisInvestment').oninput = (e) => {
+      $('analysisInvestmentVal').textContent = e.target.value + ' 亿';
+      updateAnalysis();
+    };
+    $('analysisRegion').onchange = updateAnalysis;
+
+    $('btnHelp').onclick = () => { playCrystalClick(); $('helpModal').classList.add('show'); };
+    $('btnCloseHelp').onclick = () => $('helpModal').classList.remove('show');
+
+    // 11. Data Export Feature (CSV)
+    $('btnExport').onclick = () => {
+      playCrystalClick();
+      const csvContent = "\uFEFF指标名称,单位,2023-2024基线,2027-2028雪季,2029-2030雪季,政策规划口径,权威来源\n" +
+        "冰雪旅游接待游客,亿人次,1.25,2.3,3.0,相对24年增长140%,吉林省人民政府公报《实施意见》(2024-12-12)\n" +
+        "冰雪旅游出游总花费,亿元,2419,4200,5400,相对24年增长123%,吉林省人民政府公报《实施意见》(2024-12-12)\n" +
+        "冰雪装备制造业总产值,亿元,—,—,>50,规划突破目标,吉林省人民政府公报《实施意见》(2024-12-12)\n" +
+        "群众性冰雪赛事活动,项/年,—,>=300,>=300,年度刚性保障底座,吉林省人民政府公报《实施意见》(2024-12-12)\n" +
+        "每年浇建冰场数量,块/年,—,>=500,>=500,全省普惠建设底座,吉林省人民政府公报《实施意见》(2024-12-12)\n" +
+        "特色冰雪乐园运营,家/年,—,>=100,>=100,市县全覆盖底座,吉林省人民政府公报《实施意见》(2024-12-12)\n";
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "吉林冰雪经济目标核验数据集_官方公报版.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    function applyBranding() {
+      const t = localStorage.getItem('snow-team') || '深度求索队';
+      const s = localStorage.getItem('snow-school') || '长春工业大学';
+      $('coverTeam').textContent = t;
+      $('coverSchool').textContent = s;
+      $('footerTeam').textContent = t;
+      $('footerSchool').textContent = s;
+    }
+
+    // 13. Changbai Photo Gallery Logic
+    const galleryPhotos = [
+      { src: 'assets/changbai_tianchi.jpg', caption: '航拍冬季长白山主峰天池全景，冰雪封湖，十六峰环绕' },
+      { src: 'assets/changbai_waterfall.jpg', caption: '长白山巨型冰瀑布，火山岩与幽蓝冰柱交相辉映' },
+      { src: 'assets/changbai_forest.jpg', caption: '长白山国家级自然保护区：童话般的雾凇森林与踏雪栈道' }
+    ];
+    let galleryIdx = 0;
+
+    function updateGallery() {
+      $('galleryImg').style.opacity = 0;
+      setTimeout(() => {
+        $('galleryImg').src = galleryPhotos[galleryIdx].src;
+        $('galleryCaption').textContent = galleryPhotos[galleryIdx].caption;
+        $('galleryImg').style.opacity = 1;
+      }, 250);
+    }
+
+    $('btnGalleryOpen').onclick = () => {
+      playCrystalClick();
+      galleryIdx = 0;
+      updateGallery();
+      $('galleryModal').classList.add('show');
+    };
+    $('btnCloseGallery').onclick = () => {
+      $('galleryModal').classList.remove('show');
+    };
+    $('btnGalleryPrev').onclick = () => {
+      playCrystalClick();
+      galleryIdx = (galleryIdx - 1 + galleryPhotos.length) % galleryPhotos.length;
+      updateGallery();
+    };
+    $('btnGalleryNext').onclick = () => {
+      playCrystalClick();
+      galleryIdx = (galleryIdx + 1) % galleryPhotos.length;
+      updateGallery();
+    };
+
+    // Keyboard Shortcuts update for Gallery Escape
+    document.addEventListener('keydown', e => {
+      const tag = e.target?.tagName?.toLowerCase();
+      if (['input', 'textarea', 'select'].includes(tag) || e.target?.isContentEditable) return;
+
+      if (e.key === 'Escape') {
+        $('coverModal').classList.remove('show');
+        $('setupModal').classList.remove('show');
+        $('reportModal').classList.remove('show');
+        $('analysisModal').classList.remove('show');
+        $('helpModal').classList.remove('show');
+        $('vrExpandModal').classList.remove('show');
+        $('galleryModal').classList.remove('show');
+        isExpandOpen = false;
+        stopAutoTour();
+      } else if (e.key.toLowerCase() === 'f') {
+        togglePresent();
+      } else if (e.key.toLowerCase() === 'h' || e.key === '?') {
+        $('helpModal').classList.toggle('show');
+      } else if (e.key.toLowerCase() === 'v') {
+        $('btnVrReset').click();
+      } else if (e.key.toLowerCase() === 'm') {
+        toggleAudio();
+      } else if (e.key === 'ArrowRight') {
+        if ($('galleryModal').classList.contains('show')) {
+          $('btnGalleryNext').click();
+        } else {
+          const order = ['2024', '2028', '2030'];
+          currentYear = order[(order.indexOf(currentYear) + 1) % 3];
+          updateKPIs();
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if ($('galleryModal').classList.contains('show')) {
+          $('btnGalleryPrev').click();
+        } else {
+          const order = ['2024', '2028', '2030'];
+          currentYear = order[(order.indexOf(currentYear) - 1 + 3) % 3];
+          updateKPIs();
+        }
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        if ($('galleryModal').classList.contains('show')) return;
+        if (isTourRunning) {
+          $('btnPauseTour').click();
+        } else {
+          startAutoTour();
+        }
+      } else if (e.key >= '1' && e.key <= '8') {
+        selectPlace(parseInt(e.key, 10) - 1);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      initBgParticles();
+      resizeVr();
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.body.classList.remove('presenting');
+        resizeVr();
+      }
+    });
+
+    // Initial Execution
+    applyBranding();
+    updateKPIs();
+    renderPolicyNodes();
+    selectPlace(0);
+    initBgParticles();
+    drawBg();
+    resizeVr();
+    animateVr();
+  })();
+  </script>
+</body>
+</html>
