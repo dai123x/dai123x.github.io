@@ -452,6 +452,37 @@
     .chart-container.fade-out {
       opacity: 0;
     }
+    /* Floating Interactive Chart Tooltip */
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(4, 18, 25, 0.94);
+      border: 1px solid var(--ice);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6), 0 0 12px var(--ice-glow);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #edf5f4;
+      line-height: 1.5;
+      z-index: 30;
+      opacity: 0;
+      transform: translate(-50%, -125%);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .chart-tooltip.show {
+      opacity: 1;
+      transform: translate(-50%, -110%);
+    }
+    .chart-tooltip b {
+      color: var(--gold);
+    }
+    .chart-tooltip small {
+      color: var(--muted);
+      display: block;
+      font-size: 9px;
+    }
     svg.bar-chart {
       width: 100%;
       height: auto;
@@ -1854,7 +1885,7 @@
 
     <!-- 4 KPI Cards -->
     <section class="kpis">
-      <div class="kpi-card">
+      <div class="kpi-card" data-tab-target="compare" style="cursor:pointer;" title="点击联动：查看阶段目标增长与客单价模型">
         <div class="kpi-ring" id="kpiRing1">
           <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--ice)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill1"/></svg>
           <span class="kpi-ring-text" id="kpiRingPct1">0%</span>
@@ -1864,10 +1895,10 @@
           <span class="kpi-delta" id="visitorDelta">基准雪季</span>
         </div>
         <div class="kpi-value" id="kpiVisitors">2.3 亿人次</div>
-        <div class="kpi-desc">全省冰雪旅游客流量阶段规划值</div>
+        <div class="kpi-desc">全省冰雪旅游客流量阶段规划值 (点击对标分析)</div>
       </div>
 
-      <div class="kpi-card gold">
+      <div class="kpi-card gold" data-tab-target="sankey" style="cursor:pointer;" title="点击联动：查看资金到空间流向桑基图">
         <div class="kpi-ring" id="kpiRing2">
           <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--gold)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill2"/></svg>
           <span class="kpi-ring-text" id="kpiRingPct2">0%</span>
@@ -1877,10 +1908,10 @@
           <span class="kpi-delta" id="spendingDelta">基准雪季</span>
         </div>
         <div class="kpi-value" id="kpiSpending">4,200 亿元</div>
-        <div class="kpi-desc">拉动消费总盘与全要素产业溢出效应</div>
+        <div class="kpi-desc">拉动消费总盘与全要素产业溢出 (点击要素流向)</div>
       </div>
 
-      <div class="kpi-card mint">
+      <div class="kpi-card mint" data-tab-target="industry" style="cursor:pointer;" title="点击联动：查看装备制造50亿元突破路径">
         <div class="kpi-ring" id="kpiRing3">
           <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--mint)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill3"/></svg>
           <span class="kpi-ring-text" id="kpiRingPct3">0%</span>
@@ -1890,10 +1921,10 @@
           <span class="kpi-delta" id="equipmentDelta">前期统筹</span>
         </div>
         <div class="kpi-value" id="kpiEquipment">—</div>
-        <div class="kpi-desc" id="kpiEquipmentDesc">政策针对 2029—2030 雪季设立产值目标</div>
+        <div class="kpi-desc" id="kpiEquipmentDesc">政策针对 2029—2030 雪季设立产值目标 (点击协同)</div>
       </div>
 
-      <div class="kpi-card coral">
+      <div class="kpi-card coral" data-tab-target="supply" style="cursor:pointer;" title="点击联动：查看供给端三大任务仪表盘">
         <div class="kpi-ring" id="kpiRing4">
           <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--coral)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill4"/></svg>
           <span class="kpi-ring-text" id="kpiRingPct4">100</span>
@@ -1903,7 +1934,7 @@
           <span class="kpi-delta" style="color:var(--coral);background:rgba(242,142,112,0.15)">年度刚性</span>
         </div>
         <div class="kpi-value" style="color:var(--coral)">≥900+</div>
-        <div class="kpi-desc">300项赛事 + 500块冰场 + 100家乐园/年</div>
+        <div class="kpi-desc">300项赛事 + 500块冰场 + 100家乐园/年 (点击仪表)</div>
       </div>
     </section>
 
@@ -1912,7 +1943,10 @@
       <!-- Col 1: Multi-View Data Visualization Suite -->
       <article class="card">
         <div class="card-head">
-          <h3>📈 多维数据可视化分析中心</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <h3>📈 多维数据可视化分析中心</h3>
+            <button class="btn" id="btnExportChart" style="padding:2px 7px;font-size:10px;border-color:var(--ice);color:var(--ice);line-height:1;" title="导出当前矢量图表为高清 PNG 图片">📷 导出图表</button>
+          </div>
           <div class="chart-tabs" id="chartTabs">
             <button class="chart-tab-btn active" data-tab="compare">阶段目标对标</button>
             <button class="chart-tab-btn" data-tab="regression">📐 计量回归预测</button>
@@ -1928,6 +1962,7 @@
 
         <!-- Chart Dynamic View -->
         <div class="chart-container" id="chartView">
+          <div class="chart-tooltip" id="chartTooltip"></div>
           <svg class="bar-chart" id="mainChartSvg" viewBox="0 0 540 210" role="img" aria-label="数据可视化图表"></svg>
         </div>
 
@@ -3139,6 +3174,46 @@
         osc.stop(audioCtx.currentTime + 0.09);
       } catch (e) {}
     }
+
+    function playSwoosh() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(780, audioCtx.currentTime + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.28);
+        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.28);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.29);
+      } catch (e) {}
+    }
+
+    function playChime() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        [659.25, 830.61, 987.77].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          const t0 = audioCtx.currentTime + idx * 0.08;
+          gain.gain.setValueAtTime(0.03, t0);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.6);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.62);
+        });
+      } catch (e) {}
+    }
     
     function startCinematicDrone(ctx) {
       droneGain = ctx.createGain();
@@ -3427,17 +3502,17 @@
       });
       h += `<path d="${medD}" fill="none" stroke="#75d8ed" stroke-width="2.5"/>`;
       mcData.forEach(d => {
-        h += `<circle cx="${toX(d.yr)}" cy="${toY(d.p50)}" r="3" fill="#75d8ed" stroke="#fff" stroke-width="1"/>`;
+        h += `<circle cx="${toX(d.yr)}" cy="${toY(d.p50)}" r="4.5" fill="#75d8ed" stroke="#fff" stroke-width="1.5" style="cursor:pointer;" data-tip="<b>${d.yr} 年随机模拟分位数</b><br>P50 预测中位数: <b>${d.p50} 亿人次</b><br>80% 置信区间: [${d.p10}亿, ${d.p90}亿]<small>50% 核心区间: [${d.p25}亿, ${d.p75}亿]</small>"/>`;
       });
 
       // Target Policy Line (3.0 亿人次)
       const targetY = toY(3.0);
-      h += `<line x1="${chartL}" y1="${targetY}" x2="${chartR}" y2="${targetY}" stroke="#f4c66d" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+      h += `<line x1="${chartL}" y1="${targetY}" x2="${chartR}" y2="${targetY}" stroke="#f4c66d" stroke-width="2" stroke-dasharray="5,4" style="cursor:pointer;" data-tip="<b>2029—2030 雪季最终目标线</b><br>法定考核指标: <b>3.0 亿人次</b><br>GBM 模型达标概率: <b>87.4%</b>"/>`;
       h += `<text x="${chartR - 4}" y="${targetY - 5}" fill="#f4c66d" font-size="9" font-weight="bold" text-anchor="end">★ 2030 政策目标 (3.0 亿)</text>`;
 
       // 2028 Target Marker (2.3 亿)
       const targetY28 = toY(2.3);
-      h += `<circle cx="${toX(2028)}" cy="${targetY28}" r="4" fill="#f4c66d" stroke="#fff" stroke-width="1.5"/>`;
+      h += `<circle cx="${toX(2028)}" cy="${targetY28}" r="5" fill="#f4c66d" stroke="#fff" stroke-width="1.5" style="cursor:pointer;" data-tip="<b>2027—2028 雪季规划目标点</b><br>法定对标接待量: <b>2.3 亿人次</b><small>吉发〔2024〕16号阶段考核目标</small>"/>`;
       h += `<text x="${toX(2028)}" y="${targetY28 - 7}" fill="#f4c66d" font-size="8.5" font-weight="bold" text-anchor="middle">2028目标 2.3亿</text>`;
 
       // Right Side Probability Density Function (KDE Bell Curve at 2030)
@@ -3604,10 +3679,10 @@
 
         const barW = Math.min(78, Math.abs(f.val) * 16);
         if (f.val >= 0) {
-          h += `<rect class="bar-rect" x="${zeroX}" y="${y + 2}" width="${barW}" height="14" fill="${f.color}" rx="3"/>`;
+          h += `<rect class="bar-rect" data-tip="<b>${f.name}</b><br>边际弹性系数: <b>+${f.val.toFixed(2)}</b><small>${f.desc}</small>" x="${zeroX}" y="${y + 2}" width="${barW}" height="14" fill="${f.color}" rx="3" style="cursor:pointer;"/>`;
           h += `<text x="${zeroX + barW + 5}" y="${y + 13}" fill="${f.color}" font-size="10" font-weight="bold">+${f.val.toFixed(2)}</text>`;
         } else {
-          h += `<rect class="bar-rect" x="${zeroX - barW}" y="${y + 2}" width="${barW}" height="14" fill="${f.color}" rx="3"/>`;
+          h += `<rect class="bar-rect" data-tip="<b>${f.name}</b><br>敏感偏导数: <b>${f.val.toFixed(2)}</b><small>${f.desc}</small>" x="${zeroX - barW}" y="${y + 2}" width="${barW}" height="14" fill="${f.color}" rx="3" style="cursor:pointer;"/>`;
           h += `<text x="${zeroX - barW - 5}" y="${y + 13}" fill="${f.color}" font-size="10" font-weight="bold" text-anchor="end">${f.val.toFixed(2)}</text>`;
         }
       });
@@ -3898,8 +3973,9 @@
           const opacity = isSelectedSeason ? '1' : '0.45';
           const stroke = isSelectedSeason ? `stroke="#fff" stroke-width="1.5"` : '';
 
+          const pctVal = Math.round((v / r.max) * 100);
           h += `<rect x="${L}" y="${y - 8}" width="${iw}" height="14" rx="4" fill="#16323d"/>`;
-          h += `<rect class="bar-rect" x="${L}" y="${y - 8}" width="${w}" height="14" fill="${r.color}" opacity="${opacity}" ${stroke}/>`;
+          h += `<rect class="bar-rect" data-tip="<b>${r.name} · ${labelMap[i]}</b><br>规划目标值: <b>${v.toLocaleString()} ${r.unit}</b><small>终期目标相对进度: ${pctVal}%</small>" x="${L}" y="${y - 8}" width="${w}" height="14" fill="${r.color}" opacity="${opacity}" ${stroke} style="cursor:pointer;"/>`;
           h += `<text x="4" y="${y + 3}" fill="${isSelectedSeason ? '#fff' : '#88a2a8'}" font-size="10" font-weight="${isSelectedSeason ? 'bold' : 'normal'}">${labelMap[i]}</text>`;
           h += `<text x="${Math.min(L + w + 8, 440)}" y="${y + 3}" fill="${isSelectedSeason ? '#fff' : '#c3dadf'}" font-size="10" font-weight="bold">${v.toLocaleString()} ${r.unit}</text>`;
         });
@@ -4075,13 +4151,13 @@
         const pathData = `M ${sx} ${sy} C ${cx1} ${sy}, ${cx2} ${dy}, ${dx} ${dy}`;
         
         // Base thick translucent path
-        h += `<path d="${pathData}" fill="none" stroke="${f.color}" stroke-width="${Math.max(1, fH)}" opacity="0.25" style="transition: opacity 0.3s ease; cursor: crosshair;" onmouseover="this.setAttribute('opacity', '0.75')" onmouseout="this.setAttribute('opacity', '0.25')" />`;
+        h += `<path data-tip="<b>要素流向：${sNode.label} ➔ ${dNode.label}</b><br>配置规模: <b>${f.val} 亿元</b>" d="${pathData}" fill="none" stroke="${f.color}" stroke-width="${Math.max(1, fH)}" opacity="0.25" style="transition: opacity 0.3s ease; cursor: crosshair;" onmouseover="this.setAttribute('opacity', '0.75')" onmouseout="this.setAttribute('opacity', '0.25')" />`;
         // Overlay thin bright animated flow particles
         h += `<path d="${pathData}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="2 18" class="sankey-flow" opacity="0.6" style="pointer-events: none;" />`;
       });
       
       nodes.forEach(n => {
-        h += `<rect x="${n.x}" y="${n.y}" width="8" height="${n.h}" fill="${n.color}" rx="2"/>`;
+        h += `<rect data-tip="<b>${n.label}</b><br>要素总盘: <b>${n.val} 亿元</b>" x="${n.x}" y="${n.y}" width="8" height="${n.h}" fill="${n.color}" rx="2" style="cursor:pointer;"/>`;
         if (n.x < 100) {
            h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10">${n.label}</text>`;
         } else if (n.x > 300) {
@@ -4103,26 +4179,102 @@
       $('chartCommentaryContent').innerHTML = `本流向图<b>全程利用纯数学贝塞尔曲线计算原生绘制（零第三方库）</b>，高度契合数据可视化赛道极致硬核要求。展示了从左侧<b>资金端</b>流向中间<b>产业端</b>，最终映射到右侧<b>空间端</b>的流转路径，量化诠释了《实施意见》中“统筹布局、重点突破”的宏观经济架构。`;
     }
 
-    // Chart Tabs Event
-    $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(btn => {
-      btn.onclick = () => {
-        playCrystalClick();
-        $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentChartTab = btn.dataset.tab;
-        
-        const chartView = document.querySelector('.chart-container');
-        if (chartView) {
-          chartView.classList.add('fade-out');
-          setTimeout(() => {
-            renderActiveChart();
-            chartView.classList.remove('fade-out');
-          }, 300);
-        } else {
+    // Chart Tabs Event & Switcher
+    function switchChartTab(tabKey) {
+      if ($('chartTabs')) {
+        $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.tab === tabKey);
+        });
+      }
+      currentChartTab = tabKey;
+      const chartView = $('chartView') || document.querySelector('.chart-container');
+      if (chartView) {
+        chartView.classList.add('fade-out');
+        setTimeout(() => {
           renderActiveChart();
+          chartView.classList.remove('fade-out');
+        }, 250);
+      } else {
+        renderActiveChart();
+      }
+    }
+
+    if ($('chartTabs')) {
+      $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(btn => {
+        btn.onclick = () => {
+          playCrystalClick();
+          switchChartTab(btn.dataset.tab);
+        };
+      });
+    }
+
+    // KPI Cards Click-to-Chart Navigation Linkage
+    document.querySelectorAll('.kpi-card[data-tab-target]').forEach(card => {
+      card.onclick = () => {
+        const targetTab = card.dataset.tabTarget;
+        if (targetTab) {
+          playSwoosh();
+          switchChartTab(targetTab);
+          const cView = $('chartView');
+          if (cView) cView.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       };
     });
+
+    // Chart PNG Export Engine (Zero-dependency SVG -> Canvas 2x -> PNG)
+    const btnExportChart = $('btnExportChart');
+    if (btnExportChart) {
+      btnExportChart.onclick = () => {
+        playCrystalClick();
+        const svg = $('mainChartSvg');
+        if (!svg) return;
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const URL = window.URL || window.webkitURL || window;
+        const blobURL = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const scale = 2; // 2x high-resolution export for crystal clear reports
+          canvas.width = (svg.clientWidth || 540) * scale;
+          canvas.height = (svg.clientHeight || 210) * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#07151d';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(blobURL);
+          const a = document.createElement('a');
+          a.download = `雪线之上_吉林冰雪_${currentChartTab}_图表.png`;
+          a.href = canvas.toDataURL('image/png');
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        };
+        img.src = blobURL;
+      };
+    }
+
+    // Interactive Floating Chart Tooltip Delegation
+    const chartViewEl = $('chartView');
+    const chartTooltipEl = $('chartTooltip');
+    if (chartViewEl && chartTooltipEl) {
+      chartViewEl.addEventListener('mousemove', e => {
+        const target = e.target.closest('[data-tip]');
+        if (target) {
+          const rect = chartViewEl.getBoundingClientRect();
+          const tipText = target.getAttribute('data-tip');
+          chartTooltipEl.innerHTML = tipText;
+          chartTooltipEl.style.left = (e.clientX - rect.left) + 'px';
+          chartTooltipEl.style.top = (e.clientY - rect.top) + 'px';
+          chartTooltipEl.classList.add('show');
+        } else {
+          chartTooltipEl.classList.remove('show');
+        }
+      });
+      chartViewEl.addEventListener('mouseleave', () => {
+        chartTooltipEl.classList.remove('show');
+      });
+    }
 
     // 4. Policy Spatial Nodes & Filters
     function renderPolicyNodes() {
@@ -4447,6 +4599,7 @@
     build3DTerrain();
 
     function flyCameraToTarget(pos3d) {
+      playSwoosh();
       const angle = Math.atan2(pos3d[0], pos3d[2]);
       targetYaw = angle + 0.3;
       targetPitch = 0.48;
@@ -4619,8 +4772,16 @@
           else if (avgY > 45) { baseR = 25; baseG = 95; baseB = 145; }
           else { baseR = 14; baseG = 45; baseB = 75; }
         } else {
-          // Realistic Natural Topography
-          if (avgY > 120) { baseR = 255; baseG = 255; baseB = 255; } // Top snow peaks
+          // Realistic Natural Topography & Tianchi Caldera Shimmer
+          const dxC = v0.x - 140, dzC = v0.z - 120;
+          const distToTianchi = Math.hypot(dxC, dzC);
+          if (distToTianchi < 36 && avgY < 125) {
+            // Tianchi Sapphire Ice Lake with Dynamic Specular Glint
+            const shimmer = (Math.sin(pulseAnim * 2.2 + v0.x * 0.08 + v0.z * 0.08) + 1) * 0.5;
+            baseR = Math.floor(40 + shimmer * 55);
+            baseG = Math.floor(135 + shimmer * 75);
+            baseB = Math.floor(190 + shimmer * 65);
+          } else if (avgY > 120) { baseR = 255; baseG = 255; baseB = 255; } // Top snow peaks
           else if (avgY > 90) { baseR = 220; baseG = 242; baseB = 247; } // Bright snow peak
           else if (avgY > 60) { baseR = 114; baseG = 200; baseB = 219; } // Ice blue slope
           else if (avgY > 37) { baseR = 25; baseG = 83; baseB = 102; } // Lake rim
