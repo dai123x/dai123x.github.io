@@ -1912,9 +1912,106 @@
     }
     .da-src-note b { color: var(--gold); }
 
+    /* ===== 交互式回归推演器 ===== */
+    .da-play {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 14px; margin-top: 12px;
+    }
+    @media (max-width: 860px) { .da-play { grid-template-columns: 1fr; } }
+    .da-play-panel {
+      background: rgba(4, 14, 20, 0.78);
+      border: 1px solid rgba(117, 216, 237, 0.24);
+      border-radius: 9px; padding: 14px 16px;
+    }
+    .da-play-h {
+      font-size: 11.5px; color: #fff; font-weight: 600;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 7px;
+    }
+    .da-slider-row { margin-bottom: 14px; }
+    .da-slider-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 10.5px; margin-bottom: 5px;
+    }
+    .da-slider-head span:first-child { color: #b8ced1; }
+    .da-slider-val { font-family: monospace; font-size: 12.5px; color: var(--ice); font-weight: 700; }
+    .da-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 5px; border-radius: 3px;
+      background: rgba(117, 216, 237, 0.18); outline: none; cursor: pointer;
+    }
+    .da-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: var(--ice); cursor: pointer;
+      border: 2px solid rgba(5, 18, 25, 0.9);
+      box-shadow: 0 0 8px rgba(117, 216, 237, 0.65);
+      transition: transform .15s ease;
+    }
+    .da-slider::-webkit-slider-thumb:hover { transform: scale(1.18); }
+    .da-slider::-moz-range-thumb {
+      width: 15px; height: 15px; border-radius: 50%;
+      background: var(--ice); cursor: pointer;
+      border: 2px solid rgba(5, 18, 25, 0.9);
+      box-shadow: 0 0 8px rgba(117, 216, 237, 0.65);
+    }
+    .da-slider.gold::-webkit-slider-thumb { background: var(--gold); box-shadow: 0 0 8px rgba(244,198,109,0.65); }
+    .da-slider.gold::-moz-range-thumb { background: var(--gold); box-shadow: 0 0 8px rgba(244,198,109,0.65); }
+
+    .da-node-pick { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+    .da-node-btn {
+      background: rgba(8, 22, 29, 0.75); border: 1px solid rgba(36, 66, 78, 0.7);
+      color: var(--muted); font-size: 10px; padding: 4px 9px; border-radius: 5px;
+      cursor: pointer; transition: all .18s ease;
+    }
+    .da-node-btn:hover { color: var(--ice); border-color: rgba(117,216,237,0.5); }
+    .da-node-btn.active {
+      background: rgba(117,216,237,0.16); color: var(--ice);
+      border-color: var(--ice); font-weight: 600;
+    }
+
+    .da-gauge-wrap { text-align: center; padding: 6px 0 2px; }
+    .da-gauge-num {
+      font-family: monospace; font-size: 46px; font-weight: 700;
+      color: var(--ice); line-height: 1; letter-spacing: -1px;
+      transition: color .3s ease;
+    }
+    .da-gauge-unit { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .da-gauge-tier {
+      display: inline-block; margin-top: 9px; font-size: 11px; padding: 3px 12px;
+      border-radius: 20px; font-weight: 600; transition: all .3s ease;
+    }
+    .da-gauge-bar {
+      height: 8px; border-radius: 4px; background: rgba(117,216,237,0.12);
+      margin: 13px 0 6px; overflow: hidden; position: relative;
+    }
+    .da-gauge-fill {
+      height: 100%; border-radius: 4px; width: 0%;
+      background: linear-gradient(90deg, var(--ice), var(--mint));
+      transition: width .35s cubic-bezier(.34,1.2,.64,1), background .3s ease;
+    }
+    .da-gauge-scale {
+      display: flex; justify-content: space-between;
+      font-size: 8.5px; color: var(--dim); font-family: monospace;
+    }
+    .da-decomp { margin-top: 14px; border-top: 1px solid rgba(117,216,237,0.15); padding-top: 11px; }
+    .da-decomp-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; margin-bottom: 7px;
+    }
+    .da-decomp-label { min-width: 84px; color: #b8ced1; }
+    .da-decomp-track { flex: 1; height: 8px; background: rgba(117,216,237,0.1); border-radius: 3px; overflow: hidden; }
+    .da-decomp-fill { height: 100%; border-radius: 3px; transition: width .35s ease; }
+    .da-decomp-val { font-family: monospace; min-width: 48px; text-align: right; font-size: 10px; }
+    .da-play-note {
+      font-size: 9.5px; color: #8aa4ab; line-height: 1.6;
+      margin-top: 11px; padding-top: 9px;
+      border-top: 1px dashed rgba(117,216,237,0.18);
+    }
+
     @media (max-width: 768px) {
       .da-model-stats { grid-template-columns: repeat(3, 1fr); }
       .da-kpi-value { font-size: 18px; }
+      .da-gauge-num { font-size: 36px; }
     }
 
     /* Print Stylesheet for Official Policy Report */
@@ -4137,6 +4234,86 @@ if (!isStereoVR) {
         </div>
         <div style="margin-top:10px; background:rgba(7,24,32,0.6); border-left:3px solid var(--ice); padding:10px 14px; border-radius:0 4px 4px 0; font-size:10.5px; line-height:1.7; color:#b2d4dc;">
           <b style="color:var(--ice);">结构性洞察：</b>长春市 GDP（7,632 亿元）居全省首位，是吉林市的 4.7 倍，但其雪道面积（62 公顷）仅为吉林市的 <b style="color:var(--coral);">11.2%</b>。这一"经济强、冰雪弱"的反差，与回归模型中 GDP 标准化系数（0.573）低于积雪日数（0.778）的结果<b style="color:#fff;">相互印证</b>——说明冰雪经济的空间集聚由自然禀赋主导，长春的产业优势并未自然转化为冰雪资源供给，其 6,200 张床位更多来自城市商务酒店存量，而非雪场度假配套，构成典型的<b style="color:var(--gold);">「城市过境型」而非「目的地型」</b>冰雪消费结构。
+        </div>
+
+        <!-- G2. 交互式回归推演器 -->
+        <div class="lab-subhead">
+          <span style="font-size:14px;">🎛️</span>
+          <b>八、交互式回归推演器：亲手验证模型结论</b>
+          <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(148,227,202,0.12); color:var(--mint); border-color:var(--mint);">评委可现场拖动验证</span>
+        </div>
+        <div style="font-size:10.5px; color:#93aab1; line-height:1.6; margin-top:10px;">
+          下方推演器直接调用主模型 D 的回归方程。<b style="color:var(--ice);">拖动滑块即可实时观察冰雪指数变化</b>，并可一键载入任一真实市州的实际参数进行比对——用来验证「积雪日数影响强于 GDP」这一核心结论。
+        </div>
+        <div class="da-play">
+          <!-- 左：输入区 -->
+          <div class="da-play-panel">
+            <div class="da-play-h">
+              <span style="font-size:13px;">🎚️</span><span>自变量输入</span>
+            </div>
+            <div class="da-slider-row">
+              <div class="da-slider-head">
+                <span>地区生产总值 GDP</span>
+                <span class="da-slider-val" id="daGdpVal">1,633 亿元</span>
+              </div>
+              <input type="range" class="da-slider gold" id="daGdpRange" min="500" max="7800" step="10" value="1633">
+            </div>
+            <div class="da-slider-row">
+              <div class="da-slider-head">
+                <span>年积雪日数</span>
+                <span class="da-slider-val" id="daSnowVal">132 天</span>
+              </div>
+              <input type="range" class="da-slider" id="daSnowRange" min="105" max="150" step="1" value="132">
+            </div>
+            <div style="font-size:10px; color:var(--dim); margin-top:16px; margin-bottom:6px;">快速载入真实市州参数：</div>
+            <div class="da-node-pick" id="daNodePick">
+              <button class="da-node-btn" data-city="0">长春</button>
+              <button class="da-node-btn active" data-city="1">吉林</button>
+              <button class="da-node-btn" data-city="5">白山</button>
+              <button class="da-node-btn" data-city="8">延边</button>
+              <button class="da-node-btn" data-city="4">通化</button>
+              <button class="da-node-btn" data-city="7">白城</button>
+            </div>
+            <div class="da-play-note">
+              <b style="color:var(--gold);">模型方程：</b>冰雪指数 = −152.985 + 0.006376 × GDP + 1.6200 × 积雪日数<br>
+              系数来自 n=9 市州 OLS 估计，两项均在 5% 水平显著。
+            </div>
+          </div>
+
+          <!-- 右：输出区 -->
+          <div class="da-play-panel">
+            <div class="da-play-h">
+              <span style="font-size:13px;">🎯</span><span>模型预测结果</span>
+              <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(117,216,237,0.1); color:var(--ice); border-color:var(--ice);">实时计算</span>
+            </div>
+            <div class="da-gauge-wrap">
+              <div class="da-gauge-num" id="daGaugeNum">71.3</div>
+              <div class="da-gauge-unit">预测冰雪指数（实测值域 29 – 91）</div>
+              <div class="da-gauge-tier" id="daGaugeTier">—</div>
+            </div>
+            <div class="da-gauge-bar"><div class="da-gauge-fill" id="daGaugeFill"></div></div>
+            <div class="da-gauge-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+
+            <div class="da-decomp">
+              <div class="da-decomp-row">
+                <span class="da-decomp-label">GDP 贡献</span>
+                <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribGdp" style="background:var(--gold);"></div></div>
+                <span class="da-decomp-val" id="daContribGdpVal" style="color:var(--gold);">0.0</span>
+              </div>
+              <div class="da-decomp-row">
+                <span class="da-decomp-label">积雪日数贡献</span>
+                <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribSnow" style="background:var(--mint);"></div></div>
+                <span class="da-decomp-val" id="daContribSnowVal" style="color:var(--mint);">0.0</span>
+              </div>
+              <div class="da-decomp-row">
+                <span class="da-decomp-label">常数项</span>
+                <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribConst" style="background:rgba(230,120,110,0.75);"></div></div>
+                <span class="da-decomp-val" id="daContribConstVal" style="color:var(--coral);">−153.0</span>
+              </div>
+              <div class="da-play-note" id="daCompareNote">
+                当前参数对应：<b style="color:var(--ice);">吉林市</b> · 模型拟合 71.3 / 实测 86（残差 +14.7）
+              </div>            </div>
+          </div>
         </div>
 
         <!-- H. 数据来源 -->
@@ -8167,6 +8344,100 @@ if (!isStereoVR) {
       const t = $('dataAnalysisSection');
       if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     };
+
+    /* ===== 交互式回归推演器：模型D = 冰雪指数 ~ GDP + 积雪日数 ===== */
+    (function initPanelPlayground() {
+      const B0 = -152.984886, B1 = 0.006376, B2 = 1.619998;
+      // [市州, GDP, 积雪日数, 实际冰雪指数]  —— 与 allmodels.py 一致
+      const CITIES = [
+        ["长春", 7632, 118, 86], ["吉林", 1633, 132, 86], ["四平", 634, 112, 34],
+        ["辽源", 521, 110, 31], ["通化", 565, 126, 72], ["白山", 573, 145, 91],
+        ["松原", 1042, 136, 58], ["白城", 624, 124, 29], ["延边", 1080, 140, 79]
+      ];
+      const gdpR = $('daGdpRange'), snowR = $('daSnowRange');
+      if (!gdpR || !snowR) return;
+
+      function tier(v) {
+        if (v >= 80) return ['高度发达', 'rgba(148,227,202,0.16)', 'var(--mint)', 'rgba(148,227,202,0.45)'];
+        if (v >= 60) return ['较发达', 'rgba(117,216,237,0.16)', 'var(--ice)', 'rgba(117,216,237,0.45)'];
+        if (v >= 45) return ['中等水平', 'rgba(244,198,109,0.16)', 'var(--gold)', 'rgba(244,198,109,0.45)'];
+        return ['发展滞后', 'rgba(230,120,110,0.16)', 'var(--coral)', 'rgba(230,120,110,0.45)'];
+      }
+
+      function render() {
+        const gdp = +gdpR.value, snow = +snowR.value;
+        $('daGdpVal').textContent = gdp.toLocaleString('en-US') + ' 亿元';
+        $('daSnowVal').textContent = snow + ' 天';
+
+        const cGdp = B1 * gdp, cSnow = B2 * snow, total = B0 + cGdp + cSnow;
+        const shown = Math.max(0, Math.min(100, total));
+
+        $('daGaugeNum').textContent = total.toFixed(1);
+        $('daGaugeFill').style.width = shown + '%';
+        $('daGaugeFill').style.background = total >= 80
+          ? 'linear-gradient(90deg, var(--ice), var(--mint))'
+          : total >= 45 ? 'linear-gradient(90deg, var(--gold), var(--ice))'
+          : 'linear-gradient(90deg, var(--coral), var(--gold))';
+
+        const [lab, bg, col, bd] = tier(total);
+        const tierEl = $('daGaugeTier');
+        tierEl.textContent = lab;
+        tierEl.style.background = bg; tierEl.style.color = col; tierEl.style.border = '1px solid ' + bd;
+
+        // 贡献分解（以 |各分量| 归一化显示条形长度）
+        const maxAbs = Math.max(Math.abs(cGdp), Math.abs(cSnow), Math.abs(B0), 1);
+        $('daContribGdp').style.width = (Math.abs(cGdp) / maxAbs * 100) + '%';
+        $('daContribSnow').style.width = (Math.abs(cSnow) / maxAbs * 100) + '%';
+        $('daContribConst').style.width = (Math.abs(B0) / maxAbs * 100) + '%';
+        $('daContribGdpVal').textContent = '+' + cGdp.toFixed(1);
+        $('daContribSnowVal').textContent = '+' + cSnow.toFixed(1);
+        $('daContribConstVal').textContent = B0.toFixed(1);
+
+        // 匹配最近的真实市州
+        let best = null, bestD = Infinity;
+        CITIES.forEach(c => {
+          const d = Math.abs(c[1] - gdp) / 100 + Math.abs(c[2] - snow);
+          if (d < bestD) { bestD = d; best = c; }
+        });
+        const note = $('daCompareNote');
+        const extrap = (total > 91 || total < 29)
+          ? '<br><span style="color:var(--gold);">⚠ 该组合超出样本实测值域（29–91），属外推情景，预测不确定性上升。</span>'
+          : '';
+        if (bestD < 6) {
+          const fit = B0 + B1 * best[1] + B2 * best[2];
+          const resid = best[3] - fit;
+          note.innerHTML = '当前参数接近：<b style="color:var(--ice);">' + best[0] +
+            '</b> · 模型拟合 ' + fit.toFixed(1) + ' / 实测 ' + best[3] +
+            '（残差 <b style="color:' + (resid >= 0 ? 'var(--mint)' : 'var(--coral)') + ';">' +
+            (resid >= 0 ? '+' : '') + resid.toFixed(1) + '</b>）' + extrap;
+        } else {
+          note.innerHTML = '当前为<b style="color:var(--gold);">自定义情景</b>参数组合，不对应已有市州。可拖动滑块观察冰雪指数边际变化。' + extrap;
+        }
+      }
+
+      gdpR.addEventListener('input', () => { render(); });
+      snowR.addEventListener('input', () => { render(); });
+      gdpR.addEventListener('change', playCrystalClick);
+      snowR.addEventListener('change', playCrystalClick);
+
+      document.querySelectorAll('#daNodePick .da-node-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playCrystalClick();
+          const c = CITIES[+btn.dataset.city];
+          gdpR.value = c[1]; snowR.value = c[2];
+          document.querySelectorAll('#daNodePick .da-node-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          render();
+        });
+      });
+
+      // 手动调滑块时取消市州高亮
+      [gdpR, snowR].forEach(r => r.addEventListener('input', () => {
+        document.querySelectorAll('#daNodePick .da-node-btn').forEach(b => b.classList.remove('active'));
+      }));
+
+      render();
+    })();
     $('analysisInvestment').oninput = (e) => {
       $('analysisInvestmentVal').textContent = e.target.value + ' 亿';
       updateAnalysis();
