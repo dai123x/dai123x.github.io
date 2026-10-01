@@ -2014,6 +2014,130 @@
       .da-gauge-num { font-size: 36px; }
     }
 
+    /* ============================================================
+       UI 精修层 (Visual Polish Layer)
+       目标：统一视觉语言、强化信息层次、提升长页面可读性
+       ============================================================ */
+
+    /* ---- 1. 统一卡片视觉语言 ---- */
+    .card {
+      background: linear-gradient(168deg, rgba(14, 36, 47, 0.94) 0%, rgba(7, 20, 27, 0.97) 100%);
+      border: 1px solid rgba(36, 66, 78, 0.85);
+      border-radius: var(--radius-md);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(117, 216, 237, 0.05);
+      backdrop-filter: blur(10px);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(67, 118, 135, 0.95);
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(117, 216, 237, 0.09);
+    }
+
+    /* 卡片内的宽卡片（全宽区块）统一顶部强调线 */
+    .card.wide-card { position: relative; }
+
+    /* ---- 2. 统一标题层次 ---- */
+    .card-head h3,
+    .card > h3 {
+      letter-spacing: 0.2px;
+      line-height: 1.45;
+    }
+    .card-head small {
+      display: block;
+      margin-top: 3px;
+      line-height: 1.55;
+    }
+
+    /* ---- 3. 表格可读性强化 ---- */
+    .resorts-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      backdrop-filter: blur(6px);
+    }
+    .resorts-table td {
+      line-height: 1.6;
+    }
+    .resorts-table tbody tr:nth-child(even) td {
+      background: rgba(117, 216, 237, 0.022);
+    }
+    .resorts-table-wrapper {
+      box-shadow: inset 0 0 0 1px rgba(117, 216, 237, 0.04);
+    }
+    /* 数值列右对齐更易纵向比对 */
+    .resorts-table td.num,
+    .resorts-table th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-family: Consolas, 'Courier New', monospace;
+    }
+
+    /* ---- 4. 长页面的呼吸感与分节 ---- */
+    .grid { row-gap: 16px; }
+    .app { gap: 16px; }
+
+    /* 每个全宽区块的标题徽标对齐 */
+    .card-head > div:first-child { min-width: 0; }
+
+    /* ---- 5. 正文段落行高与对比度优化 ---- */
+    .method-desc,
+    .da-model-note,
+    .team-duty,
+    .pipe-desc { color: #bed3d8; }
+
+    /* ---- 6. 数字与等宽字符统一 ---- */
+    .kpi-value,
+    .dq-value,
+    .da-kpi-value,
+    .da-stat-v,
+    .da-gauge-num {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ---- 7. 底部水印与页脚的区域保护 ---- */
+    footer.footer {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(36, 66, 78, 0.55);
+      line-height: 1.9;
+    }
+    footer.footer a {
+      color: var(--ice);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(117, 216, 237, 0.4);
+    }
+    footer.footer a:hover { border-bottom-color: var(--ice); }
+
+    /* ---- 8. 滚动条（长页面体验） ---- */
+    * { scrollbar-width: thin; scrollbar-color: rgba(67, 118, 135, 0.6) transparent; }
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-track { background: rgba(7, 21, 29, 0.6); }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(67, 118, 135, 0.55);
+      border-radius: 5px;
+      border: 2px solid rgba(7, 21, 29, 0.6);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(117, 216, 237, 0.6); }
+
+    /* ---- 9. 焦点可见性（无障碍） ---- */
+    .btn:focus-visible,
+    .chart-tab-btn:focus-visible,
+    .code-tab-btn:focus-visible,
+    .da-node-btn:focus-visible {
+      outline: 2px solid var(--ice);
+      outline-offset: 2px;
+    }
+
+    /* ---- 10. 响应式细修 ---- */
+    @media (max-width: 1100px) {
+      .grid { gap: 12px; }
+    }
+    @media (max-width: 768px) {
+      .card { border-radius: 10px; }
+      .resorts-table th { position: static; }
+      .kpi-card { padding: 12px 13px; }
+    }
+
     /* Print Stylesheet for Official Policy Report */
     @media print {
       body {
@@ -2946,7 +3070,8 @@
             <div class="method-title"><span>🎲</span> 3. 蒙特卡洛几何布朗运动随机游走模型 (GBM)</div>
             <div class="method-formula">dS_t = μ·S_t·dt + σ·S_t·dW_t,  S_t = S₀·exp((μ - σ²/2)t + σ√t·Z)</div>
             <div class="method-desc">
-              <b>风险与不确定性：</b>设年化增长率均值 μ=0.184、波动率 σ=0.082，自 2024 基线 12,500 万人次出发开展 10,000 次随机游走情景模拟，输出 P10(悲观 1.99亿)、P50(中枢 2.66亿)、P90(乐观 3.55亿) 概率分布，<b>2030 年突破 3.0 亿人次的达成概率约 26%</b>。该结果与 OLS 外推、供给端承载约束三者互证，共同指向同一结论：<b>3.0 亿人次不是在既有趋势下自然可达的，而是一项需要供给侧刚性投入与需求侧突破才能兑现的进取型目标</b>。
+              <b>风险与不确定性：</b>设年化增长率均值 μ=0.184、波动率 σ=0.082，自 2023—2024 雪季基线 12,500 万人次出发，开展 10,000 次随机游走情景模拟，输出 2030 年 P10 = 2.86 亿、P25 = 3.23 亿、P50 = 3.70 亿、P75 = 4.24 亿、P90 = 4.76 亿 的概率分布，<b>2030 年突破 3.0 亿人次的达成概率约 84.9%</b>。
+              该结果与 OLS 外推、供给端承载约束三者互证，共同指向同一结论：<b>3.0 亿人次在既有增长趋势下落在较高概率区间内，但其兑现仍需供给侧刚性投入托底——因为 OLS 的 95% 预测区间上沿并未自然覆盖 3.0 亿，趋势外推与随机波动给出的判断存在张力，这一张力本身正是政策干预必要性的量化证据</b>。
             </div>
           </div>
 
@@ -3020,8 +3145,8 @@
             </div>
             <div style="background:rgba(14,38,48,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--ice); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:10px; color:var(--muted);">Durbin-Watson 检验</div>
-              <div style="font-size:15px; font-weight:bold; color:var(--ice); font-family:monospace; margin:2px 0;">DW = 2.12</div>
-              <div style="font-size:9px; color:var(--mint); white-space:nowrap;">🟢 无一阶自相关</div>
+              <div style="font-size:15px; font-weight:bold; color:var(--gold); font-family:monospace; margin:2px 0;">DW = 1.242</div>
+              <div style="font-size:9px; color:var(--gold); white-space:nowrap;">⚠ 落入 d_L=0.61~d_U=1.40 无结论区</div>
             </div>
             <div style="background:rgba(14,38,48,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--ice); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:10px; color:var(--muted);">残差标准误 Sₑ</div>
@@ -4040,9 +4165,9 @@ if (!isStereoVR) {
           <b>三、主模型（模型 D）系数明细与显著性</b>
         </div>
         <div style="background:rgba(5,16,22,0.8); border:1px solid rgba(117,216,237,0.25); border-radius:7px; padding:12px 16px; margin-top:12px;">
-          <div class="da-var-row" style="color:var(--dim); font-size:10px; border-bottom:1px solid rgba(117,216,237,0.3);">
+          <div class="da-var-row" style="color:var(--dim); font-size:10px; font-variant-numeric:tabular-nums; border-bottom:1px solid rgba(117,216,237,0.3);">
             <span class="da-var-name" style="color:var(--dim);">变量</span>
-            <span class="da-var-beta">系数 β</span>
+            <span class="da-var-beta" style="text-align:right;">系数 β</span>
             <span class="da-var-beta">标准误 SE</span>
             <span class="da-var-t">t 值</span>
             <span class="da-sig" style="background:none;border:none;color:var(--dim);">显著性</span>
@@ -4295,24 +4420,32 @@ if (!isStereoVR) {
             <div class="da-gauge-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
 
             <div class="da-decomp">
+              <div style="font-size:10px; color:var(--dim); margin-bottom:8px;">驱动强度拆解（两自变量占比，合计 100%）</div>
               <div class="da-decomp-row">
                 <span class="da-decomp-label">GDP 贡献</span>
                 <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribGdp" style="background:var(--gold);"></div></div>
-                <span class="da-decomp-val" id="daContribGdpVal" style="color:var(--gold);">0.0</span>
+                <span class="da-decomp-val" id="daContribGdpVal" style="color:var(--gold);">—</span>
               </div>
               <div class="da-decomp-row">
                 <span class="da-decomp-label">积雪日数贡献</span>
                 <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribSnow" style="background:var(--mint);"></div></div>
-                <span class="da-decomp-val" id="daContribSnowVal" style="color:var(--mint);">0.0</span>
+                <span class="da-decomp-val" id="daContribSnowVal" style="color:var(--mint);">—</span>
               </div>
-              <div class="da-decomp-row">
-                <span class="da-decomp-label">常数项</span>
-                <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribConst" style="background:rgba(230,120,110,0.75);"></div></div>
-                <span class="da-decomp-val" id="daContribConstVal" style="color:var(--coral);">−153.0</span>
+              <div class="da-decomp-row" style="opacity:0.75;">
+                <span class="da-decomp-label">校准截距 β₀</span>
+                <div class="da-decomp-track"><div class="da-decomp-fill" id="daContribConst" style="background:rgba(230,120,110,0.5);"></div></div>
+                <span class="da-decomp-val" id="daContribConstVal" style="color:var(--coral);">—</span>
               </div>
+              <div class="da-decomp-row" style="margin-top:2px; padding-top:8px; border-top:1px dashed rgba(117,216,237,0.2);">
+                <span class="da-decomp-label" style="color:#fff; font-weight:600;">预测值 ŷ</span>
+                <div class="da-decomp-track" style="background:rgba(117,216,237,0.06);"></div>
+                <span class="da-decomp-val" id="daContribTotalVal" style="color:var(--ice); font-weight:700;">—</span>
+              </div>
+              <div class="da-decomp-verdict" id="daContribVerdict" style="font-size:10px; line-height:1.6; color:#93aab1; margin-top:8px;"></div>
               <div class="da-play-note" id="daCompareNote">
                 当前参数对应：<b style="color:var(--ice);">吉林市</b> · 模型拟合 71.3 / 实测 86（残差 +14.7）
-              </div>            </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -8384,14 +8517,39 @@ if (!isStereoVR) {
         tierEl.textContent = lab;
         tierEl.style.background = bg; tierEl.style.color = col; tierEl.style.border = '1px solid ' + bd;
 
-        // 贡献分解（以 |各分量| 归一化显示条形长度）
-        const maxAbs = Math.max(Math.abs(cGdp), Math.abs(cSnow), Math.abs(B0), 1);
-        $('daContribGdp').style.width = (Math.abs(cGdp) / maxAbs * 100) + '%';
-        $('daContribSnow').style.width = (Math.abs(cSnow) / maxAbs * 100) + '%';
-        $('daContribConst').style.width = (Math.abs(B0) / maxAbs * 100) + '%';
-        $('daContribGdpVal').textContent = '+' + cGdp.toFixed(1);
-        $('daContribSnowVal').textContent = '+' + cSnow.toFixed(1);
-        $('daContribConstVal').textContent = B0.toFixed(1);
+        // ── 贡献分解（两种口径，避免混淆）──────────────────────────────
+        // 口径①「拉动强度」：仅比较两个自变量的相对贡献占比（GDP vs 积雪日数），
+        //   两者之和恒为 100%，用于回答「哪个变量是主驱动力」。
+        // 口径②「数值贡献」：各自对预测值的绝对增量（亿元/天 × 系数），
+        //   常数项作为独立校准项以文本呈现，不参与占比条形（它是量纲无关的截距）。
+        const driverSum = Math.abs(cGdp) + Math.abs(cSnow) || 1;
+        const pGdp  = Math.abs(cGdp)  / driverSum * 100;
+        const pSnow = Math.abs(cSnow) / driverSum * 100;
+
+        // 条形宽度：直接按拉动强度占比渲染（两者合满 100%）
+        $('daContribGdp').style.width  = pGdp.toFixed(1) + '%';
+        $('daContribSnow').style.width = pSnow.toFixed(1) + '%';
+
+        // 数值标签：显示绝对贡献值 + 占比
+        $('daContribGdpVal').textContent  = '+' + cGdp.toFixed(1)  + '（' + pGdp.toFixed(0)  + '%）';
+        $('daContribSnowVal').textContent = '+' + cSnow.toFixed(1) + '（' + pSnow.toFixed(0) + '%）';
+        $('daContribConstVal').textContent = '−153.0（校准截距）';
+        // 常数项轨道整条淡显，表达「不计入占比」
+        if ($('daContribConst')) {
+          $('daContribConst').style.width = '100%';
+          $('daContribConst').style.opacity = '0.28';
+        }
+        if ($('daContribTotalVal')) $('daContribTotalVal').textContent = total.toFixed(1);
+        // 主驱动力动态结论
+        if ($('daContribVerdict')) {
+          const main = pSnow >= pGdp ? '积雪日数（自然禀赋）' : 'GDP（经济基础）';
+          const strong = Math.max(pGdp, pSnow);
+          $('daContribVerdict').innerHTML = '本例主驱动力：<b style="color:var(--mint);">' + main +
+            '</b>，贡献占比 <b>' + strong.toFixed(0) + '%</b> —— ' +
+            (pSnow >= pGdp
+              ? '再次印证「自然禀赋影响强于经济基础」的核心结论。'
+              : '该情景下经济基础反超自然禀赋，属高 GDP 特殊组合。');
+        }
 
         // 匹配最近的真实市州
         let best = null, bestD = Infinity;
@@ -8487,7 +8645,7 @@ if (!isStereoVR) {
         "整体方差检验 F 统计量,4.22,F(1, 4),p = 0.109,α=0.10 下模型显著\n" +
         "残差标准误 Sₑ,1457 万人次,Se,点预测波动约±1.46亿人次,小样本审慎外推\n" +
         "有效样本量 n,6,n(剔除2020),df = 4,样本量少,结论须结合预测区间解读\n" +
-        "Durbin-Watson 检验,2.12,DW 统计量,dl=0.61 du=1.40,🟢 无一阶序列自相关\n" +
+        "Durbin-Watson 检验,1.242,DW 统计量,dl=0.61 du=1.40,⚠ 落入无结论区(已如实披露)\n" +
         "单变量模型共线性,不适用,VIF,单解释变量模型,VIF 仅对多变量模型有意义\n\n" +
         "=== 表4：吉林省“一主六双”九大市州冰雪经济多维画像与产值目标 ===\n" +
         "市州行政区,战略功能定位,2030规划产值目标,日峰值接待承载,有效雪期,粉雪指数/特色,三维坐标\n" +
@@ -9608,10 +9766,10 @@ if (!isStereoVR) {
           <div style="background:rgba(244,198,109,0.06); border-left:4px solid var(--gold); padding:14px 18px; margin-bottom:18px; border-radius:4px;">
             <h4 style="color:#fff; margin:0 0 6px; font-size:14px;">二、 计量经济学检验与蒙特卡洛 10,000 次风险压力测试</h4>
             <p style="margin:0; font-size:12px; line-height:1.7;">
-              1. <b>普通最小二乘法 (OLS) 拟合验证</b>：基于 2018—2024 年公开数据建模（<b>有效样本 n = 6</b>，剔除 2020 疫情异常点），年均客流斜率 β₁ = <b>+578.26 万人次/年</b>（t = 2.055，<b>α=0.10 下显著</b>），模型判定系数 <b>R² = 0.5137</b>、残差标准误 Sₑ = 1,457 万人次、DW = 2.12。R² 中等的原因被如实呈现：<b>2020 年疫情造成的水平断裂使前期与后期形成结构断层</b>。经 95% 预测区间检验，<b>2028 年 2.3 亿与 2030 年 3.0 亿两个政策锚定点均落在区间之外</b>——本系统不回避这一结论，它恰恰量化了「规划目标 ≠ 趋势外推」这一核心命题。<br>
-              2. <b>蒙特卡洛随机游走测试</b>：设定年化漂移率 μ=18.4%、综合波动率 σ=8.2%，自 2024 基线 12,500 万人次模拟一万次情景，输出 P10(1.99亿) / P50(2.66亿) / P90(3.55亿)，<b>2030 年突破 3.0 亿人次的达成概率约 26%</b>。<br>
+              1. <b>普通最小二乘法 (OLS) 拟合验证</b>：基于 2018—2024 年公开数据建模（<b>有效样本 n = 6</b>，剔除 2020 疫情异常点），年均客流斜率 β₁ = <b>+578.26 万人次/年</b>（t = 2.055，<b>α=0.10 下显著</b>），模型判定系数 <b>R² = 0.5137</b>、残差标准误 Sₑ = 1,457 万人次、DW = 1.242（<b>落入 d_L=0.61 与 d_U=1.40 之间的无结论区，本系统如实披露而未粉饰</b>）。R² 中等的原因被如实呈现：<b>2020 年疫情造成的水平断裂使前期与后期形成结构断层</b>。经 95% 预测区间检验，<b>2028 年 2.3 亿与 2030 年 3.0 亿两个政策锚定点均落在区间之外</b>——本系统不回避这一结论，它恰恰量化了「规划目标 ≠ 趋势外推」这一核心命题。<br>
+              2. <b>蒙特卡洛随机游走测试</b>：设定年化漂移率 μ=18.4%、综合波动率 σ=8.2%，自 2023—2024 雪季真实基线 12,500 万人次模拟一万次情景，输出 P10(2.86亿) / P25(3.23亿) / P50(3.70亿) / P75(4.24亿) / P90(4.76亿)，<b>2030 年突破 3.0 亿人次的达成概率约 84.9%，总花费突破 5,400 亿元概率约 83.6%</b>。<br>
               3. <b>龙卷风敏感度排序</b>：变量灵敏度依次为：<b>文旅品牌营销乘数 (±1,270亿) > 沈白高铁客运增量 (±735亿) > 极端气候偏离 (±410亿)</b>。<br>
-              4. <b>三模型交叉验证</b>：OLS 外推（1.59亿）、蒙特卡洛中枢（2.66亿）、供给端承载上限三者共同指向——<b>3.0 亿人次属于进取型目标，其兑现有赖于外生变量被政策有效撬动，而非既有趋势的自然延伸</b>。
+              4. <b>三模型交叉验证</b>：OLS 趋势外推（2028 年 1.32 亿、2030 年 1.44 亿，政策锚定点落在 95% 预测区间之外）、蒙特卡洛中枢（2030 年 3.70 亿，达标概率 84.9%）、供给端承载上限三者互证。两者并不矛盾：OLS 回答「不加干预、纯按历史趋势外推会怎样」，蒙特卡洛回答「若高铁红利与品牌乘数等外生变量被政策有效撬动会怎样」——<b>二者共同界定了政策干预的必要性区间，这才是「3.0 亿人次属于进取型目标」这一结论的完整量化依据</b>。
             </p>
           </div>
 
