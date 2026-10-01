@@ -45,7 +45,7 @@
     }
 
     /* Ambient Background Canvas */
-    #bgCanvas {
+    #bgCanvas, #trailCanvas {
       position: fixed;
       top: 0;
       left: 0;
@@ -294,6 +294,71 @@
       color: var(--ice);
     }
 
+    /* KPI Ring Progress Indicator */
+    .kpi-ring {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+    }
+    .kpi-ring svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .kpi-ring-track {
+      fill: none;
+      stroke: rgba(117, 216, 237, 0.12);
+      stroke-width: 3;
+    }
+    .kpi-ring-fill {
+      fill: none;
+      stroke-width: 3;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kpi-ring-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 8px;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--muted);
+    }
+
+    /* Card Hover Glow Pulse */
+    .kpi-card::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      box-shadow: 0 0 20px var(--ice-glow), inset 0 0 20px rgba(117, 216, 237, 0.05);
+    }
+    .kpi-card:hover::after { opacity: 1; }
+    .kpi-card.gold::after { box-shadow: 0 0 20px var(--gold-glow), inset 0 0 20px rgba(244, 198, 109, 0.05); }
+    .kpi-card.mint::after { box-shadow: 0 0 20px var(--mint-glow), inset 0 0 20px rgba(148, 227, 202, 0.05); }
+    .kpi-card.coral::after { box-shadow: 0 0 20px rgba(242, 142, 112, 0.3), inset 0 0 20px rgba(242, 142, 112, 0.05); }
+
+    /* Card Hover Glow for all cards */
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      box-shadow: 0 0 15px rgba(117, 216, 237, 0.1), inset 0 0 15px rgba(117, 216, 237, 0.03);
+    }
+    .card:hover::after { opacity: 1; }
+    .card { position: relative; }
+
     /* Main Grid Layout */
     .grid {
       display: grid;
@@ -382,6 +447,10 @@
       width: 100%;
       min-height: 200px;
       position: relative;
+      transition: opacity 0.3s ease;
+    }
+    .chart-container.fade-out {
+      opacity: 0;
     }
     svg.bar-chart {
       width: 100%;
@@ -1121,6 +1190,18 @@
       box-shadow: 0 0 8px var(--gold);
       transform: scale(1.2);
     }
+    .tour-progress {
+      width: 20px;
+      height: 2px;
+      background: #254852;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .tour-progress-fill {
+      height: 100%;
+      background: var(--gold);
+      transition: width 0.3s ease;
+    }
 
     /* Footer */
     .footer {
@@ -1642,8 +1723,70 @@
   </style>
 </head>
 <body>
+  <!-- Loading Splash Screen -->
+  <style>
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      background: #050f16;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .splash-logo {
+      font-size: 64px;
+      color: #fff;
+      font-weight: 900;
+      text-shadow: 0 0 20px rgba(117, 216, 237, 0.8);
+      animation: pulse 1.5s infinite;
+    }
+    .splash-text {
+      margin-top: 20px;
+      color: #75d8ed;
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+    .splash-bar {
+      width: 200px;
+      height: 2px;
+      background: rgba(117, 216, 237, 0.2);
+      margin-top: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+    .splash-bar-inner {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: #75d8ed;
+      width: 0%;
+      transition: width 1.5s ease-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+  </style>
+  <div id="splashScreen">
+    <div class="splash-logo">雪</div>
+    <div class="splash-text">系统启动中...</div>
+    <div class="splash-bar"><div class="splash-bar-inner" id="splashProgress"></div></div>
+  </div>
+  <script>
+    setTimeout(() => { document.getElementById('splashProgress').style.width = '100%'; }, 50);
+    setTimeout(() => {
+      const s = document.getElementById('splashScreen');
+      if (s) {
+        s.style.opacity = '0';
+        setTimeout(() => s.remove(), 500);
+      }
+    }, 1500);
+  </script>
   <!-- Ambient Particle Snow & Aurora Canvas -->
   <canvas id="bgCanvas"></canvas>
+  <canvas id="trailCanvas"></canvas>
 
   <main class="app" id="app">
     <!-- Top Header -->
@@ -1658,6 +1801,7 @@
       </div>
       <div class="toolbar">
         <span class="badge"><span class="badge-dot"></span>规划目标 · 权威可溯</span>
+        <span class="badge" id="systemClockBadge" style="font-family:monospace;background:rgba(8,26,34,0.85);border-color:#2a5766;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
         <button class="btn" id="btnAudio" title="开启全景电影级配乐与自然白噪音">🔈 全景环境音: 关</button>
         <button class="btn" id="btnWeather" title="切换天气粒子强度">🌨️ 暴雪特效</button>
         <button class="btn btn-gold" id="btnTour" title="启动全自动巡航讲解模式">🚀 自动巡航演示</button>
@@ -1711,6 +1855,10 @@
     <!-- 4 KPI Cards -->
     <section class="kpis">
       <div class="kpi-card">
+        <div class="kpi-ring" id="kpiRing1">
+          <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--ice)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill1"/></svg>
+          <span class="kpi-ring-text" id="kpiRingPct1">0%</span>
+        </div>
         <div class="kpi-label">
           <span>冰雪旅游接待游客规划目标</span>
           <span class="kpi-delta" id="visitorDelta">基准雪季</span>
@@ -1720,6 +1868,10 @@
       </div>
 
       <div class="kpi-card gold">
+        <div class="kpi-ring" id="kpiRing2">
+          <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--gold)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill2"/></svg>
+          <span class="kpi-ring-text" id="kpiRingPct2">0%</span>
+        </div>
         <div class="kpi-label">
           <span>冰雪旅游游客出游总花费目标</span>
           <span class="kpi-delta" id="spendingDelta">基准雪季</span>
@@ -1729,6 +1881,10 @@
       </div>
 
       <div class="kpi-card mint">
+        <div class="kpi-ring" id="kpiRing3">
+          <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--mint)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill3"/></svg>
+          <span class="kpi-ring-text" id="kpiRingPct3">0%</span>
+        </div>
         <div class="kpi-label">
           <span>冰雪装备制造业总产值</span>
           <span class="kpi-delta" id="equipmentDelta">前期统筹</span>
@@ -1738,6 +1894,10 @@
       </div>
 
       <div class="kpi-card coral">
+        <div class="kpi-ring" id="kpiRing4">
+          <svg viewBox="0 0 36 36"><circle class="kpi-ring-track" cx="18" cy="18" r="15"/><circle class="kpi-ring-fill" cx="18" cy="18" r="15" stroke="var(--coral)" stroke-dasharray="94.2" stroke-dashoffset="94.2" id="kpiRingFill4"/></svg>
+          <span class="kpi-ring-text" id="kpiRingPct4">100</span>
+        </div>
         <div class="kpi-label">
           <span>年度供给端三大支撑指标</span>
           <span class="kpi-delta" style="color:var(--coral);background:rgba(242,142,112,0.15)">年度刚性</span>
@@ -2325,7 +2485,7 @@
           <h2 style="color: #fff; margin: 0; font-size: 26px;">吉林冰雪经济发展战略评估报告 (2024-2030)</h2>
         </div>
         <div style="text-align: right; color: var(--muted); font-size: 11px;">
-          生成时间: <script>document.write(new Date().toLocaleDateString())</script><br>
+          生成时间: <span id="reportDate"></span><br>
           模型数据源: 吉林省《实施意见》(2024)
         </div>
       </div>
@@ -2612,7 +2772,13 @@
           <b style="color:#fff;">鼠标滚轮</b> : 在 3D 沙盘中缩放视角
         </div>
         <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
-          <b style="color:var(--mint);">↑ / ↓</b> : 3D沙盘上下俯仰 (鸟瞰 ↔ 平视)
+          <b style="color:var(--mint);">↑ / ↓ 或 W / S</b> : 3D沙盘俯仰 (鸟瞰 ↔ 平视)
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--gold);">A / D 键</b> : 3D沙盘全向平滑旋转
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--ice);">Q / E 键</b> : 3D沙盘视距推进 / 远离
         </div>
         <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">Esc</b> : 关闭任意弹窗或退出巡航
@@ -3076,10 +3242,33 @@
     $('btnAudio').onclick = toggleAudio;
 
     // 2. Render KPIs with Smooth Value Rolling
+    function animateValue(element, start, end, duration, formatter) {
+      if (!element) return;
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = start + ease * (end - start);
+        element.textContent = formatter(current);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      };
+      requestAnimationFrame(step);
+    }
+
     function updateKPIs() {
       const d = DATA[currentYear];
-      $('kpiVisitors').textContent = d.visitors + ' 亿人次';
-      $('kpiSpending').textContent = d.spending.toLocaleString() + ' 亿元';
+      
+      const vEl = $('kpiVisitors');
+      const vStart = parseFloat(vEl.textContent) || 0;
+      animateValue(vEl, vStart, parseFloat(d.visitors), 800, val => (val % 1 === 0 ? val : val.toFixed(2).replace(/\.?0+$/, '')) + ' 亿人次');
+
+      const sEl = $('kpiSpending');
+      const sStart = parseFloat(sEl.textContent.replace(/,/g, '')) || 0;
+      animateValue(sEl, sStart, d.spending, 800, val => Math.floor(val).toLocaleString() + ' 亿元');
+
       $('kpiEquipment').textContent = d.equipment ? '≥' + d.equipment + ' 亿元' : '—';
       $('visitorDelta').textContent = d.visitorDelta;
       $('spendingDelta').textContent = d.spendingDelta;
@@ -3102,6 +3291,26 @@
       if ($('dynamicExecSummary')) {
         $('dynamicExecSummary').innerHTML = aiText;
       }
+
+      // Update KPI Ring Progress Indicators
+      const circ = 94.2; // 2 * PI * 15
+      const visitorPct = Math.round((d.visitors / 3.0) * 100);
+      const spendingPct = Math.round((d.spending / 5400) * 100);
+      const equipPct = d.equipment ? 100 : (currentYear === '2028' ? 40 : 0);
+      const supplyPct = 100; // annual rigid
+
+      function setRing(fillId, pctId, pct) {
+        const el = $(fillId);
+        const textEl = $(pctId);
+        if (el) el.setAttribute('stroke-dashoffset', circ - (circ * Math.min(pct, 100) / 100));
+        if (textEl) textEl.textContent = Math.min(pct, 100) + '%';
+      }
+      setTimeout(() => {
+        setRing('kpiRingFill1', 'kpiRingPct1', visitorPct);
+        setRing('kpiRingFill2', 'kpiRingPct2', spendingPct);
+        setRing('kpiRingFill3', 'kpiRingPct3', equipPct);
+        setRing('kpiRingFill4', 'kpiRingPct4', supplyPct);
+      }, 50);
 
       renderActiveChart();
     }
@@ -3901,7 +4110,17 @@
         $('chartTabs').querySelectorAll('.chart-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentChartTab = btn.dataset.tab;
-        renderActiveChart();
+        
+        const chartView = document.querySelector('.chart-container');
+        if (chartView) {
+          chartView.classList.add('fade-out');
+          setTimeout(() => {
+            renderActiveChart();
+            chartView.classList.remove('fade-out');
+          }, 300);
+        } else {
+          renderActiveChart();
+        }
       };
     });
 
@@ -3978,12 +4197,23 @@
     // 5. Procedural 2D Background Snow & Aurora Canvas
     const bgCanvas = $('bgCanvas');
     const bgCtx = bgCanvas.getContext('2d');
+    const trailCanvas = $('trailCanvas');
+    const trailCtx = trailCanvas.getContext('2d');
     let bgW, bgH;
     const flakes = [];
+    const trailParticles = [];
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
 
     function initBgParticles() {
       bgW = bgCanvas.width = window.innerWidth;
       bgH = bgCanvas.height = window.innerHeight;
+      trailCanvas.width = window.innerWidth;
+      trailCanvas.height = window.innerHeight;
       flakes.length = 0;
       const count = isWeatherHeavy ? 280 : 120;
       for (let i = 0; i < count; i++) {
@@ -4037,6 +4267,34 @@
       });
       bgCtx.globalAlpha = 1.0;
 
+      // Trail Effect
+      trailCtx.clearRect(0, 0, bgW, bgH);
+      for(let i=0; i<3; i++) {
+        if(trailParticles.length < 60) {
+          trailParticles.push({
+            x: mouseX + (Math.random() - 0.5) * 10,
+            y: mouseY + (Math.random() - 0.5) * 10,
+            r: Math.random() * 1.5 + 0.5,
+            life: 1.0
+          });
+        }
+      }
+      trailCtx.fillStyle = 'rgba(200, 240, 255, 1)';
+      for(let i=trailParticles.length-1; i>=0; i--) {
+        const p = trailParticles[i];
+        p.y -= 0.5;
+        p.life -= 16.6 / 400; // ~400ms fade based on ~60fps
+        if(p.life <= 0) {
+          trailParticles.splice(i, 1);
+        } else {
+          trailCtx.globalAlpha = p.life;
+          trailCtx.beginPath();
+          trailCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          trailCtx.fill();
+        }
+      }
+      trailCtx.globalAlpha = 1.0;
+
       requestAnimationFrame(drawBg);
     }
 
@@ -4070,8 +4328,8 @@
     }
 
     // Generate Procedural 3D Topographic Mesh (Changbai Mountains & Jilin Terrain)
-    const GRID_SIZE = 20;
-    const GRID_STEP = 24;
+    const GRID_SIZE = 24;
+    const GRID_STEP = 20;
     const terrainPoints = [];
     const terrainFaces = [];
 
@@ -4161,6 +4419,30 @@
           terrainFaces.push([i0, i3, i2]);
         }
       }
+
+      // Precompute landmark ground heights once for maximum rendering efficiency
+      PLACES.forEach(p => {
+        const dx = p.pos3d[0] - mountX, dz = p.pos3d[2] - mountZ;
+        const distToMount = Math.hypot(dx, dz);
+        const angle = Math.atan2(dz, dx);
+        let gy = 0;
+        const orgNoise = fbm(p.pos3d[0] * 0.015, p.pos3d[2] * 0.015, 5) * 60;
+        if (distToMount < 40) {
+          const lakeFloor = 100 + smoothNoise(p.pos3d[0] * 0.1, p.pos3d[2] * 0.1) * 5;
+          const wallDist = Math.max(0, distToMount - 25);
+          gy = lakeFloor + Math.pow(wallDist, 1.8);
+        } else if (distToMount < 200) {
+          const baseHeight = 240 * Math.exp(-Math.pow(distToMount - 40, 2) / 6000);
+          const peakMod = (Math.abs(Math.sin(angle * 8)) * 30) * Math.exp(-Math.pow(distToMount - 45, 2) / 2000);
+          const rugged = fbm(p.pos3d[0] * 0.03, p.pos3d[2] * 0.03, 4) * 40 * Math.exp(-Math.pow(distToMount - 50, 2) / 10000);
+          gy = baseHeight + peakMod + rugged + (orgNoise * 0.5);
+        } else {
+          const terrainSlope = (p.pos3d[0] + p.pos3d[2]) * 0.12;
+          gy = Math.max(10, 40 + terrainSlope + orgNoise * 0.8);
+        }
+        p.groundY = gy;
+        p.markerY = Math.max(p.pos3d[1], gy + 40);
+      });
     }
     build3DTerrain();
 
@@ -4541,33 +4823,8 @@
         const pt = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
         if (!pt) return;
         const isCurrent = idx === currentPlaceIdx;
-
-        // Calculate dynamic ground height at this marker's X/Z
-        // Calculate dynamic ground height at this marker's X/Z
-        const mountX = 140, mountZ = 120;
-        const dx = p.pos3d[0] - mountX, dz = p.pos3d[2] - mountZ;
-        const distToMount = Math.hypot(dx, dz);
-        const angle = Math.atan2(dz, dx);
-        
-        let groundY = 0;
-        const organicNoise = fbm(p.pos3d[0] * 0.015, p.pos3d[2] * 0.015, 5) * 60;
-        
-        if (distToMount < 40) {
-          const lakeFloor = 100 + smoothNoise(p.pos3d[0]*0.1, p.pos3d[2]*0.1) * 5;
-          const wallDist = Math.max(0, distToMount - 25);
-          groundY = lakeFloor + Math.pow(wallDist, 1.8);
-        } else if (distToMount < 200) {
-          const baseHeight = 240 * Math.exp(-Math.pow(distToMount - 40, 2) / 6000);
-          const peakModulation = (Math.abs(Math.sin(angle * 8)) * 30) * Math.exp(-Math.pow(distToMount - 45, 2) / 2000);
-          const ruggedness = fbm(p.pos3d[0] * 0.03, p.pos3d[2] * 0.03, 4) * 40 * Math.exp(-Math.pow(distToMount - 50, 2) / 10000);
-          groundY = baseHeight + peakModulation + ruggedness + (organicNoise * 0.5);
-        } else {
-          const terrainSlope = (p.pos3d[0] + p.pos3d[2]) * 0.12;
-          groundY = Math.max(10, 40 + terrainSlope + organicNoise * 0.8);
-        }
-
-        // Make sure marker floats ABOVE the terrain
-        const markerY = Math.max(p.pos3d[1], groundY + 40);
+        const groundY = p.groundY;
+        const markerY = p.markerY;
 
         const updatedPt = project3D({ x: p.pos3d[0], y: markerY, z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
         if (!updatedPt) {
@@ -4717,9 +4974,10 @@
     }
 
     function animateVr() {
-      render3DScene(vrCtx, vrW, vrH);
       if (isExpandOpen) {
         render3DScene(vrExpandCtx, vrExpandCanvas.width, vrExpandCanvas.height);
+      } else {
+        render3DScene(vrCtx, vrW, vrH);
       }
       requestAnimationFrame(animateVr);
     }
@@ -4981,10 +5239,26 @@
       runTourStep(tourStep);
     }
 
+    let typeWriterTimer = null;
+    function typewriterEffect(element, text, speed) {
+      if (typeWriterTimer) clearTimeout(typeWriterTimer);
+      element.textContent = '';
+      let i = 0;
+      function type() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          typeWriterTimer = setTimeout(type, speed);
+        }
+      }
+      type();
+    }
+
     function stopAutoTour() {
       isTourRunning = false;
       isTourPaused = false;
       clearTimeout(tourTimer);
+      if (typeWriterTimer) clearTimeout(typeWriterTimer);
       $('tourBanner').classList.remove('show');
       $('cinematicSubtitles').style.opacity = '0';
       if ($('galleryModal').classList.contains('show')) $('galleryModal').classList.remove('show');
@@ -4997,25 +5271,50 @@
       const stop = TOUR_STOPS[step];
       $('tourTitle').textContent = stop.title;
       $('tourDesc').textContent = stop.desc;
-      $('subText').textContent = stop.subtitle;
+      
+      $('cinematicSubtitles').style.opacity = '0';
+      
+      setTimeout(() => {
+        $('cinematicSubtitles').style.opacity = '1';
+        typewriterEffect($('subText'), stop.subtitle, 40);
 
-      // TTS Voiceover
-      if (window.speechSynthesis && !isTourPaused) {
-        window.speechSynthesis.cancel();
-        ttsUtterance = new SpeechSynthesisUtterance(stop.subtitle);
-        ttsUtterance.lang = 'zh-CN';
-        ttsUtterance.rate = 1.05; // Slightly cinematic pacing
-        ttsUtterance.pitch = 1.0;
-        if (preferredVoice) ttsUtterance.voice = preferredVoice;
-        window.speechSynthesis.speak(ttsUtterance);
-      }
+        // TTS Voiceover with natural pacing and onend synchronization
+        let speechTriggered = false;
+        if (window.speechSynthesis && !isTourPaused) {
+          window.speechSynthesis.cancel();
+          ttsUtterance = new SpeechSynthesisUtterance(stop.subtitle);
+          ttsUtterance.lang = 'zh-CN';
+          ttsUtterance.rate = 1.05; // Slightly cinematic pacing
+          ttsUtterance.pitch = 1.0;
+          if (preferredVoice) ttsUtterance.voice = preferredVoice;
+          ttsUtterance.onend = () => {
+            if (!isTourPaused && isTourRunning) {
+              clearTimeout(tourTimer);
+              tourTimer = setTimeout(() => {
+                tourStep = (tourStep + 1) % TOUR_STOPS.length;
+                if (tourStep === 0) stopAutoTour();
+                else runTourStep(tourStep);
+              }, 1200); // 1.2s graceful pause after speech completes
+            }
+          };
+          ttsUtterance.onerror = () => { speechTriggered = false; };
+          window.speechSynthesis.speak(ttsUtterance);
+          speechTriggered = true;
+        }
+
+        stop.action();
+      }, 200);
 
       // Dynamically sync tour indicator dots
       if ($('tourSteps')) {
-        $('tourSteps').innerHTML = TOUR_STOPS.map((_, idx) => `<span class="tour-dot ${idx === step ? 'active' : ''}"></span>`).join('');
+        $('tourSteps').innerHTML = TOUR_STOPS.map((_, idx) => {
+            let html = `<span class="tour-dot ${idx === step ? 'active' : ''}"></span>`;
+            if (idx < TOUR_STOPS.length - 1) {
+                html += `<div class="tour-progress"><div class="tour-progress-fill" style="width: ${step > idx ? '100%' : '0%'}"></div></div>`;
+            }
+            return html;
+        }).join('');
       }
-
-      stop.action();
 
       // Dynamically sync chart tabs
       if ($('chartTabs')) {
@@ -5025,14 +5324,16 @@
       }
 
       if (!isTourPaused) {
+        // Fallback safety timer if TTS is not available or blocked
+        const fallbackDuration = Math.max(9000, stop.subtitle.length * 240 + 2500);
         tourTimer = setTimeout(() => {
           tourStep = (tourStep + 1) % TOUR_STOPS.length;
           if (tourStep === 0) {
-            stopAutoTour(); // Auto-stop after full loop
+            stopAutoTour();
           } else {
             runTourStep(tourStep);
           }
-        }, 9500); // Wait 9.5s per step for TTS to read
+        }, fallbackDuration);
       }
     }
 
@@ -5128,7 +5429,7 @@
       $('setupModal').classList.remove('show');
     };
 
-    $('btnReport').onclick = () => { playCrystalClick(); $('reportModal').classList.add('show'); };
+    $('btnReport').onclick = () => { playCrystalClick(); $('reportDate').textContent = new Date().toLocaleDateString('zh-CN'); $('reportModal').classList.add('show'); };
     $('btnCloseReport').onclick = () => $('reportModal').classList.remove('show');
     $('btnExportCsvReal').onclick = () => $('btnExport').click();
 
@@ -5412,12 +5713,24 @@
         } else {
           startAutoTour();
         }
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') {
         e.preventDefault();
         targetPitch = Math.min(1.48, targetPitch + 0.08);
-      } else if (e.key === 'ArrowDown') {
+      } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') {
         e.preventDefault();
         targetPitch = Math.max(0.05, targetPitch - 0.08);
+      } else if (e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        targetYaw += 0.12;
+      } else if (e.key.toLowerCase() === 'd') {
+        e.preventDefault();
+        targetYaw -= 0.12;
+      } else if (e.key.toLowerCase() === 'q') {
+        e.preventDefault();
+        targetDist = Math.max(220, targetDist - 30);
+      } else if (e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        targetDist = Math.min(680, targetDist + 30);
       } else if (e.key >= '1' && e.key <= '8') {
         selectPlace(parseInt(e.key, 10) - 1);
       }
@@ -6101,6 +6414,19 @@
       }
       updateSimulation();
     }
+
+    // Live Telemetry Clock
+    function updateSystemClock() {
+      const el = $('systemClockText');
+      if (!el) return;
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      el.textContent = `${h}:${m}:${s} ONLINE`;
+    }
+    updateSystemClock();
+    setInterval(updateSystemClock, 1000);
 
     // Initial Execution
     applyBranding();
