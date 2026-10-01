@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_snow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#071c28"/>
+      <stop offset="55%" stop-color="#04121c"/>
+      <stop offset="100%" stop-color="#020a11"/>
+    </linearGradient>
+    <linearGradient id="aurora1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5eead4" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#5eead4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="aurora2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7dd3fc" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#7dd3fc" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="peakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dff2f7" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#8fb8c6" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#123243" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="peakGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#9dc6d4" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0c2534" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#75d8ed"/>
+      <stop offset="100%" stop-color="#f4c66d"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f4c66d"/>
+      <stop offset="100%" stop-color="#d9a13c"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="360" fill="url(#bg_snow)"/>
+
+  <!-- Aurora bands -->
+  <path d="M 40 0 C 130 70 210 20 300 90 C 380 150 470 90 570 140 L 570 0 Z" fill="url(#aurora1)"/>
+  <path d="M 120 0 C 200 60 280 40 360 100 C 430 152 500 120 600 160 L 600 0 Z" fill="url(#aurora2)"/>
+
+  <!-- Star field -->
+  <g fill="#e8f6fa">
+    <circle cx="60" cy="34" r="1.4" opacity="0.85"/>
+    <circle cx="128" cy="22" r="1" opacity="0.6"/>
+    <circle cx="205" cy="48" r="1.2" opacity="0.7"/>
+    <circle cx="286" cy="26" r="1" opacity="0.55"/>
+    <circle cx="352" cy="58" r="1.5" opacity="0.8"/>
+    <circle cx="428" cy="30" r="1" opacity="0.6"/>
+    <circle cx="496" cy="62" r="1.3" opacity="0.72"/>
+    <circle cx="552" cy="36" r="1" opacity="0.5"/>
+    <circle cx="92" cy="72" r="1" opacity="0.45"/>
+    <circle cx="252" cy="86" r="1.1" opacity="0.5"/>
+    <circle cx="392" cy="96" r="1" opacity="0.42"/>
+  </g>
+
+  <!-- Far mountain range -->
+  <path d="M 0 250 L 70 196 L 128 226 L 196 172 L 268 224 L 330 188 L 408 232 L 470 200 L 540 236 L 600 208 L 600 360 L 0 360 Z"
+        fill="url(#peakGrad2)" opacity="0.55"/>
+
+  <!-- Main Changbai peak with crater (Tianchi) -->
+  <path d="M 168 262 L 232 176 L 268 196 L 296 152 L 322 178 L 352 148 L 388 190 L 424 176 L 470 262 Z"
+        fill="url(#peakGrad)"/>
+  <!-- Snow cap -->
+  <path d="M 296 152 L 322 178 L 352 148 L 366 160 L 322 176 L 306 164 Z" fill="#f2fbff" opacity="0.92"/>
+  <!-- Crater lake -->
+  <ellipse cx="322" cy="176" rx="30" ry="8" fill="#4fc3e0" opacity="0.85"/>
+  <ellipse cx="322" cy="175" rx="30" ry="8" fill="none" stroke="#a9e8f7" stroke-width="1" opacity="0.7"/>
+
+  <!-- Foreground snow slope -->
+  <path d="M 0 300 C 90 276 170 296 260 282 C 350 268 430 292 520 276 L 600 286 L 600 360 L 0 360 Z"
+        fill="#0a1f2c"/>
+  <path d="M 0 300 C 90 276 170 296 260 282 C 350 268 430 292 520 276 L 600 286"
+        fill="none" stroke="#8fd8ea" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- Data line + policy target markers (core visual metaphor) -->
+  <path d="M 40 300 L 118 288 L 176 280 L 226 274 L 268 266 L 304 250 L 340 214 L 380 176 L 420 150"
+        fill="none" stroke="url(#lineGrad)" stroke-width="2.6" stroke-linecap="round"/>
+  <g fill="#75d8ed">
+    <circle cx="40" cy="300" r="3"/>
+    <circle cx="118" cy="288" r="3"/>
+    <circle cx="176" cy="280" r="3"/>
+    <circle cx="226" cy="274" r="3"/>
+    <circle cx="268" cy="266" r="3"/>
+    <circle cx="304" cy="250" r="3"/>
+  </g>
+  <!-- Policy target crosses -->
+  <g stroke="#f4c66d" stroke-width="2.2" stroke-linecap="round">
+    <line x1="344" y1="208" x2="356" y2="220"/>
+    <line x1="356" y1="208" x2="344" y2="220"/>
+    <line x1="414" y1="144" x2="426" y2="156"/>
+    <line x1="426" y1="144" x2="414" y2="156"/>
+  </g>
+  <path d="M 350 214 L 420 150" fill="none" stroke="#f4c66d" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.6"/>
+
+  <!-- Snow particles -->
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="52" cy="120" r="1.6"/>
+    <circle cx="112" cy="164" r="1.2"/>
+    <circle cx="168" cy="110" r="1.4"/>
+    <circle cx="232" cy="140" r="1.1"/>
+    <circle cx="286" cy="104" r="1.5"/>
+    <circle cx="344" cy="122" r="1.2"/>
+    <circle cx="404" cy="96" r="1.3"/>
+    <circle cx="462" cy="132" r="1.1"/>
+    <circle cx="522" cy="108" r="1.4"/>
+    <circle cx="568" cy="152" r="1.2"/>
+    <circle cx="84" cy="200" r="1.3"/>
+    <circle cx="196" cy="212" r="1.1"/>
+  </g>
+
+  <!-- Header text -->
+  <g>
+    <text x="40" y="52" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="26" font-weight="700" fill="#ffffff" letter-spacing="2">雪线之上</text>
+    <text x="40" y="76" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="12.5" fill="#7fd4e8" letter-spacing="0.6">吉林冰雪经济目标可视化交互系统</text>
+    <rect x="40" y="88" width="56" height="2.4" rx="1.2" fill="url(#goldGrad)"/>
+  </g>
+
+  <!-- Badge -->
+  <g>
+    <rect x="404" y="34" width="156" height="26" rx="13" fill="rgba(244,198,109,0.14)" stroke="rgba(244,198,109,0.65)" stroke-width="1"/>
+    <circle cx="420" cy="47" r="4" fill="#f4c66d"/>
+    <text x="432" y="51" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="11" fill="#f4c66d" font-weight="600">吉林省 VR 大赛</text>
+  </g>
+
+  <!-- Footer metrics strip -->
+  <g>
+    <rect x="40" y="322" width="520" height="1" fill="rgba(127,212,232,0.22)"/>
+    <text x="40" y="340" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="10" fill="#8fb8c6">2.3 亿 → 3.0 亿人次</text>
+    <text x="200" y="340" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="10" fill="#8fb8c6">4,200 亿 → 5,400 亿元</text>
+    <text x="372" y="340" font-family="system-ui,-apple-system,'Segoe UI',sans-serif" font-size="10" fill="#8fb8c6">零依赖 · 双击即开</text>
+  </g>
+</svg>

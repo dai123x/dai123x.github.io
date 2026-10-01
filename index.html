@@ -47,6 +47,7 @@
           <li><a href="#skills" class="nav-link">专业技能</a></li>
           <li><a href="#projects" class="nav-link">精选项目</a></li>
           <li><a href="#awards" class="nav-link">竞赛荣誉</a></li>
+          <li><a href="#competition" class="nav-link">参赛作品</a></li>
           <li><a href="#contact" class="nav-link">联系方式</a></li>
         </ul>
       </nav>
@@ -90,6 +91,13 @@
             <p class="hero-desc">
               具备<strong>工业工程（IE）与统计分析复合背景</strong>。熟练掌握时间序列分析、高等数理统计、应用概率及 R/Python 数据建模，拥有制造业现场生产线时间研究、AGV 路径优化及厂房通风改善实践经验，兼具 Web 3D 图形交互系统研发能力。
             </p>
+
+            <div style="margin: 18px 0 4px; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-left: 3px solid var(--accent-primary); border-radius: var(--radius-sm);">
+              <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                ❄️ 最新作品：<strong>《雪线之上 · 吉林冰雪经济目标可视化交互系统》</strong> — 吉林省大学生虚拟现实大赛（数据可视化分析赛道）参赛作品。
+                <a href="#competition" style="color: var(--accent-primary); text-decoration: underline; font-weight: 600;">查看详情 →</a>
+              </span>
+            </div>
             
             <div class="hero-actions">
               <a href="#projects" class="btn btn-primary">
@@ -371,6 +379,10 @@
             <div class="chips-list">
               <span class="skill-chip">Three.js 3D 场景开发</span>
               <span class="skill-chip">WebGL 原生渲染</span>
+              <span class="skill-chip">Canvas 3D 透视投影引擎</span>
+              <span class="skill-chip">D3-free 原生 SVG 图表渲染</span>
+              <span class="skill-chip">Web Audio API 声学合成</span>
+              <span class="skill-chip">VR 双目立体与瞳距视差</span>
               <span class="skill-chip">JavaScript (ES6+)</span>
               <span class="skill-chip">HTML5 / 现代 CSS3</span>
               <span class="skill-chip">Git / GitHub (@dai123x)</span>
@@ -393,6 +405,18 @@
         </div>
 
         <div class="awards-grid">
+          <!-- Award 0: 吉林省大学生虚拟现实大赛 -->
+          <div class="award-card">
+            <div class="award-icon-box">❄️</div>
+            <div class="award-content">
+              <h4>吉林省大学生虚拟现实大赛 · 数据可视化分析赛道</h4>
+              <span class="award-level">参赛作品《雪线之上 · 吉林冰雪经济目标可视化交互系统》</span>
+              <span style="display: inline-block; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                研究生团队（深度求索队）· <a href="#competition" style="color: var(--accent-primary); text-decoration: underline;">查看作品详情 →</a>
+              </span>
+            </div>
+          </div>
+
           <!-- Award 1 -->
           <div class="award-card">
             <div class="award-icon-box">🏆</div>
@@ -445,6 +469,126 @@
               <h4>“外研社·国才杯”全国外语能力大赛</h4>
               <span class="award-level">阅读 / 写作 / 笔译 三项校三等奖</span>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Competition Work Showcase: 吉林省大学生虚拟现实大赛 -->
+    <section class="section" id="competition">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Competition Work</span>
+          <h2 class="section-title">吉林省大学生虚拟现实大赛参赛作品</h2>
+          <p class="section-desc">数据可视化分析赛道 · 长春工业大学数学与统计学院应用统计研究生团队（深度求索队）</p>
+        </div>
+
+        <article class="project-card featured" style="margin-bottom: 28px;">
+          <div class="project-cover">
+            <img src="assets/images/project-snowviz.svg" alt="雪线之上 · 吉林冰雪经济目标可视化交互系统">
+          </div>
+          <div class="project-body">
+            <div class="project-tags">
+              <span class="tag-badge">数据可视化分析赛道</span>
+              <span class="tag-badge">零依赖原生架构</span>
+              <span class="tag-badge">Canvas 3D 数字孪生</span>
+              <span class="tag-badge">计量经济建模</span>
+            </div>
+            <h3 class="project-title">雪线之上 · 吉林冰雪经济目标可视化交互系统</h3>
+            <p class="project-desc">
+              围绕一个可实证核验的严肃课题展开：<strong>吉林省冰雪经济政策提出了哪些阶段目标？这些目标由哪些空间场景与供给端任务支撑？</strong>
+              系统以<strong>政策规划目标科学比对、重点区域场景矩阵、刚性供给任务指标、VR 沉浸式场景原型</strong>构成四维立体叙事闭环，
+              所有数据严格采信《吉林省人民政府公报》公开文件，明确标定「规划目标值，非实际业绩」。
+            </p>
+            <div class="project-footer">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">团队作品 · 戴璇（队长） / 李德影 / 刘世栋</span>
+              <a href="snow-viz/index.html" class="project-link" target="_blank" rel="noopener noreferrer">
+                <span>在线体验完整交互系统</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- 技术亮点 -->
+        <div class="bento-grid" style="margin-bottom: 28px;">
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
+            <h3>Canvas 3D 冰雪地理沙盘</h3>
+            <p>自主实现的原生 3D 透视投影高程网格算法，精准还原长白山天池火山口地貌与十六峰等高线，支持全向拖拽旋转、滚轮缩放与地标脉冲联动。</p>
+          </div>
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <h3>九大原生 SVG 分析图表</h3>
+            <p>不借助 D3.js / ECharts / Three.js 等任何第三方库，全程以原生贝塞尔曲线、多边形裁剪与投影计算渲染，涵盖 OLS 回归置信区间、Wilson 空间引力模型、桑基流向图与蒙特卡洛扇形预测区。</p>
+          </div>
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h3>双目立体 VR 与纯算式声学</h3>
+            <p>一键切换双目分屏渲染，自主推演双目光学中心与 64mm 瞳距视差；Web Audio API 程序化合成高寒冬风滤波白噪音与 8 频段实时频谱仪，兼容 Google Cardboard 及主流头显。</p>
+          </div>
+          <div class="bento-card">
+            <div class="bento-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            </div>
+            <h3>三模型交叉验证与诚实披露</h3>
+            <p>OLS 趋势回归、Wilson 空间引力、GBM 蒙特卡洛三模型并行估计。系统<strong>如实呈现模型的不确定性</strong>——OLS 显示政策锚定点落在 95% 预测区间之外，与蒙特卡洛情景概率共同界定政策干预的必要性区间。</p>
+          </div>
+        </div>
+
+        <!-- 数据与方法论 -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 14px;">📊 七阶段数据分析流水线与关键指标</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px;">
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">核心政策目标</div>
+              <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">2.3 亿 → 3.0 亿人次</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary);">2027-28 → 2029-30 雪季接待游客规划目标</div>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">出游总花费目标</div>
+              <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">4,200 亿 → 5,400 亿元</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary);">较 2023-24 雪季基期 2,419 亿元</div>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">回归模型斜率 β₁</div>
+              <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">+578.26 万人次/年</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary);">t = 2.055 · α=0.10 下显著 (n=6, df=4)</div>
+            </div>
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">数据权威来源</div>
+              <div style="font-size: 1.05rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">省政府公报</div>
+              <div style="font-size: 0.8rem; color: var(--text-secondary);">吉发〔2024〕16号 · 2024-12-12 发布</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 交付物清单 -->
+        <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 14px;">📦 参赛交付物套件（100% 合规）</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; font-size: 0.9rem; color: var(--text-secondary);">
+            <li>✅ <strong>交互系统</strong>：原生 HTML5/CSS/JS · 零外部依赖 · 离线双击秒开</li>
+            <li>✅ <strong>演示视频</strong>：1920×1080 · 62.5FPS · 4分21秒（≤5分钟达标）</li>
+            <li>✅ <strong>作品陈述 PPT</strong>：16:9 宽屏 · 16 页（≤20页达标）</li>
+            <li>✅ <strong>结构化数据源</strong>：<code>ice_snow_policy_targets.csv</code> 政策目标数据包</li>
+            <li>✅ <strong>一键提交包</strong>：严格遵循大赛官方命名格式</li>
+            <li>✅ <strong>答辩材料</strong>：10 分钟演示脚本 · 评委追问应答预案 · 评审对标自检表</li>
+          </ul>
+          <div style="margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="snow-viz/index.html" class="btn btn-primary" style="font-size: 0.9rem;" target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>立即体验交互系统</span>
+            </a>
+            <a href="snow-viz/ice_snow_policy_targets.csv" class="btn btn-secondary" style="font-size: 0.9rem;" target="_blank" rel="noopener noreferrer" download>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>下载政策目标数据集</span>
+            </a>
           </div>
         </div>
       </div>
@@ -760,6 +904,7 @@
         <li><a href="#education">教育背景</a></li>
         <li><a href="#internships">实习经历</a></li>
         <li><a href="#projects">精选作品</a></li>
+        <li><a href="#competition">参赛作品</a></li>
         <li><a href="https://daixuan.cloud">daixuan.cloud</a></li>
       </ul>
     </div>
