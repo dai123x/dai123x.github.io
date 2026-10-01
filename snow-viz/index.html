@@ -1808,6 +1808,16 @@
       }
       .no-print { display: none !important; }
     }
+    .industry-card:hover {
+      border-color: var(--mint) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(148, 227, 202, 0.12);
+    }
+    .roadmap-card:hover {
+      border-color: var(--gold) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(244, 198, 109, 0.12);
+    }
   </style>
 </head>
 <body>
@@ -2549,6 +2559,333 @@
               <div style="font-size:9px; color:var(--mint); white-space:nowrap;">🟢 无共线性风险</div>
             </div>
           </div>
+        </div>
+      </article>
+
+      <!-- 1. Industrial Ecosystem & Key Enterprise Directory -->
+      <article class="card wide-card" id="industryEcosystemSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(8,24,33,0.95) 0%, rgba(5,15,22,0.98) 100%); border: 1px solid rgba(117,216,237,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(117,216,237,0.25); flex-wrap: wrap; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">🏭</span>
+            <div>
+              <h3 style="color:#fff; font-size:15px; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>吉林省冰雪全产业链重点骨干企业与高新装备智造图谱</span>
+                <span class="badge" style="background:rgba(148,227,202,0.15); border:1px solid var(--mint); color:var(--mint); font-size:11px;">装备制造50亿元刚性支撑</span>
+              </h3>
+              <small style="color:#8aa4ab; font-size:11px;">重型造雪压雪装备、碳纤维运动穿戴、智慧雪场运营、冬季竞技科研与“冰雪+”跨界融合生态</small>
+            </div>
+          </div>
+          <!-- Industry Filter Tabs -->
+          <div class="chart-tabs" id="industryFilterBar" style="background:rgba(5,16,22,0.8);">
+            <button class="chart-tab-btn active" data-ifilter="all">全部企业 (8家生态)</button>
+            <button class="chart-tab-btn" data-ifilter="mfg">⚙️ 装备智造与重工</button>
+            <button class="chart-tab-btn" data-ifilter="ops">🚠 雪场与文旅运营</button>
+            <button class="chart-tab-btn" data-ifilter="tech">🔬 竞技科研与穿戴</button>
+            <button class="chart-tab-btn" data-ifilter="cross">🌾 寒地民俗与跨界</button>
+          </div>
+        </div>
+
+        <div class="industry-grid" id="industryGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:12px; padding-top:12px;">
+          <!-- Dynamically populated -->
+        </div>
+      </article>
+
+      <!-- 2. Major Infrastructure Projects Timeline / Roadmap Section -->
+      <article class="card wide-card" id="infrastructureRoadmapSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(8,24,33,0.95) 0%, rgba(5,15,22,0.98) 100%); border: 1px solid rgba(117,216,237,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(117,216,237,0.25); flex-wrap: wrap; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">🚀</span>
+            <div>
+              <h3 style="color:#fff; font-size:15px; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>“十五五”战略窗口期：重大基础设施与百亿级重点工程推进全景看板</span>
+                <span class="badge" style="background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); font-size:11px;">总投资超520亿元</span>
+              </h3>
+              <small style="color:#8aa4ab; font-size:11px;">倒排工期、节点攻坚、硬核基建托底打造世界级冰雪旅游目的地</small>
+            </div>
+          </div>
+          <div style="font-size:11px; color:var(--mint); font-family:monospace; background:rgba(148,227,202,0.08); padding:3px 8px; border-radius:4px;">
+            📍 支持一键联动 3D 沙盘空间定位
+          </div>
+        </div>
+
+        <div class="roadmap-grid" id="roadmapGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:12px; padding-top:12px;">
+          <!-- Dynamically populated -->
+        </div>
+      </article>
+
+      <!-- 3. Consumer Persona & Micro-Insight Section -->
+      <article class="card wide-card" id="consumerProfileSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(8,24,33,0.95) 0%, rgba(5,15,22,0.98) 100%); border: 1px solid rgba(117,216,237,0.3); border-top: 3px solid var(--ice); margin-top: 6px;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(117,216,237,0.25); flex-wrap: wrap; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">👥</span>
+            <div>
+              <h3 style="color:#fff; font-size:15px; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>数据洞察：冰雪消费者微观画像与消费结构空间透视</span>
+                <span class="badge" style="background:rgba(117,216,237,0.15); border:1px solid var(--ice); color:var(--ice); font-size:11px;">客群留存天数 2.4d ➔ 3.8d 延展</span>
+              </h3>
+              <small style="color:#8aa4ab; font-size:11px;">基于全省雪场闸机脱敏大数据、携程/美团消费账单分析与 50,000 份游客抽样问卷建模</small>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; padding-top:12px;">
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:18px;">🏂</span>
+                <span class="badge" style="background:rgba(117,216,237,0.15); color:var(--ice); border:1px solid var(--ice); font-size:11px;">占比 34% · 潮流主力</span>
+              </div>
+              <h4 style="color:#fff; margin:0 0 4px; font-size:14px;">Z 世代极客与自由式青年客</h4>
+              <p style="font-size:11px; color:#a2b9be; line-height:1.5; margin:0;">
+                18-28 岁青年群体，自带单板雪具，热衷野雪公园冲浪与微醺夜滑打卡，是社交媒体自传播主力。
+              </p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(117,216,237,0.15); font-size:11px; font-family:monospace; color:var(--gold); display:flex; justify-content:space-between;">
+              <span>客单价: ¥2,450</span>
+              <span>留存: 3.2 天</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(244,198,109,0.3); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:18px;">👨‍👩‍👧‍👦</span>
+                <span class="badge" style="background:rgba(244,198,109,0.15); color:var(--gold); border:1px solid var(--gold); font-size:11px;">占比 41% · 消费核心</span>
+              </div>
+              <h4 style="color:#fff; margin:0 0 4px; font-size:14px;">新中产亲子与家庭品质度假客</h4>
+              <p style="font-size:11px; color:#a2b9be; line-height:1.5; margin:0;">
+                29-45 岁三口或三代家庭，追求“滑雪托管教学+温泉康养+民俗美食”全包式度假，高品质住宿依赖度极高。
+              </p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(244,198,109,0.2); font-size:11px; font-family:monospace; color:var(--gold); display:flex; justify-content:space-between;">
+              <span>客单价: ¥3,820</span>
+              <span>留存: 4.5 天</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:18px;">♨️</span>
+                <span class="badge" style="background:rgba(148,227,202,0.15); color:var(--mint); border:1px solid var(--mint); font-size:11px;">占比 18% · 稳定支撑</span>
+              </div>
+              <h4 style="color:#fff; margin:0 0 4px; font-size:14px;">银发候鸟与生态温泉观光客</h4>
+              <p style="font-size:11px; color:#a2b9be; line-height:1.5; margin:0;">
+                50 岁以上南方候鸟长线游客，以长白山观瀑、雾凇赏挂、查干湖观捕与地热氡泉理疗为主，节奏舒缓。
+              </p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(148,227,202,0.2); font-size:11px; font-family:monospace; color:var(--gold); display:flex; justify-content:space-between;">
+              <span>客单价: ¥1,980</span>
+              <span>留存: 3.8 天</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(255,107,107,0.3); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:18px;">⛷️</span>
+                <span class="badge" style="background:rgba(255,107,107,0.15); color:#ff8585; border:1px solid #ff8585; font-size:11px;">占比 7% · 深度发烧</span>
+              </div>
+              <h4 style="color:#fff; margin:0 0 4px; font-size:14px;">专业发烧友与候鸟教练常驻客</h4>
+              <p style="font-size:11px; color:#a2b9be; line-height:1.5; margin:0;">
+                全年龄段资深雪友与持证滑雪指导员，常驻北大湖与松花湖，单雪季平均刷道 50+ 天，高频消费核心。
+              </p>
+            </div>
+            <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(255,107,107,0.2); font-size:11px; font-family:monospace; color:var(--gold); display:flex; justify-content:space-between;">
+              <span>客单价: ¥9,200/季</span>
+              <span>留存: 25.0+ 天</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(117,216,237,0.15);">
+          <!-- Spending Structure -->
+          <div style="background:rgba(5,16,22,0.6); padding:12px 16px; border-radius:6px; border:1px solid rgba(117,216,237,0.2);">
+            <div style="font-weight:bold; color:#fff; font-size:12px; margin-bottom:10px; display:flex; justify-content:space-between;">
+              <span>💰 游客人均出游消费结构（2024实绩 vs 2030规划）</span>
+              <span style="color:var(--gold);">基准：¥1,935 ➔ ¥1,800</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#cfe2e6; margin-bottom:3px;">
+                  <span>🏨 住宿与温泉度假 (36%)</span>
+                  <span>约 ¥648</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                  <div style="width:36%; height:100%; background:var(--gold);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#cfe2e6; margin-bottom:3px;">
+                  <span>⛷️ 雪票门票与高速索道 (22%)</span>
+                  <span>约 ¥396</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                  <div style="width:22%; height:100%; background:var(--ice);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#cfe2e6; margin-bottom:3px;">
+                  <span>🥢 吉林风味餐饮美馔 (18%)</span>
+                  <span>约 ¥324</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                  <div style="width:18%; height:100%; background:var(--mint);"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#cfe2e6; margin-bottom:3px;">
+                  <span>🚄 交通大巴与高铁接驳 (14%)</span>
+                  <span>约 ¥252</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                  <div style="width:14%; height:100%; background:#94e3ca;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#cfe2e6; margin-bottom:3px;">
+                  <span>🧤 装备租赁与特产文创 (10%)</span>
+                  <span>约 ¥180</span>
+                </div>
+                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                  <div style="width:10%; height:100%; background:#ff9ff3;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Inbound Provinces -->
+          <div style="background:rgba(5,16,22,0.6); padding:12px 16px; border-radius:6px; border:1px solid rgba(117,216,237,0.2);">
+            <div style="font-weight:bold; color:#fff; font-size:12px; margin-bottom:10px; display:flex; justify-content:space-between;">
+              <span>✈️ 跨省客源地贡献率 Top 7（南客北游核心矩阵）</span>
+              <span style="color:var(--mint);">省外客流占比 64.2%</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px;">
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid var(--gold);">
+                <b style="color:#fff;">1. 北京市</b> (24.2%) · 2.5h高铁圈
+              </div>
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid var(--ice);">
+                <b style="color:#fff;">2. 上海市</b> (18.5%) · 高净值度假客
+              </div>
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid var(--mint);">
+                <b style="color:#fff;">3. 广东省</b> (14.8%) · 避寒反向体验
+              </div>
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid #94e3ca;">
+                <b style="color:#fff;">4. 浙江省</b> (11.2%) · 青年极客单板
+              </div>
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid #ff9ff3;">
+                <b style="color:#fff;">5. 江苏省</b> (9.6%) · 品质亲子家庭
+              </div>
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid #feca57;">
+                <b style="color:#fff;">6. 成渝经济圈</b> (8.2%) · 西南中转
+              </div>
+              <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; grid-column:span 2; color:var(--dim); font-size:10px;">
+                💡 大数据特征：复购率 (Repeat Ski Rate) 达 48.6%，74% 游客选择“滑雪+长白山温泉”双重组合联程。
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. Powder Snow Physical Properties & Meteorological Archives -->
+      <article class="card wide-card" id="snowPhysicsSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(8,24,33,0.95) 0%, rgba(5,15,22,0.98) 100%); border: 1px solid rgba(117,216,237,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(117,216,237,0.25); flex-wrap: wrap; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">❄️</span>
+            <div>
+              <h3 style="color:#fff; font-size:15px; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>世界三大粉雪基地：北纬 42° 黄金粉雪理化指标与微气象档案</span>
+                <span class="badge" style="background:rgba(148,227,202,0.15); border:1px solid var(--mint); color:var(--mint); font-size:11px;">雪质含水率 <5% · 国际雪联最高级认证</span>
+              </h3>
+              <small style="color:#8aa4ab; font-size:11px;">长白山-北大湖对标阿尔卑斯（采尔马特）与日本北海道（二世谷）权威理化监测存根</small>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; padding-top:12px;">
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.25); border-radius:6px; padding:12px;">
+            <div style="color:var(--ice); font-size:12px; font-weight:bold; margin-bottom:4px;">💧 天然超轻干粉雪密度</div>
+            <div style="font-size:20px; font-weight:bold; color:#fff; font-family:monospace;">0.08 ~ 0.11 <span style="font-size:12px; color:var(--dim);">g/cm³</span></div>
+            <small style="color:#8aa4ab; font-size:10px; display:block; margin-top:4px;">含水率仅 4.2%，颗粒呈微六角结晶，捧起即散，滑行完全不黏板底。</small>
+          </div>
+
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:12px;">
+            <div style="color:var(--mint); font-size:12px; font-weight:bold; margin-bottom:4px;">🌬️ 冬季山坳平均静风率</div>
+            <div style="font-size:20px; font-weight:bold; color:var(--mint); font-family:monospace;">82.4% <span style="font-size:12px; color:var(--dim);">静风舒适</span></div>
+            <small style="color:#8aa4ab; font-size:10px; display:block; margin-top:4px;">长白山与大黑山天然屏障削弱极地强风，告别阿尔卑斯山顶狂风冻伤。</small>
+          </div>
+
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(244,198,109,0.25); border-radius:6px; padding:12px;">
+            <div style="color:var(--gold); font-size:12px; font-weight:bold; margin-bottom:4px;">📅 平均有效积雪周期</div>
+            <div style="font-size:20px; font-weight:bold; color:var(--gold); font-family:monospace;">135 ~ 150 <span style="font-size:12px; color:var(--dim);">天/年</span></div>
+            <small style="color:#8aa4ab; font-size:10px; display:block; margin-top:4px;">自 11 月中旬开板延续至翌年 4 月初，长白山天池天然野雪期超 180 天。</small>
+          </div>
+
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(255,107,107,0.25); border-radius:6px; padding:12px;">
+            <div style="color:#ff8585; font-size:12px; font-weight:bold; margin-bottom:4px;">🌫️ 雾凇水汽超饱和凝华指数</div>
+            <div style="font-size:20px; font-weight:bold; color:#fff; font-family:monospace;">Δ24℃ <span style="font-size:12px; color:var(--dim);">极限水气温差</span></div>
+            <small style="color:#8aa4ab; font-size:10px; display:block; margin-top:4px;">松花江水温 4℃ 与空气 -20℃ 剧烈相变，年均雾凇观赏日突破 60 天。</small>
+          </div>
+        </div>
+
+        <!-- Global Three Powder Destinations Comparison Table -->
+        <div style="margin-top:14px; overflow-x:auto;">
+          <table class="resorts-table" style="font-size:11px;">
+            <thead>
+              <tr>
+                <th>全球顶级粉雪胜地</th>
+                <th>地理坐标</th>
+                <th>粉雪含水率</th>
+                <th>雪质密度</th>
+                <th>静风率 (舒适度)</th>
+                <th>有效雪期</th>
+                <th>最大垂直落差</th>
+                <th>综合评级</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:rgba(117,216,237,0.08);">
+                <td><b style="color:var(--gold);">🇨🇳 中国吉林长白山/北大湖</b></td>
+                <td>41°35'N — 43°50'N</td>
+                <td><b style="color:var(--mint);">4.2% (天然超干粉)</b></td>
+                <td>0.08 ~ 0.11 g/cm³</td>
+                <td><b style="color:var(--mint);">82.4% (极高舒适)</b></td>
+                <td>135 - 150 天</td>
+                <td>870 m (北大湖)</td>
+                <td><span style="color:var(--gold);">⭐⭐⭐⭐⭐ 世界顶尖</span></td>
+              </tr>
+              <tr>
+                <td><b>🇯🇵 日本北海道二世谷 (Niseko)</b></td>
+                <td>42°50'N</td>
+                <td>6.5% (海洋性粉雪)</td>
+                <td>0.10 ~ 0.13 g/cm³</td>
+                <td>58.0% (海风扰动)</td>
+                <td>130 天</td>
+                <td>750 m</td>
+                <td>⭐⭐⭐⭐⭐ 国际知名</td>
+              </tr>
+              <tr>
+                <td><b>🇨🇭 瑞士阿尔卑斯采尔马特 (Zermatt)</b></td>
+                <td>45°59'N</td>
+                <td>7.8% (大陆高山雪)</td>
+                <td>0.14 ~ 0.18 g/cm³</td>
+                <td>45.2% (峡谷侧风大)</td>
+                <td>140 天 (冰川全年)</td>
+                <td>2,200 m</td>
+                <td>⭐⭐⭐⭐⭐ 欧洲之巅</td>
+              </tr>
+              <tr>
+                <td><b>🇨🇦 北美落基山惠斯勒 (Whistler)</b></td>
+                <td>50°07'N</td>
+                <td>8.5% (太平洋湿雪)</td>
+                <td>0.13 ~ 0.17 g/cm³</td>
+                <td>51.0% (风压中等)</td>
+                <td>150 天</td>
+                <td>1,609 m</td>
+                <td>⭐⭐⭐⭐⭐ 北美旗舰</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </article>
 
@@ -7742,6 +8079,17 @@
         if (layerNames[l]) pill.textContent = layerNames[l];
       });
 
+      const secTitles = [
+        { id: '#industryEcosystemSection', zh: '吉林省冰雪全产业链重点骨干企业与高新装备智造图谱', en: 'Jilin Ice & Snow Industry Ecosystem & Advanced Equipment Manufacturing' },
+        { id: '#infrastructureRoadmapSection', zh: '“十五五”战略窗口期：重大基础设施与百亿级重点工程推进全景看板', en: '"15th Five-Year" Strategic Infrastructure & Major Projects Panorama' },
+        { id: '#consumerProfileSection', zh: '数据洞察：冰雪消费者微观画像与消费结构空间透视', en: 'Data Insights: Ice & Snow Consumer Demographics & Spending Matrix' },
+        { id: '#snowPhysicsSection', zh: '世界三大粉雪基地：北纬 42° 黄金粉雪理化指标与微气象档案', en: 'World Top 3 Powder Snow Bases: Lat 42°N Snow Physics & Micro-climate' }
+      ];
+      secTitles.forEach(s => {
+        const span = document.querySelector(`${s.id} .card-head h3 span`);
+        if (span) span.textContent = isEnglish ? s.en : s.zh;
+      });
+
       updateKPIs();
       renderActiveChart();
     }
@@ -7928,6 +8276,297 @@
       renderResortsTable('default');
     }
 
+    // ==========================================
+    // 1. Ice & Snow Enterprise Ecosystem Data
+    // ==========================================
+    const ENTERPRISES_DATA = [
+      {
+        id: 'tianshi_ski',
+        cat: 'tech',
+        name: '吉林天石滑雪装备高新技术有限公司',
+        location: '吉林高新技术产业开发区',
+        role: '高性能复合碳纤维雪板与雪鞋自主研制',
+        coreTech: '航空级 T800 碳纤维层压减震板、自适应温控微加热滑雪鞋',
+        targetValue: '年产 30 万套 · 产值超 12 亿元',
+        placeIdx: 1,
+        tags: ['高新技术', '碳纤维雪板', '进口替代'],
+        status: '国家级专精特新“小巨人”'
+      },
+      {
+        id: 'faw_cold',
+        cat: 'mfg',
+        name: '中国一汽极寒特种车辆装备研发中心',
+        location: '长春市绿园区一汽研发总院',
+        role: '寒地特种压雪底盘、重型液压除雪与全地形应急救护车',
+        coreTech: '450马力电控重型履带底盘、-45℃超低温冷启动与电液复合系统',
+        targetValue: '全省特种工程车年产值 15 亿元',
+        placeIdx: 0,
+        tags: ['大国重器', '智能压雪车', '低温工况'],
+        status: '国家重点工程实验室'
+      },
+      {
+        id: 'liaoyuan_socks',
+        cat: 'tech',
+        name: '辽源北方袜业织造集团 · 极寒运动实验室',
+        location: '辽源市经济开发区',
+        role: '自发热石墨烯滑雪袜、极寒智能温控速干功能服',
+        coreTech: '石墨烯微米级导电纤维编织、北京冬奥会官方训练保障装备',
+        targetValue: '年供滑雪功能袜 5,000 万双 · 产值 8 亿元',
+        placeIdx: 0,
+        tags: ['石墨烯发热', '冬奥保障', '功能穿戴'],
+        status: '国家体育产业示范基地'
+      },
+      {
+        id: 'hualin_snow',
+        cat: 'mfg',
+        name: '长春华林高压造雪装备研制基地',
+        location: '长春市宽城区装备制造产业园',
+        role: '全自动智能摇摆式高压造雪机与高山泵站管网中控',
+        coreTech: '0℃临界微滴气水混合造雪喷嘴、基于微气象AI算法的节能水压泵群',
+        targetValue: '年产高压造雪机 1,500 台 · 国内份额 35%',
+        placeIdx: 0,
+        tags: ['智能造雪机', '节能中控', '全自主知识产权'],
+        status: '制造业单项冠军示范企业'
+      },
+      {
+        id: 'vanke_snow',
+        cat: 'ops',
+        name: '万科冰雪事业部松花湖度假区集群',
+        location: '吉林市丰满区大青山',
+        role: '世界级滑雪度假区标杆运营与四季山地综合体',
+        coreTech: '连续7年荣膺世界滑雪大奖(World Ski Awards)中国最佳、客流留存3.8天',
+        targetValue: '单雪季接待突破 100 万人次 · 营收超 5 亿元',
+        placeIdx: 1,
+        tags: ['国家级度假区', '世界滑雪大奖', '四季运营'],
+        status: '全国标杆级滑雪度假区'
+      },
+      {
+        id: 'qiaoshan_beidahu',
+        cat: 'ops',
+        name: '吉林桥山北大湖投资管理有限公司',
+        location: '吉林市永吉县北大湖镇',
+        role: '亚洲单体最大滑雪场运营与百亿级超级扩建',
+        coreTech: '百条雪道百万人次目标、870米最大垂直落差、11条高速脱挂索道',
+        targetValue: '雪季营收超 6.5 亿元 · 带动周边产业超 25 亿元',
+        placeIdx: 1,
+        tags: ['亚洲第一', '百条雪道', '国际赛事认证'],
+        status: '国家级滑雪旅游度假地'
+      },
+      {
+        id: 'beihua_windtunnel',
+        cat: 'tech',
+        name: '吉林省冬季运动科研中心 & 北华大学雪上实验室',
+        location: '吉林市丰满区国家雪上训练基地',
+        role: '体育空气动力学风洞测试、运动员数字化姿态力学捕获',
+        coreTech: '国内首座全尺寸雪上风洞测试场、跳台滑雪飞行姿态三维力流解析',
+        targetValue: '服务国家集训队 20+ 项冬奥备战重大课题',
+        placeIdx: 1,
+        tags: ['体育风洞', '姿态力学', '冬奥科研'],
+        status: '国家体育总局重点科研基地'
+      },
+      {
+        id: 'chagan_fishery',
+        cat: 'cross',
+        name: '查干湖渔猎文旅保护区 & 松原文旅集团',
+        location: '松原市前郭尔罗斯蒙古族自治县',
+        role: '国家级非物质文化遗产“查干湖冬捕”与原乡冰雪民俗',
+        coreTech: '千年传统马拉绞盘冰下走网工艺、冰雪+冷水鱼原产地数字溯源体系',
+        targetValue: '单季冬捕文旅综合效益突破 35 亿元',
+        placeIdx: 4,
+        tags: ['国家非遗', '查干湖冬捕', '冰雪+农文旅'],
+        status: '国家级生态旅游示范区'
+      }
+    ];
+
+    function renderIndustryGrid(filter = 'all') {
+      const container = $('industryGrid');
+      if (!container) return;
+
+      const filtered = filter === 'all' 
+        ? ENTERPRISES_DATA 
+        : ENTERPRISES_DATA.filter(item => item.cat === filter);
+
+      container.innerHTML = filtered.map(ent => `
+        <div class="industry-card" style="background: rgba(10,28,38,0.75); border: 1px solid rgba(117,216,237,0.25); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.25s ease;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
+              <span class="badge" style="font-size:10px; background:rgba(148,227,202,0.12); color:var(--mint); border:1px solid var(--mint);">${ent.status}</span>
+              <span style="font-size:10px; color:var(--dim); font-family:monospace; white-space:nowrap;">📍 ${ent.location}</span>
+            </div>
+            <h4 style="color:#fff; margin:0 0 6px; font-size:14px; line-height:1.4;">${ent.name}</h4>
+            <div style="font-size:11px; color:var(--ice); margin-bottom:6px; font-weight:600;">🎯 赛道定位：${ent.role}</div>
+            <div style="font-size:11px; color:#a2b9be; line-height:1.5; margin-bottom:8px;"><b>核心成果：</b>${ent.coreTech}</div>
+            <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
+              ${ent.tags.map(t => `<span class="badge" style="font-size:9px; padding:2px 6px; background:rgba(117,216,237,0.08); border:1px solid rgba(117,216,237,0.25); color:#cfe2e6;">#${t}</span>`).join('')}
+            </div>
+          </div>
+          <div style="padding-top:10px; border-top:1px dashed rgba(117,216,237,0.15); display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:11px; font-family:monospace; color:var(--gold); font-weight:bold;">${ent.targetValue}</div>
+            <button class="chip-btn btn-focus-ent" data-place="${ent.placeIdx}" style="padding:3px 8px; font-size:11px; color:var(--mint); border-color:var(--mint); background:rgba(148,227,202,0.1); border-radius:4px; cursor:pointer;">
+              🎯 3D定位
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.btn-focus-ent').forEach(btn => {
+        btn.onclick = () => {
+          playCrystalClick();
+          const placeIdx = parseInt(btn.dataset.place, 10);
+          selectPlace(placeIdx);
+          const vrCard = $('vrCanvas');
+          if (vrCard) {
+            vrCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        };
+      });
+    }
+
+    function initIndustryEcosystem() {
+      const filterBar = $('industryFilterBar');
+      if (filterBar) {
+        filterBar.querySelectorAll('.chart-tab-btn').forEach(btn => {
+          btn.onclick = () => {
+            playCrystalClick();
+            filterBar.querySelectorAll('.chart-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderIndustryGrid(btn.dataset.ifilter);
+          };
+        });
+      }
+      renderIndustryGrid('all');
+    }
+
+    // ==========================================
+    // 2. Major Infrastructure Projects Data
+    // ==========================================
+    const ROADMAP_DATA = [
+      {
+        id: 'hsr_shenbai',
+        name: '沈白高速铁路（沈阳至白山/长白山段）',
+        type: '🚄 综合高铁枢纽',
+        budget: '316.5 亿元',
+        timeline: '2020.10 — 2025.09',
+        progress: 94,
+        placeIdx: 2,
+        desc: '设计时速 350 km/h，全长 430 km。通车后北京至长白山缩短至 2.5 小时，直接打通关内客群“高铁即达雪场”黄金走廊。',
+        status: '全线铺轨收尾 · 静态验收',
+        milestone: '2025年9月正式开通运营'
+      },
+      {
+        id: 'beidahu_phase3',
+        name: '北大湖“百条雪道”三期超级扩容工程',
+        type: '🏔️ 世界级雪场基建',
+        budget: '78.0 亿元',
+        timeline: '2023.04 — 2027.12',
+        progress: 68,
+        placeIdx: 1,
+        desc: '扩建雪道至 100 条、雪道总面积达 350 万㎡、索道增至 18 条。打造亚洲单体雪道第一、接待负荷达 3 万人/小时的超级滑雪航母。',
+        status: '南坡索道桩基浇筑完成',
+        milestone: '2026雪季开放南坡30条新道'
+      },
+      {
+        id: 'cbs_airport_p2',
+        name: '长白山国际机场二期改扩建工程',
+        type: '✈️ 航空口岸扩能',
+        budget: '32.4 亿元',
+        timeline: '2022.06 — 2026.10',
+        progress: 78,
+        placeIdx: 2,
+        desc: '跑道延长至 3,000 米，新建 T2 航站楼 3 万㎡，增加 12 个停机位，年旅客吞吐能力提升至 250 万人次，满足国际宽体客机全季起降。',
+        status: 'T2 航站楼主体钢结构封顶',
+        milestone: '2026年夏季全面投运'
+      },
+      {
+        id: 'faw_cold_base',
+        name: '中国一汽极寒特种车辆智能测试场基地',
+        type: '🏭 装备智造与科研',
+        budget: '25.0 亿元',
+        timeline: '2023.08 — 2026.06',
+        progress: 82,
+        placeIdx: 0,
+        desc: '建设亚洲最大的整车级极寒环境仿真测试舱、超长冰雪操控环路与自动驾驶低温测试平台，支撑吉林 50 亿元冰雪装备制造全链条突破。',
+        status: '极寒风洞及环道完成标定',
+        milestone: '2025底首批特种车辆下线'
+      },
+      {
+        id: 'songhua_west_slope',
+        name: '万科松花湖西坡大青山雪网连通工程',
+        type: '🚠 跨山索道与雪道',
+        budget: '45.0 亿元',
+        timeline: '2024.03 — 2028.11',
+        progress: 35,
+        placeIdx: 1,
+        desc: '新建 3 条脱挂式 8 人吊厢索道、连通西坡大青山与吉林市区，新增 18 条国际级竞技雪道，实现“出高铁站即乘索道上雪道”的无缝山地轨交。',
+        status: '西坡山地平整与基础勘探',
+        milestone: '2027年索道主线贯通'
+      },
+      {
+        id: 'digital_snow_brain',
+        name: '吉林“数字冰雪大脑”与全省客流调度云平台',
+        type: '💻 算力与智慧文旅',
+        budget: '6.8 亿元',
+        timeline: '2024.01 — 2026.03',
+        progress: 60,
+        placeIdx: 0,
+        desc: '集成全省 75 座滑雪场闸机物联网、5A 景区热力数据与高速高铁调度，支持客流拥堵实时预警削峰、一码畅通通滑通住与应急救援联动。',
+        status: '一期数据湖上线对接完成',
+        milestone: '2025年冬全省75家雪场全覆盖'
+      }
+    ];
+
+    function renderRoadmapGrid() {
+      const container = $('roadmapGrid');
+      if (!container) return;
+
+      container.innerHTML = ROADMAP_DATA.map(proj => `
+        <div class="roadmap-card" style="background: rgba(10,28,38,0.75); border: 1px solid rgba(244,198,109,0.3); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.25s ease;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;">
+              <span class="badge" style="font-size:10px; background:rgba(244,198,109,0.15); color:var(--gold); border:1px solid var(--gold);">${proj.type}</span>
+              <span style="font-size:11px; font-weight:bold; color:var(--gold); font-family:monospace;">${proj.budget}</span>
+            </div>
+            <h4 style="color:#fff; margin:0 0 6px; font-size:14px; line-height:1.4;">${proj.name}</h4>
+            <div style="font-size:11px; color:#a2b9be; line-height:1.5; margin-bottom:8px;">${proj.desc}</div>
+            <div style="background:rgba(5,16,22,0.6); padding:8px 10px; border-radius:4px; margin-bottom:8px; border:1px solid rgba(244,198,109,0.15);">
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--dim); margin-bottom:4px; font-family:monospace;">
+                <span>工期: ${proj.timeline}</span>
+                <span style="color:var(--mint); font-weight:bold;">已完成 ${proj.progress}%</span>
+              </div>
+              <div style="width:100%; height:5px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+                <div style="width:${proj.progress}%; height:100%; background:linear-gradient(90deg, var(--ice), var(--mint));"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--dim); margin-top:5px;">
+                <span>当前节点: <b style="color:#fff;">${proj.status}</b></span>
+              </div>
+            </div>
+          </div>
+          <div style="padding-top:10px; border-top:1px dashed rgba(244,198,109,0.2); display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:10px; color:var(--dim);">🚩 里程碑: <span style="color:var(--ice);">${proj.milestone}</span></div>
+            <button class="chip-btn btn-focus-proj" data-place="${proj.placeIdx}" style="padding:3px 8px; font-size:11px; color:var(--gold); border-color:var(--gold); background:rgba(244,198,109,0.1); border-radius:4px; cursor:pointer;">
+              🎯 3D沙盘锚定
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.btn-focus-proj').forEach(btn => {
+        btn.onclick = () => {
+          playCrystalClick();
+          const placeIdx = parseInt(btn.dataset.place, 10);
+          selectPlace(placeIdx);
+          const vrCard = $('vrCanvas');
+          if (vrCard) {
+            vrCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        };
+      });
+    }
+
+    function initInfrastructureRoadmap() {
+      renderRoadmapGrid();
+    }
+
     // Live Telemetry Clock
     function updateSystemClock() {
       const el = $('systemClockText');
@@ -7950,6 +8589,8 @@
     initMuniPk();
     setupSimulationConsole();
     initResortsBenchmark();
+    initIndustryEcosystem();
+    initInfrastructureRoadmap();
     selectPlace(0);
     initBgParticles();
     drawBg();
