@@ -7,24 +7,26 @@
   <title>雪线之上 · 吉林冰雪经济目标可视化交互系统</title>
   <style>
     :root {
-      --bg: #07151d;
-      --bg-gradient: radial-gradient(ellipse at 15% 0%, #153c4d 0%, transparent 45%),
-                         radial-gradient(ellipse at 85% 15%, #3d2c1f 0%, transparent 40%),
-                         #07151d;
-      --panel: rgba(14, 34, 44, 0.90);
-      --panel-hover: rgba(22, 50, 64, 0.96);
-      --panel-border: #24424e;
-      --panel-border-bright: #437687;
-      --text: #edf5f4;
-      --muted: #9bb0b5;
+      --bg: #06131b;
+      --bg-gradient: radial-gradient(ellipse at 18% 0%, rgba(20, 62, 82, 0.60) 0%, transparent 48%),
+                     radial-gradient(ellipse at 82% 10%, rgba(15, 50, 72, 0.45) 0%, transparent 48%),
+                     radial-gradient(ellipse at 50% 100%, rgba(8, 28, 42, 0.65) 0%, transparent 58%),
+                     #06131b;
+      --panel: rgba(11, 26, 36, 0.88);
+      --panel-hover: rgba(15, 34, 48, 0.95);
+      --panel-border: rgba(117, 216, 237, 0.16);
+      --panel-border-bright: rgba(117, 216, 237, 0.45);
+      --text: #f0f7f7;
+      --muted: #95abb1;
       --dim: #5c747c;
       --ice: #75d8ed;
       --ice-glow: rgba(117, 216, 237, 0.35);
-      --mint: #94e3ca;
-      --mint-glow: rgba(148, 227, 202, 0.3);
+      --mint: #7ee8c8;
+      --mint-glow: rgba(126, 232, 200, 0.3);
       --gold: #f4c66d;
       --gold-glow: rgba(244, 198, 109, 0.3);
-      --coral: #f28e70;
+      --coral: #ff9f68;
+      --coral-glow: rgba(255, 159, 104, 0.35);
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
@@ -203,15 +205,17 @@
     }
     .season-toggle {
       display: flex;
-      background: rgba(11, 26, 33, 0.85);
+      background: rgba(11, 26, 36, 0.88);
       border: 1px solid var(--panel-border);
       border-radius: 10px;
       padding: 4px;
       gap: 4px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
     }
     .season-btn {
       font-family: inherit;
-      border: none;
+      border: 1px solid transparent;
       background: transparent;
       color: var(--muted);
       font-size: 12px;
@@ -221,10 +225,14 @@
       cursor: pointer;
       transition: all 0.25s ease;
     }
+    .season-btn:hover {
+      color: var(--text);
+    }
     .season-btn.active {
-      background: linear-gradient(135deg, #1f4f5a, #163d46);
+      background: linear-gradient(135deg, rgba(31, 100, 115, 0.85), rgba(18, 58, 70, 0.95));
       color: #fff;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 10px var(--ice-glow);
+      border-color: rgba(117, 216, 237, 0.45);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 12px var(--ice-glow);
     }
 
     /* KPI Cards Banner */
@@ -237,7 +245,7 @@
       background: var(--panel);
       border: 1px solid var(--panel-border);
       border-radius: var(--radius-md);
-      padding: 14px 16px;
+      padding: 13px 15px;
       backdrop-filter: blur(10px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
       position: relative;
@@ -262,45 +270,78 @@
     .kpi-card.coral::before { background: var(--coral); }
 
     .kpi-label {
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--muted);
+      padding-right: 44px; /* 保障右上角进度环不被遮挡碰撞 */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    .kpi-value-wrap {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
+      gap: 8px;
+      margin: 6px 0 3px;
+      flex-wrap: wrap;
     }
     .kpi-value {
-      font-size: 25px;
+      font-size: 24px;
       font-weight: 800;
       color: var(--ice);
-      margin: 4px 0 2px;
       letter-spacing: -0.5px;
       font-feature-settings: "tnum";
+      line-height: 1.15;
     }
     .kpi-card.gold .kpi-value { color: var(--gold); }
     .kpi-card.mint .kpi-value { color: var(--mint); }
     .kpi-card.coral .kpi-value { color: var(--coral); }
+
     .kpi-desc {
-      font-size: 10px;
+      font-size: 10.5px;
       color: var(--dim);
+      line-height: 1.4;
     }
     .kpi-delta {
       display: inline-flex;
       align-items: center;
-      font-size: 10px;
-      padding: 2px 6px;
+      font-size: 10.5px;
+      padding: 2px 7px;
       border-radius: 4px;
       font-weight: 600;
-      background: rgba(117, 216, 237, 0.15);
+      line-height: 1.25;
+      background: rgba(117, 216, 237, 0.14);
       color: var(--ice);
+      border: 1px solid rgba(117, 216, 237, 0.25);
+      white-space: nowrap;
+      transition: all 0.25s ease;
+    }
+    .kpi-card.gold .kpi-delta {
+      background: rgba(244, 198, 109, 0.14);
+      color: var(--gold);
+      border-color: rgba(244, 198, 109, 0.28);
+    }
+    .kpi-card.mint .kpi-delta {
+      background: rgba(126, 232, 200, 0.14);
+      color: var(--mint);
+      border-color: rgba(126, 232, 200, 0.28);
+    }
+    .kpi-card.coral .kpi-delta {
+      background: rgba(255, 159, 104, 0.16);
+      color: var(--coral);
+      border-color: rgba(255, 159, 104, 0.32);
     }
 
     /* KPI Ring Progress Indicator */
     .kpi-ring {
       position: absolute;
-      top: 10px;
-      right: 12px;
-      width: 36px;
-      height: 36px;
+      top: 11px;
+      right: 13px;
+      width: 34px;
+      height: 34px;
+      pointer-events: none;
+      z-index: 2;
     }
     .kpi-ring svg {
       width: 100%;
@@ -342,8 +383,8 @@
     }
     .kpi-card:hover::after { opacity: 1; }
     .kpi-card.gold::after { box-shadow: 0 0 20px var(--gold-glow), inset 0 0 20px rgba(244, 198, 109, 0.05); }
-    .kpi-card.mint::after { box-shadow: 0 0 20px var(--mint-glow), inset 0 0 20px rgba(148, 227, 202, 0.05); }
-    .kpi-card.coral::after { box-shadow: 0 0 20px rgba(242, 142, 112, 0.3), inset 0 0 20px rgba(242, 142, 112, 0.05); }
+    .kpi-card.mint::after { box-shadow: 0 0 20px var(--mint-glow), inset 0 0 20px rgba(126, 232, 200, 0.05); }
+    .kpi-card.coral::after { box-shadow: 0 0 20px var(--coral-glow), inset 0 0 20px rgba(255, 159, 104, 0.08); }
 
     /* Card Hover Glow for all cards */
     .card::after {
@@ -2579,9 +2620,11 @@
         </div>
         <div class="kpi-label">
           <span>冰雪旅游接待游客规划目标</span>
+        </div>
+        <div class="kpi-value-wrap">
+          <div class="kpi-value" id="kpiVisitors">2.3 亿人次</div>
           <span class="kpi-delta" id="visitorDelta">基准雪季</span>
         </div>
-        <div class="kpi-value" id="kpiVisitors">2.3 亿人次</div>
         <div class="kpi-desc">全省冰雪旅游客流量阶段规划值 (点击对标分析)</div>
       </div>
 
@@ -2592,9 +2635,11 @@
         </div>
         <div class="kpi-label">
           <span>冰雪旅游游客出游总花费目标</span>
+        </div>
+        <div class="kpi-value-wrap">
+          <div class="kpi-value" id="kpiSpending">4,200 亿元</div>
           <span class="kpi-delta" id="spendingDelta">基准雪季</span>
         </div>
-        <div class="kpi-value" id="kpiSpending">4,200 亿元</div>
         <div class="kpi-desc">拉动消费总盘与全要素产业溢出 (点击要素流向)</div>
       </div>
 
@@ -2605,9 +2650,11 @@
         </div>
         <div class="kpi-label">
           <span>冰雪装备制造业总产值</span>
+        </div>
+        <div class="kpi-value-wrap">
+          <div class="kpi-value" id="kpiEquipment">—</div>
           <span class="kpi-delta" id="equipmentDelta">前期统筹</span>
         </div>
-        <div class="kpi-value" id="kpiEquipment">—</div>
         <div class="kpi-desc" id="kpiEquipmentDesc">政策针对 2029—2030 雪季设立产值目标 (点击协同)</div>
       </div>
 
@@ -2618,9 +2665,11 @@
         </div>
         <div class="kpi-label">
           <span>年度供给端三大支撑指标</span>
-          <span class="kpi-delta" style="color:var(--coral);background:rgba(242,142,112,0.15)">年度刚性</span>
         </div>
-        <div class="kpi-value" style="color:var(--coral)">≥900+</div>
+        <div class="kpi-value-wrap">
+          <div class="kpi-value">≥900+</div>
+          <span class="kpi-delta">年度刚性</span>
+        </div>
         <div class="kpi-desc">300项赛事 + 500块冰场 + 100家乐园/年 (点击仪表)</div>
       </div>
     </section>
