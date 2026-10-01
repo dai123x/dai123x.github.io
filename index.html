@@ -537,8 +537,8 @@
             <div class="bento-icon">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
             </div>
-            <h3>三模型交叉验证与诚实披露</h3>
-            <p>OLS 趋势回归、Wilson 空间引力、GBM 蒙特卡洛三模型并行估计。系统<strong>如实呈现模型的不确定性</strong>——OLS 显示政策锚定点落在 95% 预测区间之外，与蒙特卡洛情景概率共同界定政策干预的必要性区间。</p>
+            <h3>双样本建模与诚实披露</h3>
+            <p>省域时序 OLS 趋势回归（n=6）、<strong>9 市州截面双因子回归（n=9）</strong>、Wilson 空间引力、GBM 蒙特卡洛多模型并行估计。系统<strong>如实呈现模型的不确定性</strong>——OLS 显示政策锚定点落在 95% 预测区间之外，留一交叉验证暴露小样本泛化局限，与蒙特卡洛情景概率共同界定政策干预的必要性区间。</p>
           </div>
         </div>
 
@@ -569,6 +569,62 @@
           </div>
         </div>
 
+        <!-- 深度数据分析成果 -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-left: 3px solid var(--accent-primary); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
+            <h4 style="font-size: 1.05rem; margin: 0;">📈 深度数据分析专题 · 吉林省 9 市州截面回归</h4>
+            <span class="tag-badge" style="font-size: 0.72rem;">样本 n=6 → n=9</span>
+            <span class="tag-badge" style="font-size: 0.72rem;">全流程可复算</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 18px; line-height: 1.7;">
+            在省域时序模型（n=6）之外，引入<strong>吉林省 9 个市州的截面样本</strong>，构建「时序 + 截面」双样本结构。
+            对 4 个候选模型做横向比选，并进行<strong>留一交叉验证、7 项计量经济学诊断、变量共线性检验与供给端运力核验</strong>，
+            全面回应大赛对「科学性与分析深度」的评分要求。
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 14px; margin-bottom: 18px;">
+            <div style="background: var(--bg-secondary, rgba(0,0,0,0.02)); border-radius: 8px; padding: 14px; border-left: 3px solid var(--accent-primary);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">主模型解释力 R²</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">0.7445</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">调整 R² = 0.6593 · F(2,6) = 8.74</div>
+            </div>
+            <div style="background: var(--bg-secondary, rgba(0,0,0,0.02)); border-radius: 8px; padding: 14px; border-left: 3px solid var(--accent-primary);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">积雪日数 标准化系数</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">0.778</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">t = 3.683 · 自然禀赋为第一驱动力</div>
+            </div>
+            <div style="background: var(--bg-secondary, rgba(0,0,0,0.02)); border-radius: 8px; padding: 14px; border-left: 3px solid var(--accent-primary);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">GDP 标准化系数</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">0.573</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">t = 2.712 · 经济基础构成次级驱动</div>
+            </div>
+            <div style="background: var(--bg-secondary, rgba(0,0,0,0.02)); border-radius: 8px; padding: 14px; border-left: 3px solid var(--accent-primary);">
+              <div style="font-size: 0.78rem; color: var(--text-muted);">共线性 VIF</div>
+              <div style="font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); margin: 4px 0;">1.05</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">两因子近似正交（r = −0.211）</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.02); border-left: 3px solid var(--accent-primary); padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.85rem; line-height: 1.75; color: var(--text-secondary);">
+            <strong>核心结论：</strong>吉林省冰雪经济呈「<strong>自然禀赋主导 + 经济基础支撑</strong>」的双因子结构。
+            积雪日数的标准化影响（0.778）高于 GDP（0.573），说明冰雪经济的空间格局<strong>首先由气候资源禀赋决定</strong>——
+            这直接支持政策对东部山区（白山、延边、通化）的资源开发倾斜，也解释了长春虽 GDP 居全省首位（7,632 亿元，为吉林市 4.7 倍），
+            雪道面积却仅为吉林市的 <strong>11.2%</strong>，呈典型「城市过境型」而非「目的地型」冰雪消费结构。
+            <br><br>
+            <span style="color: var(--text-muted);">
+              <strong>方法论诚实披露：</strong>样本内 R² = 0.7445，但留一交叉验证 R² 降至 0.2368（LOO-RMSE = 21.05），
+              说明当前 9 市州小样本下模型的样本外精确预测能力有限。我们主动呈现该局限，并将其定位为<strong>结构性关系识别</strong>而非单点预测工具。
+            </span>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <a href="snow-viz/index.html#dataAnalysisSection" class="btn btn-secondary" style="font-size: 0.88rem;" target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              <span>查看完整面板回归与诊断专题</span>
+            </a>
+          </div>
+        </div>
+
         <!-- 交付物清单 -->
         <div style="background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 24px;">
           <h4 style="font-size: 1.05rem; margin-bottom: 14px;">📦 参赛交付物套件（100% 合规）</h4>
@@ -577,6 +633,7 @@
             <li>✅ <strong>演示视频</strong>：1920×1080 · 62.5FPS · 4分21秒（≤5分钟达标）</li>
             <li>✅ <strong>作品陈述 PPT</strong>：16:9 宽屏 · 16 页（≤20页达标）</li>
             <li>✅ <strong>结构化数据源</strong>：<code>ice_snow_policy_targets.csv</code> 政策目标数据包</li>
+            <li>✅ <strong>市州面板数据</strong>：<code>jilin_city_panel_2024.csv</code> 9 市州 12 维指标（可导入复算）</li>
             <li>✅ <strong>一键提交包</strong>：严格遵循大赛官方命名格式</li>
             <li>✅ <strong>答辩材料</strong>：10 分钟演示脚本 · 评委追问应答预案 · 评审对标自检表</li>
           </ul>
