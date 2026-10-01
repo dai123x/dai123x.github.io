@@ -3347,7 +3347,7 @@
                 <tr style="border-bottom:1px solid rgba(117,216,237,0.1);">
                   <td style="padding:6px 10px;">残差正态性</td>
                   <td style="padding:6px 10px;">Jarque-Bera (JB)</td>
-                  <td style="padding:6px 10px;">残差服从正态分布</td>
+                  <td style="padding:6px 10px;">H₀: 残差服从正态分布</td>
                   <td style="padding:6px 10px; font-family:monospace;">JB = 0.958</td>
                   <td style="padding:6px 10px; font-family:monospace;">0.62</td>
                   <td style="padding:6px 10px;" class="verdict-pass">不拒绝 H₀ · 通过</td>
@@ -3355,7 +3355,7 @@
                 <tr style="border-bottom:1px solid rgba(117,216,237,0.1);">
                   <td style="padding:6px 10px;">异方差性</td>
                   <td style="padding:6px 10px;">Breusch-Pagan LM</td>
-                  <td style="padding:6px 10px;">残差方差齐性</td>
+                  <td style="padding:6px 10px;">H₀: 残差方差齐性</td>
                   <td style="padding:6px 10px; font-family:monospace;">LM = 1.185</td>
                   <td style="padding:6px 10px; font-family:monospace;">0.28</td>
                   <td style="padding:6px 10px;" class="verdict-pass">不拒绝 H₀ · 同方差</td>
@@ -3363,7 +3363,7 @@
                 <tr style="border-bottom:1px solid rgba(117,216,237,0.1);">
                   <td style="padding:6px 10px;">多重共线性</td>
                   <td style="padding:6px 10px;">VIF 方差膨胀因子</td>
-                  <td style="padding:6px 10px;">解释变量相互独立</td>
+                  <td style="padding:6px 10px;">H₀: 解释变量相互独立</td>
                   <td style="padding:6px 10px; font-family:monospace;">不适用</td>
                   <td style="padding:6px 10px; font-family:monospace;">—</td>
                   <td style="padding:6px 10px;" class="verdict-warn">单解释变量模型 · VIF 不适用</td>
@@ -3371,7 +3371,7 @@
                 <tr style="border-bottom:1px solid rgba(117,216,237,0.1);">
                   <td style="padding:6px 10px;">一阶自相关</td>
                   <td style="padding:6px 10px;">Durbin-Watson</td>
-                  <td style="padding:6px 10px;">无一阶自相关</td>
+                  <td style="padding:6px 10px;">H₀: ρ = 0（无一阶自相关）</td>
                   <td style="padding:6px 10px; font-family:monospace;">DW = 1.242</td>
                   <td style="padding:6px 10px; font-family:monospace;">—</td>
                   <td style="padding:6px 10px;" class="verdict-warn">处于 d_L=0.61 与 d_U=1.40 之间的无结论区</td>
@@ -3395,7 +3395,7 @@
                 <tr style="border-bottom:1px solid rgba(117,216,237,0.1);">
                   <td style="padding:6px 10px;">模型整体显著性</td>
                   <td style="padding:6px 10px;">F 联合检验</td>
-                  <td style="padding:6px 10px;">所有系数均为零</td>
+                  <td style="padding:6px 10px;">H₀: 所有系数均为零</td>
                   <td style="padding:6px 10px; font-family:monospace;">F = 4.22</td>
                   <td style="padding:6px 10px; font-family:monospace;">0.109</td>
                   <td style="padding:6px 10px;" class="verdict-warn">α=0.10 下拒绝 H₀ · 中等显著</td>
@@ -5692,7 +5692,7 @@ if (!isStereoVR) {
       h += `<text x="${boxL + 8}" y="${boxT + 34}" fill="#8aa4ab" font-size="8.5">客流突破 3.0亿 概率:</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 52}" fill="#f4c66d" font-size="16" font-weight="bold" font-family="monospace">P = 84.9%</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 69}" fill="#8aa4ab" font-size="8.5">花费突破 5400亿 概率:</text>`;
-      h += `<text x="${boxL + 8}" y="${boxT + 86}" fill="#94e3ca" font-size="14" font-weight="bold" font-family="monospace">P = 83.6%</text>`;
+      h += `<text x="${boxL + 8}" y="${boxT + 86}" fill="#94e3ca" font-size="14" font-weight="bold" font-family="monospace">P = 91.8%</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 104}" fill="#edf5f4" font-size="9">中枢期望: <tspan fill="#75d8ed">3.70 亿</tspan></text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 120}" fill="#8aa4ab" font-size="8">10,000 次随机游走模拟</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 132}" fill="#8aa4ab" font-size="8">漂移 μ=18.4% 波动 σ=8.2%</text>`;
@@ -5707,7 +5707,7 @@ if (!isStereoVR) {
       `;
 
       $('chartCommentaryTag').textContent = '🎲 蒙特卡洛随机模拟 (10,000次采样) · 政策达标置信度量化';
-      $('chartCommentaryContent').innerHTML = `基于<b>几何布朗运动随机游走模型 (Geometric Brownian Motion, GBM: dS_t = μS_tdt + σS_tdW_t)</b> 与 10,000 次蒙特卡洛模拟：自 <b>2024 雪季 1.25 亿人次真实基线</b>出发，在设定年化漂移率 <b>μ = 18.4%</b>、综合波动率 <b>σ = 8.2%</b>（涵盖极端天气与宏观经济波动）的情景下，输出 P10 = 2.86 亿、P50 = 3.70 亿、P90 = 4.76 亿，<b>2030 年客流突破 3.0 亿人次的达成概率为 84.9%</b>，总花费突破 5,400 亿元概率为 83.6%。<br><b>与 OLS 结果的差异需正确解读：</b>OLS 回答的是「若不施加额外干预、纯按历史趋势外推会怎样」（结果落在目标区间之外）；本蒙特卡洛则回答「若高铁红利、品牌营销乘数与供给扩容等外生变量被政策有效撬动（μ = 18.4%）会怎样」。<b>两个模型并不矛盾，它们恰好界定了政策干预的必要性区间</b>——这正是本作品三模型交叉验证的核心价值。`;
+      $('chartCommentaryContent').innerHTML = `基于<b>几何布朗运动随机游走模型 (Geometric Brownian Motion, GBM: dS_t = μS_tdt + σS_tdW_t)</b> 与 10,000 次蒙特卡洛模拟，<b>对客流与花费两条序列分别独立模拟</b>（同一漂移率 μ = 18.4%、波动率 σ = 8.2%、随机种子固定，结果可复现）：<br>① <b>客流序列</b>自 2024 雪季 <b>1.25 亿人次</b>基线出发，输出 P10 = 2.86 亿、P50 = 3.70 亿、P90 = 4.76 亿，<b>2030 年突破 3.0 亿人次的概率为 84.9%</b>；② <b>花费序列</b>自 2024 雪季 <b>2,419 亿元</b>基线出发，<b>2030 年突破 5,400 亿元的概率为 91.8%</b>（花费增速低于客流、所需漂移率仅约 13.4%，故在 μ = 18.4% 情景下达成裕度更高）。<br><b>与 OLS 结果的差异需正确解读：</b>OLS 回答的是「若不施加额外干预、纯按历史趋势外推会怎样」（结果落在目标区间之外）；本蒙特卡洛则回答「若高铁红利、品牌营销乘数与供给扩容等外生变量被政策有效撬动（μ = 18.4%）会怎样」。<b>两个模型并不矛盾，它们恰好界定了政策干预的必要性区间</b>——这正是本作品三模型交叉验证的核心价值。`;
     }
 
     // Tab 6: Spatial Gravity & Customer Source Radar
@@ -8671,10 +8671,10 @@ if (!isStereoVR) {
         "2025,1.35,1.42,1.50,1.58,1.66,—,—\n" +
         "2026,1.55,1.66,1.79,1.94,2.08,—,—\n" +
         "2027,1.80,1.95,2.15,2.37,2.58,—,—\n" +
-        "2028 (中期目标),2.09,2.30,2.57,2.88,3.18,P(>=2.3亿) = 75.2%,P(>=4200亿) = 74.1%\n" +
+        "2028 (中期目标),2.09,2.30,2.57,2.88,3.18,P(>=2.3亿) = 75.2%,P(>=4200亿) = 85.0%\n" +
         "2029,2.44,2.72,3.09,3.49,3.89,—,—\n" +
-        "2030 (长期目标),2.86,3.23,3.70,4.24,4.76,P(>=3.0亿) = 84.9%,P(>=5400亿) = 83.6%\n" +
-        "参数说明,μ=18.4%(年化漂移),σ=8.2%(年化波动),S0=1.25亿人次(2024基线),N=10000次,GBM dS=μSdt+σSdW\n";
+        "2030 (长期目标),2.86,3.23,3.70,4.24,4.76,P(>=3.0亿) = 84.9%,P(>=5400亿) = 91.8%\n" +
+        "参数说明,μ=18.4%(年化漂移),σ=8.2%(年化波动),客流S0=1.25亿人次 / 花费S0=2419亿元,N=10000次,GBM dS=μSdt+σSdW(两序列独立模拟、种子固定可复现)\n";
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -9767,7 +9767,7 @@ if (!isStereoVR) {
             <h4 style="color:#fff; margin:0 0 6px; font-size:14px;">二、 计量经济学检验与蒙特卡洛 10,000 次风险压力测试</h4>
             <p style="margin:0; font-size:12px; line-height:1.7;">
               1. <b>普通最小二乘法 (OLS) 拟合验证</b>：基于 2018—2024 年公开数据建模（<b>有效样本 n = 6</b>，剔除 2020 疫情异常点），年均客流斜率 β₁ = <b>+578.26 万人次/年</b>（t = 2.055，<b>α=0.10 下显著</b>），模型判定系数 <b>R² = 0.5137</b>、残差标准误 Sₑ = 1,457 万人次、DW = 1.242（<b>落入 d_L=0.61 与 d_U=1.40 之间的无结论区，本系统如实披露而未粉饰</b>）。R² 中等的原因被如实呈现：<b>2020 年疫情造成的水平断裂使前期与后期形成结构断层</b>。经 95% 预测区间检验，<b>2028 年 2.3 亿与 2030 年 3.0 亿两个政策锚定点均落在区间之外</b>——本系统不回避这一结论，它恰恰量化了「规划目标 ≠ 趋势外推」这一核心命题。<br>
-              2. <b>蒙特卡洛随机游走测试</b>：设定年化漂移率 μ=18.4%、综合波动率 σ=8.2%，自 2023—2024 雪季真实基线 12,500 万人次模拟一万次情景，输出 P10(2.86亿) / P25(3.23亿) / P50(3.70亿) / P75(4.24亿) / P90(4.76亿)，<b>2030 年突破 3.0 亿人次的达成概率约 84.9%，总花费突破 5,400 亿元概率约 83.6%</b>。<br>
+              2. <b>蒙特卡洛随机游走测试</b>：设定年化漂移率 μ=18.4%、综合波动率 σ=8.2%，对客流与花费两条序列分别独立模拟一万次（种子固定、可复现）。自 2023—2024 雪季真实基线出发：① <b>客流</b>（1.25 亿人次）输出 P10(2.86亿) / P25(3.23亿) / P50(3.70亿) / P75(4.24亿) / P90(4.76亿)，<b>2030 年突破 3.0 亿人次的概率约 84.9%</b>；② <b>花费</b>（2,419 亿元）<b>2030 年突破 5,400 亿元的概率约 91.8%</b>（花费所需年化增速仅约 13.4%，低于设定的 18.4%，故达成裕度更高）。<br>
               3. <b>龙卷风敏感度排序</b>：变量灵敏度依次为：<b>文旅品牌营销乘数 (±1,270亿) > 沈白高铁客运增量 (±735亿) > 极端气候偏离 (±410亿)</b>。<br>
               4. <b>三模型交叉验证</b>：OLS 趋势外推（2028 年 1.32 亿、2030 年 1.44 亿，政策锚定点落在 95% 预测区间之外）、蒙特卡洛中枢（2030 年 3.70 亿，达标概率 84.9%）、供给端承载上限三者互证。两者并不矛盾：OLS 回答「不加干预、纯按历史趋势外推会怎样」，蒙特卡洛回答「若高铁红利与品牌乘数等外生变量被政策有效撬动会怎样」——<b>二者共同界定了政策干预的必要性区间，这才是「3.0 亿人次属于进取型目标」这一结论的完整量化依据</b>。
             </p>
