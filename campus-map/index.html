@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>长春工业大学 · 全景立体地图 | CCUT 3D Campus Map</title>
-<meta name="description" content="长春工业大学全景立体校园地图：北湖校区（主校区 · 西区/东区）、南湖校区（老校区）84 处建筑、场馆与主要校门 1:1 真实还原，支持三维检索、步行测距、导览路线、光影季节切换、全景漫游与高清海报导出。">
+<meta name="description" content="长春工业大学交互式三维校园示意地图：以公开地图数据与校区资料为参考，展示北湖、南湖校区空间模型，支持建筑检索、模型坐标距离估算、示意导览路线、光影季节切换与全景漫游。非测绘或导航数据。">
 <meta name="keywords" content="长春工业大学,长工大,CCUT,全景立体地图,3D校园地图,北湖校区,南湖校区,博厚图书馆,西区教学主楼,东区主教学楼,郭力楼,数学与统计学院">
 <!-- 说明：此处不再禁用缓存。静态资源通过下方 ?v= 版本号做变更失效，
      而 three.min.js 等第三方库体积大且极少变动，禁用缓存会导致每次访问全量重下载。 -->
@@ -12,9 +12,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta property="og:title" content="长春工业大学 · 全景立体地图">
-<meta property="og:description" content="长春工业大学 3D 全景立体校园地图：84 处建筑、场馆与校门地标真实对齐还原，支持建筑检索、步行测距、季节光影切换、导览路线与沉浸漫游。">
+<meta property="og:description" content="长春工业大学交互式三维校园示意地图，支持建筑检索、模型坐标距离估算、示意导览路线与季节光影切换；模型不作为测绘或导航数据。">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="css/style.css?v=20261001_01">
+<link rel="stylesheet" href="css/style.css?v=20261001_03">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🏫</text></svg>">
 </head>
 <body>
@@ -34,7 +34,7 @@
 <div id="topbar">
   <div class="brand">
     <h1><span class="dot"></span>长春工业大学 · 全景立体地图</h1>
-    <div class="sub">三维实景导览 · 84 处建筑、场馆与校门单体实测对齐 · 依据基建规划与 OSM 遥感测绘绘制</div>
+    <div class="sub">三维校园示意模型 · 参考公开地图数据与校区资料绘制 · 支持建筑检索与模型坐标距离估算</div>
     <div class="addr">地址：吉林省长春市朝阳区延安大街2055号（北湖校区：宽城区北远达大街3000号）</div>
   </div>
   <div class="top-right-group">
@@ -140,7 +140,7 @@
     <span class="stats" id="icStats"></span>
     <div class="desc" id="icDesc"></div>
     <div class="ic-ft">
-      <button id="icNav" title="规划从最近校门到该建筑的迎新步行路线">🚶 路线导航</button>
+      <button id="icNav" title="显示从校门模型点位到建筑的示意路线">🚶 示意路线</button>
       <button id="icFly">🎯 视角聚焦</button>
       <button id="icShare">🔗 分享建筑</button>
     </div>
@@ -154,7 +154,7 @@
   <button id="btnTour">🎬 全景漫游</button>
   <button id="btnTimeMode" title="切换光照环境：白天 / 黄昏 / 夜景">☀️ 白天</button>
   <button id="btnWeatherDock" title="切换季节风貌：夏日葱郁 / 金秋银杏 / 北国冬雪 (W)">🌿 夏绿</button>
-  <button id="btnRoute" title="切换迎新与校园推荐导览路线 (L)">🚶 导览路线</button>
+  <button id="btnRoute" title="显示校园推荐导览线示意（非导航路线，L）">🚶 示意导览线</button>
   <button id="btnRotate">🔄 自动旋转</button>
   <div class="sep"></div>
   <button id="btnSnap" title="生成并下载无UI全景高清海报 (S)">📸 截屏分享</button>
@@ -178,7 +178,7 @@
           <li><b>单指滑动 / 左键拖拽</b>：平移漫游校园地图视野</li>
           <li><b>双指旋转 / 右键拖拽</b>：360° 环顾与俯仰旋转视角</li>
           <li><b>双指捏合 / 鼠标滚轮</b>：推远拉近平滑缩放</li>
-          <li><b>点击建筑 / 标签</b>：立即选中并在右下角查看实景效果图与步行耗时</li>
+          <li><b>点击建筑 / 标签</b>：立即选中并查看模型信息、参考图片与近似距离估算</li>
           <li><b>悬停建筑</b>：光标浮签即时显示建筑名称，双击直接镜头聚焦</li>
           <li><b>点击指北针 (N)</b>：一键平滑将相机视角回正对准正北</li>
         </ul>
@@ -193,7 +193,7 @@
           <div><kbd>P</kbd> 帧率性能面板</div>
           <div><kbd>M</kbd> 切换高德卫星遥感图</div>
           <div><kbd>W</kbd> 切换季节 (夏绿 / 冬雪)</div>
-          <div><kbd>L</kbd> 开关迎新导览光带</div>
+          <div><kbd>L</kbd> 开关校园推荐导览线示意（非导航）</div>
           <div><kbd>S</kbd> 一键全景截屏分享</div>
           <div><kbd>/</kbd> 快速聚焦搜索框</div>
           <div><kbd>F</kbd> 切换全屏沉浸浏览</div>
@@ -202,7 +202,7 @@
       </div>
       <div class="help-sec">
         <h4>🌟 实用新生功能</h4>
-        <p>选中建筑后，自动根据主校门实时测算<b>步行距离与耗时</b>；支持输入拼音缩写（如 <code>tsg</code> 查图书馆、<code>st</code> 查食堂、<code>zly</code> 查知理苑）；支持一键复制建筑专属链接发送至微信/QQ好友直接精准定位；按 <code>P</code> 可开启帧率/DrawCall 性能面板。</p>
+        <p>选中建筑后，按模型坐标估算至校门点位的<b>近似直线距离</b>；该数值不是路网导航或实测步行距离。支持输入拼音缩写（如 <code>tsg</code> 查图书馆、<code>st</code> 查食堂、<code>zly</code> 查知理苑）；支持一键复制建筑专属链接发送至微信/QQ好友跳转并选中建筑（仅限本三维模型）；按 <code>P</code> 可开启帧率/DrawCall 性能面板。</p>
       </div>
     </div>
     <div class="modal-ft">
@@ -222,7 +222,7 @@
 <script defer src="js/RenderPass.js"></script>
 <script defer src="js/ShaderPass.js"></script>
 <script defer src="js/UnrealBloomPass.js"></script>
-<script defer src="js/campus-data.js?v=20261001_02"></script>
-<script defer src="js/main.js?v=20261001_02"></script>
+<script defer src="js/campus-data.js?v=20261001_04"></script>
+<script defer src="js/main.js?v=20261001_06"></script>
 </body>
 </html>

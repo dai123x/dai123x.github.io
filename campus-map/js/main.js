@@ -209,6 +209,100 @@ function relativeGeometry(root, invRoot, obj) {
   return g;
 }
 
+/* 合并带顶点色的几何体（position + normal + uv + color） */
+function mergeColoredGeometries(geos) {
+  var i, g, total = 0;
+  for (i = 0; i < geos.length; i++) {
+    g = geos[i];
+    if (!g || !g.attributes.position || !g.attributes.normal || !g.attributes.color) return null;
+    total += g.attributes.position.count;
+  }
+  if (!total) return null;
+  var pos = new Float32Array(total * 3);
+  var nor = new Float32Array(total * 3);
+  var uv = new Float32Array(total * 2);
+  var col = new Float32Array(total * 3);
+  var o3 = 0, o2 = 0;
+  for (i = 0; i < geos.length; i++) {
+    g = geos[i];
+    var cnt = g.attributes.position.count;
+    copyAttrInto(g.attributes.position, pos, o3, 3, cnt);
+    copyAttrInto(g.attributes.normal, nor, o3, 3, cnt);
+    copyAttrInto(g.attributes.color, col, o3, 3, cnt);
+    if (g.attributes.uv) copyAttrInto(g.attributes.uv, uv, o2, 2, cnt);
+    o3 += cnt * 3; o2 += cnt * 2;
+  }
+  var out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  out.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  out.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  out.computeBoundingSphere();
+  return out;
+}
+
+/* 表面档位：量化 roughness / metalness，以减少相近材质之间的批次数 */
+var _surfR = [0.25, 0.58, 0.86];
+var _surfM = [0.08, 0.42, 0.85];
+function surfaceBucket(m) {
+  var r = (m.roughness == null) ? 0.8 : m.roughness;
+  var t = (m.metalness == null) ? 0.1 : m.metalness;
+  var rb = r < 0.34 ? 0 : (r < 0.72 ? 1 : 2);
+  var tb = t < 0.25 ? 0 : (t < 0.62 ? 1 : 2);
+  return { key: rb + '_' + tb + '_' + (m.flatShading ? 1 : 0), r: _surfR[rb], t: _surfM[tb], flat: !!m.flatShading };
+}
+
+/* 将单栋建筑内无贴图不透明零件按量化表面参数合批 */
+function batchBuildingGroupVertex(root) {
+  if (!root) return 0;
+  var victims = [];
+  root.updateMatrixWorld(true);
+  root.traverse(function (o) {
+    if (o === root || !o.isMesh || o.isInstancedMesh || Array.isArray(o.material)) return;
+    if (!o.geometry || !o.geometry.attributes.normal || !canBatchMaterial(o.material)) return;
+    victims.push(o);
+  });
+  if (victims.length < 2) return 0;
+  var invRoot = _bm4A.copy(root.matrixWorld).invert();
+  var buckets = {}, keys = [];
+  victims.forEach(function (o) {
+    var s = surfaceBucket(o.material);
+    if (!buckets[s.key]) { buckets[s.key] = { s: s, items: [] }; keys.push(s.key); }
+    buckets[s.key].items.push(o);
+  });
+  var saved = 0;
+  keys.forEach(function (k) {
+    var b = buckets[k];
+    if (b.items.length < 2) return;
+    var geos = [], cast = false, recv = false;
+    for (var i = 0; i < b.items.length; i++) {
+      var o = b.items[i];
+      var g = relativeGeometry(root, invRoot, o);
+      var cnt = g.attributes.position.count;
+      var carr = new Float32Array(cnt * 3);
+      var c = o.material.color;
+      for (var v = 0; v < cnt; v++) { carr[v * 3] = c.r; carr[v * 3 + 1] = c.g; carr[v * 3 + 2] = c.b; }
+      g.setAttribute('color', new THREE.BufferAttribute(carr, 3));
+      geos.push(g);
+      if (o.castShadow) cast = true;
+      if (o.receiveShadow) recv = true;
+    }
+    var merged = mergeColoredGeometries(geos);
+    if (!merged) return;
+    var mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: b.s.r, metalness: b.s.t, flatShading: b.s.flat });
+    var mesh = new THREE.Mesh(merged, mat);
+    mesh.name = 'batchedVC';
+    mesh.castShadow = cast;
+    mesh.receiveShadow = recv;
+    mesh.userData.bid = b.items[0].userData.bid;
+    mesh.userData.cat = b.items[0].userData.cat;
+    root.add(mesh);
+    for (var j = 0; j < b.items.length; j++) if (b.items[j].parent) b.items[j].parent.remove(b.items[j]);
+    saved += b.items.length - 1;
+  });
+  return saved;
+}
+
 /* 把 list 中的网格合并为一个使用 material 的网格，挂到 root 下 */
 function mergeMeshList(root, list, material, name) {
   if (!list || list.length < 2 || !material) return null;
@@ -331,7 +425,8 @@ function batchBuildingGroup(root) {
 
 /* ---------------- 原生 Web Audio 交互音效 ---------------- */
 var audioCtx = null;
-var soundEnabled = (typeof localStorage !== 'undefined' && localStorage.getItem('ccut_sound') !== 'false');
+var soundEnabled = true;
+try { soundEnabled = window.localStorage.getItem('ccut_map_sound') !== '0'; } catch (e) { /* storage may be unavailable */ }
 
 function playSound(type) {
   if (!soundEnabled) return;
@@ -468,35 +563,29 @@ function matchSearch(bName, q) {
   return false;
 }
 
-/* ---------------- 新生步行测距计算（基于实测校门对齐） ---------------- */
+/* ---------------- 新生距离估算（使用模型内校门点，不是路网导航） ---------------- */
 function calcGateDistance(b, campusKey) {
-  if (!b || !b.pos) return null;
-  var gatePos, gateName;
-  if (campusKey === 'beiHu') {
-    if (b.pos[0] < -100) {
-      gatePos = [-774, 254]; // 西区南门（实测坐标）
-      gateName = '西区南门报到点';
-    } else {
-      var dSouth = Math.hypot(b.pos[0] - 565, b.pos[1] - 375);
-      var dWest = Math.hypot(b.pos[0] - 54, b.pos[1] - 248);
-      if (dSouth < dWest) {
-        gatePos = [565, 375]; // 东区南门（大学城路正门）
-        gateName = '东区南门(大学城路正门)';
-      } else {
-        gatePos = [54, 248]; // 东区西门（盛北大街连廊）
-        gateName = '东区西门(盛北大街连廊)';
-      }
-    }
-  } else {
-    gatePos = [272, -7]; // 南湖延安大街正门（实测坐标）
-    gateName = '延安大街正门报到点';
-  }
-  var dx = b.pos[0] - gatePos[0];
-  var dz = b.pos[1] - gatePos[1];
-  var straight = Math.sqrt(dx * dx + dz * dz);
+  if (!b || !b.pos || !currentCampus || currentKey !== campusKey) return null;
+  var gates = Array.isArray(currentCampus.gates) ? currentCampus.gates : [];
+  var eligibleGates = gates.filter(function(gate) {
+    return gate && Array.isArray(gate.pos) && gate.pos.length >= 2 &&
+      (gate.desc || '').indexOf('消防通道') === -1;
+  });
+  if (!eligibleGates.length) eligibleGates = gates.filter(function(gate) {
+    return gate && Array.isArray(gate.pos) && gate.pos.length >= 2;
+  });
+  if (!eligibleGates.length) return null;
+
+  var gate = eligibleGates.reduce(function(nearest, candidate) {
+    var candidateDistance = Math.hypot(b.pos[0] - candidate.pos[0], b.pos[1] - candidate.pos[1]);
+    var nearestDistance = Math.hypot(b.pos[0] - nearest.pos[0], b.pos[1] - nearest.pos[1]);
+    return candidateDistance < nearestDistance ? candidate : nearest;
+  });
+  var gatePos = gate.pos.slice(0, 2);
+  var straight = Math.hypot(b.pos[0] - gatePos[0], b.pos[1] - gatePos[1]);
   var distM = Math.round(straight * 1.22);
   var walkMin = Math.max(1, Math.round(distM / 72));
-  return { dist: distM, min: walkMin, gateName: gateName };
+  return { dist: distM, min: walkMin, gateName: gate.name, gatePos: gatePos };
 }
 
 /* ---------------- 小工具 ---------------- */
@@ -777,19 +866,25 @@ function roundRect(g, x, y, w, h, r) {
 /* ============================================================
  * 建筑构建
  * ============================================================ */
-/* 真实照片贴图（官方效果图/实景图，本地 img/ 目录） */
+/* 本地参考图片贴图（官方效果图/实景图，本地 img/ 目录） */
 var photoLoader = new THREE.TextureLoader();
 var photoCache = {};
+var photoPending = {};
 window.__photos = photoCache; // 调试：检查贴图加载
 function photoTexture(url, onReady) {
   if (photoCache[url]) { if (photoCache[url].image) onReady(photoCache[url]); return; }
-  photoCache[url] = null; // 占位，防止重复加载
+  if (photoPending[url]) { photoPending[url].push(onReady); return; }
+  photoPending[url] = [onReady];
   photoLoader.load(url, function (tex) {
     tex.anisotropy = maxAniso();
     tex._cached = true;
     photoCache[url] = tex;
-    onReady(tex);
-  }, undefined, function () { /* 加载失败时保留程序化立面 */ });
+    var callbacks = photoPending[url] || [];
+    delete photoPending[url];
+    callbacks.forEach(function (callback) { callback(tex); });
+  }, undefined, function () {
+    delete photoPending[url]; // 失败后允许后续重试，保留程序化立面
+  });
 }
 
 function makeFacadeMaterial(b) {
@@ -874,7 +969,7 @@ function buildBox(b) {
     // ExtrudeGeometry materials: [roof/bottom, sides]
     var mats = makeFacadeMaterial(b);
     mesh = new THREE.Mesh(boxGeo, [mats[2], mats[0]]);
-    mesh.position.set(0, 0, 0); // 几何体以 (0,0,0) 为原点，精准对齐 b.pos 与卫星地图
+    mesh.position.set(0, 0, 0); // 几何体以局部原点构建，按模型坐标置于 b.pos
     
     // 现代平屋顶女儿墙边框结构（凸起 0.8 米）
     var parapetGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.8, bevelEnabled: false });
@@ -988,7 +1083,7 @@ function buildArena(b) {
 }
 
 /* ============================================================
- * 真实建筑重点建模（参考学校官方基建规划与高清卫星遥感）
+ * 重点建筑示意建模（参考可获得的公开资料与影像）
  * ============================================================ */
 
 /* 辅助：修复 ExtrudeGeometry 侧立面 UV 贴图与楼层高度比例 */
@@ -1009,7 +1104,7 @@ function fixExtrudeUVs(geo, height) {
 function buildXiQuZhuJiao(b, campus) {
   var grp = new THREE.Group();
 
-  // ① 真实轮廓基座裙楼（5层，高 18 米）
+  // ① 轮廓基座裙楼示意（5层，高 18 米）
   var baseShape = new THREE.Shape();
   baseShape.moveTo(b.pts[0][0] - b.pos[0], -(b.pts[0][1] - b.pos[1]));
   for (var i = 1; i < b.pts.length; i++) {
@@ -1072,7 +1167,7 @@ function buildXiQuZhuJiao(b, campus) {
   mastMesh.position.set(0, towerH + 9, 0);
   grp.add(mastMesh);
 
-  // ④ 南正门通高玻璃大堂与出挑采光雨棚（实测南外墙位于 Z = +27.5，门厅出挑至 +30.5）
+  // ④ 南正门玻璃大堂与出挑采光雨棚（按模型坐标近似放置）
   var lobbyMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, roughness: 0.1, metalness: 0.25 });
   var lobbyMesh = new THREE.Mesh(new THREE.BoxGeometry(26, 5.8, 3.5), lobbyMat);
   lobbyMesh.position.set(0, 2.9, 27.5);
@@ -1368,7 +1463,7 @@ function buildGuoLiLou(b, campus) {
 function buildDongquZhuJiao(b, campus) {
   var grp = new THREE.Group();
 
-  // ① 259米巨型弧形主楼（5层，按实测OpenStreetMap弧形轮廓拉伸，高 18 米）
+  // ① 弧形主楼示意（5层，按 OpenStreetMap 建筑轮廓近似生成，高 18 米）
   var shape = new THREE.Shape();
   shape.moveTo(b.pts[0][0] - b.pos[0], -(b.pts[0][1] - b.pos[1]));
   for (var i = 1; i < b.pts.length; i++) {
@@ -1387,7 +1482,7 @@ function buildDongquZhuJiao(b, campus) {
   var edgeLines = new THREE.LineSegments(new THREE.EdgesGeometry(baseGeo, 40), getSharedNeonMaterial());
   baseMesh.add(edgeLines);
 
-  // ② 沿弧形真实外轮廓生成的女儿墙（0.9米），拒绝矩形遮盖
+  // ② 沿弧形模型外轮廓生成的女儿墙（0.9米），避免矩形遮盖
   var parapetGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.9, bevelEnabled: false });
   parapetGeo.rotateX(-Math.PI / 2);
   var parapetMesh = new THREE.Mesh(parapetGeo, new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 }));
@@ -1582,7 +1677,7 @@ function buildGrandstand(b, campus) {
 function buildActivityCenter(b, campus) {
   var grp = new THREE.Group();
 
-  // ① 实测多边形轮廓基座（3层，高 11 米）
+  // ① 多边形轮廓基座示意（3层，高 11 米）
   var shape = new THREE.Shape();
   shape.moveTo(b.pts[0][0] - b.pos[0], -(b.pts[0][1] - b.pos[1]));
   for (var i = 1; i < b.pts.length; i++) {
@@ -1986,7 +2081,7 @@ function buildCanteenBuilding(b, campus) {
     grp.add(vent);
   });
 
-  // 餐饮中心迎宾门头与大堂入口（依据实测外墙精准对齐）
+  // 餐饮中心迎宾门头与大堂入口（依据模型外墙位置近似对齐）
   var f = getPrimaryFacade(b);
   var entGrp = new THREE.Group();
   entGrp.position.set(f.pos[0], 0, f.pos[1]);
@@ -2226,7 +2321,7 @@ function buildNanhuLibrary(b, campus) {
   grp.add(roofMesh);
 
   // ③ 标志性西南立面迎宾多柱古典柱廊与门厅
-  // 实测西南外墙中点位于 (-26.7, 25.75)，朝向偏角为 -Math.PI / 4 (-45°)
+  // 模型坐标下的西南外墙中点与朝向近似值
   var entGrp = new THREE.Group();
   entGrp.position.set(-26.7, 0, 25.75);
   entGrp.rotation.y = -Math.PI / 4;
@@ -2494,7 +2589,7 @@ function buildTrack(b) {
   linesGroup.add(centerCircle);
   grp.add(linesGroup);
 
-  // 真实3D白色足球门
+  // 3D 白色足球门模型
   var barMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
   if (isVertical) {
     [-pitchD * 0.44, pitchD * 0.44].forEach(function(gz) {
@@ -2985,13 +3080,16 @@ function buildClouds(groundSize) {
     cloudMats.push(mat);
 
     var subBlobs = 5 + Math.floor(Math.random() * 4);
+    var blobs = [];
     for (var b = 0; b < subBlobs; b++) {
       var blob = new THREE.Mesh(cloudGeo, mat);
       var sc = rand(14, 28);
       blob.scale.set(sc * rand(1.2, 1.8), sc * rand(0.5, 0.8), sc);
       blob.position.set(rand(-28, 28), rand(-4, 4), rand(-20, 20));
       cluster.add(blob);
+      blobs.push(blob);
     }
+    mergeMeshList(cluster, blobs, mat, 'cloud');
     cluster.position.set(
       rand(-groundSize * 0.45, groundSize * 0.45),
       rand(320, 440),
@@ -3200,6 +3298,7 @@ function buildGuideRoutes(campus) {
 
   routeTex = routeTextureFunc();
   campus.guideRoutes.forEach(function (routeSpec) {
+    var ribs = [];
     var pts = routeSpec.path.map(function (p) { return new THREE.Vector3(p[0], 0.28, p[1]); });
     var ribMat = new THREE.MeshBasicMaterial({
       map: routeTex,
@@ -3221,7 +3320,10 @@ function buildGuideRoutes(campus) {
       rib.position.set(mid.x, mid.y, mid.z);
       rib.renderOrder = 8;
       routeGroup.add(rib);
+      ribs.push(rib);
     }
+    // 合并同一路线片段，材质与 UV 动画保持一致并减少 draw calls。
+    mergeMeshList(routeGroup, ribs, ribMat, 'route_rib');
   });
   routeGroup.visible = showGuideRoute;
   return routeGroup;
@@ -3555,7 +3657,7 @@ function buildCampus(campus) {
     campusGroup.add(patch);
   }
 
-  // 校区测绘红线边界轮廓
+  // 校区范围示意轮廓
   campusGroup.add(buildBoundaryLines(campus));
 
   campus.roads.forEach(function (r) {
@@ -3613,7 +3715,7 @@ function buildCampus(campus) {
     buildingEntries.push({ id: b.id, cat: b.cat, data: b, group: grp, label: lbl });
   });
 
-  // 渲染校区真实校门与地标门厅（全部纳入 3D 实体模型与检索）
+  // 渲染校门与地标门厅示意（全部纳入 3D 模型与检索）
   if (campus.gates && campus.gates.length) {
     campus.gates.forEach(function (g) {
       var gb = {
@@ -3699,9 +3801,20 @@ function buildCampus(campus) {
       batchStat.saved += neonList.length - 1;
     }
 
-    // 4) 每栋建筑内部按「完全同外观材质」合批
+    // 4) 每栋建筑内部：先按完全一致材质合批，再按量化表面属性压缩剩余批次。
     campusGroup.children.forEach(function (c) {
-      if (c.userData && c.userData.bid) batchStat.saved += batchBuildingGroup(c);
+      if (c.userData && c.userData.bid) {
+        batchStat.saved += batchBuildingGroup(c);
+        batchStat.saved += batchBuildingGroupVertex(c);
+      }
+    });
+
+    // 5) 配景（雕塑、球场、旗杆等）也按可安全合批的材质压缩 draw calls。
+    campusGroup.children.forEach(function (c) {
+      if (c.name === 'prop') {
+        batchStat.saved += batchBuildingGroup(c);
+        batchStat.saved += batchBuildingGroupVertex(c);
+      }
     });
   } catch (e) {
     console.warn('静态合批跳过：', e);
@@ -3999,7 +4112,7 @@ function selectBuilding(hit, flyTo) {
   var walkEl = $('icWalk');
   if (walkEl) {
     if (walkInfo) {
-      walkEl.innerHTML = '🚶 距【' + walkInfo.gateName + '】约 <b>' + walkInfo.dist + 'm</b> · 步行约 <b>' + walkInfo.min + '分钟</b>';
+      walkEl.innerHTML = '🚶 至【' + walkInfo.gateName + '】模型坐标估算约 <b>' + walkInfo.dist + 'm</b> · 按固定速度估算步行约 <b>' + walkInfo.min + '分钟</b>';
       walkEl.style.display = 'block';
     } else {
       walkEl.style.display = 'none';
@@ -4053,7 +4166,7 @@ function deselect() {
   updateURLParams();
 }
 
-/* ---------------- 迎新实时步行导览路线规划 ---------------- */
+/* ---------------- 校园推荐导览示意线（不提供路网导航） ---------------- */
 var activeNavRoute = null;
 
 function clearNavRoute() {
@@ -4129,7 +4242,7 @@ function navigateToBuilding(b) {
   var targetCamPos = new THREE.Vector3(centerPos.x, camH, centerPos.z + spanDist * 0.7);
   startFly(targetCamPos, centerPos, 1300);
   
-  showToast('🚶 已为您规划从【' + gateName + '】至【' + b.name + '】的迎新导览路线！');
+  showToast('🚶 已显示从【' + gateName + '】至【' + b.name + '】的示意导览线（非路网导航）');
 }
 
 function flyToBuilding(b) {
@@ -5117,7 +5230,7 @@ function initUI() {
       showGuideRoute = !showGuideRoute;
       if (routeGroup) routeGroup.visible = showGuideRoute;
       routeBtn.classList.toggle('on', showGuideRoute);
-      showToast(showGuideRoute ? '🚶 导览路线已开启' : '🚶 导览路线已关闭');
+      showToast(showGuideRoute ? '🚶 示意导览线已开启（非导航）' : '🚶 示意导览线已关闭');
     });
   }
 
@@ -5699,7 +5812,7 @@ function boot() {
   var tips = [
     '正在加载三维地形与地下管网数据…',
     '正在构建 76 处建筑与场馆地标三维模型…',
-    '正在对齐北湖与南湖校区实测地理坐标…',
+    '正在对齐北湖与南湖校区模型坐标…',
     '正在初始化微气候光影与全季节渲染引擎…',
     '三维场景加载完成，欢迎来到长春工业大学！'
   ];
