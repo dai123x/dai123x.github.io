@@ -6,9 +6,8 @@
 <title>长春工业大学 · 全景立体地图 | CCUT 3D Campus Map</title>
 <meta name="description" content="长春工业大学全景立体校园地图：北湖校区（主校区 · 西区/东区）、南湖校区（老校区）84 处建筑、场馆与主要校门 1:1 真实还原，支持三维检索、步行测距、导览路线、光影季节切换、全景漫游与高清海报导出。">
 <meta name="keywords" content="长春工业大学,长工大,CCUT,全景立体地图,3D校园地图,北湖校区,南湖校区,博厚图书馆,西区教学主楼,东区主教学楼,郭力楼,数学与统计学院">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<!-- 说明：此处不再禁用缓存。静态资源通过下方 ?v= 版本号做变更失效，
+     而 three.min.js 等第三方库体积大且极少变动，禁用缓存会导致每次访问全量重下载。 -->
 <meta name="theme-color" content="#0b1526">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -213,15 +212,17 @@
   </div>
 </div>
 
-<script src="js/three.min.js"></script>
-<script src="js/OrbitControls.js"></script>
-<script src="js/CopyShader.js"></script>
-<script src="js/LuminosityHighPassShader.js"></script>
-<script src="js/EffectComposer.js"></script>
-<script src="js/RenderPass.js"></script>
-<script src="js/ShaderPass.js"></script>
-<script src="js/UnrealBloomPass.js"></script>
-<script src="js/campus-data.js?v=20261001_01"></script>
-<script src="js/main.js?v=20261001_01"></script>
+<!-- 脚本置于 body 末尾 + defer：HTML 解析与脚本下载并行，避免阻塞首屏；
+     defer 保持原有执行顺序，且晚于 DOMContentLoaded 前解析完毕，与 main.js 的 boot 逻辑兼容。 -->
+<script defer src="js/three.min.js"></script>
+<script defer src="js/OrbitControls.js"></script>
+<script defer src="js/CopyShader.js"></script>
+<script defer src="js/LuminosityHighPassShader.js"></script>
+<script defer src="js/EffectComposer.js"></script>
+<script defer src="js/RenderPass.js"></script>
+<script defer src="js/ShaderPass.js"></script>
+<script defer src="js/UnrealBloomPass.js"></script>
+<script defer src="js/campus-data.js?v=20261001_02"></script>
+<script defer src="js/main.js?v=20261001_02"></script>
 </body>
 </html>
