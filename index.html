@@ -7,21 +7,103 @@
   <meta name="description" content="戴璇的个人主页与学术/工程作品集。长春工业大学应用统计硕士在读，具备工业工程与统计建模复合背景，探索 Web 3D 与数字化自媒体。">
   <meta name="keywords" content="戴璇, daixuan, daixuan.cloud, dai123x, 长春工业大学, 应用统计, 工业工程, Three.js, 一汽丰田实习, 数据分析">
   <meta name="author" content="戴璇">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://daixuan.cloud/">
+  <meta name="theme-color" content="#0a0e17" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
 
   <!-- Open Graph / Social Cards -->
   <meta property="og:title" content="戴璇 · Dai Xuan | 个人数字门户 (daixuan.cloud)">
   <meta property="og:description" content="应用统计硕士在读 | 工业工程学士。数据分析、精益制造与 Web 3D 探索。">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://daixuan.cloud">
-  <meta property="og:image" content="assets/images/avatar.jpg">
+  <meta property="og:url" content="https://daixuan.cloud/">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/avatar.jpg">
+  <meta property="og:image:alt" content="戴璇 (Dai Xuan) 个人形象照">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="戴璇 · Dai Xuan | 个人数字门户">
+  <meta name="twitter:description" content="应用统计硕士在读 | 工业工程学士。数据分析、精益制造与 Web 3D 探索。">
+  <meta name="twitter:image" content="https://daixuan.cloud/assets/images/avatar.jpg">
 
-  <!-- Favicon -->
+  <!-- Favicon / PWA -->
   <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <link rel="apple-touch-icon" href="assets/images/favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Performance: 关键资源预加载 -->
+  <link rel="preload" href="css/style.css" as="style">
+  <link rel="preload" href="assets/images/avatar.jpg" as="image" fetchpriority="high">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- 主题预初始化：在首帧前同步应用，避免深色/浅色切换闪屏 (FOUC) -->
+  <script>
+    (function () {
+      // 标记 JS 可用：仅在此情况下才启用入场动画的初始隐藏，避免脚本失效导致内容不可见
+      document.documentElement.classList.add('js');
+      try {
+        var saved = localStorage.getItem('dx_theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+
+  <!-- 结构化数据：Person + WebSite（利于搜索引擎与知识图谱收录） -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://daixuan.cloud/#person",
+        "name": "戴璇",
+        "alternateName": ["Dai Xuan", "dai123x"],
+        "url": "https://daixuan.cloud/",
+        "image": "https://daixuan.cloud/assets/images/avatar.jpg",
+        "email": "mailto:daixuan26@outlook.com",
+        "telephone": "+86-18202091021",
+        "jobTitle": "应用统计硕士研究生",
+        "description": "长春工业大学应用统计硕士在读，工业工程与统计建模复合背景，专注数据分析、时间序列建模与 Web 3D 可视化。",
+        "sameAs": [
+          "https://github.com/dai123x",
+          "https://daixuan.cloud/"
+        ],
+        "alumniOf": [
+          {
+            "@type": "CollegeOrUniversity",
+            "name": "长春工业大学",
+            "sameAs": "https://www.ccut.edu.cn/"
+          }
+        ],
+        "knowsAbout": [
+          "应用统计", "时间序列分析", "工业工程", "精益生产",
+          "数据建模", "R 语言", "Python", "Three.js", "WebGL"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://daixuan.cloud/#website",
+        "url": "https://daixuan.cloud/",
+        "name": "戴璇 · Dai Xuan 个人数字门户",
+        "inLanguage": "zh-CN",
+        "publisher": { "@id": "https://daixuan.cloud/#person" }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
+
+  <!-- 无障碍：跳转到主内容 -->
+  <a class="skip-link" href="#main-content">跳转到主要内容</a>
+
+  <!-- 顶部阅读进度条 -->
+  <div class="scroll-progress" aria-hidden="true"><span id="scroll-progress-bar"></span></div>
 
   <!-- Ambient Light Orbs -->
   <div class="ambient-glow" aria-hidden="true">
@@ -65,7 +147,7 @@
         </button>
 
         <!-- Mobile Menu Toggle Button -->
-        <button id="mobile-toggle" class="btn-icon mobile-toggle" aria-label="移动端菜单">
+        <button id="mobile-toggle" class="btn-icon mobile-toggle" aria-label="展开导航菜单" aria-expanded="false" aria-controls="nav-menu">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
           </svg>
@@ -75,7 +157,7 @@
   </header>
 
   <!-- Hero Section -->
-  <main>
+  <main id="main-content">
     <section class="hero-section" id="hero">
       <div class="container">
         <div class="hero-grid">
@@ -136,7 +218,7 @@
           <!-- Profile Photo -->
           <div class="hero-avatar-wrapper">
             <div class="avatar-card">
-              <img src="assets/images/avatar.jpg" alt="戴璇" class="avatar-img" style="object-fit: cover; object-position: center;">
+              <img src="assets/images/avatar.jpg" alt="戴璇" class="avatar-img" width="280" height="280" fetchpriority="high" decoding="async" style="object-fit: cover; object-position: center;">
               <div class="avatar-floating-badge">
                 <span class="status-dot"></span>
                 <span>坐标：浙江湖州 / 吉林长春</span>
@@ -677,7 +759,7 @@
           <!-- Case Study: 应用统计案例分析 -->
           <article class="project-card featured" data-category="stats ie">
             <div class="project-cover">
-              <img src="assets/images/project-casestudy.svg" alt="智能制造产线节拍异常诊断应用统计案例分析">
+              <img src="assets/images/project-casestudy.svg" alt="智能制造产线节拍异常诊断应用统计案例分析" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -703,7 +785,7 @@
           <!-- Case Study 2: Applied Statistics Credit Risk -->
           <article class="project-card featured" data-category="stats ie">
             <div class="project-cover">
-              <img src="assets/images/project-casestudy2.svg" alt="应用统计案例分析">
+              <img src="assets/images/project-casestudy2.svg" alt="应用统计案例分析" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -729,7 +811,7 @@
           <!-- Project 1: 华为杯研究生数模 LaTeX 模板 -->
           <article class="project-card" data-category="github tech">
             <div class="project-cover">
-              <img src="assets/images/project-mathmodel.svg" alt="华为杯研究生数学建模 LaTeX 模板">
+              <img src="assets/images/project-mathmodel.svg" alt="华为杯研究生数学建模 LaTeX 模板" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -755,7 +837,7 @@
           <!-- Project 2: AI 云资源运营与成本优化分析 -->
           <article class="project-card" data-category="github ie">
             <div class="project-cover">
-              <img src="assets/images/project-cloudops.svg" alt="AI 云资源运营与成本优化分析">
+              <img src="assets/images/project-cloudops.svg" alt="AI 云资源运营与成本优化分析" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -781,7 +863,7 @@
           <!-- Project 3: 长工大全景立体地图 -->
           <article class="project-card" data-category="tech">
             <div class="project-cover">
-              <img src="assets/images/project-3dmap.svg" alt="长春工业大学全景立体地图封面">
+              <img src="assets/images/project-3dmap.svg" alt="长春工业大学全景立体地图封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -807,7 +889,7 @@
           <!-- Project 4: 个人数字门户 daixuan.cloud -->
           <article class="project-card" data-category="github tech">
             <div class="project-cover">
-              <img src="assets/images/project-cloud.svg" alt="daixuan.cloud 个人主页封面">
+              <img src="assets/images/project-cloud.svg" alt="daixuan.cloud 个人主页封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -833,7 +915,7 @@
           <!-- Project 5: 一汽丰田生产线测定与 AGV 路径优化 -->
           <article class="project-card" data-category="ie">
             <div class="project-cover">
-              <img src="assets/images/project-media.svg" alt="一汽丰田生产线与 AGV 路径优化">
+              <img src="assets/images/project-media.svg" alt="一汽丰田生产线与 AGV 路径优化" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -859,7 +941,7 @@
           <!-- Project 6: 注塑厂房通风与环境改善 -->
           <article class="project-card" data-category="ie">
             <div class="project-cover">
-              <img src="assets/images/project-study.svg" alt="注塑厂房通风与环境改善">
+              <img src="assets/images/project-study.svg" alt="注塑厂房通风与环境改善" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <div class="project-tags">
@@ -955,7 +1037,7 @@
   <footer class="footer">
     <div class="container">
       <div>
-        <p>© 2026 <strong>戴璇 (Dai Xuan)</strong> · 保留所有权利</p>
+        <p>© <span class="footer-year">2026</span> <strong>戴璇 (Dai Xuan)</strong> · 保留所有权利</p>
         <p style="font-size: 0.8rem; margin-top: 4px; color: var(--text-muted);">
           GitHub 仓库：<a href="https://github.com/dai123x/dai123x.github.io" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline;">dai123x/dai123x.github.io</a> · 独立域名：<strong>daixuan.cloud</strong>
         </p>
@@ -979,15 +1061,15 @@
   </button>
 
   <!-- WeChat QR Code Modal -->
-  <div class="modal-overlay" id="wechat-modal" role="dialog" aria-modal="true">
+  <div class="modal-overlay" id="wechat-modal" role="dialog" aria-modal="true" aria-labelledby="wechat-modal-title">
     <div class="modal-content">
-      <button class="modal-close" id="modal-close" aria-label="关闭">&times;</button>
-      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">扫码添加戴璇微信</h3>
+      <button class="modal-close" id="modal-close" aria-label="关闭弹窗">&times;</button>
+      <h3 id="wechat-modal-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 8px;">扫码添加戴璇微信</h3>
       <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">欢迎学术交流、技术探讨与工程合作</p>
       
       <!-- Real WeChat QR Code Image -->
       <div style="background: #ffffff; padding: 12px; border-radius: 16px; display: inline-block; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.18);">
-        <img src="assets/images/wechat-qr.jpg" alt="戴璇 (稜鏡) 微信二维码" style="width: 220px; max-width: 100%; border-radius: 10px; display: block;">
+        <img src="assets/images/wechat-qr.jpg" alt="戴璇 (稜鏡) 微信二维码" width="220" height="220" loading="lazy" decoding="async" style="width: 220px; max-width: 100%; border-radius: 10px; display: block;">
       </div>
 
       <p style="font-size: 0.92rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
@@ -1000,7 +1082,7 @@
   </div>
 
   <!-- Toast Notification Container -->
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <!-- Scripts -->
   <script src="js/main.js"></script>

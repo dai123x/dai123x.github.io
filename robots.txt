@@ -1,0 +1,11 @@
+# daixuan.cloud · 搜索引擎抓取规则
+User-agent: *
+Allow: /
+
+# 不索引构建脚本与临时文件
+Disallow: /*.py$
+Disallow: /.compress_images.py
+Disallow: /24ee434b03ce497a1f7d63c10b4274e3.txt
+
+# 站点地图
+Sitemap: https://daixuan.cloud/sitemap.xml

@@ -54,6 +54,27 @@ var fly = null;
 var texCache = {};
 var UI = {};
 
+/* ---------------- 受控调试接口（性能面板 / 自动化测量） ---------------- */
+/* 仅暴露读取器，不对外开放写入，避免外部脚本篡改渲染状态 */
+try {
+  window.__CCUT = {
+    get renderer() { return renderer; },
+    get scene() { return scene; },
+    get camera() { return camera; },
+    get controls() { return controls; },
+    get info() { return renderer ? renderer.info : null; },
+    get state() {
+      return {
+        campus: currentKey,
+        weather: weatherMode,
+        time: timeMode,
+        satellite: isSatellite,
+        buildings: buildingEntries.length
+      };
+    }
+  };
+} catch (e) { /* 忽略：无 window 环境 */ }
+
 /* ---------------- 共享单例材质与性能优化缓存 ---------------- */
 var sharedNeonMaterial = null;
 function getSharedNeonMaterial() {
@@ -99,6 +120,213 @@ function getNearbyPickables(px, pz, radius) {
     }
   }
   return _nearbyPickables;
+}
+
+/* 各向异性过滤上限（renderer 就绪后取硬件最大值，显著改善斜视角地面/立面清晰度） */
+function maxAniso() {
+  try { return renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 4; }
+  catch (e) { return 4; }
+}
+
+/* ============================================================
+ * 静态合批工具（Draw Call 优化）
+ * 场景绝大多数零件是静止的，且大量重复('台阶/立柱/座椅/道路分段')。
+ * 这里把「外观完全一致的材质」所对应的网格几何体合并成单个 Mesh，
+ * 视觉 100% 等效，但可把上千次 draw call 压缩到几百次。
+ * ============================================================ */
+var _bm4A = new THREE.Matrix4();
+var _bm4B = new THREE.Matrix4();
+
+function copyAttrInto(attr, dst, offset, itemSize, count) {
+  if (attr.isInterleavedBufferAttribute) {
+    for (var i = 0; i < count; i++) {
+      for (var c = 0; c < itemSize; c++) dst[offset + i * itemSize + c] = attr.getComponent(i, c);
+    }
+    return;
+  }
+  var src = attr.array;
+  if (src.length >= count * itemSize) dst.set(src.subarray(0, count * itemSize), offset);
+  else for (var j = 0; j < count * itemSize; j++) dst[offset + j] = src[j];
+}
+
+/* 合并若干已烘焙好变换的 BufferGeometry（position + normal + uv） */
+function mergeSimpleGeometries(geos) {
+  var i, g, total = 0;
+  for (i = 0; i < geos.length; i++) {
+    g = geos[i];
+    // 缺法线的几何体不参与合批，避免合并后光照失真
+    if (!g || !g.attributes.position || !g.attributes.normal) return null;
+    total += g.attributes.position.count;
+  }
+  if (!total) return null;
+
+  var pos = new Float32Array(total * 3);
+  var nor = new Float32Array(total * 3);
+  var uv = new Float32Array(total * 2);
+  var o3 = 0, o2 = 0;
+  for (i = 0; i < geos.length; i++) {
+    g = geos[i];
+    var cnt = g.attributes.position.count;
+    copyAttrInto(g.attributes.position, pos, o3, 3, cnt);
+    copyAttrInto(g.attributes.normal, nor, o3, 3, cnt);
+    if (g.attributes.uv) copyAttrInto(g.attributes.uv, uv, o2, 2, cnt);
+    o3 += cnt * 3; o2 += cnt * 2;
+  }
+  var out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  out.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  out.computeBoundingSphere();
+  return out;
+}
+
+/* 合并线段（仅 position），用于霓虹描边 */
+function mergeLineGeometries(geos) {
+  var i, g, total = 0;
+  for (i = 0; i < geos.length; i++) {
+    if (!geos[i] || !geos[i].attributes.position) return null;
+    total += geos[i].attributes.position.count;
+  }
+  if (!total) return null;
+  var pos = new Float32Array(total * 3);
+  var o3 = 0;
+  for (i = 0; i < geos.length; i++) {
+    g = geos[i];
+    copyAttrInto(g.attributes.position, pos, o3, 3, g.attributes.position.count);
+    o3 += g.attributes.position.count * 3;
+  }
+  var out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  out.computeBoundingSphere();
+  return out;
+}
+
+/* 取相对 root 的世界变换矩阵 */
+function relativeGeometry(root, invRoot, obj) {
+  _bm4B.multiplyMatrices(invRoot, obj.matrixWorld);
+  var g = obj.geometry.index ? obj.geometry.toNonIndexed() : obj.geometry.clone();
+  g.applyMatrix4(_bm4B);
+  return g;
+}
+
+/* 把 list 中的网格合并为一个使用 material 的网格，挂到 root 下 */
+function mergeMeshList(root, list, material, name) {
+  if (!list || list.length < 2 || !material) return null;
+  root.updateMatrixWorld(true);
+  var invRoot = _bm4A.copy(root.matrixWorld).invert();
+  var geos = [], cast = false, recv = false, bid = null, cat = null;
+  for (var i = 0; i < list.length; i++) {
+    var o = list[i];
+    if (!o.geometry || !o.geometry.attributes.normal) return null;
+    geos.push(relativeGeometry(root, invRoot, o));
+    if (o.castShadow) cast = true;
+    if (o.receiveShadow) recv = true;
+    if (bid === null && o.userData.bid) { bid = o.userData.bid; cat = o.userData.cat; }
+  }
+  var merged = mergeSimpleGeometries(geos);
+  if (!merged) return null;
+  var mesh = new THREE.Mesh(merged, material);
+  mesh.name = name || 'batched';
+  mesh.castShadow = cast;
+  mesh.receiveShadow = recv;
+  if (bid !== null) { mesh.userData.bid = bid; mesh.userData.cat = cat; }
+  root.add(mesh);
+  for (var j = 0; j < list.length; j++) {
+    if (list[j].parent) list[j].parent.remove(list[j]);
+  }
+  return mesh;
+}
+
+function mergeLineSegmentsList(root, list, material, name) {
+  if (!list || list.length < 2 || !material) return null;
+  root.updateMatrixWorld(true);
+  var invRoot = _bm4A.copy(root.matrixWorld).invert();
+  var geos = [];
+  for (var i = 0; i < list.length; i++) geos.push(relativeGeometry(root, invRoot, list[i]));
+  var merged = mergeLineGeometries(geos);
+  if (!merged) return null;
+  var seg = new THREE.LineSegments(merged, material);
+  seg.name = name || 'batchedLines';
+  root.add(seg);
+  for (var j = 0; j < list.length; j++) {
+    if (list[j].parent) list[j].parent.remove(list[j]);
+  }
+  return seg;
+}
+
+/* 材质签名：完全一致才可安全合批 */
+function materialSignature(m) {
+  return [
+    m.type,
+    m.color.getHexString(),
+    (+m.roughness).toFixed(3),
+    (+m.metalness).toFixed(3),
+    m.emissive ? m.emissive.getHexString() : '-',
+    (+m.emissiveIntensity).toFixed(3),
+    m.flatShading ? '1' : '0'
+  ].join('|');
+}
+
+/* 是否允许参与合批 */
+function canBatchMaterial(m) {
+  if (!m || Array.isArray(m)) return false;
+  if (m._shared || m._dynamic) return false;
+  // 带贴图的材质需要独立 UV 空间，不合批
+  if (m.map || m.emissiveMap || m.roughnessMap || m.metalnessMap || m.normalMap || m.aoMap) return false;
+  // 半透明 / 双面 / 夜景会动态改属性的材质，保持独立
+  if (m.transparent !== false || m.opacity !== 1 || m.visible === false) return false;
+  if (m.side !== THREE.FrontSide) return false;
+  if (buildingMats.indexOf(m) >= 0) return false;
+  return true;
+}
+
+/* 对单个建筑分组做「同材质」合批，返回省下的 draw call 数 */
+function batchBuildingGroup(root) {
+  if (!root) return 0;
+  var victims = [];
+  root.updateMatrixWorld(true);
+  root.traverse(function (o) {
+    if (o === root || !o.isMesh || o.isInstancedMesh) return;
+    if (Array.isArray(o.material)) return;
+    if (!o.geometry || !o.geometry.attributes.normal) return;
+    if (!canBatchMaterial(o.material)) return;
+    victims.push(o);
+  });
+  if (victims.length < 2) return 0;
+
+  var invRoot = _bm4A.copy(root.matrixWorld).invert();
+  var buckets = {}, keys = [];
+  victims.forEach(function (o) {
+    var k = materialSignature(o.material);
+    if (!buckets[k]) { buckets[k] = { mat: o.material, items: [] }; keys.push(k); }
+    buckets[k].items.push(o);
+  });
+
+  var saved = 0;
+  keys.forEach(function (k) {
+    var b = buckets[k];
+    if (b.items.length < 2) return;
+    var geos = [], cast = false, recv = false;
+    for (var i = 0; i < b.items.length; i++) {
+      geos.push(relativeGeometry(root, invRoot, b.items[i]));
+      if (b.items[i].castShadow) cast = true;
+      if (b.items[i].receiveShadow) recv = true;
+    }
+    var merged = mergeSimpleGeometries(geos);
+    if (!merged) return;
+    var mesh = new THREE.Mesh(merged, b.mat);
+    mesh.name = 'batched';
+    mesh.castShadow = cast;
+    mesh.receiveShadow = recv;
+    mesh.userData.bid = b.items[0].userData.bid;
+    mesh.userData.cat = b.items[0].userData.cat;
+    root.add(mesh);
+    for (var j = 0; j < b.items.length; j++) {
+      if (b.items[j].parent) b.items[j].parent.remove(b.items[j]);
+    }
+    saved += b.items.length - 1;
+  });
+  return saved;
 }
 
 /* ---------------- 原生 Web Audio 交互音效 ---------------- */
@@ -358,7 +586,8 @@ function facadeTextures(wallHex, floors, cols) {
   var tNight = new THREE.CanvasTexture(night);
   var tPhys = new THREE.CanvasTexture(phys);
   tDay.wrapS = tNight.wrapS = tPhys.wrapS = THREE.RepeatWrapping;
-  tDay.anisotropy = tNight.anisotropy = tPhys.anisotropy = 4;
+  var aniso = maxAniso();
+  tDay.anisotropy = tNight.anisotropy = tPhys.anisotropy = aniso;
   tDay._cached = tNight._cached = tPhys._cached = true;
   return (texCache[key] = { day: tDay, night: tNight, phys: tPhys });
 }
@@ -379,7 +608,7 @@ function grassTexture(hexColor) {
   }
   var tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(120, 120);
+  tex.repeat.set(180, 180);
   if (typeof THREE.SRGBColorSpace !== 'undefined') tex.colorSpace = THREE.SRGBColorSpace;
   tex._cached = true;
   texCache['grass_'+hexColor] = tex;
@@ -523,7 +752,8 @@ function makeLabel(text, catColor, ls, priority) {
   g.fillStyle = catColor || '#ffd54d';
   g.beginPath(); g.arc(24, c.height / 2, 9, 0, Math.PI * 2); g.fill();
   var t = new THREE.CanvasTexture(c);
-  t._cached = true;
+  // 标签贴图随校区销毁释放（不进全局缓存），避免反复切换校区时显存持续增长
+  t._cached = false;
   var m = new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true });
   var s = new THREE.Sprite(m);
   var k = 0.30 * ls;
@@ -555,7 +785,7 @@ function photoTexture(url, onReady) {
   if (photoCache[url]) { if (photoCache[url].image) onReady(photoCache[url]); return; }
   photoCache[url] = null; // 占位，防止重复加载
   photoLoader.load(url, function (tex) {
-    tex.anisotropy = 4;
+    tex.anisotropy = maxAniso();
     tex._cached = true;
     photoCache[url] = tex;
     onReady(tex);
@@ -3002,11 +3232,21 @@ function buildGuideRoutes(campus) {
  * ============================================================ */
 function initScene() {
   var canvas = $('c3d');
-  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, preserveDrawingBuffer: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // 设备分级：移动端 / 低核设备关闭 MSAA、压低像素比与阴影档位，换取稳定帧率
+  var isMobileUA = /Android|iPhone|iPad|iPod|Mobile|HarmonyOS/i.test(navigator.userAgent);
+  var isLowEnd = isMobileUA || (navigator.hardwareConcurrency || 8) <= 4;
+  window.__ccutLowEnd = isLowEnd;
+  renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: !isLowEnd,
+    // 截图改为「同帧渲染后立即读取」，不再长期驻留后台缓冲（preserveDrawingBuffer 会显著拖慢每一帧）
+    preserveDrawingBuffer: false,
+    powerPreference: 'high-performance'
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLowEnd ? 1.5 : 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = isLowEnd ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
   // 物理渲染优化
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -3067,7 +3307,8 @@ function initScene() {
   dirLight = new THREE.DirectionalLight(0xfff2dd, 1.05);
   dirLight.position.set(-420, 620, 360);
   dirLight.castShadow = true;
-  dirLight.shadow.mapSize.set(2048, 2048);
+  var shadowRes = window.__ccutLowEnd ? 1024 : 2048;
+  dirLight.shadow.mapSize.set(shadowRes, shadowRes);
   var sc = dirLight.shadow.camera;
   sc.left = -900; sc.right = 900; sc.top = 900; sc.bottom = -900; sc.near = 50; sc.far = 2300;
   dirLight.shadow.bias = -0.0006;
@@ -3168,7 +3409,8 @@ function clearCampus() {
   if (campusGroup) {
     scene.remove(campusGroup);
     campusGroup.traverse(function (o) {
-      if (o.geometry && !o.geometry._shared) o.geometry.dispose();
+      // Sprite 共用 three 内部同一份几何体，绝不能 dispose，否则全部标签失效
+      if (o.geometry && !o.geometry._shared && !o.isSprite) o.geometry.dispose();
       var mats = Array.isArray(o.material) ? o.material : (o.material ? [o.material] : []);
       mats.forEach(function (m) {
         if (m._shared) return;
@@ -3427,6 +3669,57 @@ function buildCampus(campus) {
   if (scene) scene.add(cloudGroup);
 
   campusGroup.add(labelGroup);
+
+  /* ---- 静态合批：压缩 draw call（道路 / 草地斑块 / 霓虹描边 / 建筑同材质零件） ---- */
+  var batchStat = { saved: 0 };
+  try {
+    campusGroup.updateMatrixWorld(true);
+
+    // 1) 道路分段一次性合并为单张网格（原为数百个独立 Mesh）
+    var roadMeshes = campusGroup.children.filter(function (c) { return c.name === 'road' && c.isMesh; });
+    if (mergeMeshList(campusGroup, roadMeshes, getSharedRoadMaterial(), 'road')) {
+      batchStat.saved += roadMeshes.length - 1;
+    }
+
+    // 2) 草地斑块合并（季节着色仍作用于合并后的单个对象）
+    var patches = campusGroup.children.filter(function (c) { return c.name === 'ground_patch' && c.isMesh; });
+    if (patches.length > 1) {
+      if (mergeMeshList(campusGroup, patches, patches[0].material, 'ground_patch')) {
+        batchStat.saved += patches.length - 1;
+      }
+    }
+
+    // 3) 夜景霓虹描边合并为一条线段对象
+    var neonMat = getSharedNeonMaterial();
+    var neonList = [];
+    campusGroup.traverse(function (o) {
+      if (o.isLineSegments && o.material === neonMat) neonList.push(o);
+    });
+    if (mergeLineSegmentsList(campusGroup, neonList, neonMat, 'neonEdges')) {
+      batchStat.saved += neonList.length - 1;
+    }
+
+    // 4) 每栋建筑内部按「完全同外观材质」合批
+    campusGroup.children.forEach(function (c) {
+      if (c.userData && c.userData.bid) batchStat.saved += batchBuildingGroup(c);
+    });
+  } catch (e) {
+    console.warn('静态合批跳过：', e);
+  }
+  window.__batchStat = batchStat;
+
+  /* ---- 拾取加速：预计算每栋楼的包围球，点击/悬停先做射线-球粗筛 ---- */
+  try {
+    campusGroup.updateMatrixWorld(true);
+    pickables.forEach(function (grp) {
+      var box = new THREE.Box3().setFromObject(grp);
+      grp.userData.bs = new THREE.Sphere(
+        box.getCenter(new THREE.Vector3()),
+        box.getSize(new THREE.Vector3()).length() * 0.5 + 2
+      );
+    });
+  } catch (e) { /* 包围球失败时自动退回全量射线检测 */ }
+
   if (scene) scene.add(campusGroup);
 
   var cam = campus.camera;
@@ -3610,16 +3903,70 @@ function pickAt(clientX, clientY) {
   pointer.x = (clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
-  var hits = raycaster.intersectObjects(pickables, true);
-  for (var i = 0; i < hits.length; i++) {
-    var bid = hits[i].object.userData.bid;
+  // 包围球粗筛：先剔除射线打不中的楼，再做精确网格求交
+  var cands = null;
+  for (var i = 0; i < pickables.length; i++) {
+    var bs = pickables[i] && pickables[i].userData.bs;
+    if (!bs || raycaster.ray.intersectsSphere(bs)) {
+      if (!cands) cands = [];
+      cands.push(pickables[i]);
+    }
+  }
+  if (cands === null) cands = pickables;
+  if (!cands.length) return null;
+  var hits = raycaster.intersectObjects(cands, true);
+  for (var j = 0; j < hits.length; j++) {
+    var bid = hits[j].object.userData.bid;
     if (bid) return findBuilding(bid);
   }
   return null;
 }
 
-function findBuilding(bid) {
-  if (!bid) return null;
+/* ---------------- 悬停浮签与性能面板 ---------------- */
+var hoverTip = null, hoverTipOn = false;
+function ensureHoverTip() {
+  if (hoverTip) return hoverTip;
+  hoverTip = document.createElement('div');
+  hoverTip.style.cssText = 'position:fixed;z-index:70;pointer-events:none;display:none;' +
+    'background:rgba(6,14,26,.86);color:#f2f7fd;font:600 12px/1.5 "Microsoft YaHei",sans-serif;' +
+    'padding:5px 10px;border-radius:9px;border:1px solid rgba(255,213,77,.45);' +
+    'box-shadow:0 6px 18px rgba(0,0,0,.35);white-space:nowrap;backdrop-filter:blur(6px);';
+  document.body.appendChild(hoverTip);
+  return hoverTip;
+}
+function showHoverTip(x, y, text) {
+  var el = ensureHoverTip();
+  el.textContent = text;
+  el.style.display = 'block';
+  var w = el.offsetWidth || 120;
+  el.style.left = Math.min(x + 14, window.innerWidth - w - 10) + 'px';
+  el.style.top = (y + 16) + 'px';
+}
+function hideHoverTip() {
+  if (hoverTip && hoverTip.style.display !== 'none') hoverTip.style.display = 'none';
+}
+
+var perfHud = null, perfHudOn = false, _fpsFrames = 0, _fpsLast = 0;
+function ensurePerfHud() {
+  if (perfHud) return perfHud;
+  perfHud = document.createElement('div');
+  perfHud.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:70;display:none;' +
+    'background:rgba(6,14,26,.80);color:#cfe0f2;font:11px/1.7 Consolas,Menlo,monospace;' +
+    'padding:6px 11px;border-radius:10px;pointer-events:none;white-space:pre;' +
+    'border:1px solid rgba(157,184,214,.25);backdrop-filter:blur(6px);';
+  document.body.appendChild(perfHud);
+  return perfHud;
+}
+function togglePerfHud(force) {
+  perfHudOn = (force !== undefined) ? !!force : !perfHudOn;
+  var el = ensurePerfHud();
+  el.style.display = perfHudOn ? 'block' : 'none';
+  _fpsFrames = 0;
+  _fpsLast = performance.now();
+  showToast(perfHudOn ? '📊 性能面板已开启（帧率 / DrawCall / 显存）' : '📊 性能面板已关闭');
+}
+
+function findBuilding(bid) {  if (!bid) return null;
   for (var i = 0; i < buildingEntries.length; i++) {
     if (buildingEntries[i].id === bid) return { bid: bid, data: buildingEntries[i].data };
   }
@@ -4856,12 +5203,25 @@ function initUI() {
 
   var hoverTimer = 0;
   renderer.domElement.addEventListener('pointermove', function (e) {
-    if (e.buttons || isGameMode) return;
+    if (e.buttons || isGameMode) { hideHoverTip(); return; }
     var now = performance.now();
     if (now - hoverTimer < 60) return;
     hoverTimer = now;
     var hit = pickAt(e.clientX, e.clientY);
     renderer.domElement.style.cursor = hit ? 'pointer' : '';
+    if (hit && hit.data && hit.data.name) {
+      showHoverTip(e.clientX, e.clientY, hit.data.name);
+    } else {
+      hideHoverTip();
+    }
+  });
+  renderer.domElement.addEventListener('pointerleave', hideHoverTip);
+
+  // 双击建筑直接镜头聚焦
+  renderer.domElement.addEventListener('dblclick', function (e) {
+    if (isGameMode) return;
+    var hit = pickAt(e.clientX, e.clientY);
+    if (hit) selectBuilding(hit, true);
   });
 
   // 全局键盘快捷键
@@ -4894,6 +5254,7 @@ function initUI() {
     if (k === '1') { switchCampus('beiHu'); }
     else if (k === '2') { switchCampus('nanHu'); }
     else if (k === 'v') { toggleGameMode(); }
+    else if (k === 'p') { togglePerfHud(); }
     else if (k === 'm') { toggleSatellite(); }
     else if (k === 'w') { toggleWeather(); }
     else if (k === 'f') { toggleFullscreen(); }
@@ -5309,6 +5670,22 @@ function animate() {
   } else {
     renderer.render(scene, camera);
   }
+
+  // 性能面板（P 键开关）
+  if (perfHudOn && perfHud) {
+    _fpsFrames++;
+    if (now - _fpsLast >= 500) {
+      var fps = Math.round(_fpsFrames * 1000 / (now - _fpsLast));
+      _fpsFrames = 0; _fpsLast = now;
+      var inf = renderer.info;
+      perfHud.textContent =
+        'FPS ' + fps +
+        '\nDrawCalls ' + inf.render.calls +
+        '\nTriangles ' + (inf.render.triangles / 1000).toFixed(1) + 'k' +
+        '\nGeometries ' + inf.memory.geometries +
+        '\nTextures ' + inf.memory.textures;
+    }
+  }
 }
 
 /* ============================================================
@@ -5370,6 +5747,19 @@ function boot() {
     }
 
     buildCampus(CAMPUSES[currentKey]);
+
+    // 开场镜头：高空缓降入场（带直达链接/漫游参数时不抢镜头）
+    if (!bidParam) {
+      try {
+        var camCfg = CAMPUSES[currentKey].camera;
+        var endPos = new THREE.Vector3(camCfg.pos[0], camCfg.pos[1], camCfg.pos[2]);
+        var endTgt = new THREE.Vector3(camCfg.target[0], camCfg.target[1], camCfg.target[2]);
+        camera.position.set(endPos.x * 0.52, endPos.y + 460, endPos.z * 0.6);
+        controls.target.copy(endTgt);
+        camera.lookAt(endTgt);
+        startFly(endPos, endTgt, 2000);
+      } catch (e) { /* 入场动画失败不影响正常使用 */ }
+    }
 
     if (timeParam && (timeParam === 'sunset' || timeParam === 'night')) {
       applyTimeMode(timeParam);

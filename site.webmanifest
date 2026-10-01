@@ -1,0 +1,22 @@
+{
+  "name": "戴璇 · Dai Xuan 个人数字门户",
+  "short_name": "戴璇",
+  "description": "长春工业大学应用统计硕士在读，工业工程与统计建模复合背景，专注数据分析与 Web 3D 可视化。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "theme_color": "#0a0e17",
+  "background_color": "#0a0e17",
+  "categories": ["portfolio", "education", "technology"],
+  "icons": [
+    {
+      "src": "/assets/images/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

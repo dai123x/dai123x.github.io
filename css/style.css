@@ -290,7 +290,7 @@ body {
 }
 
 .hero-title {
-  font-size: 3.2rem;
+  font-size: clamp(2.2rem, 5.4vw, 3.3rem); /* 流体排版，各尺寸都舒适 */
   line-height: 1.18;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -460,7 +460,7 @@ body {
 }
 
 .section-title {
-  font-size: 2.3rem;
+  font-size: clamp(1.8rem, 3.8vw, 2.35rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 14px;
@@ -1107,10 +1107,243 @@ body {
   font-size: 1.2rem;
 }
 
+/* ==========================================================================
+   体验增强层：焦点可见 / 跳转链接 / 进度条 / 入场动画 / 微交互
+   ========================================================================== */
+
+/* 键盘焦点可见（鼠标点击不显示，键盘 Tab 才显示） */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+/* 无障碍跳转到主内容 */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 24px;
+  z-index: 999;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 12px 20px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  text-decoration: none;
+  transition: top 0.25s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* 顶部阅读进度条 */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 120;
+  background: transparent;
+  pointer-events: none;
+}
+
+.scroll-progress span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 12px var(--accent-glow);
+  transform-origin: left center;
+  transition: width 0.08s linear;
+}
+
+/* 导航滚动后强化背景 */
+.navbar.scrolled {
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.45);
+  border-bottom-color: var(--border-hover);
+}
+
+/* 滚动入场动画（仅在 JS 可用时隐藏初始状态，保证降级安全） */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+html.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* 项目筛选：用 class 驱动，动画与布局解耦 */
+.project-card {
+  transition: var(--transition), opacity 0.35s ease;
+}
+
+.project-card.is-hidden {
+  display: none;
+}
+
+.project-card.is-fading {
+  opacity: 0;
+}
+
+/* 卡片顶部渐变高光（hover 时点亮，提升质感） */
+.bento-card::after,
+.edu-card::after,
+.project-card .project-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.bento-card::after,
+.edu-card::after {
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%),
+              rgba(99, 102, 241, 0.12), transparent 60%);
+}
+
+.bento-card:hover::after,
+.edu-card:hover::after {
+  opacity: 1;
+}
+
+/* 卡片主色描边微光 */
+.bento-card:hover,
+.edu-card:hover,
+.internship-card:hover,
+.award-card:hover {
+  box-shadow: var(--card-shadow), 0 0 0 1px var(--border-hover);
+}
+
+/* 章节分隔更柔和的呼吸感 */
+.section {
+  scroll-margin-top: 88px;
+}
+
+/* 美化滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+html {
+  scrollbar-color: var(--bg-tertiary) var(--bg-primary);
+  scrollbar-width: thin;
+}
+
+/* 打字机容器：固定高度并保留光标位，避免文字长度变化引起布局抖动 (CLS) */
+#typing-role {
+  display: inline-block;
+  min-height: 1.25em;
+  border-right: 2px solid var(--accent-primary);
+  padding-right: 4px;
+  animation: caretBlink 1.1s step-end infinite;
+}
+
+@keyframes caretBlink {
+  0%, 100% { border-right-color: var(--accent-primary); }
+  50% { border-right-color: transparent; }
+}
+
+/* 尊重系统「减弱动效」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  html.js .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .ambient-orb {
+    display: none;
+  }
+}
+
+/* 移动端：更大触摸目标 + 菜单遮罩 */
+@media (max-width: 768px) {
+  .nav-link {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+
+  .nav-menu.active {
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  .hero-section {
+    padding: 120px 0 70px;
+    min-height: auto;
+  }
+
+  .section {
+    padding: 64px 0;
+  }
+
+  .section-title {
+    font-size: 1.85rem;
+  }
+
+  .contact-box {
+    padding: 32px 20px;
+  }
+
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+/* 移动端菜单打开时锁定页面滚动 */
+body.nav-open {
+  overflow: hidden;
+}
+
 /* Responsive Media Queries */
 @media (max-width: 1024px) {
   .hero-title {
-    font-size: 2.7rem;
+    font-size: clamp(2rem, 5.2vw, 2.7rem);
   }
   .bento-grid {
     grid-template-columns: repeat(2, 1fr);
