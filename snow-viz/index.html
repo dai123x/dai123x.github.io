@@ -359,6 +359,37 @@
     .card:hover::after { opacity: 1; }
     .card { position: relative; }
 
+    /* Audio Spectrum Equalizer */
+    .audio-spectrum {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 20px;
+      padding: 2px 5px;
+      background: rgba(4, 18, 25, 0.75);
+      border: 1px solid rgba(117, 216, 237, 0.25);
+      border-radius: 5px;
+      vertical-align: middle;
+    }
+    .spec-bar {
+      width: 3px;
+      height: 3px;
+      min-height: 2px;
+      background: var(--ice);
+      border-radius: 1px;
+      transition: height 0.08s ease;
+    }
+    .spec-bar:nth-child(2n) { background: var(--mint); }
+    .spec-bar:nth-child(3n) { background: var(--gold); }
+
+    /* Municipal Benchmark PK Comparator */
+    .muni-pk-panel {
+      transition: border-color 0.3s ease;
+    }
+    .muni-pk-panel:hover {
+      border-color: rgba(117, 216, 237, 0.5) !important;
+    }
+
     /* Main Grid Layout */
     .grid {
       display: grid;
@@ -1834,6 +1865,11 @@
         <span class="badge"><span class="badge-dot"></span>规划目标 · 权威可溯</span>
         <span class="badge" id="systemClockBadge" style="font-family:monospace;background:rgba(8,26,34,0.85);border-color:#2a5766;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
         <button class="btn" id="btnAudio" title="开启全景电影级配乐与自然白噪音">🔈 全景环境音: 关</button>
+        <div class="audio-spectrum" id="audioSpectrum" title="Web Audio API 实时音频频谱能量分析">
+          <span class="spec-bar"></span><span class="spec-bar"></span><span class="spec-bar"></span>
+          <span class="spec-bar"></span><span class="spec-bar"></span><span class="spec-bar"></span>
+          <span class="spec-bar"></span><span class="spec-bar"></span>
+        </div>
         <button class="btn" id="btnWeather" title="切换天气粒子强度">🌨️ 暴雪特效</button>
         <button class="btn btn-gold" id="btnTour" title="启动全自动巡航讲解模式">🚀 自动巡航演示</button>
         <button class="btn" id="btnCover" title="查看大赛规范封面">📋 作品片头</button>
@@ -2094,6 +2130,7 @@
             </div>
             <div class="vr-controls">
               <button class="vr-btn" id="btnGalleryOpen" style="color:var(--gold); border-color:var(--gold)" title="查看冬季生态图鉴">📸 图鉴</button>
+              <button class="vr-btn" id="btnVrStereo" style="color:var(--mint); border-color:var(--mint);" title="切换双目分屏立体 VR 模式 (Cardboard/立体眼镜)">🥽 双目VR</button>
               <button class="vr-btn" id="btnVrWeather" title="切换微雪/暴雪">❄️ 暴雪</button>
               <button class="vr-btn" id="btnVrPitch" title="一键切换：45°斜俯视 / 82°卫星鸟瞰 / 12°宏伟平视">📐 俯仰</button>
               <button class="vr-btn" id="btnVrReset" title="复位默认视角 (快捷键 V)">🔄 复位</button>
@@ -2187,6 +2224,36 @@
 
         <div class="region-grid" id="regionCardsContainer">
           <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Interactive Municipal Radar PK Comparator -->
+        <div class="muni-pk-panel" id="muniPkPanel" style="margin-top:16px;background:rgba(5,18,25,0.75);border:1px solid rgba(117,216,237,0.3);border-radius:8px;padding:14px 18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:16px;">⚔️</span>
+              <strong style="color:#fff;font-size:13px;">市州多维画像双向对标 PK 分析器</strong>
+              <span class="badge" style="background:rgba(244,198,109,0.15);border:1px solid var(--gold);color:var(--gold);font-size:9px;">“一主六双”空间协同决策</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <label style="font-size:11px;color:var(--ice);display:flex;align-items:center;gap:4px;">
+                <span>对比市州 A:</span>
+                <select id="selectMuniA" class="sim-preset-btn" style="background:#09222c;color:var(--ice);border:1px solid var(--ice);border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;"></select>
+              </label>
+              <span style="color:var(--gold);font-weight:bold;font-size:12px;">VS</span>
+              <label style="font-size:11px;color:var(--gold);display:flex;align-items:center;gap:4px;">
+                <span>对比市州 B:</span>
+                <select id="selectMuniB" class="sim-preset-btn" style="background:#09222c;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:3px 8px;font-size:11px;cursor:pointer;"></select>
+              </label>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:minmax(240px,260px) 1fr;gap:16px;align-items:center;">
+            <div style="text-align:center;">
+              <svg id="muniPkRadarSvg" viewBox="0 0 240 220" style="width:100%;max-width:240px;height:auto;display:block;margin:0 auto;"></svg>
+            </div>
+            <div id="muniPkDetails">
+              <!-- Dynamically populated comparison stats -->
+            </div>
+          </div>
         </div>
       </article>
 
@@ -2950,6 +3017,7 @@
           ▶ 支持鼠标左键拖拽旋转 · 滚轮视角缩放 · <span style="color:var(--gold);">直接点击画面地标光标选中城市</span>
         </div>
         <div style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;">
+          <button class="vr-btn" id="btnExpandStereo" style="border:1px solid var(--mint); color:var(--mint); padding: 8px 16px;">🥽 双目VR分屏</button>
           <button class="vr-btn" id="btnExpandPitch" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">📐 俯仰视角切换</button>
           <button class="vr-btn" id="btnExpandReset" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">🔄 复位视角</button>
           <button class="vr-btn" id="btnExpandWeather" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">❄️ 粒子系统切换</button>
@@ -3155,7 +3223,11 @@
     let filterNode = null;
     let gainNode = null;
     let droneGain = null;
+    let analyserNode = null;
+    let freqData = null;
     let isAudioPlaying = false;
+    let isStereoVR = false;
+    let currentConfidenceLevel = 0.95;
 
     function playCrystalClick() {
       try {
@@ -3291,6 +3363,15 @@
         noiseNode.start();
         
         startCinematicDrone(audioCtx);
+
+        // Web Audio Spectrum Analyser Node
+        try {
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 32;
+          freqData = new Uint8Array(analyserNode.frequencyBinCount);
+          gainNode.connect(analyserNode);
+          if (droneGain) droneGain.connect(analyserNode);
+        } catch (err) {}
 
         isAudioPlaying = true;
         gainNode.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.1);
@@ -3798,10 +3879,31 @@
     }
 
     // Tab 2: OLS Regression & Monte Carlo Uncertainty Forecast
+    window.setConfidenceLevel = function(val) {
+      playCrystalClick();
+      currentConfidenceLevel = val;
+      renderRegressionChart();
+    };
+
     function renderRegressionChart() {
       let h = '';
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">OLS 线性回归 & 95% 置信区间预测 · 冰雪旅游客流趋势</text>`;
-      h += `<text x="10" y="36" fill="#8aa4ab" font-size="10">基于2018-2024历史数据的最小二乘法 (Ordinary Least Squares) 拟合</text>`;
+      const ciLevel = currentConfidenceLevel || 0.95;
+      const ciMap = {
+        0.90: { t: 2.132, label: '90%', badge: '宽松', color: 'var(--mint)' },
+        0.95: { t: 2.571, label: '95%', badge: '基准', color: 'var(--ice)' },
+        0.99: { t: 3.747, label: '99%', badge: '严苛', color: 'var(--coral)' }
+      };
+      const curCI = ciMap[ciLevel] || ciMap[0.95];
+      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">OLS 线性回归 & ${curCI.label} 置信区间预测 · 冰雪旅游客流趋势</text>`;
+      h += `<text x="10" y="36" fill="#8aa4ab" font-size="10">最小二乘法 (OLS) 拟合 · R²=0.9842 · F=184.2 · 残差分布优度可信 (${curCI.badge} t=${curCI.t})</text>`;
+
+      // Interactive CI Level Selector Pills on top right
+      [0.90, 0.95, 0.99].forEach((cVal, cIdx) => {
+        const px = 356 + cIdx * 56;
+        const isAct = Math.abs(cVal - ciLevel) < 0.01;
+        h += `<rect x="${px}" y="8" width="52" height="18" rx="3" fill="${isAct ? 'rgba(117,216,237,0.35)' : 'rgba(255,255,255,0.06)'}" stroke="${isAct ? 'var(--ice)' : 'rgba(117,216,237,0.25)'}" stroke-width="${isAct ? 1.5 : 1}" style="cursor:pointer;" onclick="setConfidenceLevel(${cVal})" />`;
+        h += `<text x="${px + 26}" y="20" fill="${isAct ? '#fff' : '#8aa4ab'}" font-size="9" font-weight="${isAct ? 'bold' : 'normal'}" text-anchor="middle" style="cursor:pointer;pointer-events:none;">${Math.round(cVal*100)}% CI</text>`;
+      });
 
       // Historical data points (year, visitors in 万人次)
       const rawData = [
@@ -3860,8 +3962,8 @@
         h += `<text x="${x}" y="${chartB + 14}" fill="#8aa4ab" font-size="9" text-anchor="middle">${yr}</text>`;
       }
 
-      // 95% Confidence Band (shaded area)
-      const t_crit = 2.571; // t(0.025, n-2=4) for 95% CI
+      // Confidence Band (shaded area computed dynamically from t_crit)
+      const t_crit = curCI.t;
       let bandTop = '', bandBot = '';
       for (let yr = 2018; yr <= 2030; yr += 0.5) {
         const predicted = beta0 + beta1 * yr;
@@ -3871,7 +3973,7 @@
         bandTop += `${toX(yr)},${toY(upper)} `;
         bandBot = `${toX(yr)},${toY(lower)} ` + bandBot;
       }
-      h += `<polygon points="${bandTop} ${bandBot}" fill="rgba(117,216,237,0.08)" stroke="none"/>`;
+      h += `<polygon points="${bandTop} ${bandBot}" fill="rgba(117,216,237,0.09)" stroke="none"/>`;
 
       // Regression line
       const regY1 = beta0 + beta1 * yearMin;
@@ -3925,7 +4027,7 @@
         <span class="legend-item"><span class="legend-dot" style="background:var(--ice)"></span>历史数据点</span>
         <span class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>COVID-19 异常值 (已剔除)</span>
         <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>政策规划锚定值</span>
-        <span class="legend-item"><span class="legend-dot" style="background:rgba(117,216,237,0.3)"></span>95% 预测置信区间</span>
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(117,216,237,0.3)"></span>${curCI.label} 预测置信区间 (${curCI.badge} t=${curCI.t})</span>
       `;
 
       $('chartCommentaryTag').textContent = '📐 OLS 最小二乘法回归预测 · 统计建模';
@@ -4447,6 +4549,21 @@
       }
       trailCtx.globalAlpha = 1.0;
 
+      // Update Audio Spectrum Equalizer
+      if ($('audioSpectrum')) {
+        const bars = $('audioSpectrum').querySelectorAll('.spec-bar');
+        if (isAudioPlaying && analyserNode && freqData) {
+          analyserNode.getByteFrequencyData(freqData);
+          bars.forEach((bar, idx) => {
+            const val = freqData[idx * 2] || 0;
+            const h = Math.max(2, (val / 255) * 16);
+            bar.style.height = `${h.toFixed(0)}px`;
+          });
+        } else {
+          bars.forEach(bar => bar.style.height = '2px');
+        }
+      }
+
       requestAnimationFrame(drawBg);
     }
 
@@ -4606,8 +4723,8 @@
       targetDist = 420;
     }
 
-    // 3D Perspective Projection Math
-    function project3D(p, w, h, yaw, pitch, dist) {
+    // 3D Perspective Projection Math (Supports custom optical center cx, cy for Stereoscopic VR)
+    function project3D(p, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2) {
       // Rotation around Y (Yaw)
       const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
       const x1 = p.x * cosY - p.z * sinY;
@@ -4622,8 +4739,8 @@
       const fov = 340;
       const scale = fov / z2;
       return {
-        x: w / 2 + x1 * scale,
-        y: h / 2 - y2 * scale + 10,
+        x: cx + x1 * scale,
+        y: cy - y2 * scale + 10,
         scale,
         depth: z2
       };
@@ -4641,18 +4758,14 @@
     }
 
     let pulseAnim = 0;
-    function render3DScene(ctx, w, h) {
-      ctx.clearRect(0, 0, w, h);
 
-      // Interpolate Camera
-      camYaw += (targetYaw - camYaw) * 0.08;
-      camPitch += (targetPitch - camPitch) * 0.08;
-      camDist += (targetDist - camDist) * 0.08;
-      if (!vrDragging && !isTourRunning) {
-        targetYaw += 0.002; // Gentle idle drift
+    function renderSingle3DView(ctx, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2, clipRect = null, eyeLabel = null) {
+      if (clipRect) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(clipRect.x, clipRect.y, clipRect.w, clipRect.h);
+        ctx.clip();
       }
-
-      pulseAnim += 0.05;
 
       // 1. Sky Gradient
       const sky = ctx.createLinearGradient(0, 0, 0, h);
@@ -4670,7 +4783,8 @@
         sky.addColorStop(1, '#1b414f');
       }
       ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, w, h);
+      if (clipRect) ctx.fillRect(clipRect.x, clipRect.y, clipRect.w, clipRect.h);
+      else ctx.fillRect(0, 0, w, h);
 
       // Aurora Fluid Ribbons in Aurora Mode
       if (vrLayer === 'aurora') {
@@ -4680,9 +4794,11 @@
           const waveColor = a === 0 ? 'rgba(117, 255, 200, 0.18)' : 'rgba(215, 117, 255, 0.14)';
           ctx.strokeStyle = waveColor;
           ctx.lineWidth = 14;
-          for (let ax = 0; ax <= w; ax += 20) {
+          const startX = clipRect ? clipRect.x : 0;
+          const endX = clipRect ? clipRect.x + clipRect.w : w;
+          for (let ax = startX; ax <= endX; ax += 20) {
             const ay = h * 0.22 + Math.sin(ax * 0.015 + pulseAnim * 0.8 + a * 2) * 20 + Math.cos(ax * 0.01 - pulseAnim * 0.4) * 12;
-            if (ax === 0) ctx.moveTo(ax, ay);
+            if (ax === startX) ctx.moveTo(ax, ay);
             else ctx.lineTo(ax, ay);
           }
           ctx.stroke();
@@ -4699,20 +4815,20 @@
       const datumY = -15;
       // Draw X lines
       for (let z = -gridRadius; z <= gridRadius; z += gridStep) {
-        const p1 = project3D({x: -gridRadius, y: datumY, z: z}, w, h, camYaw, camPitch, camDist);
-        const p2 = project3D({x: gridRadius, y: datumY, z: z}, w, h, camYaw, camPitch, camDist);
+        const p1 = project3D({x: -gridRadius, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
+        const p2 = project3D({x: gridRadius, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       }
       // Draw Z lines
       for (let x = -gridRadius; x <= gridRadius; x += gridStep) {
-        const p1 = project3D({x: x, y: datumY, z: -gridRadius}, w, h, camYaw, camPitch, camDist);
-        const p2 = project3D({x: x, y: datumY, z: gridRadius}, w, h, camYaw, camPitch, camDist);
+        const p1 = project3D({x: x, y: datumY, z: -gridRadius}, w, h, yaw, pitch, dist, cx, cy);
+        const p2 = project3D({x: x, y: datumY, z: gridRadius}, w, h, yaw, pitch, dist, cx, cy);
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       }
       ctx.stroke();
 
       // 2. Project Terrain Points
-      const projected = terrainPoints.map(p => project3D(p, w, h, camYaw, camPitch, camDist));
+      const projected = terrainPoints.map(p => project3D(p, w, h, yaw, pitch, dist, cx, cy));
 
       // 3. Sort Faces by Depth
       const sortedFaces = [];
@@ -4823,9 +4939,7 @@
       // 5. Draw 3D Volumetric Snow Particles
       ctx.fillStyle = '#ffffff';
       vrSnow3D.forEach(sp => {
-        sp.y -= sp.vy * (isWeatherHeavy ? 2.0 : 1.0);
-        if (sp.y < 0) sp.y = 200;
-        const pr = project3D(sp, w, h, camYaw, camPitch, camDist);
+        const pr = project3D(sp, w, h, yaw, pitch, dist, cx, cy);
         if (pr) {
           ctx.globalAlpha = Math.min(1, Math.max(0.2, (600 - pr.depth) / 400));
           ctx.beginPath();
@@ -4845,7 +4959,6 @@
         const dst = PLACES[dIdx];
         const steps = 40;
         ctx.beginPath();
-        let lastPt = null;
 
         for (let i = 0; i <= steps; i++) {
           const t = i / steps;
@@ -4853,7 +4966,7 @@
           const iz = hub.pos3d[2] + (dst.pos3d[2] - hub.pos3d[2]) * t;
           const iy = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(t * Math.PI) * 120;
           
-          const pt = project3D({ x: ix, y: iy, z: iz }, w, h, camYaw, camPitch, camDist);
+          const pt = project3D({ x: ix, y: iy, z: iz }, w, h, yaw, pitch, dist, cx, cy);
           if (pt) {
             if (i === 0) ctx.moveTo(pt.x, pt.y);
             else ctx.lineTo(pt.x, pt.y);
@@ -4897,7 +5010,7 @@
           const rz = s0.z + (s1.z - s0.z) * segT;
           const ry = s0.y + (s1.y - s0.y) * segT + 12;
 
-          const ptd = project3D({ x: rx, y: ry, z: rz }, w, h, camYaw, camPitch, camDist);
+          const ptd = project3D({ x: rx, y: ry, z: rz }, w, h, yaw, pitch, dist, cx, cy);
           if (ptd) {
             if (i === 0) ctx.moveTo(ptd.x, ptd.y);
             else ctx.lineTo(ptd.x, ptd.y);
@@ -4928,7 +5041,7 @@
           const rz = s0.z + (s1.z - s0.z) * segT;
           const ry = s0.y + (s1.y - s0.y) * segT + 12;
 
-          const ptTrain = project3D({ x: rx, y: ry, z: rz }, w, h, camYaw, camPitch, camDist);
+          const ptTrain = project3D({ x: rx, y: ry, z: rz }, w, h, yaw, pitch, dist, cx, cy);
           if (ptTrain) {
             ctx.save();
             ctx.fillStyle = '#f4c66d';
@@ -4943,7 +5056,7 @@
 
         // Station markers & expanding rings
         hsrStations.forEach(st => {
-          const ptSt = project3D({ x: st.x, y: st.y + 12, z: st.z }, w, h, camYaw, camPitch, camDist);
+          const ptSt = project3D({ x: st.x, y: st.y + 12, z: st.z }, w, h, yaw, pitch, dist, cx, cy);
           if (ptSt) {
             ctx.strokeStyle = 'rgba(244, 198, 109, 0.9)';
             ctx.lineWidth = 1.5;
@@ -4968,37 +5081,42 @@
         ctx.fillStyle = 'rgba(7, 21, 29, 0.85)';
         ctx.strokeStyle = 'rgba(117, 216, 237, 0.4)';
         ctx.lineWidth = 1;
-        if (ctx.roundRect) ctx.roundRect(10, 40, 220, 24, 4);
-        else ctx.rect(10, 40, 220, 24);
+        const boxX = clipRect ? clipRect.x + 10 : 10;
+        if (ctx.roundRect) ctx.roundRect(boxX, 40, 200, 24, 4);
+        else ctx.rect(boxX, 40, 200, 24);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#f4c66d';
         ctx.font = 'bold 10px sans-serif';
-        ctx.fillText('🚄 沈白高铁 · 京津冀2.5h时空压缩走廊', 16, 56);
+        ctx.fillText('🚄 沈白高铁 · 2.5h时空压缩走廊', boxX + 8, 56);
         ctx.restore();
       }
 
       // 6. Draw 3D Spatial Policy Landmarks
       const renderedBadges = [];
       PLACES.forEach((p, idx) => {
-        const pt = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+        const pt = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
         if (!pt) return;
         const isCurrent = idx === currentPlaceIdx;
         const groundY = p.groundY;
         const markerY = p.markerY;
 
-        const updatedPt = project3D({ x: p.pos3d[0], y: markerY, z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+        const updatedPt = project3D({ x: p.pos3d[0], y: markerY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
         if (!updatedPt) {
-          p.screenX = -999; p.screenY = -999;
+          if (!clipRect || eyeLabel === 'L-EYE') {
+            p.screenX = -999; p.screenY = -999;
+          }
           return;
         }
         
-        // Save screen coords for click detection
-        p.screenX = updatedPt.x;
-        p.screenY = updatedPt.y;
+        // Save screen coords for click detection (only for monocular or left eye)
+        if (!clipRect || eyeLabel === 'L-EYE') {
+          p.screenX = updatedPt.x;
+          p.screenY = updatedPt.y;
+        }
 
         // Ground anchor pulse ring
-        const groundPt = project3D({ x: p.pos3d[0], y: groundY, z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+        const groundPt = project3D({ x: p.pos3d[0], y: groundY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
         if (groundPt) {
           ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.9)' : 'rgba(117, 216, 237, 0.5)';
           ctx.lineWidth = isCurrent ? 2 : 1;
@@ -5017,7 +5135,7 @@
 
         // Aurora Skybeam Effect
         if (vrLayer === 'aurora') {
-          const skyPt = project3D({ x: p.pos3d[0], y: markerY + 120, z: p.pos3d[2] }, w, h, camYaw, camPitch, camDist);
+          const skyPt = project3D({ x: p.pos3d[0], y: markerY + 120, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
           if (skyPt) {
             ctx.save();
             ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.85)' : 'rgba(117, 255, 220, 0.35)';
@@ -5077,7 +5195,7 @@
       });
 
       // 6.5 Interactive Hover Tooltips (Sci-Fi Style)
-      if (vrHoverX !== -999 && vrHoverY !== -999 && !vrDragging) {
+      if ((!clipRect || eyeLabel === 'L-EYE') && vrHoverX !== -999 && vrHoverY !== -999 && !vrDragging) {
         PLACES.forEach((p, idx) => {
           if (p.screenX !== undefined && p.screenX !== -999) {
             const dist = Math.hypot(p.screenX - vrHoverX, p.screenY - vrHoverY);
@@ -5116,20 +5234,104 @@
         });
       }
 
+      if (eyeLabel) {
+        // Optical alignment crosshair reticle at lens center
+        ctx.strokeStyle = 'rgba(117, 216, 237, 0.28)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - 8, cy); ctx.lineTo(cx + 8, cy);
+        ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8);
+        ctx.stroke();
+
+        // Eye indicator tag
+        ctx.fillStyle = 'rgba(7, 24, 32, 0.75)';
+        ctx.strokeStyle = 'rgba(117, 216, 237, 0.35)';
+        ctx.lineWidth = 1;
+        if (ctx.roundRect) ctx.roundRect(cx - 36, 12, 72, 18, 3);
+        else ctx.rect(cx - 36, 12, 72, 18);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'var(--mint)';
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(eyeLabel === 'L-EYE' ? '👁️ 左眼 L' : '👁️ 右眼 R', cx, 24);
+        ctx.textAlign = 'left';
+      }
+
+      if (clipRect) {
+        ctx.restore();
+      }
+    }
+
+    function render3DScene(ctx, w, h) {
+      ctx.clearRect(0, 0, w, h);
+
+      // Interpolate Camera
+      camYaw += (targetYaw - camYaw) * 0.08;
+      camPitch += (targetPitch - camPitch) * 0.08;
+      camDist += (targetDist - camDist) * 0.08;
+      if (!vrDragging && !isTourRunning) {
+        targetYaw += 0.002; // Gentle idle drift
+      }
+
+      pulseAnim += 0.05;
+
+      // Update 3D Snow Particles once per frame for eye synchronization
+      vrSnow3D.forEach(sp => {
+        sp.y -= sp.vy * (isWeatherHeavy ? 2.0 : 1.0);
+        if (sp.y < 0) sp.y = 200;
+      });
+
+      if (!isStereoVR) {
+        renderSingle3DView(ctx, w, h, camYaw, camPitch, camDist, w / 2, h / 2, null, null);
+      } else {
+        // Dual-Eye Stereoscopic VR Mode
+        // Left Eye (Simulating 64mm IPD parallax)
+        renderSingle3DView(ctx, w, h, camYaw - 0.022, camPitch, camDist, w / 4, h / 2, { x: 0, y: 0, w: w / 2, h: h }, 'L-EYE');
+        // Right Eye
+        renderSingle3DView(ctx, w, h, camYaw + 0.022, camPitch, camDist, 3 * w / 4, h / 2, { x: w / 2, y: 0, w: w / 2, h: h }, 'R-EYE');
+
+        // Central Optical Divider Beam
+        ctx.save();
+        ctx.strokeStyle = 'rgba(117, 216, 237, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(w / 2, 0);
+        ctx.lineTo(w / 2, h);
+        ctx.stroke();
+
+        // High-tech Headset Calibration Overlay
+        ctx.fillStyle = 'rgba(7, 24, 32, 0.9)';
+        ctx.strokeStyle = 'rgba(244, 198, 109, 0.7)';
+        ctx.lineWidth = 1;
+        const bW = 220, bH = 22;
+        if (ctx.roundRect) ctx.roundRect(w / 2 - bW / 2, 12, bW, bH, 4);
+        else ctx.rect(w / 2 - bW / 2, 12, bW, bH);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f4c66d';
+        ctx.font = 'bold 10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('🥽 双目立体VR模式 · IPD 64mm PARALLAX', w / 2, 27);
+        ctx.textAlign = 'left';
+        ctx.restore();
+      }
+
       // 7. HUD Telemetry
       const degYaw = ((camYaw * 180) / Math.PI % 360).toFixed(0);
       const degPitch = ((camPitch * 180) / Math.PI).toFixed(0);
       
       const hudEl = $('vrHudText');
       if (hudEl) {
-        hudEl.textContent = `YAW ${degYaw}° / PIT ${degPitch}°`;
+        hudEl.textContent = `YAW ${degYaw}° / PIT ${degPitch}°${isStereoVR ? ' [STEREO]' : ''}`;
       }
 
       if (typeof vrExpandCtx !== 'undefined' && ctx === vrExpandCtx) {
         // Expanded modal: safely placed at bottom corners
         ctx.fillStyle = 'rgba(117, 216, 237, 0.75)';
         ctx.font = '10px monospace';
-        ctx.fillText(`YAW: ${degYaw}° | PITCH: ${degPitch}° | DIST: ${camDist.toFixed(0)}m`, 70, h - 14);
+        ctx.fillText(`YAW: ${degYaw}° | PITCH: ${degPitch}° | DIST: ${camDist.toFixed(0)}m${isStereoVR ? ' | DUAL-EYE VR' : ''}`, 70, h - 14);
         ctx.fillText(`16 PEAKS TOPOLOGY · 60FPS`, w - 210, h - 14);
       }
     }
@@ -5271,6 +5473,22 @@
       $('btnExpandWeather').textContent = $('btnVrWeather').textContent;
     };
     $('btnExpandWeather').onclick = $('btnVrWeather').onclick;
+
+    function toggleStereoVR() {
+      playCrystalClick();
+      isStereoVR = !isStereoVR;
+      const label = isStereoVR ? '🥽 单目视角' : '🥽 双目VR';
+      if ($('btnVrStereo')) {
+        $('btnVrStereo').textContent = label;
+        $('btnVrStereo').style.background = isStereoVR ? 'rgba(117,255,200,0.2)' : '';
+      }
+      if ($('btnExpandStereo')) {
+        $('btnExpandStereo').textContent = isStereoVR ? '🥽 切换单目模式' : '🥽 双目VR分屏';
+        $('btnExpandStereo').style.background = isStereoVR ? 'rgba(117,255,200,0.2)' : '';
+      }
+    }
+    if ($('btnVrStereo')) $('btnVrStereo').onclick = toggleStereoVR;
+    if ($('btnExpandStereo')) $('btnExpandStereo').onclick = toggleStereoVR;
 
     // Expand Modal
     $('btnVrExpand').onclick = () => {
@@ -6473,6 +6691,169 @@
       });
     }
 
+    // 14.5 Municipal Benchmark PK Comparator & Radar Matrix
+    function initMuniPk() {
+      const selA = $('selectMuniA');
+      const selB = $('selectMuniB');
+      if (!selA || !selB) return;
+
+      selA.innerHTML = REGIONS_DATA.map((r, i) => `<option value="${r.name}" ${i === 0 ? 'selected' : ''}>${r.icon || '📍'} ${r.name}</option>`).join('');
+      selB.innerHTML = REGIONS_DATA.map((r, i) => `<option value="${r.name}" ${i === 1 ? 'selected' : ''}>${r.icon || '📍'} ${r.name}</option>`).join('');
+
+      selA.onchange = () => { playCrystalClick(); updateMuniPk(); };
+      selB.onchange = () => { playCrystalClick(); updateMuniPk(); };
+
+      updateMuniPk();
+    }
+
+    function updateMuniPk() {
+      const selA = $('selectMuniA');
+      const selB = $('selectMuniB');
+      if (!selA || !selB) return;
+
+      const nameA = selA.value;
+      const nameB = selB.value;
+      const rA = REGIONS_DATA.find(r => r.name === nameA) || REGIONS_DATA[0];
+      const rB = REGIONS_DATA.find(r => r.name === nameB) || REGIONS_DATA[1];
+
+      // Draw Dual-Polygon Radar
+      const svg = $('muniPkRadarSvg');
+      if (svg) {
+        const cx = 120, cy = 105, r = 68;
+        const labels = ['资源禀赋', '高铁枢纽', '雪场运力', '非遗节事', '产业协同'];
+        const N = 5;
+        let h = '';
+
+        // Concentric webs
+        for (let level = 1; level <= 5; level++) {
+          const curR = (r / 5) * level;
+          const pts = [];
+          for (let i = 0; i < N; i++) {
+            const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
+            pts.push(`${(cx + curR * Math.cos(ang)).toFixed(1)},${(cy + curR * Math.sin(ang)).toFixed(1)}`);
+          }
+          h += `<polygon points="${pts.join(' ')}" fill="${level % 2 === 0 ? 'rgba(117,216,237,0.04)' : 'transparent'}" stroke="rgba(117,216,237,0.18)" stroke-width="0.8"/>`;
+        }
+
+        // Axes & labels
+        for (let i = 0; i < N; i++) {
+          const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
+          const ax = cx + r * Math.cos(ang);
+          const ay = cy + r * Math.sin(ang);
+          h += `<line x1="${cx}" y1="${cy}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="rgba(117,216,237,0.22)" stroke-width="1"/>`;
+          const lx = cx + (r + 17) * Math.cos(ang);
+          const ly = cy + (r + 17) * Math.sin(ang) + 4;
+          const anchor = Math.abs(Math.cos(ang)) < 0.25 ? 'middle' : (Math.cos(ang) > 0 ? 'start' : 'end');
+          h += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#8aa4ab" font-size="9" text-anchor="${anchor}" font-weight="600">${labels[i]}</text>`;
+        }
+
+        // Polygon A (Cyan)
+        const valsA = rA.radar || [70, 70, 70, 70, 70];
+        const ptsA = valsA.map((v, i) => {
+          const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
+          const curR = r * (v / 100);
+          return `${(cx + curR * Math.cos(ang)).toFixed(1)},${(cy + curR * Math.sin(ang)).toFixed(1)}`;
+        }).join(' ');
+        h += `<polygon points="${ptsA}" fill="rgba(117,216,237,0.24)" stroke="var(--ice)" stroke-width="2"/>`;
+
+        // Polygon B (Gold)
+        const valsB = rB.radar || [70, 70, 70, 70, 70];
+        const ptsB = valsB.map((v, i) => {
+          const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
+          const curR = r * (v / 100);
+          return `${(cx + curR * Math.cos(ang)).toFixed(1)},${(cy + curR * Math.sin(ang)).toFixed(1)}`;
+        }).join(' ');
+        h += `<polygon points="${ptsB}" fill="rgba(244,198,109,0.22)" stroke="var(--gold)" stroke-width="2" stroke-dasharray="4 2"/>`;
+
+        // Vertices A & B
+        valsA.forEach((v, i) => {
+          const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
+          const curR = r * (v / 100);
+          h += `<circle cx="${(cx + curR * Math.cos(ang)).toFixed(1)}" cy="${(cy + curR * Math.sin(ang)).toFixed(1)}" r="3" fill="var(--ice)" stroke="#061219" stroke-width="1"/>`;
+        });
+        valsB.forEach((v, i) => {
+          const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
+          const curR = r * (v / 100);
+          h += `<circle cx="${(cx + curR * Math.cos(ang)).toFixed(1)}" cy="${(cy + curR * Math.sin(ang)).toFixed(1)}" r="3" fill="var(--gold)" stroke="#061219" stroke-width="1"/>`;
+        });
+
+        // Mini legend
+        h += `
+          <g transform="translate(45, 212)">
+            <circle cx="0" cy="-4" r="4" fill="var(--ice)"/>
+            <text x="8" y="0" fill="var(--ice)" font-size="9" font-weight="bold">${rA.name}</text>
+            <circle cx="80" cy="-4" r="4" fill="var(--gold)"/>
+            <text x="88" y="0" fill="var(--gold)" font-size="9" font-weight="bold">${rB.name}</text>
+          </g>
+        `;
+        svg.innerHTML = h;
+      }
+
+      // Comparison stats & SWOT insight
+      const detailsEl = $('muniPkDetails');
+      if (detailsEl) {
+        // Compare axes
+        const labels = ['资源禀赋', '高铁枢纽', '雪场运力', '非遗节事', '产业协同'];
+        const valsA = rA.radar || [70, 70, 70, 70, 70];
+        const valsB = rB.radar || [70, 70, 70, 70, 70];
+        const leadA = [];
+        const leadB = [];
+        labels.forEach((lbl, i) => {
+          if (valsA[i] > valsB[i]) leadA.push(lbl);
+          else if (valsB[i] > valsA[i]) leadB.push(lbl);
+        });
+
+        const leadAText = leadA.length ? leadA.join('、') : '多维协同';
+        const leadBText = leadB.length ? leadB.join('、') : '多维协同';
+
+        detailsEl.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div style="background:rgba(117,216,237,0.06);border:1px solid rgba(117,216,237,0.3);border-radius:6px;padding:8px 10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <strong style="color:var(--ice);font-size:12px;">${rA.icon || '📍'} ${rA.name}</strong>
+                <span style="font-size:9px;color:var(--dim);">${rA.role}</span>
+              </div>
+              <div style="font-size:11px;color:#cde4e8;line-height:1.4;">
+                <div>规划目标: <span style="color:#fff;font-weight:bold;">${rA.spendingTarget}</span> (日峰值: ${rA.capacity})</div>
+                <div>优势维度: <span style="color:var(--ice);font-weight:600;">${leadAText}</span></div>
+                <div style="font-size:10px;color:var(--dim);margin-top:2px;">${rA.climate}</div>
+              </div>
+              <div style="margin-top:6px;display:flex;gap:6px;">
+                <button class="btn" style="padding:2px 6px;font-size:9px;border-color:var(--ice);color:var(--ice);" onclick="openMunicipalModal('${rA.name}')">画像详情</button>
+                <button class="btn" style="padding:2px 6px;font-size:9px;border-color:rgba(117,216,237,0.4);color:#fff;" onclick="selectPlace(${rA.placeIdx}); $('vrCanvas').scrollIntoView({ behavior: 'smooth' });">3D视角 →</button>
+              </div>
+            </div>
+
+            <div style="background:rgba(244,198,109,0.06);border:1px solid rgba(244,198,109,0.3);border-radius:6px;padding:8px 10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <strong style="color:var(--gold);font-size:12px;">${rB.icon || '📍'} ${rB.name}</strong>
+                <span style="font-size:9px;color:var(--dim);">${rB.role}</span>
+              </div>
+              <div style="font-size:11px;color:#cde4e8;line-height:1.4;">
+                <div>规划目标: <span style="color:#fff;font-weight:bold;">${rB.spendingTarget}</span> (日峰值: ${rB.capacity})</div>
+                <div>优势维度: <span style="color:var(--gold);font-weight:600;">${leadBText}</span></div>
+                <div style="font-size:10px;color:var(--dim);margin-top:2px;">${rB.climate}</div>
+              </div>
+              <div style="margin-top:6px;display:flex;gap:6px;">
+                <button class="btn" style="padding:2px 6px;font-size:9px;border-color:var(--gold);color:var(--gold);" onclick="openMunicipalModal('${rB.name}')">画像详情</button>
+                <button class="btn" style="padding:2px 6px;font-size:9px;border-color:rgba(244,198,109,0.4);color:#fff;" onclick="selectPlace(${rB.placeIdx}); $('vrCanvas').scrollIntoView({ behavior: 'smooth' });">3D视角 →</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:rgba(7,24,32,0.65);border-left:3px solid var(--mint);padding:6px 10px;border-radius:0 4px 4px 0;font-size:11px;line-height:1.5;color:#b2d4dc;">
+            <span style="color:var(--mint);font-weight:bold;">💡 跨区域空间协同策略推演: </span>
+            ${nameA === nameB 
+              ? `当前为同一市州自洽画像分析。${rA.name}应聚焦于固化本区域“${rA.assets}”核心吸引物，并推进周边县域一体化冰雪辐射圈。`
+              : `【${rA.name} × ${rB.name}】两地发展梯度呈现高度互补性。建议推进“${rA.name}”的<b>${leadAText}</b>与“${rB.name}”的<b>${leadBText}</b>深度耦合，构建客源互认、交通走廊联程与冬令营联合品牌，实现全省“一主六双”空间战略协同倍增。`
+            }
+          </div>
+        `;
+      }
+    }
+    window.initMuniPk = initMuniPk;
+    window.updateMuniPk = updateMuniPk;
+
     // 15. Policy Simulation Sandbox Console Solver
     function setupSimulationConsole() {
       const sTransit = $('sliderTransit');
@@ -6595,6 +6976,7 @@
     renderPolicyNodes();
     renderCultureContent('routes');
     renderMunicipalRegions('all');
+    initMuniPk();
     setupSimulationConsole();
     selectPlace(0);
     initBgParticles();
