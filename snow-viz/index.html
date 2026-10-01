@@ -1832,9 +1832,14 @@
     }
   </style>
   <div id="splashScreen">
-    <div class="splash-logo">雪</div>
-    <div class="splash-text">系统启动中...</div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:12px;">
+      <img src="assets/ccut_badge.png" alt="长春工业大学校徽" class="school-badge-img" style="height:64px; width:64px; border-radius:50%; border:2px solid var(--gold); box-shadow:0 0 24px rgba(244,198,109,0.45); animation: pulse 1.5s infinite; background:#7a1a1e; object-fit:cover;">
+      <div class="splash-logo" style="margin:0;">雪</div>
+    </div>
+    <div style="color:#fff; font-size:16px; font-weight:bold; letter-spacing:2px;">长春工业大学 · 深度求索队</div>
+    <div class="splash-text" style="margin-top:6px;">雪线之上 · 吉林冰雪经济目标可视化交互系统</div>
     <div class="splash-bar"><div class="splash-bar-inner" id="splashProgress"></div></div>
+    <div style="color:var(--dim); font-size:10px; margin-top:8px; font-family:monospace; letter-spacing:1px;">INITIALIZING 3D SPATIAL TWIN & ADVANCED ECONOMETRICS...</div>
   </div>
   <script>
     setTimeout(() => { document.getElementById('splashProgress').style.width = '100%'; }, 50);
@@ -1854,9 +1859,15 @@
     <!-- Top Header -->
     <header class="top">
       <div class="brand">
-        <div class="brand-mark">雪</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <img src="assets/ccut_badge.png" alt="长春工业大学校徽" class="school-badge-img" style="height:42px; width:42px; border-radius:50%; border:1.5px solid var(--gold); box-shadow:0 0 12px rgba(244,198,109,0.35); background:#7a1a1e; object-fit:cover; flex-shrink:0;" title="长春工业大学 (Changchun University of Technology)">
+          <div class="brand-mark">雪</div>
+        </div>
         <div class="brand-title">
-          <div class="brand-eyebrow">JILIN · ICE & SNOW ECONOMY · VR & DATA VIZ</div>
+          <div class="brand-eyebrow" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span>JILIN · ICE & SNOW ECONOMY</span>
+            <span class="badge" style="font-size:9px; padding:1px 6px; background:rgba(122,26,30,0.45); border:1px solid rgba(244,198,109,0.6); color:var(--gold);">长春工业大学 · 深度求索队</span>
+          </div>
           <h1>雪线之上 · 吉林冰雪经济目标可视化</h1>
           <div class="brand-sub">吉林省大学生虚拟现实大赛 · 数据可视化分析方向申报作品</div>
         </div>
@@ -2076,6 +2087,19 @@
               <div class="sim-res-sub" id="simOutLoadStatus" style="color:var(--mint);">🟢 运力充裕绿色区间</div>
             </div>
           </div>
+
+          <!-- Policy Leverage Sensitivity Tornado Diagram -->
+          <div style="margin-top:12px; border-top:1px solid rgba(117,216,237,0.2); padding-top:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:14px;">🌪️</span>
+                <strong style="font-size:11px; color:#fff;">多维度政策杠杆灵敏度龙卷风分析 (Tornado Sensitivity Matrix)</strong>
+                <span class="badge" style="font-size:9px; background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); padding:1px 6px;">弹性贡献边界</span>
+              </div>
+              <span style="font-size:10px; color:var(--dim);">基准线：2030 规划总花费 5,400 亿元 (± Shock 响应)</span>
+            </div>
+            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; height:auto; display:block; background:rgba(4,14,20,0.5); border:1px solid rgba(117,216,237,0.15); border-radius:6px;"></svg>
+          </div>
         </div>
       </article>
 
@@ -2130,6 +2154,7 @@
             </div>
             <div class="vr-controls">
               <button class="vr-btn" id="btnGalleryOpen" style="color:var(--gold); border-color:var(--gold)" title="查看冬季生态图鉴">📸 图鉴</button>
+              <button class="vr-btn" id="btnVrOrbit" style="color:var(--ice); border-color:var(--ice);" title="开启 360° 无人机低空航拍环绕巡游 (快捷键 O)">🚁 航拍</button>
               <button class="vr-btn" id="btnVrStereo" style="color:var(--mint); border-color:var(--mint);" title="切换双目分屏立体 VR 模式 (Cardboard/立体眼镜)">🥽 双目VR</button>
               <button class="vr-btn" id="btnVrWeather" title="切换微雪/暴雪">❄️ 暴雪</button>
               <button class="vr-btn" id="btnVrPitch" title="一键切换：45°斜俯视 / 82°卫星鸟瞰 / 12°宏伟平视">📐 俯仰</button>
@@ -2272,6 +2297,21 @@
           </div>
         </div>
 
+        <!-- Resorts Interactive Sort Filter Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin: 12px 0 10px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;" id="resortsSortBar">
+            <span style="font-size:11px; color:var(--dim); font-weight:600;">维度排序：</span>
+            <button class="sim-preset-btn active" data-rsort="default">默认序号</button>
+            <button class="sim-preset-btn" data-rsort="drop">🏔️ 垂直落差 (m)</button>
+            <button class="sim-preset-btn" data-rsort="capacity">🚠 索道小时运力</button>
+            <button class="sim-preset-btn" data-rsort="length">⛷️ 雪道总里程 (km)</button>
+            <button class="sim-preset-btn" data-rsort="machines">❄️ 造雪机规模</button>
+          </div>
+          <div style="font-size:11px; color:var(--mint); font-family:monospace; background:rgba(148,227,202,0.08); padding:3px 8px; border-radius:4px;">
+            💡 支持一键联动 3D 沙盘与无人机低空航拍
+          </div>
+        </div>
+
         <div class="resorts-table-wrapper">
           <table class="resorts-table">
             <thead>
@@ -2285,9 +2325,10 @@
                 <th>索道小时运力</th>
                 <th>进口造雪机</th>
                 <th>国际顶级赛事与荣誉认证</th>
+                <th style="text-align:center;">3D视窗联动</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="resortsTableBody">
               <tr>
                 <td><b style="color:#fff;">万科松花湖度假区</b></td>
                 <td><span style="color:var(--ice);">吉林市</span></td>
@@ -2514,8 +2555,9 @@
       <div>
         <span>快捷键：← / → 切换雪季 · 1-8 切换地点 · 空格 自动巡航 · F 全屏演示 · H 帮助</span>
       </div>
-      <div>
-        参赛单位：<span id="footerSchool">长春工业大学</span> · <span id="footerTeam">深度求索队</span>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
+        <img src="assets/ccut_badge.png" alt="长春工业大学校徽" class="school-badge-img" style="height:22px; width:22px; border-radius:50%; vertical-align:middle; border:1px solid rgba(244,198,109,0.5); background:#7a1a1e; object-fit:cover;">
+        <span>参赛高校：<span id="footerSchool" style="color:#fff; font-weight:600;">长春工业大学</span> · 队伍：<span id="footerTeam" style="color:var(--gold); font-weight:600;">深度求索队</span></span>
       </div>
     </footer>
   </main>
@@ -2528,7 +2570,17 @@
   <!-- Cinematic Cover Screen (Shown on Load) -->
   <div class="modal-overlay show" id="coverModal" style="background: radial-gradient(circle at center, #0b2633 0%, #03080b 100%); z-index: 9999; backdrop-filter: blur(10px);">
     <div class="modal-card cover-card" style="width: 800px; max-width: 90vw; background: transparent; box-shadow: none; border: none; text-align: center; padding: 60px;">
-      <div class="cover-eyebrow" style="font-size:16px; letter-spacing:8px; opacity:0; animation: fadeIn 2s forwards 0.5s;">JILIN · ICE & SNOW ECONOMY</div>
+      <!-- University Emblem & Identity Header -->
+      <div style="display:flex; justify-content:center; align-items:center; gap:16px; margin-bottom:20px; opacity:0; animation: fadeIn 2s forwards 0.3s;">
+        <img src="assets/ccut_badge.png" alt="长春工业大学校徽" class="school-badge-img" style="height:72px; width:72px; border-radius:50%; border:2px solid var(--gold); box-shadow:0 0 30px rgba(244,198,109,0.5); background:#7a1a1e; object-fit:cover;">
+        <div style="text-align:left;">
+          <div style="color:#fff; font-size:20px; font-weight:bold; letter-spacing:3px;">长春工业大学</div>
+          <div style="color:var(--ice); font-size:11px; font-family:monospace; letter-spacing:1px;">CHANGCHUN UNIVERSITY OF TECHNOLOGY</div>
+          <div style="color:var(--gold); font-size:11px; margin-top:2px;">数学与统计学院 · 应用统计研究生团队 · 深度求索队</div>
+        </div>
+      </div>
+
+      <div class="cover-eyebrow" style="font-size:16px; letter-spacing:8px; opacity:0; animation: fadeIn 2s forwards 0.6s;">JILIN · ICE & SNOW ECONOMY</div>
       <h1 style="font-size: 64px; margin: 20px 0; color: #fff; text-shadow: 0 0 40px rgba(117,216,237,0.6); opacity:0; animation: fadeIn 2s forwards 1s;">雪线之上</h1>
       <p style="font-size: 20px; color: var(--ice); margin-bottom: 40px; letter-spacing: 4px; opacity:0; animation: fadeIn 2s forwards 1.5s;">吉林冰雪经济目标可视化交互系统</p>
       
@@ -2557,7 +2609,13 @@
   <!-- Setup Modal -->
   <div class="modal-overlay" id="setupModal">
     <div class="modal-card" style="max-width:480px;">
-      <h3 style="color:#fff;margin-bottom:8px;">⚙️ 参赛信息设置</h3>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+        <img src="assets/ccut_badge.png" alt="长春工业大学校徽" class="school-badge-img" style="height:44px; width:44px; border-radius:50%; border:1.5px solid var(--gold); background:#7a1a1e; object-fit:cover;">
+        <div>
+          <h3 style="color:#fff; margin:0;">⚙️ 参赛信息设置</h3>
+          <small style="color:var(--gold); font-size:11px;">长春工业大学 · 深度求索队</small>
+        </div>
+      </div>
       <p style="font-size:12px;color:var(--muted);margin-bottom:18px;">信息仅保存在本机浏览器（localStorage），用于录制比赛演示视频及现场答辩展示。</p>
       <div class="form-group">
         <label for="inputTeam">参赛队伍名称</label>
@@ -2581,12 +2639,16 @@
   <!-- AI Research Report Modal -->
   <div class="modal-overlay" id="reportModal">
     <div class="modal-card" style="max-width:850px; text-align:left; padding: 40px; border-top: 4px solid var(--gold); border-radius: 4px; background: #061218;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
-        <div>
-          <div style="font-size: 12px; color: var(--gold); letter-spacing: 2px; margin-bottom: 8px;">RESEARCH REPORT EXPORT</div>
-          <h2 style="color: #fff; margin: 0; font-size: 26px;">吉林冰雪经济发展战略评估报告 (2024-2030)</h2>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap:wrap; gap:16px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <img src="assets/ccut_badge.png" alt="长春工业大学校徽" class="school-badge-img" style="height:48px; width:48px; border-radius:50%; border:1.5px solid var(--gold); background:#7a1a1e; object-fit:cover; flex-shrink:0;">
+          <div>
+            <div style="font-size: 11px; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px;">长春工业大学应用统计课题组 · 智库评估报告</div>
+            <h2 style="color: #fff; margin: 0; font-size: 24px;">吉林冰雪经济发展战略评估报告 (2024-2030)</h2>
+          </div>
         </div>
         <div style="text-align: right; color: var(--muted); font-size: 11px;">
+          申报团队: 长春工业大学 · 深度求索队<br>
           生成时间: <span id="reportDate"></span><br>
           模型数据源: 吉林省《实施意见》(2024)
         </div>
@@ -2883,6 +2945,12 @@
           <b style="color:var(--ice);">Q / E 键</b> : 3D沙盘视距推进 / 远离
         </div>
         <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--ice);">O 键</b> : 开启 / 退出 360° 无人机低空航拍环绕
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--mint);">P 键</b> : 切换双目立体 VR 分屏模式
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">Esc</b> : 关闭任意弹窗或退出巡航
         </div>
       </div>
@@ -3017,6 +3085,7 @@
           ▶ 支持鼠标左键拖拽旋转 · 滚轮视角缩放 · <span style="color:var(--gold);">直接点击画面地标光标选中城市</span>
         </div>
         <div style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;">
+          <button class="vr-btn" id="btnExpandOrbit" style="border:1px solid var(--ice); color:var(--ice); padding: 8px 16px;">🚁 航拍巡游</button>
           <button class="vr-btn" id="btnExpandStereo" style="border:1px solid var(--mint); color:var(--mint); padding: 8px 16px;">🥽 双目VR分屏</button>
           <button class="vr-btn" id="btnExpandPitch" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">📐 俯仰视角切换</button>
           <button class="vr-btn" id="btnExpandReset" style="border:1px solid rgba(117,216,237,0.4); padding: 8px 16px;">🔄 复位视角</button>
@@ -4757,6 +4826,20 @@
       });
     }
 
+    // Geothermal Hot Spring Steam Particles (Changbaishan 83℃ Julong Hot Springs)
+    const vrSteam3D = [];
+    for (let i = 0; i < 24; i++) {
+      vrSteam3D.push({
+        x: 125 + (Math.random() - 0.5) * 20,
+        y: 88 + Math.random() * 40,
+        z: 105 + (Math.random() - 0.5) * 20,
+        vy: Math.random() * 0.6 + 0.4,
+        r: Math.random() * 6 + 6,
+        alpha: Math.random() * 0.6 + 0.1
+      });
+    }
+
+    let isOrbitRunning = false;
     let pulseAnim = 0;
 
     function renderSingle3DView(ctx, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2, clipRect = null, eyeLabel = null) {
@@ -4948,6 +5031,72 @@
         }
       });
       ctx.globalAlpha = 1.0;
+
+      // 5.1 Draw Geothermal Hot Spring Steam Puffs (Changbaishan 83℃ Julong Spring)
+      vrSteam3D.forEach(sp => {
+        const pr = project3D(sp, w, h, yaw, pitch, dist, cx, cy);
+        if (pr) {
+          ctx.save();
+          ctx.globalAlpha = Math.min(0.65, Math.max(0.05, sp.alpha * pr.scale * 1.5));
+          const rad = Math.max(2, sp.r * pr.scale);
+          const grad = ctx.createRadialGradient(pr.x, pr.y, 0, pr.x, pr.y, rad);
+          grad.addColorStop(0, 'rgba(255, 240, 200, 0.7)');
+          grad.addColorStop(0.5, 'rgba(255, 210, 140, 0.35)');
+          grad.addColorStop(1, 'rgba(255, 200, 120, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(pr.x, pr.y, rad, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+      ctx.globalAlpha = 1.0;
+
+      // 5.2 Draw Night Skiing Luminous Slopes (Beidahu / Songhua Lake)
+      const skiTrails = [
+        [ {x: 45, y: 110, z: -25}, {x: 40, y: 88, z: -20}, {x: 32, y: 70, z: -15}, {x: 25, y: 55, z: -10} ],
+        [ {x: 52, y: 105, z: -30}, {x: 48, y: 82, z: -22}, {x: 42, y: 65, z: -18}, {x: 35, y: 50, z: -12} ]
+      ];
+      ctx.save();
+      skiTrails.forEach((trail, trkIdx) => {
+        ctx.beginPath();
+        trail.forEach((tp, i) => {
+          const pr = project3D(tp, w, h, yaw, pitch, dist, cx, cy);
+          if (pr) {
+            if (i === 0) ctx.moveTo(pr.x, pr.y);
+            else ctx.lineTo(pr.x, pr.y);
+          }
+        });
+        ctx.strokeStyle = trkIdx === 0 ? 'rgba(117, 255, 220, 0.75)' : 'rgba(117, 216, 237, 0.65)';
+        ctx.lineWidth = 2.2;
+        ctx.shadowColor = '#75ffe4';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+
+        // Traveling skier photon dot carving down
+        const skierT = ((Date.now() * 0.0004 + trkIdx * 0.5) % 1.0);
+        const sSeg = skierT * (trail.length - 1);
+        const sIdx = Math.floor(sSeg);
+        const sRem = sSeg - sIdx;
+        if (sIdx < trail.length - 1) {
+          const pA = trail[sIdx], pB = trail[sIdx + 1];
+          const curSkier = {
+            x: pA.x + (pB.x - pA.x) * sRem,
+            y: pA.y + (pB.y - pA.y) * sRem,
+            z: pA.z + (pB.z - pA.z) * sRem
+          };
+          const ptSkier = project3D(curSkier, w, h, yaw, pitch, dist, cx, cy);
+          if (ptSkier) {
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 12;
+            ctx.beginPath();
+            ctx.arc(ptSkier.x, ptSkier.y, 3 * ptSkier.scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      });
+      ctx.restore();
 
       // 5.5 Draw 3D Network Routes (Ice & Snow Golden Tourism Lines)
       const hub = PLACES[0]; // Changchun as Hub
@@ -5270,7 +5419,11 @@
       camYaw += (targetYaw - camYaw) * 0.08;
       camPitch += (targetPitch - camPitch) * 0.08;
       camDist += (targetDist - camDist) * 0.08;
-      if (!vrDragging && !isTourRunning) {
+      if (isOrbitRunning) {
+        targetYaw += 0.012;
+        targetPitch = 0.42 + Math.sin(Date.now() * 0.001) * 0.08;
+        targetDist = 440 + Math.cos(Date.now() * 0.0008) * 35;
+      } else if (!vrDragging && !isTourRunning) {
         targetYaw += 0.002; // Gentle idle drift
       }
 
@@ -5280,6 +5433,20 @@
       vrSnow3D.forEach(sp => {
         sp.y -= sp.vy * (isWeatherHeavy ? 2.0 : 1.0);
         if (sp.y < 0) sp.y = 200;
+      });
+
+      // Update 3D Geothermal Steam Puffs
+      vrSteam3D.forEach(sp => {
+        sp.y += sp.vy;
+        sp.alpha -= 0.006;
+        sp.r += 0.08;
+        if (sp.alpha <= 0 || sp.y > 155) {
+          sp.y = 88;
+          sp.x = 125 + (Math.random() - 0.5) * 20;
+          sp.z = 105 + (Math.random() - 0.5) * 20;
+          sp.alpha = 0.55;
+          sp.r = 6;
+        }
       });
 
       if (!isStereoVR) {
@@ -5489,6 +5656,22 @@
     }
     if ($('btnVrStereo')) $('btnVrStereo').onclick = toggleStereoVR;
     if ($('btnExpandStereo')) $('btnExpandStereo').onclick = toggleStereoVR;
+
+    function toggleDroneOrbit() {
+      playCrystalClick();
+      isOrbitRunning = !isOrbitRunning;
+      const label = isOrbitRunning ? '🛸 停止巡航' : '🛸 无人机巡航';
+      if ($('btnVrOrbit')) {
+        $('btnVrOrbit').textContent = label;
+        $('btnVrOrbit').style.background = isOrbitRunning ? 'rgba(244,198,109,0.25)' : '';
+      }
+      if ($('btnExpandOrbit')) {
+        $('btnExpandOrbit').textContent = isOrbitRunning ? '🛸 停止无人机巡航' : '🛸 智能无人机环绕巡航';
+        $('btnExpandOrbit').style.background = isOrbitRunning ? 'rgba(244,198,109,0.25)' : '';
+      }
+    }
+    if ($('btnVrOrbit')) $('btnVrOrbit').onclick = toggleDroneOrbit;
+    if ($('btnExpandOrbit')) $('btnExpandOrbit').onclick = toggleDroneOrbit;
 
     // Expand Modal
     $('btnVrExpand').onclick = () => {
@@ -6068,6 +6251,10 @@
         $('btnVrReset').click();
       } else if (e.key.toLowerCase() === 'm') {
         toggleAudio();
+      } else if (e.key.toLowerCase() === 'o') {
+        toggleDroneOrbit();
+      } else if (e.key.toLowerCase() === 'p') {
+        toggleStereoVR();
       } else if (e.key === 'ArrowRight') {
         if ($('galleryModal').classList.contains('show')) {
           $('btnGalleryNext').click();
@@ -6925,6 +7112,94 @@
           $('simOutLoadStatus').textContent = '🟢 运力充裕绿色区间';
           $('simOutLoadStatus').style.color = 'var(--mint)';
         }
+
+        renderTornadoSensitivity(transit, marketing, temp);
+      }
+
+      function renderTornadoSensitivity(transit, marketing, temp) {
+        const svg = $('tornadoSensitivitySvg');
+        if (!svg) return;
+
+        function calcSpending(tr, mk, tp) {
+          const vf = Math.max(0.6, 1 + (tr * 0.006) + ((mk - 1.0) * 0.14) + (tp * -0.055));
+          const pcf = 1 + (tr * 0.003) + ((mk - 1.0) * 0.08);
+          return Math.round(5400 * vf * pcf);
+        }
+
+        const currentSpending = calcSpending(transit, marketing, temp);
+        const baseline = 5400;
+
+        const levers = [
+          {
+            name: '沈白高铁运力',
+            range: '0% ~ +50%',
+            curVal: `+${transit}%`,
+            lowVal: calcSpending(0, marketing, temp) - baseline,
+            highVal: calcSpending(50, marketing, temp) - baseline,
+            curDelta: currentSpending - baseline
+          },
+          {
+            name: '文旅营销乘数',
+            range: '1.0x ~ 2.5x',
+            curVal: `${marketing.toFixed(1)}x`,
+            lowVal: calcSpending(transit, 1.0, temp) - baseline,
+            highVal: calcSpending(transit, 2.5, temp) - baseline,
+            curDelta: currentSpending - baseline
+          },
+          {
+            name: '冬季异常气温',
+            range: '-2℃ ~ +2℃',
+            curVal: `${temp >= 0 ? '+' : ''}${temp.toFixed(1)}℃`,
+            lowVal: calcSpending(transit, marketing, 2.0) - baseline,
+            highVal: calcSpending(transit, marketing, -2.0) - baseline,
+            curDelta: currentSpending - baseline
+          }
+        ];
+
+        const maxRange = 1600;
+        const centerLineX = 260;
+        const barScale = 160 / maxRange;
+
+        let html = `
+          <line x1="${centerLineX}" y1="16" x2="${centerLineX}" y2="155" stroke="rgba(117,216,237,0.4)" stroke-dasharray="3,3" stroke-width="1.5" />
+          <text x="${centerLineX}" y="12" fill="var(--mint)" font-size="9" text-anchor="middle" font-weight="bold" font-family="monospace">5400亿 基准参考线</text>
+          <text x="12" y="12" fill="var(--dim)" font-size="9">◀ 负向承压冲击</text>
+          <text x="528" y="12" fill="var(--dim)" font-size="9" text-anchor="end">正向增量驱动 ▶</text>
+        `;
+
+        const rowHeight = 44;
+        levers.forEach((lev, idx) => {
+          const y = 22 + idx * rowHeight;
+          const lowW = Math.max(3, Math.abs(lev.lowVal) * barScale);
+          const highW = Math.max(3, Math.abs(lev.highVal) * barScale);
+          
+          const lowX = centerLineX - lowW;
+          const highX = centerLineX;
+
+          const curPinX = centerLineX + (lev.curDelta) * barScale;
+          const clampedPinX = Math.max(lowX, Math.min(highX + highW, curPinX));
+
+          html += `
+            <g class="tornado-row">
+              <text x="14" y="${y + 16}" fill="#fff" font-size="11" font-weight="600">${lev.name}</text>
+              <text x="14" y="${y + 30}" fill="var(--dim)" font-size="9" font-family="monospace">${lev.range} (现值: <tspan fill="var(--gold)">${lev.curVal}</tspan>)</text>
+              
+              <!-- Low side bar -->
+              <rect x="${lowX}" y="${y + 14}" width="${lowW}" height="16" rx="3" fill="rgba(255, 107, 107, 0.4)" stroke="rgba(255, 107, 107, 0.8)" stroke-width="1" />
+              <text x="${lowX - 6}" y="${y + 26}" fill="#ff8585" font-size="9" font-family="monospace" text-anchor="end">${lev.lowVal > 0 ? '+' : ''}${Math.round(lev.lowVal)}亿</text>
+              
+              <!-- High side bar -->
+              <rect x="${highX}" y="${y + 14}" width="${highW}" height="16" rx="3" fill="rgba(117, 216, 237, 0.4)" stroke="rgba(117, 216, 237, 0.8)" stroke-width="1" />
+              <text x="${highX + highW + 6}" y="${y + 26}" fill="var(--ice)" font-size="9" font-family="monospace">${lev.highVal > 0 ? '+' : ''}${Math.round(lev.highVal)}亿</text>
+
+              <!-- Current Value Pin -->
+              <line x1="${clampedPinX}" y1="${y + 8}" x2="${clampedPinX}" y2="${y + 36}" stroke="var(--gold)" stroke-width="2.5" />
+              <polygon points="${clampedPinX-3},${y+8} ${clampedPinX+3},${y+8} ${clampedPinX},${y+12}" fill="var(--gold)" />
+            </g>
+          `;
+        });
+
+        svg.innerHTML = html;
       }
 
       sTransit.oninput = () => {
@@ -6957,6 +7232,187 @@
       updateSimulation();
     }
 
+    // National Top-Tier Resorts Interactive Archive
+    const RESORTS_BENCHMARK = [
+      {
+        id: 'beidahu',
+        name: '吉林北大湖滑雪度假区',
+        city: '吉林市',
+        badge: '国家级度假区 · 亚洲单体第一',
+        area: '约 30 k㎡',
+        trails: 64,
+        length: 68.0,
+        drop: 870,
+        lifts: 11,
+        capacity: 24000,
+        machines: 140,
+        honors: '亚洲单体雪道面积第一 · 全国第六届冬运会场地 · FIS国际雪联赛道认证',
+        placeIdx: 1
+      },
+      {
+        id: 'songhua',
+        name: '万科松花湖度假区',
+        city: '吉林市',
+        badge: '国家级度假区 · 连续7年中国最佳',
+        area: '约 20 k㎡',
+        trails: 37,
+        length: 31.0,
+        drop: 605,
+        lifts: 8,
+        capacity: 19000,
+        machines: 80,
+        honors: '连续7年荣获世界滑雪大奖 (World Ski Awards) 中国最佳 · FIS积分赛',
+        placeIdx: 1
+      },
+      {
+        id: 'wanfeng',
+        name: '通化东昌万峰滑雪度假区',
+        city: '通化市',
+        badge: '国家级度假区 · 新中国首座高山雪场',
+        area: '约 15 k㎡',
+        trails: 33,
+        length: 31.0,
+        drop: 560,
+        lifts: 6,
+        capacity: 12000,
+        machines: 60,
+        honors: '新中国第一座高山滑雪场现代升级 · 红色冰雪与跳台滑雪国家基地',
+        placeIdx: 3
+      },
+      {
+        id: 'wanda',
+        name: '长白山万达国际度假区',
+        city: '长白山/抚松',
+        badge: '首批国家级度假区 · 森林雪野',
+        area: '约 18 k㎡',
+        trails: 43,
+        length: 30.0,
+        drop: 390,
+        lifts: 7,
+        capacity: 14000,
+        machines: 65,
+        honors: '国际标准U型槽 · 国际山地温泉度假综合体 · 首批国家级度假区',
+        placeIdx: 2
+      },
+      {
+        id: 'huamei',
+        name: '长白山华美胜地度假区',
+        city: '长白山/抚松',
+        badge: '国家级度假区 · 瑞士风情全季',
+        area: '约 25 k㎡',
+        trails: 15,
+        length: 18.0,
+        drop: 260,
+        lifts: 4,
+        capacity: 8200,
+        machines: 45,
+        honors: '国家级森林越野滑雪赛道 · 瑞士风格山地冰雪乐园 · 四季运营标杆',
+        placeIdx: 2
+      }
+    ];
+
+    function renderResortsTable(sortKey = 'default') {
+      const tbody = $('resortsTableBody');
+      if (!tbody) return;
+
+      let list = [...RESORTS_BENCHMARK];
+      if (sortKey === 'drop') {
+        list.sort((a, b) => b.drop - a.drop);
+      } else if (sortKey === 'capacity') {
+        list.sort((a, b) => b.capacity - a.capacity);
+      } else if (sortKey === 'length') {
+        list.sort((a, b) => b.length - a.length);
+      } else if (sortKey === 'machines') {
+        list.sort((a, b) => b.machines - a.machines);
+      }
+
+      tbody.innerHTML = list.map(r => {
+        const dropPct = ((r.drop / 900) * 100).toFixed(0);
+        const capPct = ((r.capacity / 25000) * 100).toFixed(0);
+        return `
+          <tr class="resort-row" data-resort-id="${r.id}">
+            <td>
+              <div style="font-weight:700; color:#fff; display:flex; align-items:center; gap:6px;">
+                <span>${r.name}</span>
+              </div>
+              <div style="font-size:10px; color:var(--dim); margin-top:2px;">${r.badge}</div>
+            </td>
+            <td><span class="badge" style="background:rgba(117,216,237,0.12); color:var(--ice); border:1px solid rgba(117,216,237,0.3); font-size:11px;">${r.city}</span></td>
+            <td style="font-family:monospace; color:#cfe2e6;">${r.area}</td>
+            <td>
+              <div style="font-weight:600; color:#fff;">${r.trails} 条 / ${r.length.toFixed(1)} km</div>
+              <div style="width:70px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:4px; overflow:hidden;">
+                <div style="width:${Math.min(100, (r.length / 70) * 100)}%; height:100%; background:var(--mint);"></div>
+              </div>
+            </td>
+            <td>
+              <div style="font-weight:700; color:var(--gold); font-size:13px; font-family:monospace;">${r.drop} m</div>
+              <div style="font-size:9px; color:var(--dim);">落差占比 ${dropPct}%</div>
+            </td>
+            <td style="font-family:monospace; color:#cfe2e6;">${r.lifts} 条索道</td>
+            <td>
+              <div style="font-weight:600; color:var(--mint); font-family:monospace;">${r.capacity.toLocaleString()} 人/h</div>
+              <div style="width:70px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:4px; overflow:hidden;">
+                <div style="width:${capPct}%; height:100%; background:var(--ice);"></div>
+              </div>
+            </td>
+            <td style="font-family:monospace; color:#cfe2e6;">${r.machines}+ 台</td>
+            <td style="font-size:11px; color:#a2b9be; line-height:1.4; max-width:240px;">${r.honors}</td>
+            <td style="text-align:center;">
+              <button class="chip-btn btn-focus-resort" data-resort-id="${r.id}" style="padding:4px 9px; font-size:11px; color:var(--mint); border-color:var(--mint); background:rgba(148,227,202,0.12); border-radius:4px; cursor:pointer;">
+                🎯 3D聚焦
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.btn-focus-resort').forEach(btn => {
+        btn.onclick = () => {
+          playCrystalClick();
+          const rId = btn.dataset.resortId;
+          const resort = RESORTS_BENCHMARK.find(x => x.id === rId);
+          if (!resort) return;
+
+          selectPlace(resort.placeIdx);
+
+          if (rId === 'beidahu' || rId === 'songhua') {
+            targetYaw = 0.35;
+            targetPitch = 0.44;
+            targetDist = 410;
+          } else if (rId === 'wanda' || rId === 'huamei') {
+            targetYaw = 0.68;
+            targetPitch = 0.36;
+            targetDist = 380;
+          } else if (rId === 'wanfeng') {
+            targetYaw = 0.16;
+            targetPitch = 0.40;
+            targetDist = 420;
+          }
+
+          const vrCard = $('vrCanvas');
+          if (vrCard) {
+            vrCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        };
+      });
+    }
+
+    function initResortsBenchmark() {
+      const sortBar = $('resortsSortBar');
+      if (sortBar) {
+        sortBar.querySelectorAll('.sim-preset-btn').forEach(btn => {
+          btn.onclick = () => {
+            playCrystalClick();
+            sortBar.querySelectorAll('.sim-preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderResortsTable(btn.dataset.rsort);
+          };
+        });
+      }
+      renderResortsTable('default');
+    }
+
     // Live Telemetry Clock
     function updateSystemClock() {
       const el = $('systemClockText');
@@ -6978,6 +7434,7 @@
     renderMunicipalRegions('all');
     initMuniPk();
     setupSimulationConsole();
+    initResortsBenchmark();
     selectPlace(0);
     initBgParticles();
     drawBg();
