@@ -100,7 +100,8 @@ output_stats = {
     "ks_pvalue_lognorm": float(f"{ks_lognorm.pvalue:.4e}")
 }
 
-with open("case_summary.json", "w", encoding="utf-8") as f:
+out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "case_summary.json")
+with open(out_path, "w", encoding="utf-8") as f:
     json.dump(output_stats, f, ensure_ascii=False, indent=2)
 
-print("\n分析流水线运行完成，已生成 case_summary.json！")
+print(f"\n分析流水线运行完成，已生成 {out_path}！")
