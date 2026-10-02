@@ -4,13 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>应用统计案例分析：专精特新中小企业信贷违约风险预警与数智定价 · 戴璇</title>
-  <meta name="description" content="全国应用统计专业学位研究生案例分析大赛参赛项目：基于计数过程、双重机器学习 (DML) 与可解释性 XGBoost-SHAP 的中小企业信贷违约预警与数智动态定价研究。作者：戴璇。">
+  <link rel="canonical" href="https://daixuan.cloud/case-studies/applied-statistics-credit-risk.html">
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
+  <script>
+    const savedTheme = localStorage.getItem('dx_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
   <style>
     .case-container {
       max-width: 1040px;
-      margin: 100px auto 60px;
+      margin: 96px auto 60px;
       padding: 0 24px;
     }
     .case-header {
@@ -194,17 +198,50 @@
       font-size: 0.9rem;
       color: var(--text-secondary);
     }
+    .code-container {
+      margin: 20px 0;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-copy:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
     .code-block {
       background: #020617;
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
       padding: 18px;
       font-family: var(--font-mono);
       font-size: 0.84rem;
       color: #cbd5e1;
       overflow-x: auto;
       line-height: 1.6;
-      margin: 16px 0;
+      margin: 0;
     }
     .framework-flow {
       display: grid;
@@ -238,19 +275,41 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 28px;
+      padding: 10px 22px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-full);
       color: var(--text-primary);
       text-decoration: none;
       font-weight: 600;
+      font-size: 0.88rem;
       transition: var(--transition);
     }
     .btn-back:hover {
       border-color: var(--accent-primary);
       color: var(--accent-primary);
       transform: translateY(-2px);
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.85rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -262,12 +321,25 @@
         <div class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.95rem;">DX</div>
         <span class="brand-text" style="color:var(--text-primary); font-size:1.15rem; font-weight:700;">戴璇 · <span style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">daixuan.cloud</span></span>
       </a>
-      <a href="../index.html#projects" class="btn-back" style="padding: 6px 16px; font-size: 0.85rem;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        <span>返回精选作品</span>
-      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="theme-toggle" class="btn-icon" aria-label="切换色彩主题" title="切换深色/浅色模式" style="width:36px; height:36px;">
+          <span id="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </span>
+        </button>
+        <a href="../index.html#projects" class="btn-back" style="padding: 6px 16px; font-size: 0.85rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          <span>返回精选作品</span>
+        </a>
+      </div>
     </div>
   </header>
+
+  <!-- Ambient Glow -->
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+  </div>
 
   <main class="case-container">
     <!-- Header Card -->
@@ -331,10 +403,10 @@
         <div class="flow-box">
           <h4><span>📐</span> 1. 计数过程与半参数计量</h4>
           <ul>
-            <li>基于滤波空间构建右截尾单跳计数过程 \(N_i(t)\)</li>
+            <li>基于滤波空间构建右截尾单跳计数过程 <i>N</i><sub><i>i</i></sub>(<i>t</i>)</li>
             <li>Doob-Meyer 分解与 Rebolledo 补偿鞅极限定理证明</li>
             <li>Schoenfeld 残差检验比例风险假定，绘制 Martingale 非线性残差</li>
-            <li>时间依赖 \(\text{AUC}(t)\) 动态捕捉全生命周期判别轨迹</li>
+            <li>时间依赖 AUC(<i>t</i>) 动态捕捉全生命周期判别轨迹</li>
           </ul>
         </div>
         <div class="flow-box">
@@ -575,10 +647,18 @@
     <section class="case-section">
       <h2><span>💻</span> 全流程一键复现核心算法 (Python)</h2>
       <p>
-        所有 13 个计量与定价模块支持毫秒级一键运行复现（<code>python src/run_pipeline.py</code>）。以下为因果双重机器学习 (DML) 与 Hansen 门限检验核心逻辑：
+        所有 13 个计量与定价模块支持毫秒级一键运行复现（<code>python case-studies/analysis_pipeline.py</code>）。以下为因果双重机器学习 (DML) 与 Hansen 门限检验核心逻辑：
       </p>
 
-      <pre class="code-block"><code>import numpy as np
+      <div class="code-container">
+        <div class="code-header">
+          <span>PYTHON 3.10+ (CAUSAL ML & THRESHOLD PRICING)</span>
+          <button class="btn-copy" onclick="copyPipelineCode()" title="复制代码到剪贴板">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copy-text">复制代码</span>
+          </button>
+        </div>
+        <pre class="code-block"><code id="code-snippet">import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import KFold
@@ -616,13 +696,18 @@ def hansen_threshold_search(y, x, q, grid_points=200):
             min_ssr = ssr
             best_gamma = gamma
     return best_gamma, min_ssr</code></pre>
+      </div>
     </section>
 
-    <!-- Bottom Actions -->
-    <div style="text-align: center; margin: 48px 0;">
+    <!-- Bottom Actions & Cross Navigation -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; margin: 48px 0;">
       <a href="../index.html#projects" class="btn-back">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        <span>返回项目展示列表</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        <span>返回精选作品</span>
+      </a>
+      <a href="smart-manufacturing-takt-time-analysis.html" class="btn-back" style="border-color: var(--accent-primary); color: var(--accent-primary);">
+        <span>查阅案例一：智能制造产线节拍优化</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
       </a>
     </div>
   </main>
@@ -636,5 +721,46 @@ def hansen_threshold_search(y, x, q, grid_points=200):
       </p>
     </div>
   </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // Theme toggle handling
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const target = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', target);
+        localStorage.setItem('dx_theme', target);
+        showToast(`已切换至${target === 'dark' ? '深色' : '浅色'}模式`);
+      });
+    }
+
+    // Copy Code functionality
+    function copyPipelineCode() {
+      const code = document.getElementById('code-snippet').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Python 核心代码已复制到剪贴板');
+        const copyText = document.getElementById('copy-text');
+        if (copyText) {
+          copyText.textContent = '已复制!';
+          setTimeout(() => copyText.textContent = '复制代码', 2000);
+        }
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    }
+
+    // Toast helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  </script>
 </body>
 </html>

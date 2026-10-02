@@ -144,6 +144,8 @@
           const categories = (card.getAttribute('data-category') || '').split(/\s+/);
           const match = filter === 'all' || categories.includes(filter);
 
+          if (card._fadeTimer) clearTimeout(card._fadeTimer);
+
           if (match) {
             card.classList.remove('is-hidden');
             // 下一帧再移除渐隐，确保过渡生效
@@ -153,7 +155,7 @@
             if (prefersReducedMotion) {
               card.classList.add('is-hidden');
             } else {
-              setTimeout(() => {
+              card._fadeTimer = setTimeout(() => {
                 if (card.classList.contains('is-fading')) card.classList.add('is-hidden');
               }, 320);
             }
@@ -246,17 +248,26 @@
 
     triggers.forEach(t => {
       if (!t.hasAttribute('tabindex') && t.tagName !== 'BUTTON') t.setAttribute('tabindex', '0');
+      if (!t.hasAttribute('role') && t.tagName !== 'BUTTON') t.setAttribute('role', 'button');
       t.addEventListener('click', open);
+      t.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          open();
+        }
+      });
     });
 
     function open() {
       lastFocused = document.activeElement;
+      document.body.classList.add('nav-open');
       modal.classList.add('active');
       if (closeBtn) closeBtn.focus();
     }
 
     function close() {
       modal.classList.remove('active');
+      document.body.classList.remove('nav-open');
       if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
     }
 
@@ -364,6 +375,18 @@
     });
 
     sections.forEach(s => observer.observe(s));
+
+    // 触底兜底高亮：确保页面滚动到最底部时正确激活“联系方式”
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40) {
+        links.forEach(link => {
+          const isContact = link.getAttribute('href') === '#contact';
+          link.classList.toggle('active', isContact);
+          if (isContact) link.setAttribute('aria-current', 'true');
+          else link.removeAttribute('aria-current');
+        });
+      }
+    }, { passive: true });
   }
 
   /* --------------------------------------------------------------------------
@@ -403,6 +426,7 @@
     if (!target) return;
 
     const phrases = [
+      '应用统计硕士 · 工业工程复合背景',
       '长春工业大学 · 应用统计硕士（研究方向：数据分析）',
       '工业工程 (IE) × 数据分析 × 统计建模',
       '时间序列分析 · 生产线作业测定 · 精益改善',
@@ -415,9 +439,9 @@
     }
 
     let phraseIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let speed = 110;
+    let charIndex = phrases[0].length;
+    let isDeleting = true;
+    let speed = 2200; // 首屏完整停留 2.2 秒后再平滑回退，避免切字突变
 
     function tick() {
       const phrase = phrases[phraseIndex];
@@ -443,7 +467,7 @@
       setTimeout(tick, speed);
     }
 
-    setTimeout(tick, 600);
+    setTimeout(tick, speed);
   }
 
   /* --------------------------------------------------------------------------
@@ -497,7 +521,7 @@
     if (prefersReducedMotion) return;
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-    document.querySelectorAll('.bento-card, .edu-card, .project-card, .competition-hero-card').forEach(card => {
+    document.querySelectorAll('.bento-card, .edu-card').forEach(card => {
       card.addEventListener('pointermove', (e) => {
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', `${e.clientX - rect.left}px`);

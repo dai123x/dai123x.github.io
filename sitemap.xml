@@ -7,7 +7,6 @@
     <lastmod>2026-10-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://daixuan.cloud/"/>
   </url>
 
   <url>
@@ -25,14 +24,14 @@
   </url>
 
   <url>
-    <loc>https://daixuan.cloud/campus-map/index.html</loc>
+    <loc>https://daixuan.cloud/campus-map/</loc>
     <lastmod>2026-10-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://daixuan.cloud/snow-viz/index.html</loc>
+    <loc>https://daixuan.cloud/snow-viz/</loc>
     <lastmod>2026-10-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
