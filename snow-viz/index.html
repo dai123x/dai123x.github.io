@@ -2842,92 +2842,9 @@
           <!-- Dynamic legend -->
         </div>
 
-        <div class="policy-detail-box" id="chartCommentary" style="border-left-color:var(--gold)">
+        <div class="policy-detail-box" id="chartCommentary" style="border-left-color:var(--gold); margin-top:auto;">
           <div class="policy-detail-tag" id="chartCommentaryTag">📊 规划目标增长率核算</div>
           <div id="chartCommentaryContent">2029—2030 雪季游客规划目标较 2027—2028 雪季提升 <b>+30.4%</b>（2.3亿 → 3.0亿人次）；出游总花费目标提升 <b>+28.6%</b>（4,200亿 → 5,400亿元）。</div>
-        </div>
-
-        <!-- Interactive Policy Simulation Console -->
-        <div class="sim-sandbox-panel" id="simSandboxPanel">
-          <div class="sim-sandbox-header">
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span style="font-size:15px;">🎛️</span>
-              <b style="font-size:12px; color:#fff;">数据科学沙盒 · 政策敏感性与动态情景推演控制台</b>
-              <span class="badge" style="background:rgba(117,216,237,0.15); color:var(--ice); border:1px solid var(--ice); font-size:9px; padding:2px 6px; white-space:nowrap;">多变量弹性求解器</span>
-            </div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button class="btn btn-gold" id="btnGenBriefing" style="padding:3px 10px; font-size:10px; white-space:nowrap; flex-shrink:0; border-color:var(--gold); color:var(--gold);">📄 生成决策专报</button>
-              <button class="btn" id="btnResetSim" style="padding:3px 10px; font-size:10px; white-space:nowrap; flex-shrink:0;">↺ 重置基准</button>
-            </div>
-          </div>
-          <!-- Scenario Presets Dock -->
-          <div class="sim-presets-bar" id="simPresetsBar">
-            <button class="sim-preset-btn active" data-preset="baseline">🔵 常态基准规划 (3.0亿/5,400亿)</button>
-            <button class="sim-preset-btn" data-preset="hsr_surge">🚄 高铁通车爆发 (+35%客流/7,768亿)</button>
-            <button class="sim-preset-btn" data-preset="warm_winter">⚠️ 暖冬压力测试 (气温+1.5℃/-20%)</button>
-            <button class="sim-preset-btn" data-preset="high_end">💎 高品质度假跃迁 (营销2.2x)</button>
-          </div>
-          <div class="sim-controls-grid">
-            <div class="sim-control-group">
-              <div class="sim-label-row">
-                <span>🚄 沈白高铁客流增益</span>
-                <b id="simValTransit" style="color:var(--mint);">+25%</b>
-              </div>
-              <input type="range" class="sim-slider" id="sliderTransit" min="0" max="35" value="25" step="1">
-              <small>预期2025通车，京津冀至长白山压缩至2.5h</small>
-            </div>
-            <div class="sim-control-group">
-              <div class="sim-label-row">
-                <span>📢 南方客群引力营销乘数</span>
-                <b id="simValMarketing" style="color:var(--gold);">1.6x</b>
-              </div>
-              <input type="range" class="sim-slider" id="sliderMarketing" min="1.0" max="2.5" value="1.6" step="0.1">
-              <small>精准投放长三角、大湾区定向消费券</small>
-            </div>
-            <div class="sim-control-group">
-              <div class="sim-label-row">
-                <span>🌡️ 极端气候气温偏离</span>
-                <b id="simValTemp" style="color:var(--ice);">0.0℃</b>
-              </div>
-              <input type="range" class="sim-slider" id="sliderTemp" min="-2.0" max="2.0" value="0.0" step="0.1">
-              <small>每偏高1℃导致有效雪期与意愿波动</small>
-            </div>
-          </div>
-          <div class="sim-results-grid">
-            <div class="sim-result-card">
-              <div class="sim-res-label">2030推演综合旅游收入</div>
-              <div class="sim-res-val" id="simOutSpending" style="color:var(--gold);">5,400 亿元</div>
-              <div class="sim-res-sub" id="simOutSpendingDelta">基准目标达成率 100.0%</div>
-            </div>
-            <div class="sim-result-card">
-              <div class="sim-res-label">2030推演接待客流</div>
-              <div class="sim-res-val" id="simOutVisitors" style="color:var(--ice);">3.00 亿人次</div>
-              <div class="sim-res-sub" id="simOutVisitorsDelta">基准规划 3.00 亿</div>
-            </div>
-            <div class="sim-result-card">
-              <div class="sim-res-label">装备制造业突破概率</div>
-              <div class="sim-res-val" id="simOutEquipProb" style="color:var(--mint);">89.2%</div>
-              <div class="sim-res-sub">突破50亿元产值模型</div>
-            </div>
-            <div class="sim-result-card">
-              <div class="sim-res-label">长白山核心承载负荷率</div>
-              <div class="sim-res-val" id="simOutLoad" style="color:#edf5f4;">78.5%</div>
-              <div class="sim-res-sub" id="simOutLoadStatus" style="color:var(--mint);">🟢 运力充裕绿色区间</div>
-            </div>
-          </div>
-
-          <!-- Policy Leverage Sensitivity Tornado Diagram -->
-          <div style="margin-top:12px; border-top:1px solid rgba(117,216,237,0.2); padding-top:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-size:14px;">🌪️</span>
-                <strong style="font-size:11px; color:#fff;">多维度政策杠杆灵敏度龙卷风分析 (Tornado Sensitivity Matrix)</strong>
-                <span class="badge" style="font-size:9px; background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); padding:1px 6px;">弹性贡献边界</span>
-              </div>
-              <span style="font-size:10px; color:var(--dim);">基准线：2030 规划总花费 5,400 亿元 (± Shock 响应)</span>
-            </div>
-            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; height:auto; display:block; background:rgba(4,14,20,0.5); border:1px solid rgba(117,216,237,0.15); border-radius:6px;"></svg>
-          </div>
         </div>
       </article>
 
@@ -2947,7 +2864,7 @@
 
         <div class="policy-nodes-grid" id="nodeGrid"></div>
 
-        <div class="policy-detail-box" id="nodeDetailBox">
+        <div class="policy-detail-box" id="nodeDetailBox" style="margin-top:auto;">
           <div class="policy-detail-tag" id="nodeDetailTag">政策原文摘要 · 长春</div>
           <div id="nodeDetailContent">政策提出支持长春建设“冰雪名城”，重点提升长春冰雪新天地、莲花岛冰雪大观园等核心产品，加快发展城市冰雪夜经济，打造全国顶尖的冰雪都市体验枢纽。</div>
           <div class="node-metrics-grid" id="nodeMetricsGrid"></div>
@@ -2993,9 +2910,118 @@
             </div>
           </div>
         </div>
-        <div class="policy-detail-box" style="border-left-color:var(--mint)">
+        <div class="policy-detail-box" style="border-left-color:var(--mint); margin-top:auto;">
           <div class="policy-detail-tag" style="color:var(--mint)">政策导向深度响应</div>
           <div>《实施意见》明确提出：<b>“鼓励文旅企业利用虚拟现实（VR）、人工智能（AI）打造沉浸式体验场景，建设数字文旅平台”</b>。本视窗以此构建吉林冰雪三维高程地理孪生原型。</div>
+        </div>
+      </article>
+
+      <!-- Dedicated Policy Simulation Sandbox Console (Full Width Dedicated Card) -->
+      <article class="card wide-card" id="simSandboxSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(8,24,33,0.95) 0%, rgba(5,15,22,0.98) 100%); border: 1px solid rgba(117,216,237,0.3); border-top: 3px solid var(--gold); margin-top: 4px;">
+        <div class="card-head" style="border-bottom: 1px solid rgba(117,216,237,0.25); flex-wrap: wrap; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:22px;">🎛️</span>
+            <div>
+              <h3 style="color:#fff; font-size:15px; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>数据科学沙盒 · 政策敏感性与动态情景推演控制台</span>
+                <span class="badge" style="background:rgba(117,216,237,0.15); color:var(--ice); border:1px solid var(--ice); font-size:11px;">多变量弹性求解器 · 蒙特卡洛敏感性标定</span>
+              </h3>
+              <small style="color:#8aa4ab; font-size:11px;">沈白高铁时空压缩 · 南方客群引力营销乘数 · 极端暖冬气候逆境弹性实时推演</small>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn btn-gold" id="btnGenBriefing" style="padding:4px 12px; font-size:11px; white-space:nowrap; flex-shrink:0; border-color:var(--gold); color:var(--gold);">📄 生成决策专报</button>
+            <button class="btn" id="btnResetSim" style="padding:4px 12px; font-size:11px; white-space:nowrap; flex-shrink:0;">↺ 重置基准</button>
+          </div>
+        </div>
+
+        <!-- Scenario Presets Dock -->
+        <div class="sim-presets-bar" id="simPresetsBar" style="margin-top:10px; margin-bottom:12px;">
+          <button class="sim-preset-btn active" data-preset="baseline">🔵 常态基准规划 (3.0亿/5,400亿)</button>
+          <button class="sim-preset-btn" data-preset="hsr_surge">🚄 高铁通车爆发 (+35%客流/7,768亿)</button>
+          <button class="sim-preset-btn" data-preset="warm_winter">⚠️ 暖冬压力测试 (气温+1.5℃/-20%)</button>
+          <button class="sim-preset-btn" data-preset="high_end">💎 高品质度假跃迁 (营销2.2x)</button>
+        </div>
+
+        <!-- 3-Column Command Body Grid on Desktop -->
+        <div class="sim-body-grid" id="simSandboxPanel" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:14px; align-items:stretch;">
+          <!-- Col A: Sliders -->
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="font-size:12px; font-weight:700; color:var(--ice); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+              <span>🎚️ 核心外生变量冲击调节滑块</span>
+            </div>
+            <div class="sim-controls-grid" style="display:flex; flex-direction:column; gap:8px; margin-bottom:0;">
+              <div class="sim-control-group">
+                <div class="sim-label-row">
+                  <span>🚄 沈白高铁客流增益</span>
+                  <b id="simValTransit" style="color:var(--mint);">+25%</b>
+                </div>
+                <input type="range" class="sim-slider" id="sliderTransit" min="0" max="35" value="25" step="1">
+                <small>预期2025通车，京津冀至长白山压缩至2.5h</small>
+              </div>
+              <div class="sim-control-group">
+                <div class="sim-label-row">
+                  <span>📢 南方客群引力营销乘数</span>
+                  <b id="simValMarketing" style="color:var(--gold);">1.6x</b>
+                </div>
+                <input type="range" class="sim-slider" id="sliderMarketing" min="1.0" max="2.5" value="1.6" step="0.1">
+                <small>精准投放长三角、大湾区定向消费券</small>
+              </div>
+              <div class="sim-control-group">
+                <div class="sim-label-row">
+                  <span>🌡️ 极端气候气温偏离</span>
+                  <b id="simValTemp" style="color:var(--ice);">0.0℃</b>
+                </div>
+                <input type="range" class="sim-slider" id="sliderTemp" min="-2.0" max="2.0" value="0.0" step="0.1">
+                <small>每偏高1℃导致有效雪期与意愿波动</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col B: Live Simulation Outcomes -->
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="font-size:12px; font-weight:700; color:var(--gold); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+              <span>📊 2029—2030 雪季目标达成动态推演</span>
+            </div>
+            <div class="sim-results-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; height:100%;">
+              <div class="sim-result-card" style="display:flex; flex-direction:column; justify-content:center;">
+                <div class="sim-res-label">2030推演综合旅游收入</div>
+                <div class="sim-res-val" id="simOutSpending" style="color:var(--gold);">5,400 亿元</div>
+                <div class="sim-res-sub" id="simOutSpendingDelta">基准目标达成率 100.0%</div>
+              </div>
+              <div class="sim-result-card" style="display:flex; flex-direction:column; justify-content:center;">
+                <div class="sim-res-label">2030推演接待客流</div>
+                <div class="sim-res-val" id="simOutVisitors" style="color:var(--ice);">3.00 亿人次</div>
+                <div class="sim-res-sub" id="simOutVisitorsDelta">基准规划 3.00 亿</div>
+              </div>
+              <div class="sim-result-card" style="display:flex; flex-direction:column; justify-content:center;">
+                <div class="sim-res-label">装备制造业突破概率</div>
+                <div class="sim-res-val" id="simOutEquipProb" style="color:var(--mint);">89.2%</div>
+                <div class="sim-res-sub">突破50亿元产值模型</div>
+              </div>
+              <div class="sim-result-card" style="display:flex; flex-direction:column; justify-content:center;">
+                <div class="sim-res-label">长白山核心承载负荷率</div>
+                <div class="sim-res-val" id="simOutLoad" style="color:#edf5f4;">78.5%</div>
+                <div class="sim-res-sub" id="simOutLoadStatus" style="color:var(--mint);">🟢 运力充裕绿色区间</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col C: Tornado Sensitivity Diagram -->
+          <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:14px;">🌪️</span>
+                <strong style="font-size:11px; color:#fff;">政策杠杆灵敏度龙卷风分析 (Tornado Matrix)</strong>
+              </div>
+              <span class="badge" style="font-size:9px; background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); padding:1px 6px;">弹性边界</span>
+            </div>
+            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; height:auto; display:block; background:rgba(4,14,20,0.5); border:1px solid rgba(117,216,237,0.15); border-radius:6px; margin-bottom:6px;"></svg>
+            <div style="font-size:10px; color:var(--dim); display:flex; justify-content:space-between; align-items:center;">
+              <span>基准线：2030 规划总花费 5,400 亿元</span>
+              <span style="color:var(--mint);">高铁与营销乘数弹性贡献前二位</span>
+            </div>
+          </div>
         </div>
       </article>
 
