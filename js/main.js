@@ -36,6 +36,7 @@
     initScrollSpy();
     initReveal();
     initTypewriter();
+    initCountUp();
     initCardPointerGlow();
     initFooterYear();
   });
@@ -399,7 +400,8 @@
     const phrases = [
       '长春工业大学 · 应用统计硕士（研究方向：数据分析）',
       '工业工程 (IE) × 数据分析 × 统计建模',
-      '时间序列分析 · 生产线作业测定 · 精益改善'
+      '时间序列分析 · 生产线作业测定 · 精益改善',
+      'Web 3D 全景数字孪生 · Three.js 研发探索'
     ];
 
     if (prefersReducedMotion) {
@@ -440,13 +442,57 @@
   }
 
   /* --------------------------------------------------------------------------
-     10. 卡片指针跟随高光（仅精确指针设备，移动端不触发）
+     10. 数字翻牌滚动递增动画 (Count Up)
+     -------------------------------------------------------------------------- */
+  function initCountUp() {
+    const counters = document.querySelectorAll('.counter-val');
+    if (!counters.length) return;
+
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        obs.unobserve(el);
+
+        const target = parseFloat(el.getAttribute('data-target') || '0');
+        const prefix = el.getAttribute('data-prefix') || '';
+        const suffix = el.getAttribute('data-suffix') || '';
+        const duration = 1400; // ms
+        const startTime = performance.now();
+
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease-out cubic: 1 - (1 - t)^3
+          const easeProgress = 1 - Math.pow(1 - progress, 3);
+          const currentVal = Math.round(target * easeProgress);
+
+          el.textContent = `${prefix}${currentVal}${suffix}`;
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = `${prefix}${target}${suffix}`;
+          }
+        }
+
+        requestAnimationFrame(update);
+      });
+    }, { threshold: 0.2 });
+
+    counters.forEach(c => observer.observe(c));
+  }
+
+  /* --------------------------------------------------------------------------
+     11. 卡片指针跟随高光（仅精确指针设备，移动端不触发）
      -------------------------------------------------------------------------- */
   function initCardPointerGlow() {
     if (prefersReducedMotion) return;
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-    document.querySelectorAll('.bento-card, .edu-card').forEach(card => {
+    document.querySelectorAll('.bento-card, .edu-card, .project-card, .competition-hero-card').forEach(card => {
       card.addEventListener('pointermove', (e) => {
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
@@ -456,7 +502,7 @@
   }
 
   /* --------------------------------------------------------------------------
-     11. 页脚年份自动更新
+     12. 页脚年份自动更新
      -------------------------------------------------------------------------- */
   function initFooterYear() {
     const el = document.querySelector('.footer-year');

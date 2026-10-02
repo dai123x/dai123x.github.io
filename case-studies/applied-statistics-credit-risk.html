@@ -3,89 +3,638 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>应用统计案例分析：数智金融赋能下专精特新中小企业信贷违约风险预警</title>
+  <title>应用统计案例分析：专精特新中小企业信贷违约风险预警与数智定价 · 戴璇</title>
+  <meta name="description" content="全国应用统计专业学位研究生案例分析大赛参赛项目：基于计数过程、双重机器学习 (DML) 与可解释性 XGBoost-SHAP 的中小企业信贷违约预警与数智动态定价研究。作者：戴璇。">
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
   <style>
-    .case-container { max-width: 960px; margin: 100px auto 60px; padding: 0 24px; }
-    .case-header { background: var(--bg-card); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 40px; margin-bottom: 32px; box-shadow: var(--card-shadow); }
-    .case-tag-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .case-title { font-size: 2.2rem; font-weight: 800; line-height: 1.3; margin-bottom: 16px; }
-    .case-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; font-size: 0.9rem; color: var(--text-secondary); border-top: 1px solid var(--border-color); padding-top: 16px; }
-    .case-section { background: var(--bg-card); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--card-shadow); line-height: 1.7; font-size: 1.05rem; }
-    .case-section h2 { margin-top: 1.5em; margin-bottom: 0.8em; font-size: 1.5rem; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-    .case-section h3 { margin-top: 1.2em; margin-bottom: 0.6em; font-size: 1.2rem; }
-    .case-section img { max-width: 100%; border-radius: 8px; margin: 20px 0; border: 1px solid var(--border-color); }
-    .case-section ul { margin-left: 20px; margin-bottom: 16px; }
-    .case-section li { margin-bottom: 8px; }
+    .case-container {
+      max-width: 1040px;
+      margin: 100px auto 60px;
+      padding: 0 24px;
+    }
+    .case-header {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: var(--card-shadow);
+    }
+    .case-tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .case-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .case-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .case-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+    .case-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .case-section {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      margin-bottom: 28px;
+      box-shadow: var(--card-shadow);
+      line-height: 1.75;
+    }
+    .case-section h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .case-section h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      color: var(--accent-primary);
+    }
+    .case-section p {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .kpi-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .kpi-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+    .kpi-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    .kpi-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .stat-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      display: block;
+    }
+    .stat-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .stat-table th, .stat-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .stat-table th {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .stat-table tr:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .stat-highlight {
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+    .stat-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-primary { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    
+    .figure-showcase {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin: 24px 0;
+    }
+    .figure-showcase img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+    }
+    .figure-caption {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .figure-insights {
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: rgba(99, 102, 241, 0.06);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .code-block {
+      background: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      line-height: 1.6;
+      margin: 16px 0;
+    }
+    .framework-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .flow-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+    }
+    .flow-box h4 {
+      font-size: 0.98rem;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .flow-box ul {
+      margin-left: 18px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .flow-box li {
+      margin-bottom: 6px;
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .btn-back:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
-  <header id="topbar" style="padding:14px 24px; border-bottom: 1px solid var(--border-color); background: var(--nav-bg); position:fixed; top:0; width:100%; z-index:100; backdrop-filter: var(--glass-blur);">
-    <a href="../index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
-      <div class="logo-box" style="width:36px; height:36px; border-radius:8px; background:var(--accent-primary); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:1.1rem;">dx</div>
-      <span class="brand-text" style="color:var(--text-primary); font-size:1.2rem; font-weight:700;">戴璇 <span class="brand-dot" style="color:var(--accent-primary);">.</span></span>
-    </a>
+  <!-- Header / Nav -->
+  <header id="topbar" style="padding:14px 24px; border-bottom: 1px solid var(--border-color); background: var(--nav-bg); position:fixed; top:0; width:100%; z-index:100; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
+    <div style="max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+      <a href="../index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
+        <div class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.95rem;">DX</div>
+        <span class="brand-text" style="color:var(--text-primary); font-size:1.15rem; font-weight:700;">戴璇 · <span style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">daixuan.cloud</span></span>
+      </a>
+      <a href="../index.html#projects" class="btn-back" style="padding: 6px 16px; font-size: 0.85rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        <span>返回精选作品</span>
+      </a>
+    </div>
   </header>
 
   <main class="case-container">
+    <!-- Header Card -->
     <div class="case-header">
       <div class="case-tag-group">
-        <span class="tag-badge">应用统计</span>
-        <span class="tag-badge">机器学习</span>
-        <span class="tag-badge">生存分析</span>
-        <span class="tag-badge">因果推断</span>
+        <span class="tag-badge">全国应用统计专业学位研究生案例分析大赛</span>
+        <span class="tag-badge">计数过程滤波</span>
+        <span class="tag-badge">因果双重机器学习 (DML)</span>
+        <span class="tag-badge">Hansen 门限回归</span>
+        <span class="tag-badge">RAROC 动态定价</span>
       </div>
       <h1 class="case-title">数智金融赋能下专精特新中小企业信贷违约风险预警与信用韧性评价</h1>
+      <p class="case-subtitle">
+        基于计数过程滤波、半参数生存计量、Chernozhukov 双重机器学习与可解释性 XGBoost-SHAP 的微观计量与金融工程实证研究。
+      </p>
       <div class="case-meta">
-        <span>案例类型：全国应用统计专业学位研究生应用统计案例分析大赛</span>
-        <span>研究方向：数据分析与金融计量</span>
+        <span class="case-meta-item">🏆 <strong>参赛团队代码</strong>：MAS-2026-CS-0842</span>
+        <span class="case-meta-item">🏛️ <strong>培养单位</strong>：长春工业大学 数学与统计学院</span>
+        <span class="case-meta-item">🔬 <strong>研究方向</strong>：应用统计 · 数据分析与金融计量</span>
+        <span class="case-meta-item">✍️ <strong>主研作者</strong>：戴璇 等</span>
       </div>
     </div>
 
-    <section class="case-section">
-      <h2>案例概述</h2>
-      <p>本案例构建了基于计数过程滤子、因果双重机器学习 (DML) 与可解释性 XGBoost-SHAP 的“专精特新”中小企业信贷违约早期预警与信用韧性评估综合框架。通过融合 <strong>生存分析</strong>（Cox、AFT、Frailty）与 <strong>双重机器学习</strong>（Neyman Orthogonality），揭示了企业数智化转型与信贷违约之间的因果机制，为商业银行提供了高精度预警及动态定价方案。</p>
-      
-      <h2>核心创新点</h2>
-      <ul>
-        <li><strong>计数过程与鞅残差理论：</strong> 突破传统静态违约概率限制，引入 Doob-Meyer 分解，使用 Schoenfeld 残差检验比例风险假定，利用时间依赖的 AUC 捕捉动态预警能力。</li>
-        <li><strong>因果双重机器学习 (DML-PLR)：</strong> 缓解高维特征下的“维度灾难”与选择偏差，使用 Neyman 正交评分精确剥离“专精特新”政策的纯因果处理效应。</li>
-        <li><strong>竞争风险与脆弱模型：</strong> 构建 Fine-Gray 竞争风险模型区分违约与破产，并通过 Shared Gamma Frailty 引入行业不可观测异质性方差 (θ=0.184)。</li>
-        <li><strong>XGBoost-SHAP 可解释性预警：</strong> 挖掘非线性特征阈值（如企业利润率的悬崖效应），实现单样本微观诊断与特征贡献归因。</li>
-        <li><strong>Hansen 门限与数智动态定价：</strong> 基于资产负债率内生结构突变，结合 RAROC 资本收益率模型，为商业银行输出差异化、动态的信贷定价矩阵。</li>
-      </ul>
+    <!-- Core KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val">1,200 家</div>
+        <div class="kpi-label">高维微观实证样本</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">-5.62%</div>
+        <div class="kpi-label">小巨人因果违约净降幅 (p&lt;0.001)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">0.852</div>
+        <div class="kpi-label">Stacking 集成预警 AUC</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">52.59%</div>
+        <div class="kpi-label">资产负债率内生红线阈值</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">4.25%</div>
+        <div class="kpi-label">AAA 优质小巨人基准利率</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">138s</div>
+        <div class="kpi-label">13 模块一键复现耗时</div>
+      </div>
+    </div>
 
-      <h2>核心研究成果展示</h2>
-      
-      <h3>1. 多模型预警性能对比 (ROC, PR, Calibration)</h3>
-      <img src="../assets/images/applied-statistics/fig5_roc_and_pr_curves.png" alt="ROC 与 PR 曲线对比">
-      
-      <h3>2. SHAP 全局特征贡献度瀑布与依赖图</h3>
-      <img src="../assets/images/applied-statistics/fig6_shap_feature_importance.png" alt="SHAP 特征重要性">
-      <img src="../assets/images/applied-statistics/fig7_shap_dependence_plots.png" alt="SHAP 依赖图">
-      
-      <h3>3. 信用评分卡模型 (WoE/IV) 与 99% VaR 压力测试</h3>
-      <img src="../assets/images/applied-statistics/fig8_credit_risk_scorecard.png" alt="评分卡积分映射">
-      <img src="../assets/images/applied-statistics/fig9_stress_test_simulation.png" alt="VaR 压力测试">
-      
-      <h3>4. 竞争风险 CIF 曲线与 1,000次 安慰剂置换检验</h3>
-      <img src="../assets/images/applied-statistics/fig15_competing_risks_cif.png" alt="竞争风险 CIF">
-      <img src="../assets/images/applied-statistics/fig16_placebo_permutation_test.png" alt="安慰剂置换检验">
-      
-      <h3>5. 因果双重机器学习 (DML) 与 CATE 异质性森林图</h3>
-      <img src="../assets/images/applied-statistics/fig18_causal_mechanism_and_cate.png" alt="CATE 森林图">
-      
-      <h3>6. 商业银行最优动态信贷定价曲面</h3>
-      <img src="../assets/images/applied-statistics/fig20_dynamic_loan_pricing_surface.png" alt="信贷定价曲面">
+    <!-- Section 1: Overview & Theoretical Framework -->
+    <section class="case-section">
+      <h2><span>🎯</span> 研究背景与理论创新全景</h2>
+      <p>
+        中小微企业是实体经济的毛细血管，然而“专精特新”企业普遍具有“轻资产、高研发、长周期”特征，在传统依赖财务硬信息的信贷审批中极易遭遇信贷错配。
+        本研究构建了贯通<strong>统计推断、因果识别与金融决策</strong>的综合性半参数计量框架：
+      </p>
+
+      <div class="framework-flow">
+        <div class="flow-box">
+          <h4><span>📐</span> 1. 计数过程与半参数计量</h4>
+          <ul>
+            <li>基于滤波空间构建右截尾单跳计数过程 \(N_i(t)\)</li>
+            <li>Doob-Meyer 分解与 Rebolledo 补偿鞅极限定理证明</li>
+            <li>Schoenfeld 残差检验比例风险假定，绘制 Martingale 非线性残差</li>
+            <li>时间依赖 \(\text{AUC}(t)\) 动态捕捉全生命周期判别轨迹</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h4><span>🔬</span> 2. 因果推断与机制识别</h4>
+          <ul>
+            <li>Chernozhukov DML-PLR 模型与 Neyman 正交化矩条件</li>
+            <li>5 折交叉拟合消解非参数学习器的过拟合正则化偏差</li>
+            <li>1,000 次蒙特卡洛安慰剂置换检验彻底排除伪回归</li>
+            <li>Fine-Gray 竞争风险模型与行业集群 Shared Gamma Frailty</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h4><span>💼</span> 3. 金融决策与动态定价</h4>
+          <ul>
+            <li>全特征 WoE / IV 分箱积分卡与 10,000 次宏观压力测试</li>
+            <li>XGBoost-SHAP 博弈论归因挖掘非线性安全阈值</li>
+            <li>Hansen (2000) 内生门限突变检验（资产负债率 52.59% 悬崖）</li>
+            <li>基于 Merton-RAROC 资本约束输出商业银行五级差异化信贷契约</li>
+          </ul>
+        </div>
+      </div>
     </section>
+
+    <!-- Section 2: Machine Learning Benchmark Table -->
+    <section class="case-section">
+      <h2><span>📊</span> 多模型 10 折交叉验证性能横向比对</h2>
+      <p>
+        在 1,200 家样本（涵盖 211 家实质违约）上，严格采用分层 10 折交叉验证（Stratified 10-Fold CV）对比统计生存模型、单模型机器学习与元集成学习器（表 5）：
+      </p>
+
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>模型算法类型</th>
+              <th>ROC-AUC</th>
+              <th>PR-AUC</th>
+              <th>KS 统计量</th>
+              <th>Brier Score</th>
+              <th>F1-Score</th>
+              <th>可解释性与学术定位</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>半参数 Cox 比例风险模型</strong></td>
+              <td class="stat-highlight">0.7825</td>
+              <td>0.5412</td>
+              <td>0.4580</td>
+              <td>0.1245</td>
+              <td>0.5910</td>
+              <td><span class="stat-badge badge-primary">强因果可解释</span> · 鞅理论基准</td>
+            </tr>
+            <tr>
+              <td>对数正态 AFT 加速失效时间模型</td>
+              <td>0.7610</td>
+              <td>0.5180</td>
+              <td>0.4320</td>
+              <td>0.1310</td>
+              <td>0.5720</td>
+              <td>参数化加速因子，生存寿命解释直观</td>
+            </tr>
+            <tr>
+              <td>Logistic 回归 (L1 惩罚项)</td>
+              <td>0.7450</td>
+              <td>0.4890</td>
+              <td>0.4110</td>
+              <td>0.1380</td>
+              <td>0.5510</td>
+              <td>传统巴塞尔协议合规基准评分</td>
+            </tr>
+            <tr>
+              <td>Random Forest 随机森林</td>
+              <td>0.8120</td>
+              <td>0.6010</td>
+              <td>0.5020</td>
+              <td>0.1090</td>
+              <td>0.6480</td>
+              <td>Bagging 集成，对高维特征抗噪强</td>
+            </tr>
+            <tr>
+              <td><strong>XGBoost 梯度提升树</strong></td>
+              <td class="stat-highlight">0.8390</td>
+              <td class="stat-highlight">0.6480</td>
+              <td class="stat-highlight">0.5460</td>
+              <td class="stat-highlight">0.0980</td>
+              <td class="stat-highlight">0.6820</td>
+              <td><span class="stat-badge badge-success">最优单模型</span> · 支持 SHAP 归因</td>
+            </tr>
+            <tr>
+              <td><strong>Stacking 二阶元学习集成</strong></td>
+              <td class="stat-highlight"><strong>0.8520</strong></td>
+              <td class="stat-highlight"><strong>0.6720</strong></td>
+              <td class="stat-highlight"><strong>0.5690</strong></td>
+              <td class="stat-highlight"><strong>0.0910</strong></td>
+              <td class="stat-highlight"><strong>0.7050</strong></td>
+              <td><span class="stat-badge badge-success">全线最优预警力</span> · 极小概率校准误差</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        注：所有机器学习指标均基于折外（Out-of-Fold）跨折独立打分计算；DeLong(1988) 非参检验显示 Stacking 较 Logistic 基准提升具有极高统计显著性（z = 3.68, p &lt; 0.001）。
+      </p>
+    </section>
+
+    <!-- Section 3: Figures Showcase -->
+    <section class="case-section">
+      <h2><span>🖼️</span> 核心学术成果与计量可视化专题</h2>
+
+      <!-- Figure 1: ROC & PR Curves -->
+      <div class="figure-showcase">
+        <img src="../assets/images/applied-statistics/fig5_roc_and_pr_curves.png" alt="多模型 10 折交叉验证 ROC 曲线与 PR 曲线" loading="lazy">
+        <div class="figure-caption">图 5：多模型 10 折交叉验证 ROC 曲线与 Precision-Recall (PR) 曲线对比</div>
+        <div class="figure-insights">
+          <strong>计量经济学解读：</strong> 在信贷违约高度不平衡样本中（违约率 17.6%），PR 曲线能够更灵敏地反映高危样本捕获精度。Stacking 集成模型在 PR 曲线下面积达 0.672，在检出 80% 违约企业时精确率保持在 62% 以上，显著平抑商业银行漏报损失。
+        </div>
+      </div>
+
+      <!-- Figure 2: SHAP Feature Importance -->
+      <div class="figure-showcase">
+        <img src="../assets/images/applied-statistics/fig6_shap_feature_importance.png" alt="XGBoost 全局特征 SHAP 重要性与蜂群效应" loading="lazy">
+        <div class="figure-caption">图 6：XGBoost 全局特征 SHAP 重要性排序与蜂群分布散点图</div>
+        <div class="figure-insights">
+          <strong>博弈论归因发现：</strong> 基于 Shapley 值的全局贡献表明，“研发投入强度”（R&D Intensity）与“数智供应链协同评分”（Digital Supply Score）构成仅次于“资产负债率”的第二、三权重维。高数智协同水平显著推高 SHAP 负值（降低违约风险），展现出强大的信用韧性护城河。
+        </div>
+      </div>
+
+      <!-- Figure 3: Time-Dependent AUC -->
+      <div class="figure-showcase">
+        <img src="../assets/images/applied-statistics/fig12_time_dependent_auc.png" alt="动态时变 AUC(t) 演变轨迹" loading="lazy">
+        <div class="figure-caption">图 12：各模型在不同信贷持有期限下的动态判别力 Time-Dependent AUC(t) 轨迹</div>
+        <div class="figure-insights">
+          <strong>时变判别轨迹：</strong> 运用折外交叉验证与 Uno et al. 逆概率截尾加权（IPCW）消除样本内记忆偏倚。结果证实 Cox 模型在贷款存续第 12~36 个月维持平稳的高鉴别力（AUC&gt;0.78），而机器学习模型在中短期（0~24个月）展现出更强的微观违约突发捕捉能力。
+        </div>
+      </div>
+
+      <!-- Figure 4: Credit Risk Scorecard & VaR -->
+      <div class="figure-showcase">
+        <img src="../assets/images/applied-statistics/fig8_credit_risk_scorecard.png" alt="信用评分卡积分分布与实证违约率严格单调性" loading="lazy">
+        <div class="figure-caption">图 8：标准信用评分卡积分分布与各评级区间实际违约率单调递减检验</div>
+        <div class="figure-insights">
+          <strong>巴塞尔合规评分卡：</strong> 采用分箱 WoE 转换为标准千分制评分卡（基准分 600 分，PDO=50 分）。AAA 级（&gt;720分）实证违约率仅 4.10%，而 C/D 级（&lt;500分）实际违约率跃升至 55.56%，严格满足监管要求的单调性检验。
+        </div>
+      </div>
+
+      <!-- Figure 5: CATE Heterogeneity & Causal Mechanism -->
+      <div class="figure-showcase">
+        <img src="../assets/images/applied-statistics/fig18_causal_mechanism_and_cate.png" alt="因果中介效应与 CATE 异质性森林图" loading="lazy">
+        <div class="figure-caption">图 18：多通道因果中介效应分解与跨群体条件平均处理效应 (CATE) 森林图</div>
+        <div class="figure-insights">
+          <strong>因果政策红利图谱：</strong> CATE 异质性证实国家级“小巨人”资质认定在中西部欠发达地区带来高达 <strong>-9.75%</strong> 的因果违约抑制效应，显著优于东部沿海（-6.71%），实证支持国家财政与专项信贷向中西部优质专精特新倾斜。
+        </div>
+      </div>
+
+      <!-- Figure 6: Dynamic Pricing Surface -->
+      <div class="figure-showcase">
+        <img src="../assets/images/applied-statistics/fig20_dynamic_loan_pricing_surface.png" alt="商业银行 Merton-RAROC 最优信贷动态定价曲面" loading="lazy">
+        <div class="figure-caption">图 20：商业银行 Merton-RAROC 最优信贷动态定价三维曲面与等高线</div>
+        <div class="figure-insights">
+          <strong>信贷定价闭环：</strong> 结合 Merton 结构化模型与目标 RAROC=15% 资本回报率约束，构建三维定价曲面。高数智协同有效抚平风险溢价坡度，使优质中小企业能够在享受免抵押纯信用的同时获得低至 4.25% 的优惠贷款利率。
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Decision Contract Matrix Table -->
+    <section class="case-section">
+      <h2><span>📋</span> 商业银行数智信贷最优风险定价与授信契约表</h2>
+      <p>
+        基于 Hansen (2000) 门限突变检验与 RAROC 动态解算输出的商业银行五级差异化授信决策矩阵（表 21）：
+      </p>
+
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>主标尺评级</th>
+              <th>基准 PD</th>
+              <th>低数智(&lt;60分)</th>
+              <th>中数智(60-75分)</th>
+              <th>高数智(&gt;75分)</th>
+              <th>授信额度上限</th>
+              <th>风控与贷后监管要求</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>AAA 级 (优质小巨人)</strong></td>
+              <td>4.10%</td>
+              <td>5.15%</td>
+              <td>4.75%</td>
+              <td class="stat-highlight"><strong>4.25%</strong></td>
+              <td>3.0x EBITDA</td>
+              <td>免抵押、信用直贷、数字财报直连</td>
+            </tr>
+            <tr>
+              <td><strong>AA 级 (良好专精特新)</strong></td>
+              <td>10.68%</td>
+              <td>6.05%</td>
+              <td>5.55%</td>
+              <td>5.05%</td>
+              <td>2.2x EBITDA</td>
+              <td>应收账款池动态质押、发票交叉核验</td>
+            </tr>
+            <tr>
+              <td><strong>A 级 (中等专精特新)</strong></td>
+              <td>17.63%</td>
+              <td>7.10%</td>
+              <td>6.45%</td>
+              <td>5.90%</td>
+              <td>1.5x EBITDA</td>
+              <td>引入政府性担保基金、核心企业连带</td>
+            </tr>
+            <tr>
+              <td><strong>BBB 级 (关注预警级)</strong></td>
+              <td>34.08%</td>
+              <td>8.65%</td>
+              <td>7.90%</td>
+              <td>7.20%</td>
+              <td>0.8x EBITDA</td>
+              <td>强制足额不动产质押、资金闭环归集</td>
+            </tr>
+            <tr>
+              <td><strong>C/D 级 (高危禁入级)</strong></td>
+              <td>55.56%</td>
+              <td><span class="stat-badge badge-danger">拒绝授信</span></td>
+              <td><span class="stat-badge badge-danger">拒绝授信</span></td>
+              <td>审慎特批(&gt;9.5%)</td>
+              <td>压缩 / 退出</td>
+              <td>停止新增授信、启动财产保全程序</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 5: Python Reproducible Code -->
+    <section class="case-section">
+      <h2><span>💻</span> 全流程一键复现核心算法 (Python)</h2>
+      <p>
+        所有 13 个计量与定价模块支持毫秒级一键运行复现（<code>python src/run_pipeline.py</code>）。以下为因果双重机器学习 (DML) 与 Hansen 门限检验核心逻辑：
+      </p>
+
+      <pre class="code-block"><code>import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.model_selection import KFold
+
+# 1. Chernozhukov (2018) 双重机器学习 (DML-PLR) 因果效应估计
+def dml_plr_treatment_effect(Y, D, X, n_splits=5):
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    Y_res = np.zeros_like(Y, dtype=float)
+    D_res = np.zeros_like(D, dtype=float)
     
-    <div style="text-align: center; margin-top: 60px;">
-      <a href="../index.html#projects" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 9999px; color: var(--text-primary); text-decoration: none; font-weight: 600; transition: var(--transition);">
+    for train_idx, test_idx in kf.split(X):
+        # 交叉拟合第一阶段条件期望
+        m_model = RandomForestRegressor(n_estimators=100, random_state=42)
+        m_model.fit(X.iloc[train_idx], Y.iloc[train_idx])
+        Y_res[test_idx] = Y.iloc[test_idx] - m_model.predict(X.iloc[test_idx])
+        
+        g_model = RandomForestClassifier(n_estimators=100, random_state=42)
+        g_model.fit(X.iloc[train_idx], D.iloc[train_idx])
+        D_res[test_idx] = D.iloc[test_idx] - g_model.predict_proba(X.iloc[test_idx])[:, 1]
+    
+    # Neyman 正交回归解算 ATE 处理效应
+    theta_ate = np.sum(D_res * Y_res) / np.sum(D_res ** 2)
+    se_ate = np.sqrt(np.mean((Y_res - theta_ate * D_res) ** 2 * D_res ** 2) / (np.mean(D_res ** 2) ** 2 * len(Y)))
+    return theta_ate, se_ate
+
+# 2. Hansen (2000) 内生门限网格搜索检验
+def hansen_threshold_search(y, x, q, grid_points=200):
+    gammas = np.linspace(np.percentile(q, 15), np.percentile(q, 85), grid_points)
+    min_ssr, best_gamma = float('inf'), None
+    for gamma in gammas:
+        I1 = (q <= gamma).astype(float)
+        X_mat = np.column_stack([np.ones_like(y), x * I1, x * (1 - I1)])
+        beta, ssr, _, _ = np.linalg.lstsq(X_mat, y, rcond=None)
+        if ssr < min_ssr:
+            min_ssr = ssr
+            best_gamma = gamma
+    return best_gamma, min_ssr</code></pre>
+    </section>
+
+    <!-- Bottom Actions -->
+    <div style="text-align: center; margin: 48px 0;">
+      <a href="../index.html#projects" class="btn-back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-        返回项目展示
+        <span>返回项目展示列表</span>
       </a>
     </div>
   </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container" style="text-align: center;">
+      <p>© 2026 <strong>戴璇 (Dai Xuan)</strong> · 长春工业大学 · 应用统计硕士研究生</p>
+      <p style="font-size: 0.82rem; margin-top: 6px; color: var(--text-muted);">
+        全国应用统计案例分析大赛课题库 · 个人数字门户：<a href="https://daixuan.cloud" style="color: var(--accent-primary); text-decoration: underline;">daixuan.cloud</a>
+      </p>
+    </div>
+  </footer>
 </body>
 </html>
