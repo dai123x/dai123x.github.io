@@ -2477,6 +2477,124 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(244, 198, 109, 0.12);
     }
+
+    /* ===== 官方语音解说浮动播放条 ===== */
+    .voiceover-dock {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(0);
+      z-index: 1500;
+      background: rgba(6, 19, 27, 0.94);
+      border: 1px solid rgba(255, 159, 104, 0.45);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 159, 104, 0.2);
+      border-radius: 40px;
+      padding: 8px 18px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 92vw;
+    }
+    .voiceover-dock.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(30px);
+    }
+    .dock-meta {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .dock-icon {
+      font-size: 20px;
+    }
+    .dock-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
+    .dock-text strong {
+      color: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .dock-text small {
+      color: var(--muted);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .dock-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dock-btn {
+      background: rgba(255, 159, 104, 0.15);
+      border: 1px solid rgba(255, 159, 104, 0.5);
+      color: var(--coral);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    .dock-btn:hover {
+      background: var(--coral);
+      color: #06131b;
+      box-shadow: 0 0 12px var(--coral-glow);
+    }
+    .dock-btn-close {
+      width: 24px;
+      height: 24px;
+      font-size: 11px;
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--muted);
+      background: transparent;
+    }
+    .dock-btn-close:hover {
+      background: rgba(255, 107, 107, 0.3);
+      color: #fff;
+      border-color: var(--coral);
+    }
+    .dock-progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dock-time {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ice);
+      white-space: nowrap;
+    }
+    .dock-seek {
+      width: 140px;
+      height: 4px;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+      outline: none;
+      accent-color: var(--coral);
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .voiceover-dock {
+        flex-direction: column;
+        border-radius: 16px;
+        padding: 10px 14px;
+        bottom: 12px;
+      }
+      .dock-seek {
+        width: 100px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2579,6 +2697,7 @@
         </div>
         <button class="btn" id="btnWeather" title="切换天气粒子强度">🌨️ 暴雪特效</button>
         <button class="btn btn-gold" id="btnTour" title="启动全自动巡航讲解模式">🚀 自动巡航演示</button>
+        <button class="btn" id="btnVoiceover" title="播放官方竞赛 5 分钟语音解说导览录音 (快捷键 N)" style="border-color:var(--coral); color:var(--coral);">🎙️ 官方解说</button>
         <button class="btn" id="btnCover" title="查看大赛规范封面">📋 作品片头</button>
         <button class="btn" id="btnSetup" title="配置参赛队伍与学校">⚙️ 参赛信息</button>
         <button class="btn btn-gold" id="btnReport" title="生成并查看 AI 冰雪经济分析报告" style="border-color: var(--gold); color: var(--gold);">📑 AI 分析报告</button>
@@ -4997,6 +5116,9 @@ if (!isStereoVR) {
           <b style="color:var(--mint);">L 键</b> : 中英双语国际化切换 (ZH/EN)
         </div>
         <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
+          <b style="color:var(--coral);">N 键</b> : 播放 / 暂停官方 5 分钟语音解说导览
+        </div>
+        <div style="background:#132e3a;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">Esc</b> : 关闭任意弹窗或退出巡航
         </div>
       </div>
@@ -5153,6 +5275,33 @@ if (!isStereoVR) {
       <img src="assets/changbai_tianchi.jpg" alt="长白山风光" class="gallery-img" id="galleryImg" width="1376" height="768" loading="eager" decoding="async" fetchpriority="high">
       <div class="gallery-caption" id="galleryCaption">航拍冬季长白山主峰天池全景，冰雪封湖，十六峰环绕</div>
       <button class="gallery-nav next" id="btnGalleryNext">›</button>
+    </div>
+  </div>
+
+  <!-- Official Voiceover Narration Audio Element & Floating Dock -->
+  <audio id="voiceoverAudio" preload="metadata">
+    <source src="assets/voiceover_broadcast.mp3" type="audio/mpeg">
+    <source src="参赛材料/voiceover_broadcast.mp3" type="audio/mpeg">
+    <source src="voiceover_broadcast.mp3" type="audio/mpeg">
+  </audio>
+
+  <div id="voiceoverDock" class="voiceover-dock hidden">
+    <div class="dock-meta">
+      <span class="dock-icon">🎙️</span>
+      <div class="dock-text">
+        <strong id="dockTrackTitle">《雪线之上》官方 5 分钟深度语音解说导览</strong>
+        <small id="dockTrackSub">长春工业大学 深度求索团队 · 官方评委解说录音</small>
+      </div>
+    </div>
+    <div class="dock-controls">
+      <button class="dock-btn" id="dockBtnPlayPause" title="播放 / 暂停">▶</button>
+      <div class="dock-progress-wrapper">
+        <span id="dockCurTime" class="dock-time">00:00</span>
+        <input type="range" id="dockSeek" class="dock-seek" min="0" max="100" value="0">
+        <span id="dockTotalTime" class="dock-time">05:10</span>
+      </div>
+      <button class="dock-btn" id="dockBtnMute" title="静音 / 恢复">🔊</button>
+      <button class="dock-btn dock-btn-close" id="dockBtnClose" title="收起播放器">✕</button>
     </div>
   </div>
 
@@ -8746,8 +8895,19 @@ if (!isStereoVR) {
         "2027,1.80,1.95,2.15,2.37,2.58,—,—\n" +
         "2028 (中期目标),2.09,2.30,2.57,2.88,3.18,P(>=2.3亿) = 75.2%,P(>=4200亿) = 85.0%\n" +
         "2029,2.44,2.72,3.09,3.49,3.89,—,—\n" +
-        "2030 (长期目标),2.86,3.23,3.70,4.24,4.76,P(>=3.0亿) = 84.9%,P(>=5400亿) = 91.8%\n" +
-        "参数说明,μ=18.4%(年化漂移),σ=8.2%(年化波动),客流S0=1.25亿人次 / 花费S0=2419亿元,N=10000次,GBM dS=μSdt+σSdW(两序列独立模拟、种子固定可复现)\n";
+        "参数说明,μ=18.4%(年化漂移),σ=8.2%(年化波动),客流S0=1.25亿人次 / 花费S0=2419亿元,N=10000次,GBM dS=μSdt+σSdW(两序列独立模拟、种子固定可复现)\n\n" +
+        "=== 表7：吉林省冰雪装备智造重点骨干企业名录 ===\n" +
+        "企业名称,所属赛道,地理位置,核心技术成果,目标产值/规模,荣誉资质\n" +
+        ENTERPRISES_DATA.map(e => `"${e.name}","${e.role}","${e.location}","${e.coreTech}","${e.targetValue}","${e.status}"`).join('\n') + "\n\n" +
+        "=== 表8：“十五五”战略重大基础设施与重点工程推进看板 ===\n" +
+        "工程名称,工程类别,总投资,建设工期,当前建设进度,关键节点状态,里程碑目标\n" +
+        ROADMAP_DATA.map(r => `"${r.name}","${r.type}","${r.budget}","${r.timeline}","${r.progress}%","${r.status}","${r.milestone}"`).join('\n') + "\n\n" +
+        "=== 表9：世界三大粉雪基地理化监测指标横向对比矩阵 ===\n" +
+        "基地名称,地理坐标,粉雪含水率,雪质密度,静风率(舒适度),有效雪期,最大垂直落差,综合评级\n" +
+        "中国吉林长白山/北大湖,41°35'N — 43°50'N,4.2%(天然超轻干粉),0.08~0.11 g/cm³,82.4%(极高舒适),135-150天,870m(北大湖),世界顶尖\n" +
+        "日本北海道二世谷(Niseko),42°50'N,6.5%(海洋性粉雪),0.10~0.13 g/cm³,58.0%(海风扰动),130天,750m,国际知名\n" +
+        "瑞士阿尔卑斯采尔马特(Zermatt),45°59'N,7.8%(大陆高山雪),0.14~0.18 g/cm³,45.2%(峡谷侧风大),140天(冰川全年),2200m,欧洲之巅\n" +
+        "北美落基山惠斯勒(Whistler),50°07'N,8.5%(太平洋湿雪),0.13~0.17 g/cm³,51.0%(风压中等),150天,1609m,北美旗舰\n";
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -8823,6 +8983,7 @@ if (!isStereoVR) {
         $('vrExpandModal').classList.remove('show');
         $('galleryModal').classList.remove('show');
         $('briefingModal')?.classList.remove('show');
+        if ($('voiceoverDock')) $('voiceoverDock').classList.add('hidden');
         if (isSkiingRunning) toggleSkiingSimulation();
         isExpandOpen = false;
         stopAutoTour();
@@ -8842,6 +9003,8 @@ if (!isStereoVR) {
         toggleSkiingSimulation();
       } else if (e.key.toLowerCase() === 'l') {
         toggleLanguage();
+      } else if (e.key.toLowerCase() === 'n') {
+        toggleVoiceover();
       } else if (e.key === 'ArrowRight') {
         if ($('galleryModal').classList.contains('show')) {
           $('btnGalleryNext').click();
@@ -9945,7 +10108,15 @@ if (!isStereoVR) {
         if (layerNames[l]) pill.textContent = layerNames[l];
       });
 
+      const btnVo = $('btnVoiceover');
+      if (btnVo) {
+        btnVo.textContent = isEnglish
+          ? (isVoiceoverPlaying ? '⏸️ Pause Guide' : '🎙️ Audio Guide')
+          : (isVoiceoverPlaying ? '⏸️ 暂停解说' : '🎙️ 官方解说');
+      }
+
       const secTitles = [
+        { id: '#techOriginalitySection', zh: '技术原创性与自研内核清单', en: 'Technical Originality & Self-Developed Core Engine' },
         { id: '#industryEcosystemSection', zh: '吉林省冰雪全产业链重点骨干企业与高新装备智造图谱', en: 'Jilin Ice & Snow Industry Ecosystem & Advanced Equipment Manufacturing' },
         { id: '#infrastructureRoadmapSection', zh: '“十五五”战略窗口期：重大基础设施与百亿级重点工程推进全景看板', en: '"15th Five-Year" Strategic Infrastructure & Major Projects Panorama' },
         { id: '#consumerProfileSection', zh: '数据洞察：冰雪消费者微观画像与消费结构空间透视', en: 'Data Insights: Ice & Snow Consumer Demographics & Spending Matrix' },
@@ -10445,6 +10616,153 @@ if (!isStereoVR) {
     }
     updateSystemClock();
     setInterval(updateSystemClock, 1000);
+
+    // ==========================================
+    // System Toast Message Utility
+    // ==========================================
+    function showToast(msg) {
+      let t = $('sysToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'sysToast';
+        t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:rgba(6,19,27,0.92);border:1px solid var(--ice);color:#fff;padding:8px 18px;border-radius:24px;font-size:12px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s ease;backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;';
+        document.body.appendChild(t);
+      }
+      t.innerHTML = msg;
+      t.style.opacity = '1';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2600);
+    }
+
+    // ==========================================
+    // Official Voiceover Narration Audio Controller
+    // ==========================================
+    const voiceoverAudio = $('voiceoverAudio');
+    const voiceoverDock = $('voiceoverDock');
+    const btnVoiceover = $('btnVoiceover');
+    const dockBtnPlayPause = $('dockBtnPlayPause');
+    const dockCurTime = $('dockCurTime');
+    const dockTotalTime = $('dockTotalTime');
+    const dockSeek = $('dockSeek');
+    const dockBtnMute = $('dockBtnMute');
+    const dockBtnClose = $('dockBtnClose');
+
+    let isVoiceoverPlaying = false;
+    let isSeeking = false;
+
+    function formatTime(sec) {
+      if (isNaN(sec) || !isFinite(sec)) return '00:00';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateVoiceoverUI(playing) {
+      isVoiceoverPlaying = playing;
+      if (btnVoiceover) {
+        if (playing) {
+          btnVoiceover.textContent = isEnglish ? '⏸️ Pause Guide' : '⏸️ 暂停解说';
+          btnVoiceover.style.background = 'rgba(255, 159, 104, 0.25)';
+          btnVoiceover.style.borderColor = 'var(--coral)';
+          btnVoiceover.style.color = '#fff';
+        } else {
+          btnVoiceover.textContent = isEnglish ? '🎙️ Audio Guide' : '🎙️ 官方解说';
+          btnVoiceover.style.background = '';
+          btnVoiceover.style.borderColor = 'var(--coral)';
+          btnVoiceover.style.color = 'var(--coral)';
+        }
+      }
+      if (dockBtnPlayPause) {
+        dockBtnPlayPause.textContent = playing ? '⏸' : '▶';
+      }
+    }
+
+    function toggleVoiceover() {
+      playCrystalClick();
+      if (!voiceoverAudio) return;
+
+      if (voiceoverDock && voiceoverDock.classList.contains('hidden')) {
+        voiceoverDock.classList.remove('hidden');
+      }
+
+      if (voiceoverAudio.paused) {
+        const playPromise = voiceoverAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            updateVoiceoverUI(true);
+            showToast('🎙️ 正在播放《雪线之上》官方 5 分钟深度解说导览');
+          }).catch(err => {
+            console.warn('Voiceover playback restricted:', err);
+            showToast('🎙️ 官方解说音频就绪，可在浏览器交互后播放');
+            updateVoiceoverUI(false);
+          });
+        }
+      } else {
+        voiceoverAudio.pause();
+        updateVoiceoverUI(false);
+      }
+    }
+
+    if (btnVoiceover) btnVoiceover.onclick = toggleVoiceover;
+    if (dockBtnPlayPause) dockBtnPlayPause.onclick = toggleVoiceover;
+
+    if (dockBtnClose) {
+      dockBtnClose.onclick = () => {
+        playCrystalClick();
+        if (voiceoverDock) voiceoverDock.classList.add('hidden');
+      };
+    }
+
+    if (dockBtnMute && voiceoverAudio) {
+      dockBtnMute.onclick = () => {
+        playCrystalClick();
+        voiceoverAudio.muted = !voiceoverAudio.muted;
+        dockBtnMute.textContent = voiceoverAudio.muted ? '🔇' : '🔊';
+      };
+    }
+
+    if (voiceoverAudio) {
+      voiceoverAudio.addEventListener('loadedmetadata', () => {
+        if (dockTotalTime && isFinite(voiceoverAudio.duration)) {
+          dockTotalTime.textContent = formatTime(voiceoverAudio.duration);
+        }
+      });
+
+      voiceoverAudio.addEventListener('timeupdate', () => {
+        if (!isSeeking && voiceoverAudio.duration) {
+          const cur = voiceoverAudio.currentTime;
+          const dur = voiceoverAudio.duration;
+          if (dockCurTime) dockCurTime.textContent = formatTime(cur);
+          if (dockTotalTime && isFinite(dur)) dockTotalTime.textContent = formatTime(dur);
+          if (dockSeek) dockSeek.value = (cur / dur) * 100;
+        }
+      });
+
+      voiceoverAudio.addEventListener('ended', () => {
+        updateVoiceoverUI(false);
+        if (dockSeek) dockSeek.value = 0;
+        if (dockCurTime) dockCurTime.textContent = '00:00';
+      });
+
+      voiceoverAudio.addEventListener('play', () => updateVoiceoverUI(true));
+      voiceoverAudio.addEventListener('pause', () => updateVoiceoverUI(false));
+    }
+
+    if (dockSeek && voiceoverAudio) {
+      dockSeek.addEventListener('input', () => {
+        isSeeking = true;
+        if (voiceoverAudio.duration) {
+          const seekTime = (dockSeek.value / 100) * voiceoverAudio.duration;
+          if (dockCurTime) dockCurTime.textContent = formatTime(seekTime);
+        }
+      });
+      dockSeek.addEventListener('change', () => {
+        if (voiceoverAudio.duration) {
+          voiceoverAudio.currentTime = (dockSeek.value / 100) * voiceoverAudio.duration;
+        }
+        isSeeking = false;
+      });
+    }
 
     // 技术原创性模块：核心源码片段切换
     document.querySelectorAll('.code-tab-btn').forEach(btn => {
