@@ -60,6 +60,11 @@
         localStorage.setItem('dx_theme', target);
       } catch (e) { /* 隐私模式下忽略 */ }
       updateThemeIcon(target);
+      // 同步移动端浏览器状态栏颜色
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', target === 'dark' ? '#0a0e17' : '#f8fafc');
+      }
       showToast(`已切换至${target === 'dark' ? '深色' : '浅色'}模式`);
     });
   }
