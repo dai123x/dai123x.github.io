@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>应用统计案例分析：专精特新中小企业信贷违约风险预警与数智定价 · 戴璇</title>
   <link rel="canonical" href="https://daixuan.cloud/case-studies/applied-statistics-credit-risk.html">
+  <meta name="description" content="基于高维信贷数据构建专精特新中小企业信贷违约风险预警系统：融合 Cox 比例风险模型、Frailty 脆弱模型与双重机器学习 (DML) 因果推断，含生存分析、竞争风险与动态定价建模。作者：戴璇。">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="应用统计案例分析：专精特新中小企业信贷违约风险预警与数智定价">
+  <meta property="og:description" content="Cox 比例风险 · Frailty 脆弱模型 · DML 因果推断：中小企业信贷违约早期预警评估系统。">
+  <meta property="og:url" content="https://daixuan.cloud/case-studies/applied-statistics-credit-risk.html">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/project-casestudy2.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="中小企业信贷违约风险预警与数智定价">
+  <meta name="twitter:description" content="Cox / Frailty / DML 框架下的信贷违约风险早期预警系统案例分析。">
+  <meta name="twitter:image" content="https://daixuan.cloud/assets/images/project-casestudy2.svg">
+
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
   <script>
@@ -519,7 +532,7 @@
 
       <!-- Figure 1: ROC & PR Curves -->
       <div class="figure-showcase">
-        <img src="../assets/images/applied-statistics/fig5_roc_and_pr_curves.png" alt="多模型 10 折交叉验证 ROC 曲线与 PR 曲线" loading="lazy">
+        <img src="../assets/images/applied-statistics/fig5_roc_and_pr_curves.png" alt="多模型 10 折交叉验证 ROC 曲线与 PR 曲线" loading="lazy" width="1600" height="679" decoding="async">
         <div class="figure-caption">图 5：多模型 10 折交叉验证 ROC 曲线与 Precision-Recall (PR) 曲线对比</div>
         <div class="figure-insights">
           <strong>计量经济学解读：</strong> 在信贷违约高度不平衡样本中（违约率 17.6%），PR 曲线能够更灵敏地反映高危样本捕获精度。Stacking 集成模型在 PR 曲线下面积达 0.672，在检出 80% 违约企业时精确率保持在 62% 以上，显著平抑商业银行漏报损失。
@@ -528,7 +541,7 @@
 
       <!-- Figure 2: SHAP Feature Importance -->
       <div class="figure-showcase">
-        <img src="../assets/images/applied-statistics/fig6_shap_feature_importance.png" alt="XGBoost 全局特征 SHAP 重要性与蜂群效应" loading="lazy">
+        <img src="../assets/images/applied-statistics/fig6_shap_feature_importance.png" alt="XGBoost 全局特征 SHAP 重要性与蜂群效应" loading="lazy" width="1600" height="852" decoding="async">
         <div class="figure-caption">图 6：XGBoost 全局特征 SHAP 重要性排序与蜂群分布散点图</div>
         <div class="figure-insights">
           <strong>博弈论归因发现：</strong> 基于 Shapley 值的全局贡献表明，“研发投入强度”（R&D Intensity）与“数智供应链协同评分”（Digital Supply Score）构成仅次于“资产负债率”的第二、三权重维。高数智协同水平显著推高 SHAP 负值（降低违约风险），展现出强大的信用韧性护城河。
@@ -537,7 +550,7 @@
 
       <!-- Figure 3: Time-Dependent AUC -->
       <div class="figure-showcase">
-        <img src="../assets/images/applied-statistics/fig12_time_dependent_auc.png" alt="动态时变 AUC(t) 演变轨迹" loading="lazy">
+        <img src="../assets/images/applied-statistics/fig12_time_dependent_auc.png" alt="动态时变 AUC(t) 演变轨迹" loading="lazy" width="2670" height="1770" decoding="async">
         <div class="figure-caption">图 12：各模型在不同信贷持有期限下的动态判别力 Time-Dependent AUC(t) 轨迹</div>
         <div class="figure-insights">
           <strong>时变判别轨迹：</strong> 运用折外交叉验证与 Uno et al. 逆概率截尾加权（IPCW）消除样本内记忆偏倚。结果证实 Cox 模型在贷款存续第 12~36 个月维持平稳的高鉴别力（AUC&gt;0.78），而机器学习模型在中短期（0~24个月）展现出更强的微观违约突发捕捉能力。
@@ -546,7 +559,7 @@
 
       <!-- Figure 4: Credit Risk Scorecard & VaR -->
       <div class="figure-showcase">
-        <img src="../assets/images/applied-statistics/fig8_credit_risk_scorecard.png" alt="信用评分卡积分分布与实证违约率严格单调性" loading="lazy">
+        <img src="../assets/images/applied-statistics/fig8_credit_risk_scorecard.png" alt="信用评分卡积分分布与实证违约率严格单调性" loading="lazy" width="1600" height="679" decoding="async">
         <div class="figure-caption">图 8：标准信用评分卡积分分布与各评级区间实际违约率单调递减检验</div>
         <div class="figure-insights">
           <strong>巴塞尔合规评分卡：</strong> 采用分箱 WoE 转换为标准千分制评分卡（基准分 600 分，PDO=50 分）。AAA 级（&gt;720分）实证违约率仅 4.10%，而 C/D 级（&lt;500分）实际违约率跃升至 55.56%，严格满足监管要求的单调性检验。
@@ -555,7 +568,7 @@
 
       <!-- Figure 5: CATE Heterogeneity & Causal Mechanism -->
       <div class="figure-showcase">
-        <img src="../assets/images/applied-statistics/fig18_causal_mechanism_and_cate.png" alt="因果中介效应与 CATE 异质性森林图" loading="lazy">
+        <img src="../assets/images/applied-statistics/fig18_causal_mechanism_and_cate.png" alt="因果中介效应与 CATE 异质性森林图" loading="lazy" width="1600" height="700" decoding="async">
         <div class="figure-caption">图 18：多通道因果中介效应分解与跨群体条件平均处理效应 (CATE) 森林图</div>
         <div class="figure-insights">
           <strong>因果政策红利图谱：</strong> CATE 异质性证实国家级“小巨人”资质认定在中西部欠发达地区带来高达 <strong>-9.75%</strong> 的因果违约抑制效应，显著优于东部沿海（-6.71%），实证支持国家财政与专项信贷向中西部优质专精特新倾斜。
@@ -564,7 +577,7 @@
 
       <!-- Figure 6: Dynamic Pricing Surface -->
       <div class="figure-showcase">
-        <img src="../assets/images/applied-statistics/fig20_dynamic_loan_pricing_surface.png" alt="商业银行 Merton-RAROC 最优信贷动态定价曲面" loading="lazy">
+        <img src="../assets/images/applied-statistics/fig20_dynamic_loan_pricing_surface.png" alt="商业银行 Merton-RAROC 最优信贷动态定价曲面" loading="lazy" width="1600" height="700" decoding="async">
         <div class="figure-caption">图 20：商业银行 Merton-RAROC 最优信贷动态定价三维曲面与等高线</div>
         <div class="figure-insights">
           <strong>信贷定价闭环：</strong> 结合 Merton 结构化模型与目标 RAROC=15% 资本回报率约束，构建三维定价曲面。高数智协同有效抚平风险溢价坡度，使优质中小企业能够在享受免抵押纯信用的同时获得低至 4.25% 的优惠贷款利率。

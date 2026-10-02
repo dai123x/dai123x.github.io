@@ -5,6 +5,7 @@ Allow: /
 # 不索引构建脚本与临时文件
 Disallow: /*.py$
 Disallow: /.compress_images.py
+Disallow: /.audit.py
 Disallow: /24ee434b03ce497a1f7d63c10b4274e3.txt
 
 # 站点地图
