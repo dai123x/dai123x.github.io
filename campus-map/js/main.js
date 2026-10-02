@@ -209,6 +209,165 @@ function relativeGeometry(root, invRoot, obj) {
   return g;
 }
 
+/* ============================================================
+ * 建筑标签图集（55 个 Sprite → 1 个实例化批次）
+ * 每个标签原本是一张独立 CanvasTexture + 一个 Sprite，产生数十次 draw call。
+ * 这里把所有标签画布打包进一张 2048² 图集，用一个 billboard 实例化网格渲染。
+ * ============================================================ */
+var LABEL_ATLAS_SIZE = 2048;
+
+function bakeLabelsToAtlas(group, parent) {
+  if (!group || !THREE.InstancedBufferGeometry) return null;
+  var sprites = [];
+  group.children.forEach(function (s) {
+    if (s.isSprite && s.material && s.material.map && s.material.map.image) sprites.push(s);
+  });
+  if (sprites.length < 4) return null;
+
+  var pad = 2, W = LABEL_ATLAS_SIZE, H = LABEL_ATLAS_SIZE;
+  var need = 0, k;
+  for (k = 0; k < sprites.length; k++) {
+    var im = sprites[k].material.map.image;
+    need += (im.width + pad) * (im.height + pad);
+  }
+  if (need > W * H * 0.9) return null;   // 装不下就保持原方案的 Sprite
+
+  var canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  var x = pad, y = pad, rowH = 0;
+  var items = [];
+  for (k = 0; k < sprites.length; k++) {
+    var sp = sprites[k];
+    var img = sp.material.map.image;
+    var w = img.width, h = img.height;
+    if (x + w + pad > W) { x = pad; y += rowH + pad; rowH = 0; }
+    if (y + h + pad > H) return null;    // 图集溢出，整体放弃
+    ctx.drawImage(img, x, y);
+    items.push({
+      pos: sp.position.clone(),
+      baseW: sp.userData.baseW || 1,
+      baseH: sp.userData.baseH || 1,
+      priority: sp.userData.priority || 2,
+      bid: sp.userData.bid,
+      cat: sp.userData.cat,
+      visible: true,
+      u0: x / W, v0: 1 - (y + h) / H, u1: (x + w) / W, v1: 1 - y / H
+    });
+    x += w + pad;
+    if (h > rowH) rowH = h;
+  }
+  if (items.length < 4) return null;
+
+  var tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.LinearFilter;
+  tex.generateMipmaps = false;
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  if (renderer && renderer.capabilities) tex.anisotropy = maxAniso();
+  if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+  else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+
+  var n = items.length;
+  var off = new Float32Array(n * 3);
+  var size = new Float32Array(n * 2);
+  var uvr = new Float32Array(n * 4);
+  for (k = 0; k < n; k++) {
+    var it = items[k];
+    off[k * 3] = it.pos.x; off[k * 3 + 1] = it.pos.y; off[k * 3 + 2] = it.pos.z;
+    size[k * 2] = it.baseW; size[k * 2 + 1] = it.baseH;
+    uvr[k * 4] = it.u0; uvr[k * 4 + 1] = it.v0; uvr[k * 4 + 2] = it.u1; uvr[k * 4 + 3] = it.v1;
+  }
+
+  var base = new THREE.PlaneGeometry(1, 1);
+  var geo = new THREE.InstancedBufferGeometry();
+  geo.index = base.index;
+  geo.setAttribute('position', base.attributes.position);
+  geo.setAttribute('uv', base.attributes.uv);
+  geo.setAttribute('iOffset', new THREE.InstancedBufferAttribute(off, 3));
+  geo.setAttribute('iSize', new THREE.InstancedBufferAttribute(size, 2));
+  geo.setAttribute('iUvRect', new THREE.InstancedBufferAttribute(uvr, 4));
+  geo.instanceCount = n;
+
+  var mat = new THREE.ShaderMaterial({
+    uniforms: { uMap: { value: tex } },
+    vertexShader: [
+      'attribute vec3 iOffset;',
+      'attribute vec2 iSize;',
+      'attribute vec4 iUvRect;',
+      'varying vec2 vUv;',
+      'void main() {',
+      '  vUv = mix(iUvRect.xy, iUvRect.zw, uv);',
+      '  vec4 mv = modelViewMatrix * vec4(iOffset, 1.0);',
+      '  mv.xy += position.xy * iSize;',
+      '  gl_Position = projectionMatrix * mv;',
+      '}'
+    ].join('\n'),
+    fragmentShader: [
+      // r128 会自动注入 tonemapping/encodings 的 pars，这里只挂应用层 chunk
+      'uniform sampler2D uMap;',
+      'varying vec2 vUv;',
+      'void main() {',
+      '  vec4 t = texture2D(uMap, vUv);',
+      '  if (t.a < 0.02) discard;',
+      '  gl_FragColor = t;',
+      '  #include <tonemapping_fragment>',
+      '  #include <encodings_fragment>',
+      '}'
+    ].join('\n'),
+    transparent: true,
+    depthTest: false,
+    depthWrite: false
+  });
+
+  var mesh = new THREE.Mesh(geo, mat);
+  mesh.name = 'labelAtlas';
+  mesh.frustumCulled = false;
+  mesh.renderOrder = 999;
+  parent.add(mesh);
+
+  // 释放原 Sprite 的独立贴图与材质，并从场景移除
+  sprites.forEach(function (sp) {
+    if (sp.material.map) sp.material.map.dispose();
+    if (sp.material) sp.material.dispose();
+    if (sp.parent) sp.parent.remove(sp);
+  });
+
+  // 用轻量代理替换 buildingEntries 中的 label，保持 .visible 语义
+  for (var e = 0; e < buildingEntries.length; e++) {
+    var ent = buildingEntries[e];
+    if (!ent.label || !ent.label.isSprite) continue;
+    for (var q = 0; q < n; q++) {
+      if (items[q].bid === ent.id) { ent.label = items[q]; break; }
+    }
+  }
+
+  group.userData.atlas = { mesh: mesh, items: items, sizeAttr: geo.getAttribute('iSize') };
+  return group.userData.atlas;
+}
+
+/* 每帧刷新标签图集实例（LOD 缩放 + 分类过滤可见性） */
+function updateLabelAtlas(atlas) {
+  if (!atlas || !atlas.sizeAttr) return;
+  var arr = atlas.sizeAttr.array;
+  var items = atlas.items;
+  var camDist = camera.position.distanceTo(controls.target);
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var vis = it.visible;
+    if (!vis) { arr[i * 2] = 0; arr[i * 2 + 1] = 0; continue; }
+    if (activeCategory === 'all' && it.priority === 2 && camDist >= 780) {
+      arr[i * 2] = 0; arr[i * 2 + 1] = 0; continue;
+    }
+    var dist = camera.position.distanceTo(it.pos);
+    var fs = clamp(dist / 520, 0.32, 1.0);
+    arr[i * 2] = it.baseW * fs;
+    arr[i * 2 + 1] = it.baseH * fs;
+  }
+  atlas.sizeAttr.needsUpdate = true;
+}
+
 /* 合并带顶点色的几何体（position + normal + uv + color） */
 function mergeColoredGeometries(geos) {
   var i, g, total = 0;
@@ -218,6 +377,7 @@ function mergeColoredGeometries(geos) {
     total += g.attributes.position.count;
   }
   if (!total) return null;
+
   var pos = new Float32Array(total * 3);
   var nor = new Float32Array(total * 3);
   var uv = new Float32Array(total * 2);
@@ -241,7 +401,8 @@ function mergeColoredGeometries(geos) {
   return out;
 }
 
-/* 表面档位：量化 roughness / metalness，以减少相近材质之间的批次数 */
+/* 表面档位：把 roughness / metalness 量化到 3 档，档内差异肉眼不可辨，
+ * 从而允许把「外观接近但材质不同」的零件也合并进同一批次 */
 var _surfR = [0.25, 0.58, 0.86];
 var _surfM = [0.08, 0.42, 0.85];
 function surfaceBucket(m) {
@@ -252,17 +413,20 @@ function surfaceBucket(m) {
   return { key: rb + '_' + tb + '_' + (m.flatShading ? 1 : 0), r: _surfR[rb], t: _surfM[tb], flat: !!m.flatShading };
 }
 
-/* 将单栋建筑内无贴图不透明零件按量化表面参数合批 */
+/* 跨材质顶点色合批：一栋楼内所有无贴图不透明零件按表面档位合并成 1~3 个网格 */
 function batchBuildingGroupVertex(root) {
   if (!root) return 0;
   var victims = [];
   root.updateMatrixWorld(true);
   root.traverse(function (o) {
-    if (o === root || !o.isMesh || o.isInstancedMesh || Array.isArray(o.material)) return;
-    if (!o.geometry || !o.geometry.attributes.normal || !canBatchMaterial(o.material)) return;
+    if (o === root || !o.isMesh || o.isInstancedMesh) return;
+    if (Array.isArray(o.material)) return;
+    if (!o.geometry || !o.geometry.attributes.normal) return;
+    if (!canBatchMaterial(o.material)) return;
     victims.push(o);
   });
   if (victims.length < 2) return 0;
+
   var invRoot = _bm4A.copy(root.matrixWorld).invert();
   var buckets = {}, keys = [];
   victims.forEach(function (o) {
@@ -270,6 +434,7 @@ function batchBuildingGroupVertex(root) {
     if (!buckets[s.key]) { buckets[s.key] = { s: s, items: [] }; keys.push(s.key); }
     buckets[s.key].items.push(o);
   });
+
   var saved = 0;
   keys.forEach(function (k) {
     var b = buckets[k];
@@ -289,7 +454,12 @@ function batchBuildingGroupVertex(root) {
     }
     var merged = mergeColoredGeometries(geos);
     if (!merged) return;
-    var mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: b.s.r, metalness: b.s.t, flatShading: b.s.flat });
+    var mat = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      roughness: b.s.r,
+      metalness: b.s.t,
+      flatShading: b.s.flat
+    });
     var mesh = new THREE.Mesh(merged, mat);
     mesh.name = 'batchedVC';
     mesh.castShadow = cast;
@@ -297,7 +467,9 @@ function batchBuildingGroupVertex(root) {
     mesh.userData.bid = b.items[0].userData.bid;
     mesh.userData.cat = b.items[0].userData.cat;
     root.add(mesh);
-    for (var j = 0; j < b.items.length; j++) if (b.items[j].parent) b.items[j].parent.remove(b.items[j]);
+    for (var j = 0; j < b.items.length; j++) {
+      if (b.items[j].parent) b.items[j].parent.remove(b.items[j]);
+    }
     saved += b.items.length - 1;
   });
   return saved;
@@ -3089,6 +3261,7 @@ function buildClouds(groundSize) {
       cluster.add(blob);
       blobs.push(blob);
     }
+    // 同一朵云内部 blob 合并为单个网格（每朵云仍独立，保留各自的漂移速度）
     mergeMeshList(cluster, blobs, mat, 'cloud');
     cluster.position.set(
       rand(-groundSize * 0.45, groundSize * 0.45),
@@ -3322,7 +3495,7 @@ function buildGuideRoutes(campus) {
       routeGroup.add(rib);
       ribs.push(rib);
     }
-    // 合并同一路线片段，材质与 UV 动画保持一致并减少 draw calls。
+    // 同一条路线的流光段合并为单个网格（材质共享，UV 逐段保留，流光动画不受影响）
     mergeMeshList(routeGroup, ribs, ribMat, 'route_rib');
   });
   routeGroup.visible = showGuideRoute;
@@ -3518,6 +3691,10 @@ function clearCampus() {
         if (m._shared) return;
         if (m.map && m.map.dispose && !m.map._cached) m.map.dispose();
         if (m.emissiveMap && m.emissiveMap.dispose && !m.emissiveMap._cached) m.emissiveMap.dispose();
+        // 标签图集等自定义着色器的贴图挂在 uniforms 上，需单独释放
+        if (m.uniforms && m.uniforms.uMap && m.uniforms.uMap.value && m.uniforms.uMap.value.dispose) {
+          m.uniforms.uMap.value.dispose();
+        }
         m.dispose();
       });
     });
@@ -3631,6 +3808,7 @@ function buildBoundaryLines(campus) {
 }
 
 function buildCampus(campus) {
+  var _tBuild0 = (window.performance && performance.now) ? performance.now() : 0;
   clearCampus();
   currentCampus = campus;
   campusGroup = new THREE.Group();
@@ -3772,8 +3950,16 @@ function buildCampus(campus) {
 
   campusGroup.add(labelGroup);
 
+  /* ---- 建筑标签打包进单张图集，数十个 Sprite 合成一个实例化批次 ---- */
+  try {
+    bakeLabelsToAtlas(labelGroup, campusGroup);
+  } catch (e) {
+    console.warn('标签图集合批跳过：', e);
+  }
+
   /* ---- 静态合批：压缩 draw call（道路 / 草地斑块 / 霓虹描边 / 建筑同材质零件） ---- */
   var batchStat = { saved: 0 };
+  var _tBatch0 = (window.performance && performance.now) ? performance.now() : 0;
   try {
     campusGroup.updateMatrixWorld(true);
 
@@ -3801,24 +3987,21 @@ function buildCampus(campus) {
       batchStat.saved += neonList.length - 1;
     }
 
-    // 4) 每栋建筑内部：先按完全一致材质合批，再按量化表面属性压缩剩余批次。
+    // 4) 每栋建筑内部：先按「完全同外观材质」合批，再按表面档位做顶点色跨材质合批
     campusGroup.children.forEach(function (c) {
-      if (c.userData && c.userData.bid) {
-        batchStat.saved += batchBuildingGroup(c);
-        batchStat.saved += batchBuildingGroupVertex(c);
-      }
+      if (!c.userData || !c.userData.bid) return;
+      batchStat.saved += batchBuildingGroup(c);
+      batchStat.saved += batchBuildingGroupVertex(c);
     });
 
-    // 5) 配景（雕塑、球场、旗杆等）也按可安全合批的材质压缩 draw calls。
+    // 5) 配景（雕塑 / 球场 / 旗杆等）同样按同材质合批
     campusGroup.children.forEach(function (c) {
-      if (c.name === 'prop') {
-        batchStat.saved += batchBuildingGroup(c);
-        batchStat.saved += batchBuildingGroupVertex(c);
-      }
+      if (c.name === 'prop') { batchStat.saved += batchBuildingGroup(c); batchStat.saved += batchBuildingGroupVertex(c); }
     });
   } catch (e) {
     console.warn('静态合批跳过：', e);
   }
+  batchStat.ms = Math.round(((window.performance && performance.now) ? performance.now() : 0) - _tBatch0);
   window.__batchStat = batchStat;
 
   /* ---- 拾取加速：预计算每栋楼的包围球，点击/悬停先做射线-球粗筛 ---- */
@@ -3861,6 +4044,8 @@ function buildCampus(campus) {
     if (cloudGroup) cloudGroup.visible = false;
     setupSatelliteMap();
   }
+
+  window.__buildMs = Math.round(((window.performance && performance.now) ? performance.now() : 0) - _tBuild0);
 }
 
 /* ============================================================
@@ -5467,90 +5652,150 @@ function setupSatelliteMap() {
   var ox = cd.sat.ox;
   var oz = cd.sat.oz;
   var num = 3;
-  var texLoader = new THREE.TextureLoader();
-  texLoader.crossOrigin = 'anonymous';
+  var grid = num * 2 + 1;          // 7 × 7 瓦片
+  var TILE = 256;                  // 高德瓦片像素尺寸
+  var atlasSize = grid * TILE;     // 1792 —— 两张图集取代原先 98 张独立纹理
 
-  var tileGeo = new THREE.PlaneGeometry(scale, scale);
-  tileGeo.rotateX(-Math.PI / 2);
+  var exactScale = (40075016.68 / 65536) * Math.cos(43.93 * Math.PI / 180);
+  if (currentKey === 'nanHu') exactScale = (40075016.68 / 131072) * Math.cos(43.83 * Math.PI / 180); // z=17
 
-  for (var i = -num; i <= num; i++) {
-    for (var j = -num; j <= num; j++) {
-      (function(i, j) {
+  /* ---- 图集画布：瓦片加载后逐块绘入，避免 98 次纹理上传与 98 次 draw call ---- */
+  function makeAtlas(fill) {
+    var c = document.createElement('canvas');
+    c.width = c.height = atlasSize;
+    var g = c.getContext('2d');
+    if (fill) { g.fillStyle = fill; g.fillRect(0, 0, atlasSize, atlasSize); }
+    return c;
+  }
+  var satCanvas = makeAtlas('#2a382c');
+  var labCanvas = makeAtlas(null);
+  var satCtx = satCanvas.getContext('2d');
+  var labCtx = labCanvas.getContext('2d');
+
+  function makeAtlasTexture(canvas) {
+    var t = new THREE.CanvasTexture(canvas);
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    t.minFilter = THREE.LinearFilter;   // 图集尺寸非 2 的幂，关闭 mipmap 省一次金字塔生成
+    t.generateMipmaps = false;
+    if (renderer && renderer.capabilities) t.anisotropy = maxAniso();
+    if (THREE.sRGBEncoding) t.encoding = THREE.sRGBEncoding;
+    else if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  var satTex = makeAtlasTexture(satCanvas);
+  var labTex = makeAtlasTexture(labCanvas);
+
+  /* ---- 合并上传节流：多张瓦片到达只触发一次纹理上传 ---- */
+  var uploadScheduled = false;
+  function markAtlasDirty() {
+    if (uploadScheduled) return;
+    uploadScheduled = true;
+    setTimeout(function () {
+      uploadScheduled = false;
+      satTex.needsUpdate = true;
+      labTex.needsUpdate = true;
+    }, 150);
+  }
+
+  /* ---- 把 grid×grid 个瓦片网格按图集 UV 合并为单个 Mesh ---- */
+  function buildAtlasLayer(y, material, name, receiveShadow) {
+    var list = [];
+    for (var i = -num; i <= num; i++) {
+      for (var j = -num; j <= num; j++) {
+        var geo = new THREE.PlaneGeometry(exactScale, exactScale);
+        geo.rotateX(-Math.PI / 2);
+        var gi = i + num, gj = j + num;
+        var u0 = gi / grid, u1 = (gi + 1) / grid;
+        var v0 = 1 - (gj + 1) / grid, v1 = 1 - gj / grid;
+        var uv = geo.attributes.uv;
+        for (var k = 0; k < uv.count; k++) {
+          uv.setXY(k, u0 + uv.getX(k) * (u1 - u0), v0 + uv.getY(k) * (v1 - v0));
+        }
+        var m = new THREE.Mesh(geo, material);
+        m.position.set(i * exactScale + ox, y, j * exactScale + oz);
+        if (receiveShadow) m.receiveShadow = true;
+        m.renderOrder = (name === 'satLabel') ? 999 : 0;
+        satGroup.add(m);
+        list.push(m);
+      }
+    }
+    var merged = mergeMeshList(satGroup, list, material, name);
+    if (merged && name === 'satLabel') merged.renderOrder = 999;
+    return merged;
+  }
+
+  // 1. 卫星影像地表瓦片
+  var satMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.95,
+    metalness: 0.05,
+    map: satTex,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false // 淡入完成前避免 Z-fighting
+  });
+  buildAtlasLayer(0.04, satMat, 'satImage', true);
+
+  // 2. 高德实时路网与 POI 注记透明图层 (style=8)
+  var labelMat = new THREE.MeshBasicMaterial({
+    map: labTex,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    depthTest: false // 注记始终压在建筑之上，保证可读
+  });
+  buildAtlasLayer(0.056, labelMat, 'satLabel', false);
+
+  /* ---- 逐块拉取瓦片并绘入图集 ---- */
+  var fadeStarted = false;
+  function startFade() {
+    if (fadeStarted) return;
+    fadeStarted = true;
+    var start = Date.now();
+    function fade() {
+      var t = (Date.now() - start) / 400;
+      if (t >= 1) {
+        satMat.opacity = 1;
+        satMat.transparent = false;
+        satMat.depthWrite = true;
+        satMat.needsUpdate = true;
+        labelMat.opacity = 0.95;
+      } else {
+        satMat.opacity = t;
+        labelMat.opacity = t * 0.95;
+        requestAnimationFrame(fade);
+      }
+    }
+    fade();
+  }
+
+  for (var i2 = -num; i2 <= num; i2++) {
+    for (var j2 = -num; j2 <= num; j2++) {
+      (function (i, j) {
         var tx = cx + i;
         var ty = cy + j;
         var sub = 'webst0' + (1 + (Math.abs(tx + ty) % 4));
-        var satUrl = 'https://' + sub + '.is.autonavi.com/appmaptile?style=6&x=' + tx + '&y=' + ty + '&z=' + z;
-        var labelUrl = 'https://' + sub + '.is.autonavi.com/appmaptile?style=8&x=' + tx + '&y=' + ty + '&z=' + z;
-        
-        var exactScale = (40075016.68 / 65536) * Math.cos(43.93 * Math.PI / 180);
-        if (currentKey === 'nanHu') exactScale = (40075016.68 / 131072) * Math.cos(43.83 * Math.PI / 180); // z=17
-        
-        var tileGeo = new THREE.PlaneGeometry(exactScale, exactScale);
-        tileGeo.rotateX(-Math.PI / 2);
-        
-        // 1. 卫星影像地表瓦片
-        var satMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          roughness: 0.95,
-          metalness: 0.05,
-          transparent: true,
-          opacity: 0,
-          depthWrite: false // Prevents early Z-fighting before opacity=1
-        });
-        var satMesh = new THREE.Mesh(tileGeo, satMat);
-        satMesh.position.set(i * exactScale + ox, 0.04, j * exactScale + oz);
-        satMesh.receiveShadow = true;
-        satGroup.add(satMesh);
+        var gi = i + num, gj = j + num;
 
-        // 2. 高德实时路网与POI地理注记透明图层 (style=8)
-        var labelMat = new THREE.MeshBasicMaterial({
-          transparent: true,
-          opacity: 0,
-          depthWrite: false,
-          depthTest: false // Ensures labels are always readable over buildings
-        });
-        var labelMesh = new THREE.Mesh(tileGeo, labelMat);
-        labelMesh.position.set(i * exactScale + ox, 0.056, j * exactScale + oz);
-        labelMesh.renderOrder = 999;
-        satGroup.add(labelMesh);
-        
-        texLoader.load(satUrl, function(tex) {
-          if (renderer && renderer.capabilities) tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-          if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
-          else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-          satMat.map = tex;
-          satMat.needsUpdate = true;
-          
-          var start = Date.now();
-          function fade() {
-            var t = (Date.now() - start) / 400;
-            if (t >= 1) { 
-              satMat.opacity = 1; 
-              satMat.transparent = false; 
-              satMat.depthWrite = true; 
-              satMat.needsUpdate = true;
-            }
-            else { satMat.opacity = t; requestAnimationFrame(fade); }
-          }
-          fade();
-        }, undefined, function() {
-          satMat.color.setHex(0x2a382c);
-          satMat.opacity = 1;
-          satMat.transparent = false;
-          satMat.depthWrite = true;
-        });
-
-        texLoader.load(labelUrl, function(tex) {
-          if (renderer && renderer.capabilities) tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-          if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
-          else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-          labelMat.map = tex;
-          labelMat.needsUpdate = true;
-          labelMat.opacity = 0.95;
-        });
-      })(i, j);
+        function load(url, ctx) {
+          var img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = function () {
+            try { ctx.drawImage(img, gi * TILE, gj * TILE, TILE, TILE); } catch (e) { /* 跨域失败时保留底色 */ }
+            markAtlasDirty();
+            startFade();
+          };
+          img.onerror = function () { markAtlasDirty(); startFade(); };
+          img.src = url;
+        }
+        load('https://' + sub + '.is.autonavi.com/appmaptile?style=6&x=' + tx + '&y=' + ty + '&z=' + z, satCtx);
+        load('https://' + sub + '.is.autonavi.com/appmaptile?style=8&x=' + tx + '&y=' + ty + '&z=' + z, labCtx);
+      })(i2, j2);
     }
   }
+
+  // 兜底：瓦片全部失败时也要淡入底色，避免出现永久透明空洞
+  setTimeout(startFade, 2500);
   if (scene) scene.add(satGroup);
   satGroup.visible = true;
 }
@@ -5726,7 +5971,9 @@ function animate() {
     snowPoints.geometry.attributes.position.needsUpdate = true;
   }
 
-  if (labelGroup) {
+  if (labelGroup && labelGroup.userData.atlas) {
+    updateLabelAtlas(labelGroup.userData.atlas);
+  } else if (labelGroup) {
     if (!window._lastLabelCam) window._lastLabelCam = new THREE.Vector3();
     if (!window._lastLabelTarget) window._lastLabelTarget = new THREE.Vector3();
     var camMoved = camera.position.distanceToSquared(window._lastLabelCam) > 0.16 ||
@@ -5846,6 +6093,10 @@ function boot() {
     weatherParam = params.get('weather');
   } catch (e) {}
 
+  /* 先让加载页完成首帧绘制，再执行同步的三维构建，避免移动端出现长时间白屏 */
+  requestAnimationFrame(function () {
+  requestAnimationFrame(function () {
+
   try {
     initScene();
     initUI();
@@ -5917,6 +6168,9 @@ function boot() {
       }, 33);
     }
   }, 1000);
+
+  }); /* 结束双 rAF 延迟：保证加载页先绘制 */
+  }); 
 }
 
 if (document.readyState === 'loading') {

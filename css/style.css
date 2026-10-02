@@ -35,6 +35,12 @@
   --radius-full: 9999px;
   --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   --container-max: 1180px;
+
+  /* 刘海屏 / 圆角屏安全区，未支持时回退为 0 */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 [data-theme="light"] {
@@ -68,8 +74,10 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Prevent fixed header from overlapping anchors */
+  scroll-padding-top: calc(80px + var(--safe-top)); /* 锚点跳转不被固定头部遮挡 */
   font-size: 16px;
+  scrollbar-color: var(--bg-tertiary) var(--bg-primary);
+  scrollbar-width: thin;
 }
 
 body {
@@ -132,7 +140,7 @@ body {
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 calc(24px + var(--safe-left)) 0 calc(24px + var(--safe-right));
   position: relative;
   z-index: 1;
 }
@@ -144,6 +152,10 @@ body {
   left: 0;
   width: 100%;
   z-index: 100;
+  /* 刘海屏：导航整体下移，避免被状态栏/挖孔遮挡 */
+  padding-top: var(--safe-top);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
   background: var(--nav-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -440,6 +452,7 @@ body {
 /* Section Common Styling */
 .section {
   padding: 90px 0;
+  scroll-margin-top: 88px;
   position: relative;
 }
 
@@ -649,7 +662,7 @@ body {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--card-shadow);
-  transition: var(--transition);
+  transition: var(--transition), opacity 0.35s ease;
   display: flex;
   flex-direction: column;
 }
@@ -838,8 +851,8 @@ body {
 /* Floating Action Button (Back to top) */
 .back-to-top {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
+  bottom: calc(28px + var(--safe-bottom));
+  right: calc(28px + var(--safe-right));
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -871,7 +884,7 @@ body {
 /* Toast Notification */
 .toast {
   position: fixed;
-  bottom: 30px;
+  bottom: calc(30px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%) translateY(100px);
   background: #1e293b;
@@ -990,7 +1003,7 @@ a:focus-visible,
 /* 顶部阅读进度条 */
 .scroll-progress {
   position: fixed;
-  top: 0;
+  top: var(--safe-top);
   left: 0;
   width: 100%;
   height: 3px;
@@ -1005,8 +1018,9 @@ a:focus-visible,
   width: 0%;
   background: var(--accent-gradient);
   box-shadow: 0 0 12px var(--accent-glow);
+  transform: scaleX(0);
   transform-origin: left center;
-  transition: width 0.08s linear;
+  transition: transform 0.08s linear;
 }
 
 /* 导航滚动后强化背景 */
@@ -1031,10 +1045,6 @@ html.js .reveal.is-visible {
 }
 
 /* 项目筛选：用 class 驱动，动画与布局解耦 */
-.project-card {
-  transition: var(--transition), opacity 0.35s ease;
-}
-
 .project-card.is-hidden {
   display: none;
 }
@@ -1074,11 +1084,6 @@ html.js .reveal.is-visible {
   box-shadow: var(--card-shadow), 0 0 0 1px var(--border-hover);
 }
 
-/* 章节分隔更柔和的呼吸感 */
-.section {
-  scroll-margin-top: 88px;
-}
-
 /* 美化滚动条 */
 ::-webkit-scrollbar {
   width: 10px;
@@ -1099,11 +1104,6 @@ html.js .reveal.is-visible {
   background: var(--accent-primary);
 }
 
-html {
-  scrollbar-color: var(--bg-tertiary) var(--bg-primary);
-  scrollbar-width: thin;
-}
-
 /* 打字机容器：固定高度并保留光标位，避免文字长度变化引起布局抖动 (CLS) */
 #typing-role {
   display: inline-block;
@@ -1114,6 +1114,59 @@ html {
 }@keyframes caretBlink {
   0%, 100% { border-right-color: var(--accent-primary); }
   50% { border-right-color: transparent; }
+}
+
+/* ==========================================================================
+   文本与尺寸工具类：收敛原本散落在 HTML 中的重复内联样式
+   ========================================================================== */
+.text-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.text-fine {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.text-body {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.text-sub {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* 数据看板指标：数值 / 说明 / 标签 */
+.metric-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin: 4px 0;
+}
+
+.metric-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* 小号按钮 */
+.btn.btn-sm {
+  font-size: 0.9rem;
+}
+
+/* 可点击的非按钮元素（如复制邮箱的 pill） */
+.is-clickable {
+  cursor: pointer;
 }
 
 /* 尊重系统「减弱动效」偏好 */
@@ -1233,7 +1286,7 @@ body.nav-open {
   }
   .nav-menu {
     position: fixed;
-    top: 72px;
+    top: calc(72px + var(--safe-top));
     left: 0;
     width: 100%;
     background: var(--nav-bg);
@@ -1245,12 +1298,14 @@ body.nav-open {
     gap: 12px;
     transform: translateY(-120%);
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: var(--transition);
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s;
   }
   .nav-menu.active {
     transform: translateY(0);
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
   }
 }

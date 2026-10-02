@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>应用统计案例分析：智能产线节拍异常诊断与动态容量预测 · 戴璇</title>
   <meta name="description" content="基于汽车动力总成流水线 2,000 循环实测数据，融合多元时间序列 ARIMA 建模、K-S 分布拟合检验与精益 IE 作业测定的智能制造产线平衡优化实证研究。作者：戴璇。">
   <link rel="canonical" href="https://daixuan.cloud/case-studies/smart-manufacturing-takt-time-analysis.html">
@@ -18,11 +18,20 @@
   <meta name="twitter:description" content="ARIMA 时间序列 + 统计过程控制驱动的产线平衡率优化实证研究。">
   <meta name="twitter:image" content="https://daixuan.cloud/assets/images/project-casestudy.svg">
 
+  <meta name="theme-color" content="#0a0e17">
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <link rel="stylesheet" href="../css/style.css">
   <script>
-    const savedTheme = localStorage.getItem('dx_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    (function () {
+      try {
+        var t = localStorage.getItem('dx_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = t === 'light' ? '#f8fafc' : '#0a0e17';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
   </script>
   <style>
     .case-container {
@@ -883,12 +892,25 @@ print(f"改善后产线平衡率: {lbe_after:.2f}% (净跃升: +{lbe_after - lbe
   <script>
     // Theme toggle handling
     const themeBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    function updateThemeIcon(t) {
+      if (!themeIcon) return;
+      themeIcon.innerHTML = t === 'light'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+    }
+    const initTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    updateThemeIcon(initTheme);
+
     if (themeBtn) {
       themeBtn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
         const target = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', target);
-        localStorage.setItem('dx_theme', target);
+        try { localStorage.setItem('dx_theme', target); } catch (e) {}
+        updateThemeIcon(target);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', target === 'dark' ? '#0a0e17' : '#f8fafc');
         showToast(`已切换至${target === 'dark' ? '深色' : '浅色'}模式`);
       });
     }

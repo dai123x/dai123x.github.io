@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="雪线之上 - 吉林冰雪经济目标可视化交互系统。展示吉林省冰雪旅游、产业投资与经济目标的动态可视化数据分析。">
   <link rel="canonical" href="https://daixuan.cloud/snow-viz/">
   <meta name="theme-color" content="#07151d">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
   <title>雪线之上 · 吉林冰雪经济目标可视化交互系统</title>
 
   <!-- Open Graph / Twitter Card -->
@@ -2567,6 +2568,7 @@
         </div>
       </div>
       <div class="toolbar">
+        <a href="../" class="btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; border-color:var(--gold); color:var(--gold);" title="返回戴璇个人主页 (daixuan.cloud)">🏠 返回主页</a>
         <span class="badge"><span class="badge-dot"></span>规划目标 · 权威可溯</span>
         <span class="badge" id="systemClockBadge" style="font-family:monospace;background:rgba(8,26,34,0.85);border-color:#2a5766;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
         <button class="btn" id="btnAudio" title="开启全景电影级配乐与自然白噪音">🔈 全景环境音: 关</button>
@@ -4534,6 +4536,9 @@ if (!isStereoVR) {
       <div>
         <span>快捷键：← / → 切换雪季 · 1-8 切换地点 · 空格 自动巡航 · F 全屏演示 · H 帮助</span>
       </div>
+      <div>
+        <span>作者：<a href="../" style="color:var(--gold); text-decoration:underline;">戴璇 · daixuan.cloud</a> · 长春工业大学数学与统计学院应用统计</span>
+      </div>
       <div style="display:flex; align-items:center; justify-content:center; gap:8px;">
         <img src="assets/ccut_badge.png" alt="长春工业大学校徽" width="147" height="147" loading="lazy" decoding="async" class="school-badge-img" style="height:22px; width:22px; border-radius:50%; vertical-align:middle; border:1px solid rgba(244,198,109,0.5); background:#7a1a1e; object-fit:cover;">
         <span>参赛高校：<span id="footerSchool" style="color:#fff; font-weight:600;">长春工业大学</span> · 参赛团队：<span style="color:var(--gold); font-weight:600;">研究生团队</span>（<span id="footerTeam" style="color:var(--gold); font-weight:600;">深度求索队</span>）· 数学与统计学院 应用统计</span>
@@ -4544,7 +4549,7 @@ if (!isStereoVR) {
   <!-- 参赛者水印：大赛形式检查要求「源文件须带参赛者水印」，截图/录屏/打印均可见 -->
   <div id="tiledWatermark" aria-hidden="true"></div>
   <div id="entryWatermark" aria-hidden="true">
-    <img src="assets/ccut_badge.png" alt="" width="147" height="147" loading="lazy" decoding="async">
+    <img src="assets/ccut_badge.png" alt="长春工业大学校徽" width="147" height="147" loading="lazy" decoding="async">
     <span><span class="wm-org">长春工业大学</span><span class="wm-sep">·</span>应用统计研究生团队（深度求索队）</span>
     <span class="wm-sep">|</span>
     <span class="wm-work">雪线之上 · 吉林冰雪经济目标可视化</span>
@@ -5145,7 +5150,7 @@ if (!isStereoVR) {
     </div>
     <div class="gallery-view">
       <button class="gallery-nav prev" id="btnGalleryPrev">‹</button>
-      <img src="assets/changbai_tianchi.jpg" alt="长白山风光" class="gallery-img" id="galleryImg" width="1376" height="768" decoding="async" fetchpriority="high">
+      <img src="assets/changbai_tianchi.jpg" alt="长白山风光" class="gallery-img" id="galleryImg" width="1376" height="768" loading="eager" decoding="async" fetchpriority="high">
       <div class="gallery-caption" id="galleryCaption">航拍冬季长白山主峰天池全景，冰雪封湖，十六峰环绕</div>
       <button class="gallery-nav next" id="btnGalleryNext">›</button>
     </div>

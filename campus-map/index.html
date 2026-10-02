@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>长春工业大学 · 全景立体地图 | CCUT 3D Campus Map</title>
 <meta name="description" content="长春工业大学交互式三维校园示意地图：以公开地图数据与校区资料为参考，展示北湖、南湖校区空间模型，支持建筑检索、模型坐标距离估算、示意导览路线、光影季节切换与全景漫游。非测绘或导航数据。">
 <meta name="keywords" content="长春工业大学,长工大,CCUT,全景立体地图,3D校园地图,北湖校区,南湖校区,博厚图书馆,西区教学主楼,东区主教学楼,郭力楼,数学与统计学院">
@@ -11,7 +11,6 @@
 <meta name="twitter:title" content="长春工业大学 · 全景立体地图">
 <meta name="twitter:description" content="交互式三维校园示意地图：建筑检索、示意导览、季节光影与全景漫游。">
 <meta name="twitter:image" content="https://daixuan.cloud/assets/images/project-3dmap.svg">
-
 <!-- 说明：此处不再禁用缓存。静态资源通过下方 ?v= 版本号做变更失效，
      而 three.min.js 等第三方库体积大且极少变动，禁用缓存会导致每次访问全量重下载。 -->
 <meta name="theme-color" content="#0b1526">
@@ -20,7 +19,7 @@
 <meta property="og:title" content="长春工业大学 · 全景立体地图">
 <meta property="og:description" content="长春工业大学交互式三维校园示意地图，支持建筑检索、模型坐标距离估算、示意导览路线与季节光影切换；模型不作为测绘或导航数据。">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="css/style.css?v=20261001_03">
+<link rel="stylesheet" href="css/style.css?v=20261002_01">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🏫</text></svg>">
 </head>
 <body>
@@ -212,7 +211,7 @@
       </div>
     </div>
     <div class="modal-ft">
-      <span>长春工业大学 2026 版 · 纯前端零依赖</span>
+      <span>长春工业大学 2026 版 · 静态前端与本地 3D 引擎</span>
       <button id="helpOk" class="modal-btn">我知道了</button>
     </div>
   </div>
@@ -228,7 +227,7 @@
 <script defer src="js/RenderPass.js"></script>
 <script defer src="js/ShaderPass.js"></script>
 <script defer src="js/UnrealBloomPass.js"></script>
-<script defer src="js/campus-data.js?v=20261001_04"></script>
-<script defer src="js/main.js?v=20261001_06"></script>
+<script defer src="js/campus-data.js?v=20261002_01"></script>
+<script defer src="js/main.js?v=20261002_01"></script>
 </body>
 </html>

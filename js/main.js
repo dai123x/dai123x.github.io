@@ -260,6 +260,11 @@
 
     function open() {
       lastFocused = document.activeElement;
+      const qr = modal.querySelector('img[data-src]');
+      if (qr) {
+        qr.src = qr.dataset.src;
+        qr.removeAttribute('data-src');
+      }
       document.body.classList.add('nav-open');
       modal.classList.add('active');
       if (closeBtn) closeBtn.focus();
@@ -320,7 +325,7 @@
       if (progress) {
         const height = document.documentElement.scrollHeight - window.innerHeight;
         const pct = height > 0 ? Math.min(100, (y / height) * 100) : 0;
-        progress.style.width = pct.toFixed(2) + '%';
+        progress.style.transform = `scaleX(${(pct / 100).toFixed(4)})`;
       }
     });
 
