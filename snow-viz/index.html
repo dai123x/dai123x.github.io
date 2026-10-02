@@ -453,6 +453,80 @@
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
       gap: 14px;
     }
+    /* 同一行卡片等高拉伸时，让主内容区吸收多余高度，消除「说明框 margin-top:auto」造成的中段空白 */
+    .grid > .card {
+      display: flex;
+      flex-direction: column;
+    }
+    .grid > .card > .vr-viewport-box {
+      flex: 1 1 auto;
+      height: auto;
+      min-height: 228px;
+    }
+    .grid > .card > .chart-container {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    body.presenting .grid > .card > .vr-viewport-box {
+      min-height: 180px;
+    }
+    /* ===== 卡片网格列数统一：让末行铺满，消除右侧成片空白 =====
+       4 项 → 4 列 | 6 项 → 3 列 | 8 项 → 4 列 | 3 项 → 3 列
+       窄屏统一降级为 2 列（3 项容器降为 1 列），任何断点下末行都不留大片空位 */
+    /* 4 项与 8 项容器 → 4 列 */
+    .grid-4,
+    #industryGrid,
+    .da-model-grid,
+    .da-checks,
+    .culture-routes-grid,
+    .method-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+    /* 3 项与 6 项容器 → 3 列（6 项正好两行，3 项正好一行） */
+    .grid-3,
+    .da-kpi-grid,
+    .team-grid,
+    .pipeline-flow.pipe-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+    /* 数据科学沙盒：桌面端 3 列并排；平板/中屏端（≤1050px）前两项并排，龙卷风图跨两列铺满，消除挤压与留白 */
+    #simSandboxPanel {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 14px;
+      align-items: stretch;
+    }
+    @media (max-width: 1050px) {
+      #simSandboxPanel {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      #simSandboxPanel > div:last-child {
+        grid-column: 1 / -1 !important;
+      }
+    }
+    /* 平板区间：4 项/8 项容器降为 2 列；3 项/6 项维持 3 列 */
+    @media (max-width: 1100px) {
+      .grid-4,
+      #industryGrid,
+      .da-model-grid,
+      .da-checks,
+      .culture-routes-grid,
+      .method-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+    }
+
+    /* 供给侧任务卡：三张卡片吸收剩余高度，内容垂直居中，底部不留空白 */
+    .grid > .card > .supply-grid {
+      flex: 1 1 auto;
+    }
+    .grid > .card > .supply-grid > .supply-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
     .card {
       min-width: 0;
       background: var(--panel);
@@ -1131,6 +1205,7 @@
       font-weight: 800;
       font-family: monospace;
       margin-bottom: 2px;
+      white-space: nowrap;
     }
     .sim-res-sub {
       font-size: 9px;
@@ -1918,7 +1993,8 @@
     .da-sig.s1 { background: rgba(244,198,109,0.15); color: var(--gold); border: 1px solid rgba(244,198,109,0.4); }
     .da-sig.s0 { background: rgba(230,120,110,0.14); color: var(--coral); border: 1px solid rgba(230,120,110,0.4); }
 
-    .da-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 9px; padding-top: 12px; }
+    /* 4 列 × 2 行 = 8 项，末行不留大片空位（原 5 列会导致第二行仅 2 项、右侧空 820px） */
+    .da-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(292px, 1fr)); gap: 9px; padding-top: 12px; }
     .da-check {
       display: flex; gap: 9px; align-items: flex-start;
       background: rgba(6, 20, 27, 0.7);
@@ -2430,6 +2506,33 @@
       }
       .pk-cmp-grid {
         grid-template-columns: 1fr !important;
+      }
+
+      /* 基建路线卡：宽屏 3 列铺满，窄屏回落单列（否则 420px 最小宽会撑破手机视口） */
+      #roadmapGrid {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* 各类卡片网格：手机上统一单列 */
+      .grid-4, #industryGrid, .da-model-grid, .da-checks, .culture-routes-grid, .method-grid,
+      .grid-3, .da-kpi-grid, .team-grid, #simSandboxPanel {
+        grid-template-columns: 1fr !important;
+      }
+      #simSandboxPanel > div:last-child {
+        grid-column: auto !important;
+      }
+
+      /* 模型公式：窄屏允许折行，避免 nowrap 撑大卡片最小宽度造成横向溢出 */
+      .da-model-eq {
+        white-space: normal !important;
+        overflow-x: hidden !important;
+        word-break: break-word;
+      }
+      /* 网格子项允许收缩到 0，杜绝任何 nowrap 内容反向撑破视口 */
+      .grid > .card, .da-model-card, .dq-card, .team-card,
+      .culture-routes-grid > *, .method-grid > *,
+      .grid-4 > *, .grid-3 > * {
+        min-width: 0;
       }
 
       /* 数据分析链路：窄屏改为纵向流水 */
@@ -2944,7 +3047,7 @@
         </div>
 
         <!-- 3-Column Command Body Grid on Desktop -->
-        <div class="sim-body-grid" id="simSandboxPanel" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:14px; align-items:stretch;">
+        <div class="sim-body-grid" id="simSandboxPanel">
           <!-- Col A: Sliders -->
           <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
             <div style="font-size:12px; font-weight:700; color:var(--ice); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
@@ -3016,8 +3119,8 @@
               </div>
               <span class="badge" style="font-size:9px; background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); padding:1px 6px;">弹性边界</span>
             </div>
-            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; height:auto; display:block; background:rgba(4,14,20,0.5); border:1px solid rgba(117,216,237,0.15); border-radius:6px; margin-bottom:6px;"></svg>
-            <div style="font-size:10px; color:var(--dim); display:flex; justify-content:space-between; align-items:center;">
+            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; max-width:680px; height:auto; display:block; background:rgba(4,14,20,0.5); border:1px solid rgba(117,216,237,0.15); border-radius:6px; margin:0 auto 6px;"></svg>
+            <div style="font-size:10px; color:var(--dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
               <span>基准线：2030 规划总花费 5,400 亿元</span>
               <span style="color:var(--mint);">高铁与营销乘数弹性贡献前二位</span>
             </div>
@@ -3074,7 +3177,9 @@
           <h3>🛡️ 数据合规与科学边界</h3>
           <small>评审合规声明</small>
         </div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;display:flex;flex-direction:column;gap:7px;flex:1 1 auto;justify-content:center;">
+          <div><b style="color:#fff;">形式合规：</b>源文件已内嵌参赛者水印（学校 / 团队 / 作品名），演示视频首页标注队伍与作品名称，分辨率 1920×1080。</div>
+          <div><b style="color:#fff;">代码原创：</b>投影、地形、双目渲染等全部算法自研实现，零第三方库引用，非往届参赛作品，源码可现场翻阅核验。</div>
           <div><b style="color:#fff;">权威依据：</b>中共吉林省委办公厅、吉林省人民政府办公厅《关于推动吉林省冰雪经济高质量发展的实施意见》（2024-12-12）。</div>
           <div><b style="color:#fff;">口径严谨：</b>展示的均系政府公开规划目标，绝不混淆为实际已达成数据；不进行未经证实的地理空间插值。</div>
           <div><b style="color:#fff;">零依赖交付：</b>纯原生 HTML5/Canvas/CSS 架构，免网络环境依赖，可离线双击秒开。</div>
@@ -3359,7 +3464,7 @@
             </tbody>
           </table>
           <!-- Diagnostic Stat Badges Grid -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:12px;">
+          <div class="grid-3" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:12px;">
             <div style="background:rgba(14,38,48,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:10px; color:var(--muted);">拟合优度 R²</div>
               <div style="font-size:15px; font-weight:bold; color:var(--gold); font-family:monospace; margin:2px 0;">0.5137</div>
@@ -3440,7 +3545,7 @@
           </div>
         </div>
 
-        <div class="roadmap-grid" id="roadmapGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:12px; padding-top:12px;">
+        <div class="roadmap-grid" id="roadmapGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap:12px; padding-top:12px;">
           <!-- Dynamically populated -->
         </div>
       </article>
@@ -3515,7 +3620,7 @@
             <b>阶段二：数据质量核验看板（Data Quality Audit）</b>
             <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(148,227,202,0.15); color:var(--mint); border-color:var(--mint);">入库前强制校验</span>
           </div>
-          <div class="dq-grid">
+          <div class="dq-grid grid-3">
             <div class="dq-card">
               <div class="dq-label">有效样本量 n</div>
               <div class="dq-value">6 期</div>
@@ -3691,7 +3796,7 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; padding-top:12px;">
+        <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; padding-top:12px;">
           <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -3865,7 +3970,7 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; padding-top:12px;">
+        <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; padding-top:12px;">
           <div style="background:rgba(10,28,38,0.7); border:1px solid rgba(117,216,237,0.25); border-radius:6px; padding:12px;">
             <div style="color:var(--ice); font-size:12px; font-weight:bold; margin-bottom:4px;">💧 天然超轻干粉雪密度</div>
             <div style="font-size:20px; font-weight:bold; color:#fff; font-family:monospace;">0.08 ~ 0.11 <span style="font-size:12px; color:var(--dim);">g/cm³</span></div>
@@ -3970,7 +4075,7 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; padding-top:12px;">
+        <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; padding-top:12px;">
           <div class="carbon-card" style="background:rgba(10,28,38,0.75); border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -4218,7 +4323,7 @@ if (!isStereoVR) {
             <span style="font-size:14px;">📊</span>
             <b>工程质量指标</b>
           </div>
-          <div class="dq-grid">
+          <div class="dq-grid grid-4">
             <div class="dq-card">
               <div class="dq-label">主脚本规模</div>
               <div class="dq-value">~5,200 行</div>
@@ -4296,7 +4401,7 @@ if (!isStereoVR) {
             <b>落地能力：四项技术可迁移能力</b>
             <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(148,227,202,0.15); color:var(--mint); border-color:var(--mint);">全部为自研实现</span>
           </div>
-          <div class="dq-grid">
+          <div class="dq-grid grid-4">
             <div class="dq-card">
               <div class="dq-label">零依赖单文件架构</div>
               <div class="dq-value">1 个文件</div>
@@ -4606,6 +4711,14 @@ if (!isStereoVR) {
               <div class="da-check-t">异方差性 · 截面数据风险</div>
               <div class="da-check-v">截面样本无法时序检验</div>
               <div class="da-check-d">因数据为单期截面，Durbin-Watson 与 Breusch-Pagan 时序检验不适用；时序序列的诊断结论仍见上方「统计检验」版块。</div>
+            </div>
+          </div>
+          <div class="da-check">
+            <span class="da-check-ico">🏁</span>
+            <div class="da-check-body">
+              <div class="da-check-t">综合诊断结论 · 学术规范</div>
+              <div class="da-check-v">5 项通过 / 2 项已披露</div>
+              <div class="da-check-d">全部失效项均如实标记、不隐藏；样本量局限与外推风险在系统中显式标注，结论统一定位为「结构性关系识别」。</div>
             </div>
           </div>
         </div>
@@ -10072,12 +10185,12 @@ if (!isStereoVR) {
 
           html += `
             <g class="tornado-row">
-              <text x="14" y="${y + 16}" fill="#fff" font-size="11" font-weight="600">${lev.name}</text>
-              <text x="14" y="${y + 30}" fill="var(--dim)" font-size="9" font-family="monospace">${lev.range} (现值: <tspan fill="var(--gold)">${lev.curVal}</tspan>)</text>
+              <text x="14" y="${y + 15}" fill="#fff" font-size="11" font-weight="600">${lev.name} <tspan fill="var(--gold)" font-size="9" font-family="monospace">· ${lev.curVal}</tspan></text>
+              <text x="14" y="${y + 29}" fill="var(--dim)" font-size="9" font-family="monospace">${lev.range}</text>
               
               <!-- Low side bar -->
               <rect x="${lowX}" y="${y + 14}" width="${lowW}" height="16" rx="3" fill="rgba(255, 107, 107, 0.4)" stroke="rgba(255, 107, 107, 0.8)" stroke-width="1" />
-              <text x="${lowX - 6}" y="${y + 26}" fill="#ff8585" font-size="9" font-family="monospace" text-anchor="end">${lev.lowVal > 0 ? '+' : ''}${Math.round(lev.lowVal)}亿</text>
+              <text x="${lowW >= 38 ? lowX + 6 : lowX - 6}" y="${y + 26}" fill="${lowW >= 38 ? '#fff' : '#ff8585'}" font-size="9" font-weight="${lowW >= 38 ? 'bold' : 'normal'}" font-family="monospace" text-anchor="${lowW >= 38 ? 'start' : 'end'}">${lev.lowVal > 0 ? '+' : ''}${Math.round(lev.lowVal)}亿</text>
               
               <!-- High side bar -->
               <rect x="${highX}" y="${y + 14}" width="${highW}" height="16" rx="3" fill="rgba(117, 216, 237, 0.4)" stroke="rgba(117, 216, 237, 0.8)" stroke-width="1" />
@@ -10955,6 +11068,13 @@ if (!isStereoVR) {
     } catch (e) {
       vrVisible = true; // 不支持 IntersectionObserver 时退化为常驻渲染
     }
+    // 视窗盒子高度随卡片弹性布局变化时重算画布位图，避免画面被拉伸模糊
+    try {
+      const vrBox = vrCanvas.parentElement;
+      if (vrBox && window.ResizeObserver) {
+        new ResizeObserver(() => resizeVr()).observe(vrBox);
+      }
+    } catch (e) { /* 忽略：不支持时退化为仅窗口 resize 时重算 */ }
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         // 回到前台时按当前视口重建粒子与画布，避免尺寸漂移
