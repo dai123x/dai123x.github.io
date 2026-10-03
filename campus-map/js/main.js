@@ -5669,6 +5669,58 @@ function toggleSatellite() {
   filterCategory(activeCategory);
 }
 
+/* ============================================================
+ * 卫星瓦片持久缓存（IndexedDB）——回访零网络秒开，离线有兜底
+ * 两校区共 196 个瓦片 URL（影像+注记两层），总量约 10~15MB，
+ * 校区固定所以不做容量修剪；过期瓦片先绘旧图再后台刷新。
+ * ============================================================ */
+var satIDB = { db: null, failed: false };
+function satOpenDB(cb) {
+  if (satIDB.db) return cb(satIDB.db);
+  if (satIDB.failed || !window.indexedDB) { satIDB.failed = true; return cb(null); }
+  var req;
+  try { req = indexedDB.open('ccut_sat_tiles', 1); } catch (e) { satIDB.failed = true; return cb(null); }
+  req.onupgradeneeded = function () {
+    if (!req.result.objectStoreNames.contains('tiles')) req.result.createObjectStore('tiles', { keyPath: 'url' });
+  };
+  req.onsuccess = function () { satIDB.db = req.result; cb(satIDB.db); };
+  req.onerror = function () { satIDB.failed = true; cb(null); };
+}
+function satCacheGet(url, cb) {
+  satOpenDB(function (db) {
+    if (!db) return cb(null, 0);
+    try {
+      var tx = db.transaction('tiles', 'readonly').objectStore('tiles').get(url);
+      tx.onsuccess = function () { cb(tx.result ? tx.result.blob : null, tx.result ? tx.result.ts : 0); };
+      tx.onerror = function () { cb(null, 0); };
+    } catch (e) { cb(null, 0); }
+  });
+}
+function satCachePut(url, blob) {
+  satOpenDB(function (db) {
+    if (!db) return;
+    try {
+      db.transaction('tiles', 'readwrite').objectStore('tiles').put({ url: url, blob: blob, ts: Date.now() });
+    } catch (e) { /* 配额满等情况静默降级为纯网络模式 */ }
+  });
+}
+function satFetchBlob(url, cb) {
+  if (typeof fetch === 'function') {
+    fetch(url, { mode: 'cors', credentials: 'omit' }).then(function (r) {
+      return r.ok ? r.blob() : Promise.reject(new Error(r.status));
+    }).then(function (b) { cb(b); }).catch(function () { cb(null); });
+  } else {
+    try {
+      var x = new XMLHttpRequest();
+      x.open('GET', url, true);
+      x.responseType = 'blob';
+      x.onload = function () { cb(x.status >= 200 && x.status < 300 ? x.response : null); };
+      x.onerror = function () { cb(null); };
+      x.send();
+    } catch (e) { cb(null); }
+  }
+}
+
 function setupSatelliteMap() {
   if (satGroup) {
     if (scene) scene.remove(satGroup);
@@ -5714,8 +5766,16 @@ function setupSatelliteMap() {
   function makeAtlasTexture(canvas) {
     var t = canvasTex(canvas);
     t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
-    t.minFilter = THREE.LinearFilter;   // 图集尺寸非 2 的幂，关闭 mipmap 省一次金字塔生成
-    t.generateMipmaps = false;
+    if (renderer && renderer.capabilities && renderer.capabilities.isWebGL2 && !window.__ccutLowEnd) {
+      // WebGL2 支持非 2 幂纹理生成 mipmap：远景地面不再闪烁。
+      // 49 块瓦片在图集里是地理连续的整幅影像，深层 mip 跨瓦片混色
+      // 等价于对连续图取均值，不会出现接缝伪影；低端设备省显存仍关闭
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.generateMipmaps = true;
+    } else {
+      t.minFilter = THREE.LinearFilter;   // WebGL1 非 2 幂贴图：关闭 mipmap 省一次金字塔生成
+      t.generateMipmaps = false;
+    }
     if (renderer && renderer.capabilities) t.anisotropy = maxAniso();
     if (THREE.sRGBEncoding) t.encoding = THREE.sRGBEncoding;
     else if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
@@ -5739,13 +5799,14 @@ function setupSatelliteMap() {
   /* ---- 把 grid×grid 个瓦片网格按图集 UV 合并为单个 Mesh ---- */
   function buildAtlasLayer(y, material, name, receiveShadow) {
     var list = [];
+    var inset = 0.5 / atlasSize; // 半像素内缩：防止双线性/斜视采样渗入相邻瓦片
     for (var i = -num; i <= num; i++) {
       for (var j = -num; j <= num; j++) {
         var geo = new THREE.PlaneGeometry(exactScale, exactScale);
         geo.rotateX(-Math.PI / 2);
         var gi = i + num, gj = j + num;
-        var u0 = gi / grid, u1 = (gi + 1) / grid;
-        var v0 = 1 - (gj + 1) / grid, v1 = 1 - gj / grid;
+        var u0 = gi / grid + inset, u1 = (gi + 1) / grid - inset;
+        var v0 = 1 - (gj + 1) / grid + inset, v1 = 1 - gj / grid - inset;
         var uv = geo.attributes.uv;
         for (var k = 0; k < uv.count; k++) {
           uv.setXY(k, u0 + uv.getX(k) * (u1 - u0), v0 + uv.getY(k) * (v1 - v0));
@@ -5808,30 +5869,84 @@ function setupSatelliteMap() {
     fade();
   }
 
+  /* ---- 瓦片装载：缓存优先 → 缺失/过期走网络（中心优先 8 并发 + 换子域重试） ---- */
+  var jobs = [];
   for (var i2 = -num; i2 <= num; i2++) {
     for (var j2 = -num; j2 <= num; j2++) {
       (function (i, j) {
-        var tx = cx + i;
-        var ty = cy + j;
-        var sub = 'webst0' + (1 + (Math.abs(tx + ty) % 4));
+        var tx = cx + i, ty = cy + j;
         var gi = i + num, gj = j + num;
-
-        function load(url, ctx) {
-          var img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = function () {
-            try { ctx.drawImage(img, gi * TILE, gj * TILE, TILE, TILE); } catch (e) { /* 跨域失败时保留底色 */ }
-            markAtlasDirty();
-            startFade();
-          };
-          img.onerror = function () { markAtlasDirty(); startFade(); };
-          img.src = url;
-        }
-        load('https://' + sub + '.is.autonavi.com/appmaptile?style=6&x=' + tx + '&y=' + ty + '&z=' + z, satCtx);
-        load('https://' + sub + '.is.autonavi.com/appmaptile?style=8&x=' + tx + '&y=' + ty + '&z=' + z, labCtx);
+        var base = 'https://webst0' + (1 + (Math.abs(tx + ty) % 4)) + '.is.autonavi.com/appmaptile?';
+        // pri：到图集中心的切比雪夫距离——中心瓦片最先请求，配合淡入尽快出画面
+        var pri = Math.max(Math.abs(i), Math.abs(j));
+        jobs.push({ url: base + 'style=6&x=' + tx + '&y=' + ty + '&z=' + z, ctx: satCtx, gx: gi, gy: gj, ttl: 14 * 864e5, pri: pri });  // 影像 14 天
+        jobs.push({ url: base + 'style=8&x=' + tx + '&y=' + ty + '&z=' + z, ctx: labCtx, gx: gi, gy: gj, ttl: 3 * 864e5, pri: pri });   // 路网注记 3 天
       })(i2, j2);
     }
   }
+  jobs.sort(function (a, b) { return a.pri - b.pri || (a.gx - b.gx) || (a.gy - b.gy); });
+
+  function paintTile(blob, gx, gy, ctx) {
+    var painted = false;
+    var paint = function (src) {
+      if (painted) return;
+      painted = true;
+      try { ctx.drawImage(src, gx * TILE, gy * TILE, TILE, TILE); } catch (e) { return; }
+      markAtlasDirty();
+      startFade();
+    };
+    if (window.createImageBitmap) {
+      createImageBitmap(blob).then(function (bmp) { paint(bmp); }).catch(function () {
+        var url = URL.createObjectURL(blob);
+        var img = new Image();
+        img.onload = function () { paint(img); URL.revokeObjectURL(url); };
+        img.src = url;
+      });
+    } else {
+      var url = URL.createObjectURL(blob);
+      var img = new Image();
+      img.onload = function () { paint(img); URL.revokeObjectURL(url); };
+      img.src = url;
+    }
+  }
+
+  // 失败时轮换 webst01-04 子域重试（最多 2 次），规避单点限流
+  function fetchTile(url, tryIdx, cb) {
+    var u = tryIdx > 0 ? url.replace(/webst0\d/, 'webst0' + (1 + (tryIdx % 4))) : url;
+    satFetchBlob(u, function (b) {
+      if (b) return cb(b);
+      if (tryIdx < 2) setTimeout(function () { fetchTile(url, tryIdx + 1, cb); }, 250 * (tryIdx + 1));
+      else cb(null);
+    });
+  }
+
+  var POOL = 8, nextJob = 0, finishedJobs = 0;
+  function pump() {
+    // 并发窗口恒为 POOL：在途数 = nextJob - finishedJobs，完成一个补位一个
+    while (nextJob < jobs.length && nextJob - finishedJobs < POOL) {
+      runJob(jobs[nextJob++]);
+    }
+  }
+  function runJob(job) {
+    satCacheGet(job.url, function (blob, ts) {
+      var fresh = blob && (Date.now() - ts) < job.ttl;
+      if (blob) paintTile(blob, job.gx, job.gy, job.ctx); // 无论新旧先绘缓存：旧图秒显，过期再被网络结果覆盖
+      if (fresh) return jobDone();
+      fetchTile(job.url, 0, function (b) {
+        if (b) {
+          paintTile(b, job.gx, job.gy, job.ctx);
+          satCachePut(job.url, b);
+        }
+        // 无缓存且网络失败：保留底色，交给 2.5s 兜底淡入
+        jobDone();
+      });
+    });
+  }
+  function jobDone() {
+    finishedJobs++;
+    if (finishedJobs < jobs.length) pump();
+  }
+  pump();
 
   // 兜底：瓦片全部失败时也要淡入底色，避免出现永久透明空洞
   setTimeout(startFade, 2500);
