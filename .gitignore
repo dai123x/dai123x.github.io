@@ -19,3 +19,9 @@ yarn-debug.log*
 yarn-error.log*
 .temp/
 .tmp/
+
+# Python 缓存（本地分析脚本产生，不入库）
+__pycache__/
+*.py[cod]
+.venv/
+venv/
