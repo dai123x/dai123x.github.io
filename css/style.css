@@ -19,15 +19,21 @@
   
   --accent-primary: #6366f1;
   --accent-secondary: #8b5cf6;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  --accent-3: #22d3ee;
+  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 28%, #a855f7 62%, #ec4899 100%);
   --accent-glow: rgba(99, 102, 241, 0.25);
   --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  
+  --card-shadow-hover: 0 24px 48px -16px rgba(0, 0, 0, 0.55), 0 0 24px -6px var(--accent-glow);
+  --hairline: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.55), rgba(236, 72, 153, 0.4), transparent);
+
   --nav-bg: rgba(10, 14, 23, 0.82);
-  --glass-blur: blur(16px);
+  --glass-blur: blur(16px) saturate(150%);
+
+  /* 噪点颗粒透明度（胶片质感，避免死平的纯色底） */
+  --noise-opacity: 0.05;
   
   /* Typography & Sizing */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "HarmonyOS Sans SC", "MiSans", Roboto, "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -58,11 +64,15 @@
   
   --accent-primary: #4f46e5;
   --accent-secondary: #7c3aed;
-  --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  --accent-3: #0891b2;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #7c3aed 50%, #db2777 100%);
   --accent-glow: rgba(79, 70, 229, 0.18);
   --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-  
+  --card-shadow-hover: 0 24px 48px -16px rgba(15, 23, 42, 0.16), 0 0 24px -8px var(--accent-glow);
+  --hairline: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.45), rgba(219, 39, 119, 0.32), transparent);
+
   --nav-bg: rgba(248, 250, 252, 0.85);
+  --noise-opacity: 0.07;
 }
 
 /* Base Styles */
@@ -80,15 +90,32 @@ html {
   scrollbar-width: thin;
 }
 
+[data-theme="dark"] { color-scheme: dark; }
+[data-theme="light"] { color-scheme: light; }
+
 body {
   font-family: var(--font-sans);
+  /* 深空底色 + 双极光色晕：随页面滚动形成缓慢流动的纵深感 */
   background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(1100px 520px at 12% -4%, rgba(99, 102, 241, 0.13), transparent 62%),
+    radial-gradient(900px 480px at 96% 12%, rgba(236, 72, 153, 0.08), transparent 60%),
+    radial-gradient(1000px 620px at 50% 112%, rgba(34, 211, 238, 0.07), transparent 62%);
+  background-repeat: no-repeat;
+  background-size: 100% 900px, 100% 1100px, 100% 1200px;
   color: var(--text-primary);
   line-height: 1.65;
   transition: background-color 0.35s ease, color 0.35s ease;
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
+}
+
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(1100px 520px at 12% -4%, rgba(99, 102, 241, 0.09), transparent 62%),
+    radial-gradient(900px 480px at 96% 12%, rgba(236, 72, 153, 0.06), transparent 60%),
+    radial-gradient(1000px 620px at 50% 112%, rgba(6, 182, 212, 0.06), transparent 62%);
 }
 
 /* Ambient Background Light Orbs */
@@ -107,9 +134,22 @@ body {
   position: absolute;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.15;
+  opacity: 0.17;
   transition: var(--transition);
+  animation: orbDrift 26s ease-in-out infinite alternate;
+  will-change: transform;
 }
+
+@keyframes orbDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(4%, -3%, 0) scale(1.08); }
+  100% { transform: translate3d(-3%, 4%, 0) scale(0.95); }
+}
+
+.orb-2 { animation-duration: 32s; animation-delay: -8s; }
+.orb-3 { animation-duration: 38s; animation-delay: -16s; }
+
+[data-theme="light"] .ambient-orb { opacity: 0.11; }
 
 .orb-1 {
   width: 450px;
@@ -156,12 +196,37 @@ body {
   padding-top: var(--safe-top);
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+  /* 顶部初始全透明，滚动后渐入玻璃拟态（见 .navbar.scrolled） */
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease,
+              backdrop-filter 0.35s ease, -webkit-backdrop-filter 0.35s ease;
+}
+
+/* 滚动后：玻璃拟态 + 渐变发丝线 */
+.navbar.scrolled {
   background: var(--nav-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--border-color);
-  transition: var(--transition);
+  border-bottom-color: var(--border-color);
 }
+
+.navbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--hairline);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.navbar.scrolled::after { opacity: 1; }
 
 .navbar .container {
   display: flex;
@@ -811,7 +876,8 @@ body {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
-  word-break: break-all;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Footer */
@@ -1107,6 +1173,9 @@ html.js .reveal.is-visible {
 /* 打字机容器：固定高度并保留光标位，避免文字长度变化引起布局抖动 (CLS) */
 #typing-role {
   display: inline-block;
+  /* 独立字号 clamp：最长短语在 390px 窄屏也不折行，光标不产生竖线残影 */
+  font-size: clamp(0.95rem, 3.4vw, 1.42rem);
+  white-space: nowrap;
   min-height: 1.25em;
   border-right: 2px solid var(--accent-primary);
   padding-right: 4px;
@@ -1743,6 +1812,516 @@ body.nav-open {
 .skill-category-card,
 .award-card {
   box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ==========================================================================
+   V2 视觉升级层 · 深度美化
+   渐变描边玻璃卡片 / 噪点颗粒 / 极光按钮光泽 / 头像旋转光环 / 微交互
+   全部动画仅用 transform / opacity；触屏与减弱动效均已降级适配
+   ========================================================================== */
+
+/* ---- V2-1. 全局噪点颗粒（胶片质感，消除大面积纯色的死平感） ---- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.4);
+  color: #fff;
+}
+[data-theme="light"] ::selection {
+  background: rgba(99, 102, 241, 0.22);
+  color: #0f172a;
+}
+
+/* ---- V2-2. 卡片渐变发丝描边（1px 渐变环，玻璃质感的点睛之笔） ---- */
+.bento-card,
+.edu-card,
+.internship-card,
+.award-card,
+.skill-category-card,
+.project-card,
+.contact-box,
+.modal-content {
+  position: relative;
+}
+
+.bento-card::before,
+.edu-card::before,
+.internship-card::before,
+.award-card::before,
+.skill-category-card::before,
+.project-card::before,
+.contact-box::before,
+.modal-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg,
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0.02) 32%,
+      rgba(129, 140, 248, 0.22) 68%,
+      rgba(236, 72, 153, 0.14));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  opacity: 0.75;
+  z-index: 2;
+}
+
+[data-theme="light"] .bento-card::before,
+[data-theme="light"] .edu-card::before,
+[data-theme="light"] .internship-card::before,
+[data-theme="light"] .award-card::before,
+[data-theme="light"] .skill-category-card::before,
+[data-theme="light"] .project-card::before,
+[data-theme="light"] .contact-box::before,
+[data-theme="light"] .modal-content::before {
+  background: linear-gradient(140deg,
+      rgba(15, 23, 42, 0.10),
+      rgba(15, 23, 42, 0.02) 32%,
+      rgba(99, 102, 241, 0.20) 68%,
+      rgba(219, 39, 119, 0.12));
+}
+
+/* ---- V2-3. 指针跟随高光：扩展到全部卡片类型 ---- */
+.internship-card::after,
+.award-card::after,
+.skill-category-card::after,
+.competition-hero-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(560px circle at var(--mx, 50%) var(--my, 0%),
+              rgba(99, 102, 241, 0.10), transparent 62%);
+}
+
+.internship-card:hover::after,
+.award-card:hover::after,
+.skill-category-card:hover::after,
+.competition-hero-card:hover::after {
+  opacity: 1;
+}
+
+/* ---- V2-4. 卡片悬停统一升级：更深浮起 + 柔和辉光 ---- */
+.bento-card:hover,
+.edu-card:hover,
+.internship-card:hover,
+.award-card:hover,
+.skill-category-card:hover,
+.project-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ---- V2-5. 区块标题装饰：标签胶囊化 + 标题渐变落笔线 ---- */
+.section-tag {
+  position: relative;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.09);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+}
+
+.section-tag::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 7px;
+  vertical-align: 1px;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.section-header { position: relative; }
+
+.section-header::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 3px;
+  margin: 18px auto 0;
+  border-radius: var(--radius-full);
+  background: var(--hairline);
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+.section-title,
+.hero-title,
+.project-title {
+  text-wrap: balance;
+}
+
+/* ---- V2-6. 导航链接：渐变下划线滑入；品牌徽标光环 ---- */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  transform: scaleX(1);
+}
+
+.brand-icon {
+  box-shadow: 0 4px 14px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: var(--transition);
+}
+
+.nav-brand:hover .brand-icon {
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* ---- V2-7. 主按钮：流光扫过 + 按压反馈 ---- */
+.btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -70%;
+  width: 44%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.btn-primary:hover::after {
+  left: 135%;
+}
+
+.btn-secondary {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ---- V2-8. 渐变文字流光（英雄区姓名） ---- */
+.gradient-text {
+  background-size: 220% 100%;
+  animation: gradientPan 7s ease-in-out infinite alternate;
+}
+
+@keyframes gradientPan {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* 英雄区徽章：高光周期性掠过 */
+.hero-badge {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hero-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 34%;
+  left: -45%;
+  background: linear-gradient(100deg, transparent, rgba(129, 140, 248, 0.22), transparent);
+  transform: skewX(-18deg);
+  animation: badgeSheen 4.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes badgeSheen {
+  0%, 55%  { left: -45%; }
+  85%, 100% { left: 120%; }
+}
+
+/* ---- V2-9. 头像：旋转渐变光环 + 柔光投影 ---- */
+@property --ring-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.avatar-card {
+  z-index: 1;
+}
+
+.avatar-card::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 39px;
+  background: conic-gradient(from var(--ring-angle),
+      #6366f1, #a855f7, #ec4899, #22d3ee, #6366f1);
+  z-index: -1;
+  animation: ringSpin 9s linear infinite;
+  filter: saturate(1.15) blur(0.5px);
+}
+
+@keyframes ringSpin {
+  to { --ring-angle: 360deg; }
+}
+
+.avatar-card {
+  box-shadow: 0 24px 60px -18px rgba(99, 102, 241, 0.45), var(--card-shadow);
+}
+
+/* ---- V2-10. 数据条：栏间发丝分隔 + 悬停抬升 ---- */
+@media (min-width: 769px) {
+  .stat-strip-item + .stat-strip-item {
+    border-left: 1px solid var(--border-color);
+    padding-left: 20px;
+  }
+}
+
+.stat-strip-item {
+  transition: var(--transition);
+}
+
+.stat-strip-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-strip-item:hover .stat-strip-num {
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+
+/* ---- V2-11. 「最新作品」横幅组件化 ---- */
+.latest-work-banner {
+  position: relative;
+  margin: 18px 0 4px;
+  padding: 13px 16px 13px 19px;
+  background: linear-gradient(120deg, rgba(99, 102, 241, 0.10), rgba(236, 72, 153, 0.06) 55%, rgba(34, 211, 238, 0.07));
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.latest-work-banner::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #818cf8, #ec4899);
+  border-radius: var(--radius-full);
+}
+
+.latest-work-banner:hover {
+  transform: translateX(3px);
+  border-color: rgba(129, 140, 248, 0.45);
+  background: linear-gradient(120deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.09) 55%, rgba(34, 211, 238, 0.10));
+}
+
+.latest-work-banner a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---- V2-12. 项目卡片：封面渐变遮罩 + 特色卡专属描边 ---- */
+.project-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.02) 55%, rgba(2, 6, 23, 0.42));
+  opacity: 0.9;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.project-card:hover .project-cover::after {
+  opacity: 0.55;
+}
+
+.project-card:hover .project-cover img {
+  transform: scale(1.08);
+  filter: saturate(1.12);
+}
+
+.project-card:hover .project-metric-badge {
+  box-shadow: 0 0 14px -2px var(--accent-glow);
+}
+
+.project-card.featured::before {
+  padding: 1.5px;
+  background: linear-gradient(140deg,
+      rgba(129, 140, 248, 0.5),
+      rgba(255, 255, 255, 0.05) 30%,
+      rgba(168, 85, 247, 0.28) 62%,
+      rgba(236, 72, 153, 0.42));
+  opacity: 1;
+}
+
+/* 筛选按钮：激活态辉光环 */
+.tab-btn.active {
+  box-shadow: 0 4px 14px var(--accent-glow), 0 0 0 1px rgba(129, 140, 248, 0.35);
+}
+
+/* ---- V2-13. 技能徽章：渐变呼吸点 ---- */
+.skill-chip,
+.course-tag {
+  transition: var(--transition);
+}
+
+.skill-chip::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.skill-chip:hover::before {
+  background: var(--accent-gradient);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.skill-chip:hover,
+.course-tag:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: rgba(99, 102, 241, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ---- V2-14. 联系卡：极光底光 + 渐变描边强化 ---- */
+.contact-box {
+  overflow: hidden;
+}
+
+.contact-box::after {
+  content: "";
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 70%;
+  background:
+    radial-gradient(420px 200px at 28% 0%, rgba(99, 102, 241, 0.14), transparent 70%),
+    radial-gradient(420px 200px at 74% 8%, rgba(236, 72, 153, 0.10), transparent 70%);
+  pointer-events: none;
+}
+
+.contact-box > * {
+  position: relative;
+  z-index: 1;
+}
+
+.contact-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px -14px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border-hover);
+}
+
+/* ---- V2-15. 页脚：渐变发丝线 + 玻璃化 ---- */
+.footer {
+  position: relative;
+  border-top: none;
+  background: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--hairline);
+}
+
+/* ---- V2-16. 浮钮 / Toast / 弹窗质感 ---- */
+.back-to-top {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.back-to-top:hover {
+  box-shadow: 0 8px 26px rgba(99, 102, 241, 0.55);
+}
+
+.toast {
+  background: color-mix(in srgb, var(--bg-tertiary) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---- V2-17. 触屏设备：关闭悬停位移，避免点按粘滞 ---- */
+@media (hover: none) {
+  .bento-card:hover,
+  .edu-card:hover,
+  .internship-card:hover,
+  .award-card:hover,
+  .skill-category-card:hover,
+  .project-card:hover,
+  .stat-strip-item:hover,
+  .contact-item:hover,
+  .latest-work-banner:hover,
+  .skill-chip:hover,
+  .course-tag:hover {
+    transform: none;
+  }
+}
+
+/* ---- V2-18. 打印时移除噪点与光环 ---- */
+@media print {
+  body::after { display: none !important; }
+  .avatar-card::before { display: none !important; }
+}
+
+/* ---- V2-19. 移动端微调 ---- */
+@media (max-width: 768px) {
+  .section-header::after { margin-top: 14px; }
+  .latest-work-banner { margin: 14px 0 2px; }
+  .footer .container {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 /* ==================== PRINT STYLES ==================== */

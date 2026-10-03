@@ -526,7 +526,10 @@
     if (prefersReducedMotion) return;
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-    document.querySelectorAll('.bento-card, .edu-card').forEach(card => {
+    document.querySelectorAll(
+      '.bento-card, .edu-card, .internship-card, .award-card, ' +
+      '.skill-category-card, .competition-hero-card'
+    ).forEach(card => {
       card.addEventListener('pointermove', (e) => {
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
