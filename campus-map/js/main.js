@@ -122,10 +122,28 @@ function getNearbyPickables(px, pz, radius) {
   return _nearbyPickables;
 }
 
+/* 由 canvas 生成颜色贴图（统一补上 sRGB 标记与各向异性过滤） */
+function canvasTex(canvas) {
+  return markSRGB(new THREE.CanvasTexture(canvas));
+}
+
 /* 各向异性过滤上限（renderer 就绪后取硬件最大值，显著改善斜视角地面/立面清晰度） */
 function maxAniso() {
   try { return renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 4; }
   catch (e) { return 4; }
+}
+
+/* 颜色贴图 sRGB 标记。
+ * renderer 使用 outputEncoding = sRGBEncoding，颜色贴图必须标记为 sRGB，
+ * 否则着色器会把 sRGB 数据当线性值采样、在输出时再编码一次，整体发灰发白。
+ * 注意：roughnessMap / metalnessMap 等数据贴图绝不能标记。
+ * 若需要回到旧的（偏灰）观感，把 SRGB_PIPELINE 改为 false 即可。 */
+var SRGB_PIPELINE = true;
+function markSRGB(tex) {
+  if (!tex || !SRGB_PIPELINE) return tex;
+  if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+  else if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 /* ============================================================
@@ -261,7 +279,7 @@ function bakeLabelsToAtlas(group, parent) {
   }
   if (items.length < 4) return null;
 
-  var tex = new THREE.CanvasTexture(canvas);
+  var tex = canvasTex(canvas);
   tex.minFilter = THREE.LinearFilter;
   tex.generateMipmaps = false;
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
@@ -843,8 +861,8 @@ function facadeTextures(wallHex, floors, cols) {
       }
     }
   }
-  var tDay = new THREE.CanvasTexture(day);
-  var tNight = new THREE.CanvasTexture(night);
+  var tDay = canvasTex(day);
+  var tNight = canvasTex(night);
   var tPhys = new THREE.CanvasTexture(phys);
   tDay.wrapS = tNight.wrapS = tPhys.wrapS = THREE.RepeatWrapping;
   var aniso = maxAniso();
@@ -867,7 +885,7 @@ function grassTexture(hexColor) {
     g.fillStyle = Math.random() > 0.5 ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.03)';
     g.fillRect(x, y, Math.random() * 3, Math.random() * 3);
   }
-  var tex = new THREE.CanvasTexture(c);
+  var tex = canvasTex(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(180, 180);
   if (typeof THREE.SRGBColorSpace !== 'undefined') tex.colorSpace = THREE.SRGBColorSpace;
@@ -885,7 +903,7 @@ function roadTexture() {
   for (var i = 0; i < 40; i++) g.fillRect(Math.random() * 128, Math.random() * 128, 2, 2);
   g.fillStyle = 'rgba(255,255,255,0.75)';
   g.fillRect(62, 8, 4, 44); g.fillRect(62, 76, 4, 44);
-  var t = new THREE.CanvasTexture(c);
+  var t = canvasTex(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t._cached = true;
   return (texCache.road = t);
@@ -900,7 +918,7 @@ function skyTexture(set) {
   var gr = g.createLinearGradient(0, 0, 0, 256);
   gr.addColorStop(0, set.top); gr.addColorStop(0.55, set.mid); gr.addColorStop(1, set.bot);
   g.fillStyle = gr; g.fillRect(0, 0, 16, 256);
-  var tex = new THREE.CanvasTexture(c);
+  var tex = canvasTex(c);
   tex._cached = true;
   return (texCache[key] = tex);
 }
@@ -917,7 +935,7 @@ function gateSignTexture(text) {
   g.font = 'bold 78px "Microsoft YaHei", sans-serif';
   g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillText(text, 512, 70);
-  var tex = new THREE.CanvasTexture(c);
+  var tex = canvasTex(c);
   tex._cached = true;
   return (texCache[key] = tex);
 }
@@ -936,7 +954,7 @@ function waterTexture() {
     g.ellipse(x, y, 14 + Math.random() * 18, 3.5, 0, 0, Math.PI * 2);
     g.fill();
   }
-  var tex = new THREE.CanvasTexture(c);
+  var tex = canvasTex(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(6, 2);
   tex._cached = true;
@@ -954,7 +972,7 @@ function routeTextureFunc() {
   g.moveTo(20, 4); g.lineTo(36, 16); g.lineTo(20, 28); g.lineTo(12, 28); g.lineTo(26, 16); g.lineTo(12, 4); g.fill();
   g.beginPath();
   g.moveTo(76, 4); g.lineTo(92, 16); g.lineTo(76, 28); g.lineTo(68, 28); g.lineTo(82, 16); g.lineTo(68, 4); g.fill();
-  var tex = new THREE.CanvasTexture(c);
+  var tex = canvasTex(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(12, 1);
   tex._cached = true;
@@ -973,7 +991,7 @@ function lampHaloTexture() {
   gr.addColorStop(1, 'rgba(255, 180, 70, 0)');
   g.fillStyle = gr;
   g.fillRect(0, 0, 64, 64);
-  var tex = new THREE.CanvasTexture(c);
+  var tex = canvasTex(c);
   tex._cached = true;
   return (texCache.lampHalo = tex);
 }
@@ -1012,7 +1030,7 @@ function makeLabel(text, catColor, ls, priority) {
   var g = c.getContext('2d');
   g.fillStyle = catColor || '#ffd54d';
   g.beginPath(); g.arc(24, c.height / 2, 9, 0, Math.PI * 2); g.fill();
-  var t = new THREE.CanvasTexture(c);
+  var t = canvasTex(c);
   // 标签贴图随校区销毁释放（不进全局缓存），避免反复切换校区时显存持续增长
   t._cached = false;
   var m = new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true });
@@ -1049,6 +1067,7 @@ function photoTexture(url, onReady) {
   photoPending[url] = [onReady];
   photoLoader.load(url, function (tex) {
     tex.anisotropy = maxAniso();
+    markSRGB(tex);            // 实景照片同样是 sRGB 数据，必须标记否则建筑立面泛白
     tex._cached = true;
     photoCache[url] = tex;
     var callbacks = photoPending[url] || [];
@@ -1068,21 +1087,20 @@ function makeFacadeMaterial(b) {
   var texS = facadeTextures(b.color, floors, colsShort);
   var roof = b.roof || (b.photo ? 0x6e6055 : shade(b.color, 0.62));
   
-  var mL = new THREE.MeshPhysicalMaterial({
+  // 立面不用 MeshPhysicalMaterial：transmission/clearcoat 全程为 0，
+  // 却让所有建筑走进最贵的物理着色路径；Standard 外观相同、shader 便宜得多
+  var mL = new THREE.MeshStandardMaterial({
     map: texL.day, emissiveMap: texL.night, emissive: 0xffffff, emissiveIntensity: 0,
     roughnessMap: texL.phys, metalnessMap: texL.phys,
-    roughness: 1.0, metalness: 1.0,
-    transmission: 0, ior: 1.5, thickness: 5.0 // prepared for glass mode
+    roughness: 1.0, metalness: 1.0
   });
-  var mS = new THREE.MeshPhysicalMaterial({
+  var mS = new THREE.MeshStandardMaterial({
     map: texS.day, emissiveMap: texS.night, emissive: 0xffffff, emissiveIntensity: 0,
     roughnessMap: texS.phys, metalnessMap: texS.phys,
-    roughness: 1.0, metalness: 1.0,
-    transmission: 0, ior: 1.5, thickness: 5.0
+    roughness: 1.0, metalness: 1.0
   });
-  var mR = new THREE.MeshPhysicalMaterial({ 
-    roughness: 0.9, metalness: 0.1, color: roof,
-    transmission: 0, ior: 1.5, thickness: 5.0
+  var mR = new THREE.MeshStandardMaterial({
+    roughness: 0.9, metalness: 0.1, color: roof
   });
   
   buildingMats.push(mL, mS);
@@ -1326,7 +1344,7 @@ function buildXiQuZhuJiao(b, campus) {
   grp.add(crownMesh);
 
   var signCanvas = textCanvas('长春工业大学 · 西区教学主楼', { fs: 38, color: '#fef08a', bg: 'rgba(15,23,42,0.88)', border: '#38bdf8' });
-  var signTex = new THREE.CanvasTexture(signCanvas);
+  var signTex = canvasTex(signCanvas);
   var signMat = new THREE.MeshBasicMaterial({ map: signTex, transparent: true, side: THREE.DoubleSide });
   var signMesh = new THREE.Mesh(new THREE.PlaneGeometry(24, 3.4), signMat);
   signMesh.position.set(0, towerH + 2.1, 9.1);
@@ -1340,7 +1358,7 @@ function buildXiQuZhuJiao(b, campus) {
   grp.add(mastMesh);
 
   // ④ 南正门玻璃大堂与出挑采光雨棚（按模型坐标近似放置）
-  var lobbyMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, roughness: 0.1, metalness: 0.25 });
+  var lobbyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, roughness: 0.1, metalness: 0.25 });
   var lobbyMesh = new THREE.Mesh(new THREE.BoxGeometry(26, 5.8, 3.5), lobbyMat);
   lobbyMesh.position.set(0, 2.9, 27.5);
   lobbyMesh.castShadow = true;
@@ -1348,7 +1366,7 @@ function buildXiQuZhuJiao(b, campus) {
 
   var canopyW = 32, canopyD = 10, canopyH = 6.2;
   var canopyGeo = new THREE.BoxGeometry(canopyW, 0.8, canopyD);
-  var canopyMat = new THREE.MeshPhysicalMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2, transparent: true, opacity: 0.88 });
+  var canopyMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2, transparent: true, opacity: 0.88 });
   var canopyMesh = new THREE.Mesh(canopyGeo, canopyMat);
   canopyMesh.position.set(0, canopyH, 30.5);
   canopyMesh.castShadow = true;
@@ -1358,7 +1376,7 @@ function buildXiQuZhuJiao(b, campus) {
   var doorSignCanvas = textCanvas('长春工业大学教学主楼', { fs: 34, color: '#fef08a', bg: 'rgba(15,23,42,0.88)', border: '#38bdf8' });
   var doorSignMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 2.6),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(doorSignCanvas), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(doorSignCanvas), transparent: true, side: THREE.DoubleSide })
   );
   doorSignMesh.position.set(0, canopyH + 1.1, 35.6);
   grp.add(doorSignMesh);
@@ -1492,7 +1510,7 @@ function buildBohouLibrary(b, campus) {
 
   // 门厅石材廊柱
   // 门厅石材廊柱与首层通高玻璃大堂
-  var libLobbyMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.25 });
+  var libLobbyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.25 });
   var libLobby = new THREE.Mesh(new THREE.BoxGeometry(32, 7.5, 3.2), libLobbyMat);
   libLobby.position.set(0, 3.75, -(b.size[1] / 2 + 0.2));
   grp.add(libLobby);
@@ -1520,7 +1538,7 @@ function buildBohouLibrary(b, campus) {
 
   // 馆名牌匾：“博厚图书馆”
   var libCanvas = textCanvas('博厚图书馆 · BOHOU LIBRARY', { fs: 38, color: '#fef08a', bg: 'rgba(15,23,42,0.88)', border: '#eab308' });
-  var libTex = new THREE.CanvasTexture(libCanvas);
+  var libTex = canvasTex(libCanvas);
   var libPlate = new THREE.Mesh(new THREE.PlaneGeometry(26, 3.8), new THREE.MeshBasicMaterial({ map: libTex, transparent: true, side: THREE.DoubleSide }));
   libPlate.rotation.y = Math.PI;
   libPlate.position.set(0, 16.5, -(b.size[1] / 2 + 1.2));
@@ -1623,7 +1641,7 @@ function buildGuoLiLou(b, campus) {
 
   // 正门金色匾额：“郭力楼 · 电气与电子工程学院”（朝北迎宾旋转180°+双面渲染）
   var sc = textCanvas('郭力楼 · 电气与电子工程学院', { fs: 34, color: '#fef08a', bg: 'rgba(80,20,15,0.92)', border: '#facc15' });
-  var sp = new THREE.Mesh(new THREE.PlaneGeometry(22, 3.2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide }));
+  var sp = new THREE.Mesh(new THREE.PlaneGeometry(22, 3.2), new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide }));
   sp.rotation.y = Math.PI;
   sp.position.set(0, 14.2, -(b.size[1] / 2 + 3.8));
   grp.add(sp);
@@ -1663,7 +1681,7 @@ function buildDongquZhuJiao(b, campus) {
   grp.add(parapetMesh);
 
   // ③ 弧形中轴主入口门厅与迎宾大堂（面向南侧内环绿化与庭院广场 Z = -3.2 ~ +5.0）
-  var lobbyMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.25 });
+  var lobbyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.25 });
   var lobbyMesh = new THREE.Mesh(new THREE.BoxGeometry(26, 5.2, 3), lobbyMat);
   lobbyMesh.position.set(0, 2.6, -3.0);
   grp.add(lobbyMesh);
@@ -1699,13 +1717,13 @@ function buildDongquZhuJiao(b, campus) {
 
   // ④ 楼顶大字标识与母院铭牌（朝南迎宾，双面渲染防背面剔除）
   var tc = textCanvas('长春工业大学 · 东区主教学楼', { fs: 36, color: '#ffffff', bg: 'rgba(15,23,42,0.90)', border: '#38bdf8' });
-  var tp = new THREE.Mesh(new THREE.PlaneGeometry(28, 3.6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(tc), transparent: true, side: THREE.DoubleSide }));
+  var tp = new THREE.Mesh(new THREE.PlaneGeometry(28, 3.6), new THREE.MeshBasicMaterial({ map: canvasTex(tc), transparent: true, side: THREE.DoubleSide }));
   tp.position.set(0, 19.8, -3.2);
   grp.add(tp);
 
   // 母院指引铭牌（数学与统计学院 3F）
   var sc = textCanvas('数学与统计学院 (3F) · 经济管理学院 · 人文学院', { fs: 26, color: '#fef08a', bg: 'rgba(15,23,42,0.85)', border: '#f59e0b' });
-  var sp = new THREE.Mesh(new THREE.PlaneGeometry(24, 2.6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide }));
+  var sp = new THREE.Mesh(new THREE.PlaneGeometry(24, 2.6), new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide }));
   sp.position.set(0, 6.2, 4.6);
   grp.add(sp);
 
@@ -1791,7 +1809,7 @@ function buildGrandstand(b, campus) {
   // 赛事播报与裁判工作室（全景玻璃观察室，位于看台顶部中央后方）
   var boothMesh = new THREE.Mesh(
     new THREE.BoxGeometry(22, 3.8, 5),
-    new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.3 })
+    new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.3 })
   );
   boothMesh.position.set(0, h + 1.9, d / 2 - 2.5);
   boothMesh.castShadow = true;
@@ -1833,7 +1851,7 @@ function buildGrandstand(b, campus) {
   var signCanvas = textCanvas('长春工业大学田径运动场 · 主席台', { fs: 36, color: '#fef08a', bg: 'rgba(15,23,42,0.88)', border: '#38bdf8' });
   var signPlate = new THREE.Mesh(
     new THREE.PlaneGeometry(28, 3.6),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(signCanvas), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(signCanvas), transparent: true, side: THREE.DoubleSide })
   );
   signPlate.rotation.y = Math.PI;
   signPlate.position.set(0, h + 5.2, -d / 2);
@@ -1929,7 +1947,7 @@ function buildActivityCenter(b, campus) {
   var signCanvas = textCanvas('大学生活动中心 · 文体中心', { fs: 34, color: '#fef08a', bg: 'rgba(15,23,42,0.88)', border: '#38bdf8' });
   var signPlate = new THREE.Mesh(
     new THREE.PlaneGeometry(22, 3.4),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(signCanvas), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(signCanvas), transparent: true, side: THREE.DoubleSide })
   );
   signPlate.rotation.y = Math.PI;
   signPlate.position.set(0, canopyH + 1.6, -(b.size[1] / 2 + 1.2));
@@ -1947,7 +1965,7 @@ function buildMathStatsBuilding(b, campus) {
   var mainW = 76, mainD = 28;
   var mainGeo = new THREE.BoxGeometry(mainW, h, mainD);
   var whiteMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.4, metalness: 0.2 });
-  var glassRibbonMat = new THREE.MeshPhysicalMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.85 });
+  var glassRibbonMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.85 });
   buildingMats.push(whiteMat);
   buildingMats.push(glassRibbonMat);
 
@@ -1994,7 +2012,7 @@ function buildMathStatsBuilding(b, campus) {
   // ③ 4层通高中庭采光玻璃连廊（连接主楼与学术报告厅）
   var linkMesh = new THREE.Mesh(
     new THREE.BoxGeometry(16, 14, 16),
-    new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, roughness: 0.1, metalness: 0.3 })
+    new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.72, roughness: 0.1, metalness: 0.3 })
   );
   linkMesh.position.set(-10, 7, 2);
   linkMesh.castShadow = true;
@@ -2056,7 +2074,7 @@ function buildMathStatsBuilding(b, campus) {
   var sc = textCanvas('数学与统计学院', { fs: 36, color: '#fef08a', bg: 'rgba(15,23,42,0.92)', border: '#38bdf8' });
   var sp = new THREE.Mesh(
     new THREE.PlaneGeometry(16, 2.6),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide })
   );
   sp.position.set(6, canopyH + 1.6, mainD / 2 + 0.2);
   grp.add(sp);
@@ -2065,7 +2083,7 @@ function buildMathStatsBuilding(b, campus) {
   var roofSignCanvas = textCanvas('长春工业大学 数学与统计学院 · 数据科学重点实验室', { fs: 32, color: '#f8fafc', bg: 'rgba(2,132,199,0.92)', border: '#67e8f9' });
   var roofSign = new THREE.Mesh(
     new THREE.PlaneGeometry(36, 3.2),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(roofSignCanvas), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(roofSignCanvas), transparent: true, side: THREE.DoubleSide })
   );
   roofSign.position.set(6, h + 2.2, mainD / 2 + 0.1);
   grp.add(roofSign);
@@ -2196,7 +2214,7 @@ function buildCollegeBuilding(b, campus) {
   var sc = textCanvas(shortName, { fs: 30, color: '#f8fafc', bg: 'rgba(15,23,42,0.92)', border: '#38bdf8' });
   var sp = new THREE.Mesh(
     new THREE.PlaneGeometry(Math.min(canopyW * 0.85, 20), 2.2),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide })
   );
   sp.position.set(0, 5.6, 0.2);
   entGrp.add(sp);
@@ -2296,7 +2314,7 @@ function buildCanteenBuilding(b, campus) {
   var sc = textCanvas(cName + ' · 师生餐饮服务中心', { fs: 30, color: '#fef3c7', bg: 'rgba(180,83,9,0.92)', border: '#fbbf24' });
   var sp = new THREE.Mesh(
     new THREE.PlaneGeometry(Math.min(canW * 0.9, 24), 2.8),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide })
   );
   sp.position.set(0, 6.2, 0.2);
   entGrp.add(sp);
@@ -2382,7 +2400,7 @@ function buildDormBuilding(b, campus) {
   var sc = textCanvas(b.name, { fs: 28, color: '#fef08a', bg: 'rgba(15,23,42,0.92)', border: '#f59e0b' });
   var sp = new THREE.Mesh(
     new THREE.PlaneGeometry(6.4, 1.6),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide })
   );
   sp.position.set(0, 3.5, porchD + 0.1);
   entGrp.add(sp);
@@ -2441,7 +2459,7 @@ function buildServiceYuan(b, campus) {
   var sc = textCanvas(b.name + ' · 便民生活服务', { fs: 26, color: '#ffedd5', bg: 'rgba(124,45,18,0.92)', border: '#fb923c' });
   var sp = new THREE.Mesh(
     new THREE.PlaneGeometry(12, 2.2),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide })
   );
   sp.position.set(0, 4.8, 0.2);
   entGrp.add(sp);
@@ -2540,7 +2558,7 @@ function buildNanhuLibrary(b, campus) {
   }
 
   // 首层欧式双扇玻璃入馆大堂
-  var lobbyMat = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1 });
+  var lobbyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.75, roughness: 0.1 });
   var lobbyMesh = new THREE.Mesh(new THREE.BoxGeometry(18, 4.2, 1.2), lobbyMat);
   lobbyMesh.position.set(0, 2.1, 0.6);
   entGrp.add(lobbyMesh);
@@ -2549,7 +2567,7 @@ function buildNanhuLibrary(b, campus) {
   var libCanvas = textCanvas('南湖图书馆 · 历史文化建筑', { fs: 34, color: '#fef08a', bg: 'rgba(69,26,20,0.92)', border: '#facc15' });
   var libPlate = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 2.8),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(libCanvas), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(libCanvas), transparent: true, side: THREE.DoubleSide })
   );
   libPlate.position.set(0, porticoH - 1.2, porticoD + 0.1);
   entGrp.add(libPlate);
@@ -2679,7 +2697,7 @@ function buildAuditorium(b, campus) {
   var sc = textCanvas('大学生活动中心 · 南湖大礼堂', { fs: 32, color: '#fef08a', bg: 'rgba(15,23,42,0.92)', border: '#f59e0b' });
   var sp = new THREE.Mesh(
     new THREE.PlaneGeometry(24, 3.2),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ map: canvasTex(sc), transparent: true, side: THREE.DoubleSide })
   );
   sp.position.set(0, porticoH - 1.4, porticoD + 0.1);
   entGrp.add(sp);
@@ -3025,7 +3043,7 @@ function buildProp(p, campus) {
     // 封闭式全景观光玻璃廊道
     var glassCorridor = new THREE.Mesh(
       new THREE.BoxGeometry(p.len - 4, 3.2, p.w - 0.4),
-      new THREE.MeshPhysicalMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.6, roughness: 0.1, metalness: 0.2 })
+      new THREE.MeshStandardMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.6, roughness: 0.1, metalness: 0.2 })
     );
     glassCorridor.position.set(p.pos[0], 8.4, p.pos[1]);
     grp.add(glassCorridor);
@@ -3041,7 +3059,7 @@ function buildProp(p, campus) {
 
     // 桥名标识牌：“盛北天桥”
     var brSignCanvas = textCanvas('盛北天桥 · 跨区人行天桥', { fs: 32, color: '#f8fafc', bg: 'rgba(30,41,59,0.85)', border: '#38bdf8' });
-    var brSign = new THREE.Mesh(new THREE.PlaneGeometry(16, 2.6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(brSignCanvas), transparent: true, side: THREE.DoubleSide }));
+    var brSign = new THREE.Mesh(new THREE.PlaneGeometry(16, 2.6), new THREE.MeshBasicMaterial({ map: canvasTex(brSignCanvas), transparent: true, side: THREE.DoubleSide }));
     brSign.position.set(p.pos[0], 8.4, p.pos[1] + p.w / 2 + 0.1);
     grp.add(brSign);
 
@@ -3082,13 +3100,13 @@ function buildProp(p, campus) {
     }
     var board = new THREE.Mesh(
       new THREE.PlaneGeometry(13, 6.5),
-      new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: false, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ map: canvasTex(c), transparent: false, side: THREE.DoubleSide })
     );
     board.position.set(p.pos[0], 8.2, p.pos[1]);
     grp.add(board);
   } else if (p.type === 'street') {
     var sc = textCanvas(p.text, { fs: 40, color: p.color || 'rgba(255,255,255,0.85)', bg: p.bg || null, br: 12 });
-    var st = new THREE.CanvasTexture(sc);
+    var st = canvasTex(sc);
     var size = p.size || 1;
     var w = sc.width * 0.09 * size, h = sc.height * 0.09 * size;
     var txt = new THREE.Mesh(
@@ -3130,7 +3148,7 @@ function buildProp(p, campus) {
     var scFront = textCanvas(frontText, { fs: 56, color: p.frontColor || '#b91c1c', bg: 'rgba(255,255,255,0)' });
     var plateFront = new THREE.Mesh(
       new THREE.PlaneGeometry(sw * 0.88, sh * 0.65),
-      new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(scFront), transparent: true, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ map: canvasTex(scFront), transparent: true, side: THREE.DoubleSide })
     );
     plateFront.position.set(0, 0.8 + sh / 2, sd / 2 + 0.08);
     stoneGrp.add(plateFront);
@@ -3140,7 +3158,7 @@ function buildProp(p, campus) {
     var scBack = textCanvas(backText, { fs: 38, color: p.backColor || '#d97706', bg: 'rgba(255,255,255,0)' });
     var plateBack = new THREE.Mesh(
       new THREE.PlaneGeometry(sw * 0.88, sh * 0.65),
-      new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(scBack), transparent: true, side: THREE.DoubleSide })
+      new THREE.MeshBasicMaterial({ map: canvasTex(scBack), transparent: true, side: THREE.DoubleSide })
     );
     plateBack.rotation.y = Math.PI;
     plateBack.position.set(0, 0.8 + sh / 2, -sd / 2 - 0.08);
@@ -3238,7 +3256,8 @@ function buildClouds(groundSize) {
   var grp = new THREE.Group();
   cloudMats = [];
   var cloudCount = 12;
-  var cloudGeo = new THREE.DodecahedronGeometry(1, 1);
+  // 球形替代低面数十二面体：轮廓更圆润，三角面反而更少（96 vs 360）
+  var cloudGeo = new THREE.SphereGeometry(1, 8, 6);
   cloudGeo._shared = true;
 
   for (var c = 0; c < cloudCount; c++) {
@@ -3246,7 +3265,7 @@ function buildClouds(groundSize) {
     var mat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.72,
+      opacity: 0.46,
       depthWrite: false
     });
     cloudMats.push(mat);
@@ -3256,8 +3275,9 @@ function buildClouds(groundSize) {
     for (var b = 0; b < subBlobs; b++) {
       var blob = new THREE.Mesh(cloudGeo, mat);
       var sc = rand(14, 28);
-      blob.scale.set(sc * rand(1.2, 1.8), sc * rand(0.5, 0.8), sc);
-      blob.position.set(rand(-28, 28), rand(-4, 4), rand(-20, 20));
+      // 压得更扁，呈层云状而不是悬浮的圆石头
+      blob.scale.set(sc * rand(1.3, 2.0), sc * rand(0.32, 0.5), sc * rand(0.8, 1.1));
+      blob.position.set(rand(-30, 30), rand(-3, 3), rand(-22, 22));
       cluster.add(blob);
       blobs.push(blob);
     }
@@ -3519,6 +3539,7 @@ function initScene() {
     powerPreference: 'high-performance'
   });
 
+  // GPU 驱动重置 / 显卡切换等会触发上下文丢失：暂停渲染循环，恢复后再续
   canvas.addEventListener('webglcontextlost', function (event) {
     event.preventDefault();
     console.warn('[CampusMap] WebGL context lost. Pausing rendering...');
@@ -4154,7 +4175,7 @@ function applyTimeMode(mode) {
 
   if (cloudMats && cloudMats.length) {
     var cColor = isNight ? 0x203254 : (isSunset ? 0xffc2ad : 0xffffff);
-    var cOp = isNight ? 0.35 : (isSunset ? 0.82 : 0.72);
+    var cOp = isNight ? 0.22 : (isSunset ? 0.55 : 0.46);
     cloudMats.forEach(function (cm) { cm.color.set(cColor); cm.opacity = cOp; });
   }
 
@@ -5691,7 +5712,7 @@ function setupSatelliteMap() {
   var labCtx = labCanvas.getContext('2d');
 
   function makeAtlasTexture(canvas) {
-    var t = new THREE.CanvasTexture(canvas);
+    var t = canvasTex(canvas);
     t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
     t.minFilter = THREE.LinearFilter;   // 图集尺寸非 2 的幂，关闭 mipmap 省一次金字塔生成
     t.generateMipmaps = false;
@@ -5821,6 +5842,7 @@ function setupSatelliteMap() {
 var animFrameId = null;
 var isPageHidden = false;
 
+/* 页面隐藏时主动取消 rAF（省电），切回时重置时钟续播 */
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) {
     isPageHidden = true;
@@ -5839,10 +5861,14 @@ document.addEventListener('visibilitychange', function () {
 
 function animate() {
   if (isPageHidden) return;
+  // 入队前取消挂起帧：看门狗补帧期间可能积压多个 rAF 回调，
+  // 不取消的话恢复后会残留多条并行动画链，每帧重复渲染
+  if (animFrameId) cancelAnimationFrame(animFrameId);
   animFrameId = requestAnimationFrame(animate);
   window.__rafOk = true;
   var dt = Math.min(clock.getDelta(), 0.1);
   var now = performance.now();
+  window.__lastFrameTs = now; // rAF 看门狗据此判断渲染循环是否停摆
 
   if (fly) {
     var k = clamp((now - fly.start) / fly.dur, 0, 1);
@@ -6131,9 +6157,14 @@ function boot() {
     weatherParam = params.get('weather');
   } catch (e) {}
 
-  /* 先让加载页完成首帧绘制，再执行同步的三维构建，避免移动端出现长时间白屏 */
-  requestAnimationFrame(function () {
-  requestAnimationFrame(function () {
+  /* 先让加载页完成首帧绘制，再执行同步的三维构建，避免移动端出现长时间白屏。
+   * 双 rAF 在嵌入式 WebView（应用内浏览器面板、部分后台节流场景）被遮挡时会永久停摆，
+   * 导致 boot 永远无法开始——把构建主体抽成幂等的 __bootBody，rAF 正常时双跳后执行，
+   * 任一跳停摆则由定时器接力，先到者执行。 */
+  var __bootBodyRan = false;
+  var __bootBody = function () {
+    if (__bootBodyRan) return;
+    __bootBodyRan = true;
 
   try {
     initScene();
@@ -6194,21 +6225,29 @@ function boot() {
     }, 350);
   }, 300);
 
-  setTimeout(function () {
-    if (!window.__rafOk && !window.__rafFallbackTimer) {
-      window.__rafFallbackTimer = setInterval(function () {
-        if (window.__rafOk) {
-          clearInterval(window.__rafFallbackTimer);
-          window.__rafFallbackTimer = null;
-        } else {
-          animate();
-        }
-      }, 33);
-    }
-  }, 1000);
+  // rAF 看门狗：内嵌 WebView（应用内浏览器面板、部分国产浏览器后台）会在遮挡/节流后
+  // 停掉 rAF——即使它曾经正常运行过。这里持续检测帧停摆，页面可见且超过 1.2s 没有新帧时
+  // 用定时器低频补帧（约 2fps 幻灯片模式）；rAF 恢复后条件不再满足，看门狗自动空转零开销。
+  setInterval(function () {
+    if (window.__bootErr) return;
+    if (document.visibilityState === 'hidden') return;
+    var last = window.__lastFrameTs || 0;
+    if (performance.now() - last < 1200) return;
+    if (window.__rafWatchdogBusy) return;
+    window.__rafWatchdogBusy = true;
+    try { animate(); } catch (e) { /* 单次补帧失败不影响主流程 */ }
+    window.__rafWatchdogBusy = false;
+  }, 500);
 
-  }); /* 结束双 rAF 延迟：保证加载页先绘制 */
-  }); 
+  }; /* 结束 __bootBody：同步三维构建主体 */
+
+  /* 健康路径：双 rAF 后构建（此时加载页已完成首帧绘制）；
+   * 任一跳 rAF 停摆则由定时器接力执行 __bootBody（幂等，先到者生效）。 */
+  requestAnimationFrame(function () {
+    requestAnimationFrame(__bootBody);
+    setTimeout(__bootBody, 300); // 第二跳 rAF 停摆兜底
+  });
+  setTimeout(__bootBody, 600);   // 第一跳 rAF 停摆兜底
 }
 
 if (document.readyState === 'loading') {

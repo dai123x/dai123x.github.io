@@ -61,6 +61,8 @@ python -m http.server 8642
 7. **设备分级**——移动端/低核设备自动关闭 MSAA、pixelRatio≤1.5、PCF 软阴影降档。
 8. **加载节奏**——加载页先完成首帧绘制（双 `requestAnimationFrame`）后再执行同步三维构建，避免移动端长时间白屏；构建与合批耗时约 300ms（桌面）。
 9. **缓存策略**——移除 `Cache-Control: no-cache` 等三条 meta（它们会让浏览器对每个子资源都重新下载），改用 `?v=` 版本号做变更失效；10 个 `<script>` 统一 `defer`，让脚本下载与 HTML 解析并行。
+10. **材质分级**——仅水面、采光顶、玻璃塔等真正用到 transmission/clearcoat 的材质保留 `MeshPhysicalMaterial`；普通建筑立面一律 `MeshStandardMaterial`，外观相同但着色器开销显著更低（立面覆盖屏幕大部分像素）。
+11. **rAF 看门狗**——构建入口与渲染循环均不假设 `requestAnimationFrame` 永远可用：嵌入式 WebView（应用内浏览器面板、后台节流）遮挡后 rAF 会永久停摆，boot 各跳挂定时器兜底、循环由看门狗按帧龄检测停摆并低频补帧，恢复后自动空转零开销。
 
 ## 📁 文件结构
 
@@ -71,7 +73,7 @@ js/three.min.js         Three.js r128（本地离线引擎）
 js/OrbitControls.js     轨道控制器（本地化）
 js/campus-data.js       北湖/南湖校区的建筑、道路、导览路线与配景示意数据集
 js/main.js              3D 引擎：静态合批、实例化渲染、微气候系统、智能拾取、LOD分级、截图水印导出
-img/                    官方效果图/实景立面贴图（img/_unused_source/ 为未引用的原始素材归档）
+img/                    官方效果图/实景立面贴图（已统一转为 JPG 以压缩体积）
 tools/osm_builder/      OSM 地理数据处理与构建中间工具
 ```
 
