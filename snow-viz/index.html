@@ -5444,7 +5444,7 @@ async function initWebXRSession(gl) {
         <div style="display:flex; justify-content:center; gap:16px; margin-top:10px; font-size:11px; color:var(--dim);">
           <span>合作发起方：长春工业大学“深度求索”研究生团队</span>
           <span>适用对象：吉林省各级文旅部门 / 冰雪度假区 / 数字化科研机构</span>
-          <span>属性：高校科研成果转化与产学研合作意向草案（示例展示稿 · 非正式签约文件）</span>
+          <span>属性：高校科研成果转化与产学研合作意向草案（示例稿 · 未签署 · 非政府委托 · 成果转化展示用）</span>
         </div>
       </div>
 
@@ -5489,7 +5489,7 @@ async function initWebXRSession(gl) {
       <!-- Action Buttons -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:14px; border-top:1px solid rgba(117,216,237,0.2);">
         <div style="font-size:11px; color:var(--dim);">
-          💡 提示：本备忘录为可打印版本，试点单位可直接打印签署或联系团队定制专属协议。
+          💡 说明：本文档系高校参赛团队撰写之示例稿（未签署、非政府委托），仅用于展示产学研成果转化意向框架。
         </div>
         <div style="display:flex; gap:10px;">
           <button class="btn btn-gold" id="btnPrintMOU" style="padding:8px 20px; font-weight:bold;">🖨️ 打印备忘录</button>
@@ -5834,8 +5834,6 @@ async function initWebXRSession(gl) {
   <!-- Official Voiceover Narration Audio Element & Floating Dock -->
   <audio id="voiceoverAudio" preload="metadata">
     <source src="assets/voiceover_broadcast.mp3" type="audio/mpeg">
-    <source src="参赛材料/voiceover_broadcast.mp3" type="audio/mpeg">
-    <source src="voiceover_broadcast.mp3" type="audio/mpeg">
   </audio>
 
   <div id="voiceoverDock" class="voiceover-dock hidden">
@@ -5862,6 +5860,33 @@ async function initWebXRSession(gl) {
   <script>
   (() => {
     'use strict';
+
+    // Safe LocalStorage wrapper to prevent unhandled SecurityError / QuotaExceededError in restricted environments
+    const safeStorage = {
+      getItem(k) {
+        try {
+          return (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem(k) : null;
+        } catch (e) {
+          return null;
+        }
+      },
+      setItem(k, v) {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem(k, v);
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      },
+      removeItem(k) {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.removeItem(k);
+          }
+        } catch (e) {}
+      }
+    };
 
     // 1. Core Data (Enhanced with 2023-2024 Actual Baseline)
     const DATA = {
@@ -9131,9 +9156,9 @@ async function initWebXRSession(gl) {
 
     $('btnSetup').onclick = () => {
       playCrystalClick();
-      $('inputTeam').value = localStorage.getItem('snow-team') || '深度求索队';
-      $('inputSchool').value = localStorage.getItem('snow-school') || '长春工业大学';
-      $('inputMembers').value = localStorage.getItem('snow-members') || '戴璇(队长)、李德影、刘世栋';
+      $('inputTeam').value = safeStorage.getItem('snow-team') || '深度求索队';
+      $('inputSchool').value = safeStorage.getItem('snow-school') || '长春工业大学';
+      $('inputMembers').value = safeStorage.getItem('snow-members') || '戴璇(队长)、李德影、刘世栋';
       $('setupModal').classList.add('show');
     };
     $('btnCancelSetup').onclick = () => $('setupModal').classList.remove('show');
@@ -9142,9 +9167,9 @@ async function initWebXRSession(gl) {
       const t = $('inputTeam').value.trim() || '深度求索队';
       const s = $('inputSchool').value.trim() || '长春工业大学';
       const m = $('inputMembers').value.trim() || '戴璇(队长)、李德影、刘世栋';
-      localStorage.setItem('snow-team', t);
-      localStorage.setItem('snow-school', s);
-      localStorage.setItem('snow-members', m);
+      safeStorage.setItem('snow-team', t);
+      safeStorage.setItem('snow-school', s);
+      safeStorage.setItem('snow-members', m);
       applyBranding();
       $('setupModal').classList.remove('show');
     };
@@ -9448,7 +9473,7 @@ async function initWebXRSession(gl) {
         "2027,1.80,1.95,2.15,2.37,2.58,—,—\n" +
         "2028 (中期目标),2.09,2.30,2.57,2.88,3.18,P(>=2.3亿) = 75.2%,P(>=4200亿) = 85.0%\n" +
         "2029,2.44,2.72,3.09,3.49,3.89,—,—\n" +
-        "参数说明,μ=18.4%(年化漂移),σ=8.2%(年化波动),客流S0=1.25亿人次 / 花费S0=2419亿元,N=10000次,GBM dS=μSdt+σSdW(两序列独立模拟、种子固定可复现)\n\n" +
+        "参数说明,μ=18.4%(年化漂移),σ=8.2%(年化波动),客流S0=1.25亿人次 / 花费S0=2419亿元,N=10000次,seed=42(GBM模型·独立模拟·可复现脚本见 脚本/reproduce_montecarlo.py)\n\n" +
         "=== 表7：吉林省冰雪装备智造重点骨干企业名录 ===\n" +
         "企业名称,所属赛道,地理位置,核心技术成果,目标产值/规模,荣誉资质\n" +
         ENTERPRISES_DATA.map(e => `"${e.name}","${e.role}","${e.location}","${e.coreTech}","${e.targetValue}","${e.status}"`).join('\n') + "\n\n" +
@@ -9540,9 +9565,9 @@ async function initWebXRSession(gl) {
     };
 
     function applyBranding() {
-      const t = localStorage.getItem('snow-team') || '深度求索队';
-      const s = localStorage.getItem('snow-school') || '长春工业大学';
-      const m = localStorage.getItem('snow-members') || '戴璇(队长)、李德影、刘世栋';
+      const t = safeStorage.getItem('snow-team') || '深度求索队';
+      const s = safeStorage.getItem('snow-school') || '长春工业大学';
+      const m = safeStorage.getItem('snow-members') || '戴璇(队长)、李德影、刘世栋';
       $('coverTeam').textContent = t;
       $('coverSchool').textContent = s;
       if ($('coverMembers')) $('coverMembers').textContent = m;
@@ -9587,27 +9612,28 @@ async function initWebXRSession(gl) {
       updateGallery();
     };
 
-    // Keyboard Shortcuts update for Gallery Escape
+    // Keyboard Shortcuts with robust Escape & Focus Management
     document.addEventListener('keydown', e => {
-      const tag = e.target?.tagName?.toLowerCase();
-      if (['input', 'textarea', 'select'].includes(tag) || e.target?.isContentEditable) return;
-
       if (e.key === 'Escape') {
-        $('coverModal').classList.remove('show');
-        $('setupModal').classList.remove('show');
-        $('reportModal').classList.remove('show');
-        $('analysisModal').classList.remove('show');
-        $('algorithmModal').classList.remove('show');
-        $('helpModal').classList.remove('show');
-        $('vrExpandModal').classList.remove('show');
-        $('galleryModal').classList.remove('show');
-        $('briefingModal')?.classList.remove('show');
-        $('mouModal')?.classList.remove('show');
+        const modals = ['coverModal', 'setupModal', 'reportModal', 'analysisModal', 'algorithmModal', 'helpModal', 'vrExpandModal', 'galleryModal', 'briefingModal', 'mouModal'];
+        modals.forEach(id => {
+          const el = $(id);
+          if (el && el.classList.contains('show')) el.classList.remove('show');
+        });
         if ($('voiceoverDock')) $('voiceoverDock').classList.add('hidden');
         if (isSkiingRunning) toggleSkiingSimulation();
         isExpandOpen = false;
         stopAutoTour();
-      } else if (e.key.toLowerCase() === 'f') {
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
+        return;
+      }
+
+      const tag = e.target?.tagName?.toLowerCase();
+      if (['input', 'textarea', 'select'].includes(tag) || e.target?.isContentEditable) return;
+
+      if (e.key.toLowerCase() === 'f') {
         togglePresent();
       } else if (e.key.toLowerCase() === 'h' || e.key === '?') {
         $('helpModal').classList.toggle('show');

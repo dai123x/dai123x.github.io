@@ -3518,6 +3518,24 @@ function initScene() {
     preserveDrawingBuffer: false,
     powerPreference: 'high-performance'
   });
+
+  canvas.addEventListener('webglcontextlost', function (event) {
+    event.preventDefault();
+    console.warn('[CampusMap] WebGL context lost. Pausing rendering...');
+    if (animFrameId) {
+      cancelAnimationFrame(animFrameId);
+      animFrameId = null;
+    }
+  }, false);
+
+  canvas.addEventListener('webglcontextrestored', function () {
+    console.info('[CampusMap] WebGL context restored. Resuming animation...');
+    clock.getDelta();
+    if (!animFrameId && !isPageHidden) {
+      animFrameId = requestAnimationFrame(animate);
+    }
+  }, false);
+
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isLowEnd ? 1.5 : 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
@@ -5800,8 +5818,28 @@ function setupSatelliteMap() {
   satGroup.visible = true;
 }
 
+var animFrameId = null;
+var isPageHidden = false;
+
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) {
+    isPageHidden = true;
+    if (animFrameId) {
+      cancelAnimationFrame(animFrameId);
+      animFrameId = null;
+    }
+  } else {
+    isPageHidden = false;
+    clock.getDelta(); // 重置时间差，防止后台切回后出现大幅度位移瞬移
+    if (!animFrameId) {
+      animFrameId = requestAnimationFrame(animate);
+    }
+  }
+});
+
 function animate() {
-  requestAnimationFrame(animate);
+  if (isPageHidden) return;
+  animFrameId = requestAnimationFrame(animate);
   window.__rafOk = true;
   var dt = Math.min(clock.getDelta(), 0.1);
   var now = performance.now();

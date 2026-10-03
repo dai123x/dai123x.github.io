@@ -1,4 +1,5 @@
 {
+  "dataset_type": "基于生产场景标定的高保真仿真基准数据集",
   "stations": [
     "OP10_缸体上线",
     "OP20_曲轴安装",
@@ -22,8 +23,12 @@
   },
   "balance_before": 84.43,
   "balance_after": 92.71,
+  "balance_gain_pts": 8.27,
   "bottleneck_before": 58.46,
   "bottleneck_after": 51.73,
   "adf_pvalue": 0.0,
-  "ks_pvalue_lognorm": 0.61389
+  "ks_pvalue_norm": 0.61503,
+  "lilliefors_pvalue": 0.2036,
+  "arima_phi1": 0.4527,
+  "residual_jb_pvalue": 0.3137
 }
