@@ -393,11 +393,11 @@
       </div>
       <div class="kpi-card">
         <div class="kpi-val">-5.62%</div>
-        <div class="kpi-label">小巨人因果违约净降幅 (p&lt;0.001)</div>
+        <div class="kpi-label">小巨人违约净降幅点估计 (p≈0.27 未达显著)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-val">0.852</div>
-        <div class="kpi-label">Stacking 集成预警 AUC</div>
+        <div class="kpi-val">0.683</div>
+        <div class="kpi-label">Logistic 基准预警 AUC（折外最优）</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-val">52.59%</div>
@@ -456,7 +456,7 @@
     <section class="case-section">
       <h2><span>📊</span> 多模型 10 折交叉验证性能横向比对</h2>
       <p>
-        在 1,200 家样本（涵盖 211 家实质违约）上，严格采用分层 10 折交叉验证（Stratified 10-Fold CV）对比统计生存模型、单模型机器学习与元集成学习器（表 5）：
+        在 1,200 家样本（涵盖 188 家实质违约）上，严格采用分层 10 折交叉验证（Stratified 10-Fold CV）对比统计生存模型、单模型机器学习与元集成学习器（表 5）：
       </p>
 
       <div class="stat-table">
@@ -474,64 +474,46 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>半参数 Cox 比例风险模型</strong></td>
-              <td class="stat-highlight">0.7825</td>
-              <td>0.5412</td>
-              <td>0.4580</td>
-              <td>0.1245</td>
-              <td>0.5910</td>
-              <td><span class="stat-badge badge-primary">强因果可解释</span> · 鞅理论基准</td>
-            </tr>
-            <tr>
-              <td>对数正态 AFT 加速失效时间模型</td>
-              <td>0.7610</td>
-              <td>0.5180</td>
-              <td>0.4320</td>
-              <td>0.1310</td>
-              <td>0.5720</td>
-              <td>参数化加速因子，生存寿命解释直观</td>
-            </tr>
-            <tr>
-              <td>Logistic 回归 (L1 惩罚项)</td>
-              <td>0.7450</td>
-              <td>0.4890</td>
-              <td>0.4110</td>
-              <td>0.1380</td>
-              <td>0.5510</td>
-              <td>传统巴塞尔协议合规基准评分</td>
+              <td><strong>Logistic 回归（正则化线性基准）</strong></td>
+              <td class="stat-highlight"><strong>0.6834</strong></td>
+              <td class="stat-highlight"><strong>0.2853</strong></td>
+              <td class="stat-highlight"><strong>0.2953</strong></td>
+              <td class="stat-highlight"><strong>0.1246</strong></td>
+              <td class="stat-highlight"><strong>0.3383</strong></td>
+              <td><span class="stat-badge badge-success">折外判别最优</span> · 巴塞尔合规友好</td>
             </tr>
             <tr>
               <td>Random Forest 随机森林</td>
-              <td>0.8120</td>
-              <td>0.6010</td>
-              <td>0.5020</td>
-              <td>0.1090</td>
-              <td>0.6480</td>
+              <td>0.6504</td>
+              <td>0.2616</td>
+              <td>0.2239</td>
+              <td>0.1266</td>
+              <td>0.2857</td>
               <td>Bagging 集成，对高维特征抗噪强</td>
             </tr>
             <tr>
-              <td><strong>XGBoost 梯度提升树</strong></td>
-              <td class="stat-highlight">0.8390</td>
-              <td class="stat-highlight">0.6480</td>
-              <td class="stat-highlight">0.5460</td>
-              <td class="stat-highlight">0.0980</td>
-              <td class="stat-highlight">0.6820</td>
-              <td><span class="stat-badge badge-success">最优单模型</span> · 支持 SHAP 归因</td>
+              <td>XGBoost 梯度提升树</td>
+              <td>0.6388</td>
+              <td>0.2541</td>
+              <td>0.2078</td>
+              <td>0.1329</td>
+              <td>0.2993</td>
+              <td>支持 SHAP 博弈论归因</td>
             </tr>
             <tr>
-              <td><strong>Stacking 二阶元学习集成</strong></td>
-              <td class="stat-highlight"><strong>0.8520</strong></td>
-              <td class="stat-highlight"><strong>0.6720</strong></td>
-              <td class="stat-highlight"><strong>0.5690</strong></td>
-              <td class="stat-highlight"><strong>0.0910</strong></td>
-              <td class="stat-highlight"><strong>0.7050</strong></td>
-              <td><span class="stat-badge badge-success">全线最优预警力</span> · 极小概率校准误差</td>
+              <td>Stacking 二阶元学习集成</td>
+              <td>0.6459</td>
+              <td>0.2503</td>
+              <td>0.2341</td>
+              <td>0.1278</td>
+              <td>0.2125</td>
+              <td>元学习器在小样本高噪声场景未见优势</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p style="font-size: 0.85rem; color: var(--text-muted);">
-        注：所有机器学习指标均基于折外（Out-of-Fold）跨折独立打分计算；DeLong(1988) 非参检验显示 Stacking 较 Logistic 基准提升具有极高统计显著性（z = 3.68, p &lt; 0.001）。
+        注：所有机器学习指标均基于折外（Out-of-Fold）跨折独立打分计算；DeLong(1988) 非参检验显示 Logistic 回归判别力显著优于随机森林（z = 2.34, p = 0.019）与 XGBoost（z = 2.92, p = 0.003），随机森林与 XGBoost 之间差异不显著（p = 0.186）——在小样本、高噪声的信贷违约场景中，正则化线性模型优于复杂树模型集成。
       </p>
     </section>
 
@@ -544,7 +526,7 @@
         <img src="../assets/images/applied-statistics/fig5_roc_and_pr_curves.png" alt="多模型 10 折交叉验证 ROC 曲线与 PR 曲线" loading="lazy" width="1600" height="679" decoding="async">
         <div class="figure-caption">图 5：多模型 10 折交叉验证 ROC 曲线与 Precision-Recall (PR) 曲线对比</div>
         <div class="figure-insights">
-          <strong>计量经济学解读：</strong> 在信贷违约高度不平衡样本中（违约率 17.6%），PR 曲线能够更灵敏地反映高危样本捕获精度。Stacking 集成模型在 PR 曲线下面积达 0.672，在检出 80% 违约企业时精确率保持在 62% 以上，显著平抑商业银行漏报损失。
+          <strong>计量经济学解读：</strong> 在信贷违约高度不平衡样本中（违约率约 15.7%），PR 曲线能够更灵敏地反映高危样本捕获精度。Logistic 回归取得各模型中最高的 PR-AUC（0.2853）；各集成模型未能在该不平衡场景中拉开差距，提示需将统计模型与评分卡、业务规则结合以控制漏报损失。
         </div>
       </div>
 
@@ -669,7 +651,7 @@
     <section class="case-section">
       <h2><span>💻</span> 全流程一键复现核心算法 (Python)</h2>
       <p>
-        所有 13 个计量与定价模块支持毫秒级一键运行复现（<code>python case-studies/analysis_pipeline.py</code>）。以下为因果双重机器学习 (DML) 与 Hansen 门限检验核心逻辑：
+        完整 13 模块研究流水线（生存分析、DML 因果推断、评分卡、压力测试与动态定价）位于作者的研究代码仓库（暂未公开），如需复现或学术交流请联系 <a href="mailto:daixuan26@outlook.com">daixuan26@outlook.com</a>。以下为因果双重机器学习 (DML) 与 Hansen 门限检验的核心算法逻辑摘录：
       </p>
 
       <div class="code-container">
