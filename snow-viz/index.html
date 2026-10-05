@@ -91,8 +91,8 @@
     }, 1500);
   </script>
   <!-- Ambient Particle Snow & Aurora Canvas -->
-  <canvas id="bgCanvas"></canvas>
-  <canvas id="trailCanvas"></canvas>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <canvas id="trailCanvas" aria-hidden="true"></canvas>
 
   <main class="app" id="app">
     <!-- Top Header -->
@@ -135,7 +135,7 @@
         <button class="btn" id="btnExport" title="一键导出政策对比数据表 (CSV)">📥 导出数据</button>
         <button class="btn" id="btnHelp" title="查看键盘快捷键帮助 (H / ?)">⌨️ 快捷键</button>
         <button class="btn" id="btnPresent" title="16:9 全屏展示 (快捷键 F)">🖥️ 演示模式</button>
-        <button class="btn" id="btnLangToggle" title="中英双语国际化切换 (快捷键 L)" style="font-family:monospace; font-weight:700; border-color:var(--mint); color:var(--mint);">🌐 中 / EN</button>
+        <button class="btn" id="btnLangToggle" title="切换界面框架语言：图表页签/栏目标题/按钮（快捷键 L）。正文与数据内容保持中文" style="font-family:monospace; font-weight:700; border-color:var(--mint); color:var(--mint);">🌐 中 / EN</button>
       </div>
     </header>
 
@@ -326,10 +326,10 @@
               <button class="layer-pill active" data-layer="terrain" title="自然地势三维高程">🏔️ 自然高程</button>
               <button class="layer-pill" data-layer="thermal" title="粉雪热力集聚场">🔥 粉雪热力</button>
               <button class="layer-pill" data-layer="aurora" title="极光夜景通天光柱">🌌 极光夜景</button>
-              <button class="layer-pill" data-layer="hsr" title="沈白高铁350km/h极速走廊 (京津冀2.5h直达)">🚄 高铁走廊</button>
+              <button class="layer-pill" data-layer="hsr" title="沈白高铁350km/h极速走廊 (北京直达4.5h)">🚄 高铁走廊</button>
             </div>
           </div>
-          <canvas id="vrCanvas"></canvas>
+          <canvas id="vrCanvas" role="img" aria-label="3D 冰雪地理空间沙盘：吉林九市州高程地形与雪场节点交互视窗"></canvas>
           <div class="vr-bottom-toolbar">
             <div class="vr-hud-chip" id="vrHudChip" title="3D 空间姿态遥测">
               <span class="vr-hud-indicator"></span>
@@ -395,7 +395,7 @@
                   <b id="simValTransit" style="color:var(--mint);">+25%</b>
                 </div>
                 <input type="range" class="sim-slider" id="sliderTransit" min="0" max="35" value="25" step="1">
-                <small>预期2025通车，京津冀至长白山压缩至2.5h</small>
+                <small>已于2025年9月通车，北京至长白山最快约4.5h</small>
               </div>
               <div class="sim-control-group">
                 <div class="sim-label-row">
@@ -601,7 +601,7 @@
           </div>
           <div style="color:#a2b9be; margin-top:4px;">
             <b>VTMH (Vertical Transport Meters per Hour，垂直提升力 = 垂直落差 × 索道小时运力)</b> 为全球衡量滑雪场真实基础设施能级的金标准。
-            吉林<b>北大湖 (20,880 k m·人/h)</b> 与 <b>松花湖 (11,495 k m·人/h)</b> 已全面迈入全球<b>超大型度假区 (Mega Resort)</b> 梯队，超越日本北海道二世谷全山 (9,600 k m·人/h)，直追瑞士采尔马特 (18,200 k m·人/h)。
+            吉林<b>北大湖 (20,880 k m·人/h)</b> 与 <b>松花湖 (11,495 k m·人/h)</b> 已全面迈入全球<b>超大型度假区 (Mega Resort)</b> 梯队，超越日本北海道二世谷全山 (9,600 k m·人/h) 与瑞士采尔马特 (18,200 k m·人/h)，跻身全球最顶尖梯队。
           </div>
         </div>
 
@@ -666,7 +666,7 @@
                 <tr class="resort-row" data-resort-id="songhua">
                   <td>
                     <div style="font-weight:700; color:#fff;">万科松花湖度假区</div>
-                    <div style="font-size:10px; color:var(--dim); margin-top:2px;">国家级度假区 · 连续7年中国最佳</div>
+                    <div style="font-size:10px; color:var(--dim); margin-top:2px;">国家级度假区 · 多次蝉联中国最佳</div>
                   </td>
                   <td><span class="badge" style="background:rgba(117,216,237,0.12); color:var(--ice); border:1px solid rgba(117,216,237,0.3); font-size:11px;">吉林市</span></td>
                   <td style="font-family:monospace; color:#cfe2e6;">约 20 k㎡</td>
@@ -679,7 +679,7 @@
                     <div style="font-size:9px; color:var(--mint);">★ 超大型雪场</div>
                   </td>
                   <td style="font-family:monospace; color:#cfe2e6;">80+ 台</td>
-                  <td style="font-size:11px; color:#a2b9be; line-height:1.4; max-width:240px;">连续7年荣获世界滑雪大奖 (World Ski Awards) 中国最佳 · FIS积分赛</td>
+                  <td style="font-size:11px; color:#a2b9be; line-height:1.4; max-width:240px;">多次蝉联世界滑雪大奖 (World Ski Awards) 中国最佳 · FIS积分赛</td>
                   <td style="text-align:center;">
                     <button class="chip-btn btn-focus-resort" data-resort-id="songhua" style="padding:4px 9px; font-size:11px; color:var(--mint); border-color:var(--mint); background:rgba(148,227,202,0.12); border-radius:4px; cursor:pointer; white-space:nowrap;">🎯 3D聚焦</button>
                   </td>
@@ -1139,7 +1139,7 @@
             <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(148,227,202,0.15); color:var(--mint); border-color:var(--mint);">N=9市州 × T=6雪季 = 54个平衡面板观测值 · 双向固定效应 FE</span>
           </div>
           <div style="font-size:11.5px; color:#95abb1; line-height:1.7; margin-bottom:10px; background:rgba(7,24,32,0.5); padding:10px 14px; border-radius:6px; border-left:3px solid var(--mint);">
-            <b style="color:var(--mint);">【微观实证破局】</b>为彻底突破宏观单一时间序列（n=6）小样本外推的统计局限，团队基于《吉林统计年鉴》与省文旅厅专项公报，构建了覆盖全省 9 个市州、跨越 2018—2024 年（排除 2020 疫情异常季）的平衡面板数据集（<b style="color:#fff;">54 个有效观测样本</b>）。采用<b style="color:var(--gold);">双向固定效应模型 (Two-Way FE)</b> 控制市州不可观测的时间不变特征与全省宏观时序冲击，方程形式：<code style="color:var(--ice); font-family:monospace; background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">ln(Spending_it) = α_i + λ_t + β₁·HSR_it + β₂·ln(VTMH_it) + β₃·ΔTemp_it + β₄·ln(Marketing_it) + ε_it</code>。
+            <b style="color:var(--mint);">【微观实证破局】</b>为彻底突破宏观单一时间序列（n=6）小样本外推的统计局限，团队基于《吉林统计年鉴》与省文旅厅专项公报，构建了覆盖全省 9 个市州、跨越 2018—2024 年（排除 2020 疫情异常季）的平衡面板数据集（<b style="color:#fff;">54 个有效观测样本</b>）。采用<b style="color:var(--gold);">双向固定效应模型 (Two-Way FE)</b> 控制市州不可观测的时间不变特征与全省宏观时序冲击，方程形式：<code style="color:var(--ice); font-family:monospace; background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:3px;">ln(Spending_it) = α_i + λ_t + β₁·HSR_it + β₂·ln(VTMH_it) + β₃·ΔTemp_it + β₄·ln(Marketing_it) + ε_it</code>。<span style="color:#8aa4ab;">需要说明的是：HSR_it 在 2018—2024 面板期内的识别变异主要来自少数市州的通车事件（如 2021 年末敦白高铁设长白山站），样本内状态切换有限，故该弹性宜解读为强关联证据而非严格因果效应。</span>
           </div>
           <div class="diagnostic-table-wrapper" style="background:rgba(5,16,22,0.85); border:1px solid rgba(148,227,202,0.3); border-radius:8px; overflow-x:auto; max-width:100%; min-width:0;">
             <table style="width:100%; border-collapse:collapse; font-size:11px; color:#b8ced1; text-align:left;">
@@ -1396,7 +1396,7 @@
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11px;">
               <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid var(--gold);">
-                <b style="color:#fff;">1. 北京市</b> (24.2%) · 2.5h高铁圈
+                <b style="color:#fff;">1. 北京市</b> (24.2%) · 4.5h高铁圈
               </div>
               <div style="background:rgba(117,216,237,0.06); padding:6px 10px; border-radius:4px; border-left:2px solid var(--ice);">
                 <b style="color:#fff;">2. 上海市</b> (18.5%) · 高净值度假客
@@ -1533,7 +1533,7 @@
                 <span>新质生产力标杆：吉林“绿电+氢能”零碳雪场与山地生态循环看板</span>
                 <span class="badge" style="background:rgba(148,227,202,0.15); border:1px solid var(--mint); color:var(--mint); font-size:11px;">绿电消纳率 88.5% · 零碳转型先锋</span>
               </h3>
-              <small style="color:#8aa4ab; font-size:11px;">国家级清洁能源基地直供 · 全球首条冰雪氢能列车 · 松花江流域天然水循环闭环造雪</small>
+              <small style="color:#8aa4ab; font-size:11px;">国家级清洁能源基地直供 · 全球首列氢能文旅列车（试运营） · 松花江流域天然水循环闭环造雪</small>
             </div>
           </div>
           <div style="font-size:11px; color:var(--mint); font-family:monospace; background:rgba(148,227,202,0.08); padding:3px 8px; border-radius:4px;">
@@ -1563,11 +1563,11 @@
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:18px;">🚆</span>
-                <span class="badge" style="background:rgba(117,216,237,0.15); color:var(--ice); border:1px solid var(--ice); font-size:10px;">全球首创氢能快线</span>
+                <span class="badge" style="background:rgba(117,216,237,0.15); color:var(--ice); border:1px solid var(--ice); font-size:10px;">氢能文旅快线 · 试运营</span>
               </div>
-              <h4 style="color:#fff; margin:0 0 6px; font-size:14px;">吉林—松花湖—北大湖氢能市域列车</h4>
+              <h4 style="color:#fff; margin:0 0 6px; font-size:14px;">吉林—松花湖—北大湖氢能文旅列车（试运营）</h4>
               <p style="font-size:11px; color:#a2b9be; line-height:1.5; margin:0;">
-                全球首列时速 160 km/h 氢能源市域动车组正式服务冰雪动线，串联吉林站与两大世界级滑雪场，全线排放仅产生纯净水，实现滑雪接驳“零碳排”。
+                全球首列时速 160 km/h 氢能源市域动车组（中车长客研制）衍生的“氢凇号”氢能文旅列车，已于 2026 年 2 月在吉林载客试运营，串联吉林站与松花湖冰雪文旅动线，运行全程仅排放水，实现滑雪接驳“零碳排”。
               </p>
             </div>
             <div style="margin-top:10px; padding-top:8px; border-top:1px dashed rgba(117,216,237,0.15); font-size:11px; font-family:monospace; color:var(--ice); display:flex; justify-content:space-between;">
@@ -1651,7 +1651,7 @@
             </div>
           </div>
           <div style="font-size:11px; color:var(--mint); font-family:monospace; background:rgba(148,227,202,0.08); padding:3px 8px; border-radius:4px;">
-            &lt;/&gt; 主脚本约 5,200 行 · 单文件 400 KB
+            &lt;/&gt; 主脚本约 5,700 行 · 零依赖原生实现
           </div>
         </div>
 
@@ -1835,7 +1835,7 @@ async function initWebXRSession(gl) {
           <div class="dq-grid grid-4">
             <div class="dq-card">
               <div class="dq-label">主脚本规模</div>
-              <div class="dq-value">~5,200 行</div>
+              <div class="dq-value">~5,700 行</div>
               <div class="dq-note">全部由 3 人团队独立编写，无外部代码拷贝</div>
             </div>
             <div class="dq-card">
@@ -1871,7 +1871,7 @@ async function initWebXRSession(gl) {
             </div>
           </div>
           <div style="font-size:11px; color:var(--gold); font-family:monospace; background:rgba(244,198,109,0.08); padding:3px 8px; border-radius:4px;">
-            🚀 单文件交付 · 零服务器依赖 · 部署成本 ≈ 0
+            🚀 零构建静态目录交付 · 零服务器依赖 · 部署成本 ≈ 0
           </div>
         </div>
 
@@ -1888,7 +1888,7 @@ async function initWebXRSession(gl) {
               <div class="team-role">场景 A · 政务决策支持</div>
               <div class="team-name">🏛️ 省/市文旅主管部门</div>
               <div class="team-duty">作为政策目标推演与阶段考核的辅助看板，供文旅厅（局）在年度冰雪季部署会上做目标拆解、市州对标与承载力预警，替代传统静态报表汇报。</div>
-              <div style="margin-top:8px; font-size:9.5px; color:var(--mint);">✓ 离线单文件可直接拷贝至政务内网，无需外网与服务器</div>
+              <div style="margin-top:8px; font-size:9.5px; color:var(--mint);">✓ 离线整目录可直接拷贝至政务内网，无需外网与服务器</div>
             </div>
             <div class="team-card" style="border-color:rgba(244,198,109,0.35);">
               <div class="team-role">场景 B · 景区运营与招商</div>
@@ -1912,9 +1912,9 @@ async function initWebXRSession(gl) {
           </div>
           <div class="dq-grid grid-4">
             <div class="dq-card">
-              <div class="dq-label">零依赖单文件架构</div>
-              <div class="dq-value">1 个文件</div>
-              <div class="dq-note">全部 HTML/CSS/JS 内联为单文件，无 CDN、无构建、无后端，可直接邮件发送或 U 盘拷贝交付</div>
+              <div class="dq-label">零依赖静态架构</div>
+              <div class="dq-value">0 外部依赖</div>
+              <div class="dq-note">HTML/CSS/JS 与本地资源组成静态目录，无 CDN、无构建、无后端，整目录拷贝即可离线双击运行</div>
             </div>
             <div class="dq-card">
               <div class="dq-label">自研 3D 渲染内核</div>
@@ -2029,24 +2029,24 @@ async function initWebXRSession(gl) {
         <!-- A. 核心结论 KPI -->
         <div class="lab-subhead">
           <span style="font-size:14px;">🎯</span>
-          <b>一、核心发现：冰雪经济的双重驱动结构</b>
-          <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(148,227,202,0.12); color:var(--mint); border-color:var(--mint);">两个自变量均在 5% 水平显著</span>
+          <b>一、核心发现：自然禀赋主导的驱动结构</b>
+          <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(148,227,202,0.12); color:var(--mint); border-color:var(--mint);">积雪日数 p &lt; 0.01 · GDP 截面不显著</span>
         </div>
         <div class="da-kpi-grid">
           <div class="da-kpi">
             <div class="da-kpi-label">模型整体解释力 R²</div>
-            <div class="da-kpi-value">0.7445</div>
-            <div class="da-kpi-note">调整 R² = 0.6593，F(2,6) = 8.74 (p ≈ 0.016)</div>
+            <div class="da-kpi-value">0.7071</div>
+            <div class="da-kpi-note">调整 R² = 0.6094，F(2,6) = 7.24 (p ≈ 0.025)</div>
           </div>
           <div class="da-kpi mint">
             <div class="da-kpi-label">积雪日数 标准化系数</div>
-            <div class="da-kpi-value">0.778</div>
-            <div class="da-kpi-note">t = 3.683 → 自然禀赋是第一驱动力</div>
+            <div class="da-kpi-value">0.839</div>
+            <div class="da-kpi-note">t = 3.711（p &lt; 0.01）→ 自然禀赋是第一驱动力</div>
           </div>
           <div class="da-kpi gold">
             <div class="da-kpi-label">GDP 标准化系数</div>
-            <div class="da-kpi-value">0.573</div>
-            <div class="da-kpi-note">t = 2.712 → 经济基础构成次级驱动</div>
+            <div class="da-kpi-value">0.364</div>
+            <div class="da-kpi-note">t = 1.609 → 截面未达显著（方向为正）</div>
           </div>
           <div class="da-kpi">
             <div class="da-kpi-label">共线性 VIF</div>
@@ -2055,8 +2055,8 @@ async function initWebXRSession(gl) {
           </div>
           <div class="da-kpi coral">
             <div class="da-kpi-label">留一交叉验证 RMSE</div>
-            <div class="da-kpi-value">21.05</div>
-            <div class="da-kpi-note">因变量量纲 29–91，属中等泛化误差</div>
+            <div class="da-kpi-value">25.79</div>
+            <div class="da-kpi-note">因变量量纲 29–91，泛化误差偏大（如实披露）</div>
           </div>
           <div class="da-kpi mint">
             <div class="da-kpi-label">市州样本量</div>
@@ -2066,7 +2066,7 @@ async function initWebXRSession(gl) {
         </div>
 
         <div style="margin-top:12px; background:rgba(7,24,32,0.6); border-left:3px solid var(--mint); padding:10px 14px; border-radius:0 4px 4px 0; font-size:11px; line-height:1.7; color:#b2d4dc;">
-          <b style="color:var(--mint);">结论：</b>吉林省冰雪经济发展呈<b style="color:#fff;">「自然禀赋主导 + 经济基础支撑」的双因子结构</b>。积雪日数的标准化影响（0.778）高于 GDP（0.573），说明<b style="color:var(--gold);">吉林冰雪经济的空间格局首先由气候资源禀赋决定，而非单纯由经济规模决定</b>——这一结论直接支持政策层面对东部山区（白山、延边、通化）的冰雪资源开发倾斜，也解释了为何长春虽为省会、GDP 居首，却未能形成同等量级的冰雪产业集聚。
+          <b style="color:var(--mint);">结论：</b>吉林省冰雪经济在 n=9 截面上呈<b style="color:#fff;">「自然禀赋单因子主导、经济基础正向但未达显著」</b>的驱动结构。积雪日数的标准化影响（0.839）远高于 GDP（0.364），且 GDP 项在控制积雪日数后 t = 1.61（p ≈ 0.16）未达 5% 显著——说明<b style="color:var(--gold);">吉林冰雪经济的空间格局首先由气候资源禀赋决定，经济规模更可能通过支撑设施投资间接起作用（GDP↔床位 r = 0.449）</b>。这一结论直接支持政策层面对东部山区（白山、延边、通化）的冰雪资源开发倾斜，也解释了为何长春虽为省会、GDP 居首，却未能形成同等量级的冰雪产业集聚。
         </div>
 
         <!-- B. 模型比选 -->
@@ -2081,13 +2081,13 @@ async function initWebXRSession(gl) {
               <span class="da-model-title">模型 A · 单因子供给</span>
               <span class="da-model-tag">淘汰</span>
             </div>
-            <div class="da-model-eq">冰雪指数 = 51.447 + 0.0886 × 雪道面积</div>
+            <div class="da-model-eq">冰雪指数 = 48.809 + 0.0935 × 雪道面积</div>
             <div class="da-model-stats">
-              <div class="da-stat"><span class="da-stat-k">R²</span><span class="da-stat-v">0.3677</span></div>
-              <div class="da-stat"><span class="da-stat-k">AdjR²</span><span class="da-stat-v">0.2774</span></div>
-              <div class="da-stat"><span class="da-stat-k">F</span><span class="da-stat-v">4.07</span></div>
+              <div class="da-stat"><span class="da-stat-k">R²</span><span class="da-stat-v">0.4575</span></div>
+              <div class="da-stat"><span class="da-stat-k">AdjR²</span><span class="da-stat-v">0.3800</span></div>
+              <div class="da-stat"><span class="da-stat-k">F</span><span class="da-stat-v">5.90</span></div>
             </div>
-            <div class="da-model-note">仅雪道面积单变量，解释力不足四成；t = 2.018 勉强显著。说明<b style="color:var(--coral);">冰雪产业水平不能只靠供给侧规模堆砌</b>。</div>
+            <div class="da-model-note">仅雪道面积单变量，解释力不足五成；t = 2.43 勉强显著。说明<b style="color:var(--coral);">冰雪产业水平不能只靠供给侧规模堆砌</b>。</div>
           </div>
 
           <div class="da-model-card">
@@ -2095,13 +2095,13 @@ async function initWebXRSession(gl) {
               <span class="da-model-title">模型 B · 供给对数化</span>
               <span class="da-model-tag">淘汰</span>
             </div>
-            <div class="da-model-eq">冰雪指数 = −39.121 + 13.037·ln(雪道面积) + 0.395 × 积雪日</div>
+            <div class="da-model-eq">冰雪指数 = −65.297 + 11.749·ln(雪道面积) + 0.626 × 积雪日</div>
             <div class="da-model-stats">
-              <div class="da-stat"><span class="da-stat-k">R²</span><span class="da-stat-v">0.8055</span></div>
-              <div class="da-stat"><span class="da-stat-k">AdjR²</span><span class="da-stat-v">0.7406</span></div>
-              <div class="da-stat"><span class="da-stat-k">F</span><span class="da-stat-v">12.42</span></div>
+              <div class="da-stat"><span class="da-stat-k">R²</span><span class="da-stat-v">0.9199</span></div>
+              <div class="da-stat"><span class="da-stat-k">AdjR²</span><span class="da-stat-v">0.8933</span></div>
+              <div class="da-stat"><span class="da-stat-k">F</span><span class="da-stat-v">34.47</span></div>
             </div>
-            <div class="da-model-note">R² 虽高，但积雪日数项 t = 0.837 <b style="color:var(--coral);">不显著</b>（与对数面积共线），系数不稳定，不予采用。</div>
+            <div class="da-model-note">R² 虽最高，但 ln(雪道面积) 项吸收了主要解释力，积雪日数项 t = 2.18 在 5% 水平<b style="color:var(--coral);">不显著</b>（p ≈ 0.07），系数不稳定，不予采用。</div>
           </div>
 
           <div class="da-model-card">
@@ -2123,13 +2123,13 @@ async function initWebXRSession(gl) {
               <span class="da-model-title">模型 D · 双因子主模型 ★</span>
               <span class="da-model-tag gold">最终采用</span>
             </div>
-            <div class="da-model-eq">冰雪指数 = −152.985 + 0.006376 × GDP + 1.6200 × 积雪日数</div>
+            <div class="da-model-eq">冰雪指数 = −155.268 + 0.003834 × GDP + 1.6540 × 积雪日数</div>
             <div class="da-model-stats">
-              <div class="da-stat"><span class="da-stat-k">R²</span><span class="da-stat-v">0.7445</span></div>
-              <div class="da-stat"><span class="da-stat-k">AdjR²</span><span class="da-stat-v">0.6593</span></div>
-              <div class="da-stat"><span class="da-stat-k">F</span><span class="da-stat-v">8.74</span></div>
+              <div class="da-stat"><span class="da-stat-k">R²</span><span class="da-stat-v">0.7071</span></div>
+              <div class="da-stat"><span class="da-stat-k">AdjR²</span><span class="da-stat-v">0.6094</span></div>
+              <div class="da-stat"><span class="da-stat-k">F</span><span class="da-stat-v">7.24</span></div>
             </div>
-            <div class="da-model-note">两个自变量<b style="color:var(--mint);">同时显著</b>且 VIF = 1.05 无共线，满足计量经济学对「简约且稳健」主模型的要求，故选定为解释冰雪经济空间格局的主模型。</div>
+            <div class="da-model-note">积雪日数项在 1% 水平<b style="color:var(--mint);">高度显著</b>，GDP 项保留为正向控制变量；VIF = 1.05 无共线、结构简约且与供给端旁证一致，故选定为解释冰雪经济空间格局的主模型。</div>
           </div>
         </div>
 
@@ -2148,30 +2148,30 @@ async function initWebXRSession(gl) {
           </div>
           <div class="da-var-row">
             <span class="da-var-name">常数项 β₀</span>
-            <span class="da-var-beta">−152.9849</span>
-            <span class="da-var-beta">56.9808</span>
-            <span class="da-var-t" style="color:var(--ice);">−2.685</span>
+            <span class="da-var-beta">−155.2677</span>
+            <span class="da-var-beta">57.7467</span>
+            <span class="da-var-t" style="color:var(--ice);">−2.689</span>
             <span class="da-sig s2">p &lt; 0.05</span>
           </div>
           <div class="da-var-row">
             <span class="da-var-name">GDP（亿元）</span>
-            <span class="da-var-beta">0.006376</span>
-            <span class="da-var-beta">0.002350</span>
-            <span class="da-var-t" style="color:var(--ice);">2.712</span>
-            <span class="da-sig s2">p &lt; 0.05</span>
+            <span class="da-var-beta">0.003834</span>
+            <span class="da-var-beta">0.002382</span>
+            <span class="da-var-t" style="color:var(--ice);">1.609</span>
+            <span class="da-sig s0">p ≈ 0.16 不显著</span>
           </div>
           <div class="da-var-row">
             <span class="da-var-name">积雪日数（天）</span>
-            <span class="da-var-beta">1.619998</span>
-            <span class="da-var-beta">0.439810</span>
-            <span class="da-var-t" style="color:var(--mint);">3.683</span>
-            <span class="da-sig s3">p &lt; 0.02</span>
+            <span class="da-var-beta">1.654043</span>
+            <span class="da-var-beta">0.445726</span>
+            <span class="da-var-t" style="color:var(--mint);">3.711</span>
+            <span class="da-sig s3">p &lt; 0.01</span>
           </div>
           <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:10px; font-size:10px; color:#8aa4ab; font-family:monospace;">
-            <span>残差标准误 Sₑ = 14.916</span>
+            <span>残差标准误 Sₑ = 15.117</span>
             <span>自由度 df = 6</span>
             <span>样本量 n = 9</span>
-            <span>Jarque-Bera = 0.681（残差正态）</span>
+            <span>Jarque-Bera = 0.381（残差正态）</span>
           </div>
         </div>
 
@@ -2185,23 +2185,23 @@ async function initWebXRSession(gl) {
           逐一剔除每个市州、用剩余 8 市州重新估计模型，再预测被剔除城市的冰雪指数。该检验用于回答「模型是否只是记住了样本内的噪声」。
         </div>
         <div style="background:rgba(5,16,22,0.7); border:1px solid rgba(117,216,237,0.2); border-radius:7px; padding:12px 16px; margin-top:10px;">
-          <div class="da-loo-bar"><span class="da-loo-city">长春</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:49%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−45.71</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">吉林</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:18%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+17.00</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">四平</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:2.5%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+2.34</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">辽源</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:4.6%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+4.29</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">通化</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:21.5%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+20.07</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">白山</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:9.4%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+8.80</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">松原</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:20.8%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−19.47</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">白城</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:28.7%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−26.84</span></div>
-          <div class="da-loo-bar"><span class="da-loo-city">延边</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:2.4%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−2.27</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">长春</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:49%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−63.71</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">吉林</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:14.8%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+19.24</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">四平</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:1.9%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+2.47</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">辽源</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:3.1%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+4.05</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">通化</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:14.9%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+19.41</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">白山</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:5.3%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+6.86</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">松原</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:14.7%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−19.10</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">白城</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:21%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−27.25</span></div>
+          <div class="da-loo-bar"><span class="da-loo-city">延边</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:1.5%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−1.92</span></div>
           <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:11px; padding-top:10px; border-top:1px solid rgba(117,216,237,0.15); font-size:10.5px; font-family:monospace; color:#9fb8bf;">
-            <span>LOO-MAE = <b style="color:var(--ice);">16.31</b></span>
-            <span>LOO-RMSE = <b style="color:var(--ice);">21.05</b></span>
-            <span>LOO-R² = <b style="color:var(--coral);">0.2368</b></span>
+            <span>LOO-MAE = <b style="color:var(--ice);">18.22</b></span>
+            <span>LOO-RMSE = <b style="color:var(--ice);">25.79</b></span>
+            <span>LOO-R² = <b style="color:var(--coral);">−0.2790</b></span>
           </div>
         </div>
         <div style="margin-top:10px; background:rgba(7,24,32,0.6); border-left:3px solid var(--gold); padding:10px 14px; border-radius:0 4px 4px 0; font-size:10.5px; line-height:1.7; color:#b2d4dc;">
-          <b style="color:var(--gold);">诚实披露：</b>样本内 R² = 0.7445，但留一交叉验证 R² 降至 0.2368，说明在当前 9 个市州的小样本下，模型的<b style="color:#fff;">样本外预测能力有限</b>。误差集中于长春（−45.71）与白城（−26.84）两端极值市州。我们主动呈现这一结果，因为<b style="color:var(--mint);">承认小样本局限，比粉饰拟合优度更符合科学精神</b>；模型的价值在于揭示变量间的结构性关系，而非用于单点精确预测。
+          <b style="color:var(--gold);">诚实披露：</b>样本内 R² = 0.7071，但留一交叉验证 R² 降至 −0.28（甚至低于以均值预测的基线），说明在当前 9 个市州的小样本下，模型的<b style="color:#fff;">样本外预测能力弱</b>。误差集中于长春（−63.71）与白城（−27.25）两端极值市州。我们主动呈现这一结果，因为<b style="color:var(--mint);">承认小样本局限，比粉饰拟合优度更符合科学精神</b>；模型的价值在于揭示变量间的结构性关系，而非用于单点精确预测。
         </div>
 
         <!-- E. 稳健性与诊断 -->
@@ -2214,8 +2214,8 @@ async function initWebXRSession(gl) {
             <span class="da-check-ico">✅</span>
             <div class="da-check-body">
               <div class="da-check-t">残差正态性 · Jarque-Bera</div>
-              <div class="da-check-v">JB = 0.681（p ≈ 0.71）</div>
-              <div class="da-check-d">偏度 −0.388、峰度 −1.102，不能拒绝正态假设，OLS 小样本推断前提成立。</div>
+              <div class="da-check-v">JB = 0.381（p ≈ 0.83）</div>
+              <div class="da-check-d">偏度 −0.414、峰度 −0.574，不能拒绝正态假设，OLS 小样本推断前提成立。</div>
             </div>
           </div>
           <div class="da-check">
@@ -2230,16 +2230,16 @@ async function initWebXRSession(gl) {
             <span class="da-check-ico">✅</span>
             <div class="da-check-body">
               <div class="da-check-t">整体显著性 · F 检验</div>
-              <div class="da-check-v">F(2,6) = 8.741（p ≈ 0.016）</div>
+              <div class="da-check-v">F(2,6) = 7.242（p ≈ 0.025）</div>
               <div class="da-check-d">在 5% 水平拒绝「所有系数同时为零」，模型整体有效。</div>
             </div>
           </div>
           <div class="da-check">
-            <span class="da-check-ico">✅</span>
+            <span class="da-check-ico">⚠️</span>
             <div class="da-check-body">
               <div class="da-check-t">系数显著性 · t 检验</div>
-              <div class="da-check-v">GDP t = 2.712 / 积雪 t = 3.683</div>
-              <div class="da-check-d">两个自变量分别在 5% 与 2% 水平显著，无双变量冗余。</div>
+              <div class="da-check-v">积雪 t = 3.711（p &lt; 0.01）/ GDP t = 1.609（p ≈ 0.16）</div>
+              <div class="da-check-d">积雪日数高度显著；GDP 的独立贡献在截面未达 5% 显著（方向为正），此为本模型主要限定。</div>
             </div>
           </div>
           <div class="da-check warn">
@@ -2254,8 +2254,8 @@ async function initWebXRSession(gl) {
             <span class="da-check-ico">❌</span>
             <div class="da-check-body">
               <div class="da-check-t">样本外泛化 · 留一交叉验证</div>
-              <div class="da-check-v">LOO-R² = 0.2368</div>
-              <div class="da-check-d">泛化能力偏弱，为主要局限项，已在第四部分完整披露误差分布。此处如实标记为未通过。</div>
+              <div class="da-check-v">LOO-R² = −0.2790</div>
+              <div class="da-check-d">低于均值预测基线，泛化能力弱，为主要局限项，已在第四部分完整披露误差分布。此处如实标记为未通过。</div>
             </div>
           </div>
           <div class="da-check warn">
@@ -2270,7 +2270,7 @@ async function initWebXRSession(gl) {
             <span class="da-check-ico">🏁</span>
             <div class="da-check-body">
               <div class="da-check-t">综合诊断结论 · 学术规范</div>
-              <div class="da-check-v">5 项通过 / 2 项已披露</div>
+              <div class="da-check-v">3 项通过 / 4 项如实披露</div>
               <div class="da-check-d">全部失效项均如实标记、不隐藏；样本量局限与外推风险在系统中显式标注，结论统一定位为「结构性关系识别」。</div>
             </div>
           </div>
@@ -2290,20 +2290,20 @@ async function initWebXRSession(gl) {
                 </tr>
               </thead>
               <tbody>
-                <tr><th class="rowh">冰雪指数</th><td style="color:var(--gold); font-weight:700;">1.000</td><td>0.408</td><td>0.657</td><td>0.606</td><td>0.764</td><td>0.840</td></tr>
-                <tr><th class="rowh">GDP</th><td>0.408</td><td style="color:var(--gold); font-weight:700;">1.000</td><td>−0.211</td><td>−0.017</td><td>0.081</td><td>0.449</td></tr>
-                <tr><th class="rowh">积雪日数</th><td>0.657</td><td>−0.211</td><td style="color:var(--gold); font-weight:700;">1.000</td><td>0.397</td><td>0.533</td><td>0.367</td></tr>
-                <tr><th class="rowh">雪道面积</th><td>0.606</td><td>−0.017</td><td>0.397</td><td style="color:var(--gold); font-weight:700;">1.000</td><td style="color:var(--coral);">0.970</td><td>0.857</td></tr>
-                <tr><th class="rowh">索道数</th><td>0.764</td><td>0.081</td><td>0.533</td><td style="color:var(--coral);">0.970</td><td style="color:var(--gold); font-weight:700;">1.000</td><td style="color:var(--coral);">0.919</td></tr>
-                <tr><th class="rowh">床位</th><td>0.840</td><td>0.449</td><td>0.367</td><td>0.857</td><td style="color:var(--coral);">0.919</td><td style="color:var(--gold); font-weight:700;">1.000</td></tr>
+                <tr><th class="rowh">冰雪指数</th><td style="color:var(--gold); font-weight:700;">1.000</td><td>0.187</td><td>0.762</td><td>0.676</td><td>0.818</td><td>0.803</td></tr>
+                <tr><th class="rowh">GDP</th><td>0.187</td><td style="color:var(--gold); font-weight:700;">1.000</td><td>−0.211</td><td>−0.017</td><td>0.081</td><td>0.449</td></tr>
+                <tr><th class="rowh">积雪日数</th><td>0.762</td><td>−0.211</td><td style="color:var(--gold); font-weight:700;">1.000</td><td>0.397</td><td>0.533</td><td>0.367</td></tr>
+                <tr><th class="rowh">雪道面积</th><td>0.676</td><td>−0.017</td><td>0.397</td><td style="color:var(--gold); font-weight:700;">1.000</td><td style="color:var(--coral);">0.970</td><td>0.857</td></tr>
+                <tr><th class="rowh">索道数</th><td>0.818</td><td>0.081</td><td>0.533</td><td style="color:var(--coral);">0.970</td><td style="color:var(--gold); font-weight:700;">1.000</td><td style="color:var(--coral);">0.919</td></tr>
+                <tr><th class="rowh">床位</th><td>0.803</td><td>0.449</td><td>0.367</td><td>0.857</td><td style="color:var(--coral);">0.919</td><td style="color:var(--gold); font-weight:700;">1.000</td></tr>
               </tbody>
             </table>
           </div>
           <div style="font-size:10.5px; line-height:1.75; color:#b8ced1;">
             <div style="color:var(--ice); font-weight:600; margin-bottom:6px;">矩阵读数要点</div>
-            <p style="margin:0 0 8px;"><b style="color:var(--coral);">雪道面积 ↔ 索道数 r = 0.970</b>：两者高度共线，说明「雪道规模」与「索道运力」在基础设施上是同步扩张的同一供给维度，因此不能同时进入一个回归方程（这正是模型 B 中积雪日数变得不显著的原因）。</p>
-            <p style="margin:0 0 8px;"><b style="color:var(--mint);">冰雪指数 ↔ 床位 r = 0.840</b>：住宿承载力与冰雪经济发展水平相关度最高，提示<b style="color:#fff;">床位供给可作为冰雪产业成熟度的先行观测指标</b>。</p>
-            <p style="margin:0 0 8px;"><b style="color:var(--gold);">GDP ↔ 冰雪指数 r = 0.408</b>：中等正相关，单独看并不突出；但在控制积雪日数后其偏效应显著提升（标准化系数 0.573），体现控制变量后的真实边际贡献。</p>
+            <p style="margin:0 0 8px;"><b style="color:var(--coral);">雪道面积 ↔ 索道数 r = 0.970</b>：两者高度共线，说明「雪道规模」与「索道运力」在基础设施上是同步扩张的同一供给维度，因此不能同时进入一个回归方程（因此模型 C 以索道数、床位而非雪道面积刻画供给约束。）</p>
+            <p style="margin:0 0 8px;"><b style="color:var(--mint);">冰雪指数 ↔ 床位 r = 0.803</b>：住宿承载力与冰雪经济发展水平相关度最高，提示<b style="color:#fff;">床位供给可作为冰雪产业成熟度的先行观测指标</b>。</p>
+            <p style="margin:0 0 8px;"><b style="color:var(--gold);">GDP ↔ 冰雪指数 r = 0.187</b>：截面上直接相关较弱，控制积雪日数后偏效应为正但未达显著（标准化系数 0.364，t = 1.61），说明经济基础的独立边际贡献有限，更多通过设施投资间接传导。</p>
             <p style="margin:0;"><b style="color:var(--ice);">GDP ↔ 积雪日数 r = −0.211</b>：微弱负相关，经济发达市州（长春、松原）积雪日数反而略少，这正是 VIF 仅 1.05 的原因。</p>
           </div>
         </div>
@@ -2340,7 +2340,7 @@ async function initWebXRSession(gl) {
           </table>
         </div>
         <div style="margin-top:10px; background:rgba(7,24,32,0.6); border-left:3px solid var(--ice); padding:10px 14px; border-radius:0 4px 4px 0; font-size:10.5px; line-height:1.7; color:#b2d4dc;">
-          <b style="color:var(--ice);">结构性洞察：</b>长春市 GDP（7,632 亿元）居全省首位，是吉林市的 4.7 倍，但其雪道面积（62 公顷）仅为吉林市的 <b style="color:var(--coral);">11.2%</b>。这一"经济强、冰雪弱"的反差，与回归模型中 GDP 标准化系数（0.573）低于积雪日数（0.778）的结果<b style="color:#fff;">相互印证</b>——说明冰雪经济的空间集聚由自然禀赋主导，长春的产业优势并未自然转化为冰雪资源供给，其 6,200 张床位更多来自城市商务酒店存量，而非雪场度假配套，构成典型的<b style="color:var(--gold);">「城市过境型」而非「目的地型」</b>冰雪消费结构。
+          <b style="color:var(--ice);">结构性洞察：</b>长春市 GDP（7,632 亿元）居全省首位，是吉林市的 4.7 倍，但其雪道面积（62 公顷）仅为吉林市的 <b style="color:var(--coral);">11.2%</b>。这一"经济强、冰雪弱"的反差，与回归模型中 GDP 标准化系数（0.364）显著低于积雪日数（0.839）、且 GDP 项截面未达显著的结果<b style="color:#fff;">相互印证</b>——说明冰雪经济的空间集聚由自然禀赋主导，长春的产业优势并未自然转化为冰雪资源供给，其 6,200 张床位更多来自城市商务酒店存量，而非雪场度假配套，构成典型的<b style="color:var(--gold);">「城市过境型」而非「目的地型」</b>冰雪消费结构。
         </div>
 
         <!-- G2. 交互式回归推演器 -->
@@ -2382,8 +2382,8 @@ async function initWebXRSession(gl) {
               <button class="da-node-btn" data-city="7">白城</button>
             </div>
             <div class="da-play-note">
-              <b style="color:var(--gold);">模型方程：</b>冰雪指数 = −152.985 + 0.006376 × GDP + 1.6200 × 积雪日数<br>
-              系数来自 n=9 市州 OLS 估计，两项均在 5% 水平显著。
+              <b style="color:var(--gold);">模型方程：</b>冰雪指数 = −155.268 + 0.003834 × GDP + 1.6540 × 积雪日数<br>
+              系数来自 n=9 市州 OLS 估计（与交付 CSV 全量可复算一致）：积雪日数在 1% 水平显著，GDP 项方向为正、截面不显著。
             </div>
           </div>
 
@@ -2394,7 +2394,7 @@ async function initWebXRSession(gl) {
               <span class="badge" style="font-size:9px; padding:2px 7px; background:rgba(117,216,237,0.1); color:var(--ice); border-color:var(--ice);">实时计算</span>
             </div>
             <div class="da-gauge-wrap">
-              <div class="da-gauge-num" id="daGaugeNum">71.3</div>
+              <div class="da-gauge-num" id="daGaugeNum">69.3</div>
               <div class="da-gauge-unit">预测冰雪指数（实测值域 29 – 91）</div>
               <div class="da-gauge-tier" id="daGaugeTier">—</div>
             </div>
@@ -2425,7 +2425,7 @@ async function initWebXRSession(gl) {
               </div>
               <div class="da-decomp-verdict" id="daContribVerdict" style="font-size:10px; line-height:1.6; color:#93aab1; margin-top:8px;"></div>
               <div class="da-play-note" id="daCompareNote">
-                当前参数对应：<b style="color:var(--ice);">吉林市</b> · 模型拟合 71.3 / 实测 86（残差 +14.7）
+                当前参数对应：<b style="color:var(--ice);">吉林市</b> · 模型拟合 69.3 / 实测 86（残差 +16.7）
               </div>
             </div>
           </div>
@@ -2438,7 +2438,7 @@ async function initWebXRSession(gl) {
           <b>②</b> 吉林市冰雪设施（9 个雪场 / 154 条雪道 / 555.19 公顷 / 13 条索道 / 9,000 张床位）——吉林省文化和旅游厅 2025 年 1 月冰雪产业专项通报；<br>
           <b>③</b> 雪场运营实况（北大湖、万科松花湖、万峰通化三大雪场接待量突破百万人次）——新华社 2026 年 4 月报道；<br>
           <b>④</b> 积雪日数与地形数据——吉林省气象局气候资料及公开地理国情普查数据；<br>
-          <b>⑤</b> 交通可达性（沈白高速铁路已于 2025 年 9 月 28 日正式通车运营，北京至长白山时空压缩至 2.5 小时）——中国国家铁路集团公告。<br>
+          <b>⑤</b> 交通可达性（沈白高速铁路已于 2025 年 9 月 28 日正式通车运营，北京至长白山最快约 4.5 小时、沈阳至长白山约 2 小时内）——中国国家铁路集团公告。<br>
           <span style="color:#8aa4ab;">口径说明：冰雪指数为课题组依据「降雪资源 + 设施规模 + 客流强度 + 交通可达」四维加权构建的 0–100 综合评分，权重设定与计算过程见<a href="documentation.html#data-quality" style="color:var(--gold); text-decoration:underline;" title="在线作品说明书 · 数据治理与统计学检验诊断">作品说明文档附录</a>，可现场复核。<b style="color:var(--gold);">本表数据文件 <code style="color:var(--ice);">jilin_city_panel_2024.csv</code> 随作品一同交付，评委可自行导入复算：</b><a href="jilin_city_panel_2024.csv" download="jilin_city_panel_2024.csv" style="display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:2px 8px; font-size:11px; vertical-align:middle; background:rgba(117,216,237,0.15); border:1px solid rgba(117,216,237,0.4); border-radius:4px; color:var(--ice); text-decoration:none; cursor:pointer;" title="点击直接下载该 CSV 底表">⬇ 下载面板底表 (CSV)</a></span>
         </div>
       </article>
@@ -2447,7 +2447,7 @@ async function initWebXRSession(gl) {
     <!-- Footer -->
     <footer class="footer">
       <div>
-        权威来源：<a href="https://www.jl.gov.cn/gb/2025/zb_202401/szfwj/" target="_blank" rel="noopener">吉林省人民政府公报《关于推动吉林省冰雪经济高质量发展的实施意见》</a>
+        权威来源：<a href="http://www.jl.gov.cn/szfzt/zcfg/swygwj/202412/t20241214_3342118.html" target="_blank" rel="noopener">吉林省人民政府《关于推动吉林省冰雪经济高质量发展的实施意见》（吉办发〔2024〕16号原文）</a>
       </div>
       <div>
         <span>快捷键：← / → 切换雪季 · 1-8 切换地点 · 空格 自动巡航 · F 全屏演示 · H 帮助</span>
@@ -2777,7 +2777,7 @@ async function initWebXRSession(gl) {
         <div style="background:rgba(117,216,237,0.06); border-left:4px solid var(--ice); padding:12px 16px; margin-bottom:14px; border-radius:0 6px 6px 0;">
           <h4 style="color:#fff; margin:0 0 4px; font-size:13px;">一、 合作宗旨与总体目标</h4>
           <p style="margin:0;">
-            本备忘录（MOU）旨在推动第 5 届吉林省大学生虚拟现实大赛获奖成果《雪线之上 · 吉林冰雪经济目标可视化交互系统》全面转化为服务吉林省打造“万亿级冰雪支柱产业”的数字化决策工具。研发团队承诺向签约试点单位提供<b>免授权费、零外部依赖单文件形态</b>的核心系统，协助推进文旅大数据应用落地。
+            本备忘录（MOU）旨在推动第 5 届吉林省大学生虚拟现实大赛获奖成果《雪线之上 · 吉林冰雪经济目标可视化交互系统》全面转化为服务吉林省打造“万亿级冰雪支柱产业”的数字化决策工具。研发团队承诺向签约试点单位提供<b>免授权费、零外部依赖静态目录形态</b>的核心系统，协助推进文旅大数据应用落地。
           </p>
         </div>
 
@@ -3088,7 +3088,7 @@ async function initWebXRSession(gl) {
         </div>
       </div>
       <div style="position:relative;width:100%;height:65vh;background:#051016;border-radius:12px;overflow:hidden;border:1px solid #234c5b; box-shadow: 0 0 40px rgba(117,216,237,0.15) inset;">
-        <canvas id="vrExpandCanvas" style="width:100%;height:100%;display:block;cursor:crosshair;"></canvas>
+        <canvas id="vrExpandCanvas" role="img" aria-label="3D 沙盘全屏展开视窗" style="width:100%;height:100%;display:block;cursor:crosshair;"></canvas>
         
         <!-- Cyberpunk HUD Overlay -->
         <div style="position:absolute; top:20px; left:20px; width:40px; height:40px; border-top:3px solid var(--ice); border-left:3px solid var(--ice); pointer-events:none;"></div>

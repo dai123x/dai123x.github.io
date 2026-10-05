@@ -1602,15 +1602,17 @@
 
     let expandW = 800, expandH = 500;
     function resizeVr() {
-      // 同样按 DPR 放大位图；render3DScene 仍接收 CSS 尺寸，几何逻辑零改动
-      vrW = vrCanvas.clientWidth || 320;
-      vrH = vrCanvas.clientHeight || 228;
+      // 同样按 DPR 放大位图；render3DScene 仍接收 CSS 尺寸，几何逻辑零改动。
+      // 硬上限护栏：位图尺寸一律以 CSS 布局尺寸为准并封顶，杜绝任何布局异常时
+      // 「位图→固有尺寸→clientHeight→更大位图」的反馈式增长吃光显存。
+      vrW = Math.min(vrCanvas.clientWidth || 320, 1280);
+      vrH = Math.min(vrCanvas.clientHeight || 228, 720);
       vrCanvas.width = Math.round(vrW * DPR);
       vrCanvas.height = Math.round(vrH * DPR);
       vrCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
       if (isExpandOpen) {
-        expandW = vrExpandCanvas.clientWidth || 800;
-        expandH = vrExpandCanvas.clientHeight || 500;
+        expandW = Math.min(vrExpandCanvas.clientWidth || 800, 1920);
+        expandH = Math.min(vrExpandCanvas.clientHeight || 500, 1080);
         vrExpandCanvas.width = Math.round(expandW * DPR);
         vrExpandCanvas.height = Math.round(expandH * DPR);
         vrExpandCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -1831,7 +1833,7 @@
 
     // Southern Inflow Flight & Rail Hubs (Hansen Spatial Gravity Model in 3D)
     const GRAVITY_HUBS = [
-      { city: '北京', label: '京津冀·客流首位 (高铁2.5h)', x: -160, y: 12, z: -110, targetX: 18, targetY: 16, targetZ: 14, color: '#f4c66d' },
+      { city: '北京', label: '京津冀·客流首位 (高铁4.5h)', x: -160, y: 12, z: -110, targetX: 18, targetY: 16, targetZ: 14, color: '#f4c66d' },
       { city: '上海', label: '长三角·高净值度假客群', x: -185, y: 10, z: -40,  targetX: 18, targetY: 16, targetZ: 14, color: '#75d8ed' },
       { city: '广州', label: '大湾区·北上避寒首选客源', x: -210, y: 8,  z: 60,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
       { city: '深圳', label: '大湾区·青年冰雪消费领跑', x: -220, y: 8,  z: 85,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
@@ -2140,7 +2142,7 @@
           { name: '沈阳南 / 京津冀接入', x: -180, y: 35, z: -150 },
           { name: '通化西站 (枢纽)', x: -60, y: 55, z: -40 },
           { name: '白山站', x: 40, y: 75, z: 30 },
-          { name: '长白山站 (终点 2.5h)', x: 140, y: 110, z: 120 }
+          { name: '长白山站 (北京直达4.5h)', x: 140, y: 110, z: 120 }
         ];
 
         const trackSteps = 60;
@@ -2233,7 +2235,7 @@
         ctx.stroke();
         ctx.fillStyle = '#f4c66d';
         ctx.font = 'bold 10px sans-serif';
-        ctx.fillText('🚄 沈白高铁 · 2.5h时空压缩走廊', boxX + 8, 56);
+        ctx.fillText('🚄 沈白高铁 · 北京直达4.5h黄金走廊', boxX + 8, 56);
         ctx.restore();
       }
 
@@ -3049,7 +3051,7 @@
       },
       {
         title: '04 · 沈白高铁 350km/h 时空走廊',
-        desc: '三维沙盘呈现沈白高铁走廊，光子列车脉冲直连京津冀2.5h度假圈。',
+        desc: '三维沙盘呈现沈白高铁走廊，光子列车脉冲直连京津冀4.5h度假圈。',
         subtitle: '三维沙盘点亮沈白高铁极速走廊。时速350公里的钢铁巨龙，将北京至长白山压缩至两点五小时，引爆南客北游黄金通道。',
         action: () => {
           setVrLayer('hsr');
@@ -3421,10 +3423,10 @@
 
     /* ===== 交互式回归推演器：模型D = 冰雪指数 ~ GDP + 积雪日数 ===== */
     (function initPanelPlayground() {
-      const B0 = -152.984886, B1 = 0.006376, B2 = 1.619998;
+      const B0 = -155.267732377, B1 = 0.003833765, B2 = 1.654043233;
       // [市州, GDP, 积雪日数, 实际冰雪指数]  —— 与 allmodels.py 一致
       const CITIES = [
-        ["长春", 7632, 118, 86], ["吉林", 1633, 132, 86], ["四平", 634, 112, 34],
+        ["长春", 7632, 118, 68], ["吉林", 1633, 132, 86], ["四平", 634, 112, 34],
         ["辽源", 521, 110, 31], ["通化", 565, 126, 72], ["白山", 573, 145, 91],
         ["松原", 1042, 136, 58], ["白城", 624, 124, 29], ["延边", 1080, 140, 79]
       ];
@@ -3474,7 +3476,7 @@
         // 数值标签：显示绝对贡献值 + 占比
         $('daContribGdpVal').textContent  = '+' + cGdp.toFixed(1)  + '（' + pGdp.toFixed(0)  + '%）';
         $('daContribSnowVal').textContent = '+' + cSnow.toFixed(1) + '（' + pSnow.toFixed(0) + '%）';
-        $('daContribConstVal').textContent = '−153.0（校准截距）';
+        $('daContribConstVal').textContent = '−155.3（校准截距）';
         // 常数项轨道整条淡显，表达「不计入占比」
         if ($('daContribConst')) {
           $('daContribConst').style.width = '100%';
@@ -3984,10 +3986,10 @@
         {
           year: '2025',
           tag: '高铁爆发',
-          title: '沈白高铁极速通车 · 京津冀2.5h时空压缩',
+          title: '沈白高铁极速通车 · 京津冀4.5h直达',
           badge: '时空压缩',
           color: 'var(--gold)',
-          desc: '时速350km/h沈白高铁全线建成通车，北京至长白山压缩至2.5小时，京津冀超大客群实现“周末即走即滑”，撬动南客北游爆发式增长。'
+          desc: '时速350km/h沈白高铁于2025年9月28日全线通车，北京至长白山最快约4.5小时（较通车前压缩约2小时），京津冀超大客群实现“周末即走即滑”，撬动南客北游爆发式增长。'
         },
         {
           year: '2028',
@@ -4170,10 +4172,10 @@
         spendingTarget: '≥ 1,500 亿元',
         capacity: '6.2 万人/日',
         climate: '雪期 150 天 · 黄金粉雪 0.98',
-        desc: '倾力建设世界级滑雪胜地，依托北纬42°黄金粉雪带天池生态，沈白高铁通车后直通京津冀2.5小时高端度假圈。',
+        desc: '倾力建设世界级滑雪胜地，依托北纬42°黄金粉雪带天池生态，沈白高铁通车后直通京津冀4.5小时高端度假圈。',
         placeIdx: 2,
         radar: [100, 85, 96, 80, 72],
-        opportunity: '北纬42°黄金粉雪带龙头，长白山天池世界超级生态IP，沈白高铁通车后直连北京2.5h高端度假客群。',
+        opportunity: '北纬42°黄金粉雪带龙头，长白山天池世界超级生态IP，沈白高铁通车后直连北京4.5h高端度假客群。',
         strategy: '以泰格岭、万达、华美胜地为支点建设世界级山地滑雪胜地，大力发展野雪极限探险，做大全天候森林高热偏硅酸温泉康养。'
       },
       {
@@ -4799,7 +4801,7 @@
           <div style="background:rgba(148,227,202,0.06); border-left:4px solid var(--mint); padding:14px 18px; margin-bottom:18px; border-radius:4px;">
             <h4 style="color:#fff; margin:0 0 6px; font-size:14px;">三、 面向 2030 终期目标之决策落地三项建议</h4>
             <ol style="margin:0; padding-left:18px; font-size:12px; line-height:1.8;">
-              <li><b>抓实沈白高铁“时空极速压缩”红利</b>：深化与京津冀“2.5h”度假圈联动，推行跨省高铁票联动景区消费券互免制度，构筑“高铁+冰雪”超级走廊。</li>
+              <li><b>抓实沈白高铁“时空极速压缩”红利</b>：深化与京津冀“4.5h”度假圈联动，推行跨省高铁票联动景区消费券互免制度，构筑“高铁+冰雪”超级走廊。</li>
               <li><b>布局人工造雪与保雪气候安全对冲基金</b>：针对极端暖冬扰动风险，推动五大国家级度假区造雪机向进口节能高压机型跃升，稳固 130 天黄金雪期生命线。</li>
               <li><b>全域协同构建“一主六双”现代化冰雪产业集群</b>：发挥长春吉林双核辐射优势，做强通化红色滑雪发祥地与长白山世界级温泉粉雪胜地，带动冰雪装备制造向 50 亿元硬核跃升。</li>
             </ol>
@@ -4956,7 +4958,7 @@
         id: 'songhua',
         name: '万科松花湖度假区',
         city: '吉林市',
-        badge: '国家级度假区 · 连续7年中国最佳',
+        badge: '国家级度假区 · 多次蝉联中国最佳',
         area: '约 20 k㎡',
         trails: 37,
         length: 31.0,
@@ -4964,7 +4966,7 @@
         lifts: 8,
         capacity: 19000,
         machines: 80,
-        honors: '连续7年荣获世界滑雪大奖 (World Ski Awards) 中国最佳 · FIS积分赛',
+        honors: '多次蝉联世界滑雪大奖 (World Ski Awards) 中国最佳 · FIS积分赛',
         placeIdx: 1
       },
       {
@@ -5183,7 +5185,7 @@
         name: '万科冰雪事业部松花湖度假区集群',
         location: '吉林市丰满区大青山',
         role: '世界级滑雪度假区标杆运营与四季山地综合体',
-        coreTech: '连续7年荣膺世界滑雪大奖(World Ski Awards)中国最佳、客流留存3.8天',
+        coreTech: '多次蝉联世界滑雪大奖(World Ski Awards)中国最佳、客流留存3.8天',
         targetValue: '单雪季接待突破 100 万人次 · 营收超 5 亿元',
         placeIdx: 1,
         tags: ['国家级度假区', '世界滑雪大奖', '四季运营'],
@@ -5298,9 +5300,9 @@
         timeline: '2020.10 — 2025.09',
         progress: 100,
         placeIdx: 2,
-        desc: '设计时速 350 km/h，全长 430 km。北京至长白山缩短至 2.5 小时，全面打通关内客群“高铁即达雪场”黄金走廊。',
+        desc: '设计时速 350 km/h，全长 430 km。北京至长白山最快约 4.5 小时（沈阳约 2 小时内），全面打通关内客群“高铁即达雪场”黄金走廊。',
         status: '已于2025年9月28日全线通车运营',
-        milestone: '已全面投入高频常态化客运运营（京津冀2.5h直达）'
+        milestone: '已全面投入高频常态化客运运营（北京直达4.5h）'
       },
       {
         id: 'beidahu_phase3',
