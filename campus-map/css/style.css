@@ -22,7 +22,7 @@ body {
   animation: spin 1.1s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-#loader h1 { font-size: 30px; letter-spacing: 10px; text-indent: 10px; font-weight: 700; }
+#loader .loader-title { font-size: 30px; letter-spacing: 10px; text-indent: 10px; font-weight: 700; }
 #loader .en { font-size: 11px; letter-spacing: 3px; color: #7fa3c8; }
 #loader .bar { width: 260px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
 #loader .bar i { display: block; height: 100%; width: 0%; border-radius: 2px;
