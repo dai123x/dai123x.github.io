@@ -11,6 +11,23 @@
   "theme_color": "#0a0e17",
   "background_color": "#0a0e17",
   "categories": ["portfolio", "education", "technology"],
+  "shortcuts": [
+    {
+      "name": "在线简历",
+      "url": "/resume/",
+      "icons": [{ "src": "/assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "全景校园地图",
+      "url": "/campus-map/",
+      "icons": [{ "src": "/assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "雪线之上",
+      "url": "/snow-viz/",
+      "icons": [{ "src": "/assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
   "icons": [
     {
       "src": "/assets/images/favicon.svg",

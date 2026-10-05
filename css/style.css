@@ -15,9 +15,9 @@
   
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-muted: #8494ab;
   
-  --accent-primary: #6366f1;
+  --accent-primary: #818cf8;
   --accent-secondary: #8b5cf6;
   --accent-3: #22d3ee;
   --accent-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 28%, #a855f7 62%, #ec4899 100%);
@@ -60,7 +60,7 @@
   
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-muted: #5d6d84;
   
   --accent-primary: #4f46e5;
   --accent-secondary: #7c3aed;
@@ -2367,10 +2367,14 @@ body::after {
   gap: 8px;
 }
 @media (min-width: 769px) {
-  .palette-trigger {
+  .palette-trigger.btn-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: auto;
+    height: 40px;
+    padding: 0 12px;
+    gap: 7px;
   }
 }
 .palette-kbd {
@@ -2378,7 +2382,7 @@ body::after {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: 5px;
@@ -2496,4 +2500,43 @@ body::after {
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
+}
+
+/* ==========================================================================
+   图表 Lightbox · 跨文档视图过渡（渐进增强）
+   ========================================================================== */
+
+/* Chrome 126+ 跨页面平滑过渡；其余浏览器自动忽略 */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* ---- 图表 lightbox ---- */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: zoom-out;
+}
+.lightbox-overlay.active {
+  display: flex;
+}
+.lightbox-overlay:focus {
+  outline: none;
+}
+.lightbox-img {
+  max-width: 94vw;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  background: #ffffff;
 }

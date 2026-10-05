@@ -2679,3 +2679,9 @@
       }
     }
   
+/* 跨文档视图过渡（渐进增强，与主站一致） */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
