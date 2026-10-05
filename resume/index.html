@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简历 · 戴璇 | 应用统计硕士 · 工业工程</title>
+  <meta name="description" content="戴璇的个人简历：长春工业大学应用统计硕士在读，工业工程与统计建模复合背景，数据分析 / 时间序列 / Web 3D。">
+  <meta name="robots" content="noindex, follow">
+  <style>
+    :root {
+      --ink: #1e293b;
+      --ink-strong: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: var(--ink);
+      background: #f1f5f9;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+    .sheet {
+      max-width: 820px;
+      margin: 24px auto 48px;
+      background: #fff;
+      padding: 44px 52px;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);
+      border-radius: 4px;
+    }
+
+    /* ---- 头部 ---- */
+    .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+    h1 { font-size: 30px; letter-spacing: 1px; color: var(--ink-strong); }
+    h1 .en { font-size: 17px; font-weight: 600; color: var(--muted); margin-left: 10px; letter-spacing: 0; }
+    .headline { font-size: 15px; font-weight: 600; color: var(--accent); margin-top: 4px; }
+    .contact { text-align: right; font-size: 12.5px; color: var(--muted); line-height: 1.9; white-space: nowrap; }
+    .contact a { color: var(--ink); text-decoration: none; font-weight: 500; }
+    .contact b { color: var(--muted); font-weight: 400; }
+
+    /* ---- 分区 ---- */
+    section { margin-top: 22px; }
+    h2 {
+      font-size: 14px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); border-bottom: 2px solid var(--line);
+      padding-bottom: 5px; margin-bottom: 12px; font-weight: 700;
+    }
+    .entry { margin-bottom: 13px; }
+    .entry:last-child { margin-bottom: 0; }
+    .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .row h3 { font-size: 14.5px; color: var(--ink-strong); }
+    .row .where b { color: var(--ink-strong); }
+    .row .meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .sub { font-size: 12.5px; color: var(--accent); font-weight: 600; margin-top: 1px; }
+    ul { margin: 5px 0 0 1.2em; }
+    li { margin-bottom: 3px; }
+    li b { color: var(--ink-strong); }
+    .tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-size: 11.5px; padding: 2px 9px; border-radius: 20px;
+      background: var(--accent-soft); color: var(--accent); font-weight: 500;
+    }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; }
+    .award { display: flex; justify-content: space-between; gap: 12px; padding: 3.5px 0; border-bottom: 1px dashed var(--line); font-size: 13px; }
+    .award:last-child { border-bottom: none; }
+    .award .lvl { color: var(--accent); font-weight: 600; white-space: nowrap; font-size: 12px; }
+    .note { font-size: 11.5px; color: var(--muted); margin-top: 10px; }
+
+    /* ---- 工具条（仅屏幕显示） ---- */
+    .toolbar {
+      max-width: 820px; margin: 20px auto 0; display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .toolbar a {
+      text-decoration: none; font-size: 13px; font-weight: 600; padding: 9px 18px;
+      border-radius: 10px; color: #fff; background: var(--accent);
+      box-shadow: 0 2px 10px rgba(79, 70, 229, 0.35);
+    }
+    .toolbar a.ghost { color: var(--ink); background: #fff; box-shadow: 0 1px 6px rgba(15,23,42,0.15); }
+
+    /* ---- 打印 ---- */
+    @page { size: A4; margin: 12mm 13mm; }
+    @media print {
+      body { background: #fff; font-size: 12px; line-height: 1.5; }
+      .sheet { box-shadow: none; margin: 0; max-width: none; padding: 0; border-radius: 0; }
+      .toolbar { display: none; }
+      section { margin-top: 12px; }
+      .entry { margin-bottom: 9px; }
+      h2 { margin-bottom: 7px; padding-bottom: 4px; }
+      ul { margin-top: 4px; }
+      li { margin-bottom: 2px; }
+      .note { margin-top: 6px; }
+    }
+    @media (max-width: 640px) {
+      .sheet { padding: 26px 20px; margin: 0 0 32px; border-radius: 0; }
+      .top { flex-direction: column; align-items: flex-start; }
+      .contact { text-align: left; }
+      .cols { grid-template-columns: 1fr; }
+      .row .meta { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <a class="ghost" href="/">← 返回站点</a>
+    <a href="resume.pdf" download>⬇ 下载 PDF</a>
+    <a href="#" onclick="window.print()">🖨 打印 / 保存</a>
+  </div>
+
+  <main class="sheet">
+    <header class="top">
+      <div>
+        <h1>戴璇<span class="en">Dai Xuan</span></h1>
+        <p class="headline">应用统计硕士研究生（数据分析） · 工业工程复合背景</p>
+      </div>
+      <div class="contact">
+        <div><b>邮箱</b> <a href="mailto:daixuan26@outlook.com">daixuan26@outlook.com</a></div>
+        <div><b>GitHub</b> <a href="https://github.com/dai123x" rel="noopener">github.com/dai123x</a></div>
+        <div><b>站点</b> <a href="https://daixuan.cloud/">daixuan.cloud</a></div>
+        <div><b>坐标</b> 浙江湖州 / 吉林长春</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>教育背景</h2>
+      <div class="entry">
+        <div class="row">
+          <h3>长春工业大学 · 应用统计硕士（在读）</h3><span class="meta">2025.09 – 2028.06</span>
+        </div>
+        <p class="sub">数学与统计学院 · 研究方向：数据分析</p>
+        <p>主修：时间序列分析、高等数理统计、应用概率、R 语言、Python 数据分析与统计建模。</p>
+      </div>
+      <div class="entry">
+        <div class="row">
+          <h3>长春工业大学 · 工业工程学士</h3><span class="meta">2021.09 – 2025.06</span>
+        </div>
+        <p class="sub">机电工程学院 · 基础工业工程 / 生产计划与控制方向</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>实习实践经历</h2>
+      <div class="entry">
+        <div class="row">
+          <h3>一汽丰田发动机（长春）有限公司</h3><span class="meta">2024.09 – 2024.10</span>
+        </div>
+        <p class="sub">工业工程（IE）· 生产效率实习生</p>
+        <ul>
+          <li><b>生产线时间研究与作业测定：</b>深入发动机装配产线开展标准化作业观测与工时测定，梳理瓶颈工序与非增值活动（MUDA），为节拍平衡与精益改善提供量化依据。</li>
+          <li><b>AGV 智能物流路径分析与简化：</b>结合工位物料配送频次对 AGV 运行轨迹建模，简化交叉干涉点，优化生产物流周转节拍。</li>
+        </ul>
+      </div>
+      <div class="entry">
+        <div class="row">
+          <h3>长春派格塑料技术有限公司</h3><span class="meta">2024.09 – 2024.10</span>
+        </div>
+        <p class="sub">厂房工程 · 环境改善实习生</p>
+        <ul>
+          <li><b>注塑车间作业环境分析与治理：</b>系统性监测 VOCs、悬浮粉尘与微量一氧化碳浓度，完成扩散路径分析与治理方案设计。</li>
+          <li><b>离心式屋顶通风设备选型：</b>经风量风压核算与环境评估确定通风方案，克服进料口高架空间限制，改善作业区换气环境并满足排放合规。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>项目经历</h2>
+      <div class="entry">
+        <div class="row">
+          <h3>雪线之上 · 吉林冰雪经济目标可视化交互系统</h3><span class="meta">吉林省大学生虚拟现实大赛 · 数据可视化分析赛道</span>
+        </div>
+        <ul>
+          <li>国家级 / 省级数据驱动的目标可视化系统：3D 高程地理孪生沙盘、政策敏感性推演与多维看板；原生 WebGL 极限合批，Draw Call 压缩 53%。</li>
+        </ul>
+      </div>
+      <div class="entry">
+        <div class="row">
+          <h3>长春工业大学 · 全景立体地图</h3><span class="meta">独立研发 · 已上线</span>
+        </div>
+        <ul>
+          <li>基于遥感测绘 1:1 还原两校区 84 处建筑单体，实现第一人称漫游与 WebGL 原生高性能渲染（daixuan.cloud/campus-map/）。</li>
+        </ul>
+      </div>
+      <div class="entry">
+        <div class="row">
+          <h3>专精特新中小企业信贷违约风险预警与数智定价案例研究</h3><span class="meta">应用统计案例分析</span>
+        </div>
+        <ul>
+          <li>构建 XGBoost + 生存分析 + SHAP 可解释性全链路风险评分卡，完成压力测试与反事实推断，产出 20 幅学术级图表。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>专业技能</h2>
+      <div class="entry">
+        <p><b>统计分析与数据挖掘</b> —— R 语言、Python、时间序列预测（ARIMA/GARCH）、多元统计回归、运筹优化、大数据清洗</p>
+        <p><b>工业工程与系统仿真</b> —— CATIA、FlexSim 物流仿真、AutoCAD、作业测定与时间研究、AGV 路径规划、生产计划与控制（PPC）</p>
+        <p><b>Web 3D 与前端工程</b> —— Three.js、WebGL 原生渲染、Canvas 3D、SVG 图表、JavaScript（ES6+）、HTML5 / CSS3、Git / GitHub Pages</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>竞赛荣誉</h2>
+      <div class="cols">
+        <div class="award"><span>“挑战杯”东北振兴专项赛</span><span class="lvl">省级二等奖</span></div>
+        <div class="award"><span>中国国际“互联网+”大学生创新创业大赛</span><span class="lvl">校级铜奖</span></div>
+        <div class="award"><span>第二届中国高校大数据挑战赛</span><span class="lvl">全国优秀奖</span></div>
+        <div class="award"><span>华中杯数学建模挑战赛</span><span class="lvl">优秀奖</span></div>
+        <div class="award"><span>长春工业大学机械创新设计大赛</span><span class="lvl">校级三等奖</span></div>
+        <div class="award"><span>“外研社·国才杯”外语能力大赛（阅读/写作/笔译）</span><span class="lvl">三项校三等奖</span></div>
+      </div>
+    </section>
+
+    <p class="note">更新于 2026-10 · 详细项目与交互作品请访问 daixuan.cloud</p>
+  </main>
+</body>
+</html>

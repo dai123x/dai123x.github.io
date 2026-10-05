@@ -68,7 +68,6 @@
         "alternateName": ["Dai Xuan", "dai123x"],
         "url": "https://daixuan.cloud/",
         "image": "https://daixuan.cloud/assets/images/avatar.jpg",
-        "email": "mailto:daixuan26@outlook.com",
         "jobTitle": "应用统计硕士研究生",
         "description": "长春工业大学应用统计硕士在读，工业工程与统计建模复合背景，专注数据分析、时间序列建模与 Web 3D 可视化。",
         "sameAs": [
@@ -136,6 +135,12 @@
       </nav>
 
       <div class="nav-actions">
+        <!-- Command Palette Trigger (Ctrl/⌘ + K) -->
+        <button id="palette-trigger" class="btn-icon palette-trigger" aria-label="快捷搜索与操作" title="快捷搜索与操作 (Ctrl+K)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <kbd class="palette-kbd">Ctrl K</kbd>
+        </button>
+
         <!-- Theme Toggle Button -->
         <button id="theme-toggle" class="btn-icon" aria-label="切换色彩主题" title="切换深色/浅色模式">
           <span id="theme-icon">
@@ -201,9 +206,9 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
                 <span>GitHub @dai123x</span>
               </a>
-              <span class="social-pill is-clickable" data-copy="daixuan26@outlook.com"  title="点击复制邮箱">
+              <span class="social-pill is-clickable" data-mailbox data-user="daixuan26" data-domain="outlook.com" title="点击复制邮箱">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                <span>daixuan26@outlook.com</span>
+                <span class="mailbox-text"></span>
               </span>
               <button class="social-pill" id="wechat-modal-trigger" style="cursor: pointer; background: var(--bg-secondary); border: 1px solid var(--border-color);" title="微信交流">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9h8"/><path d="M8 13h6"/><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
@@ -1029,11 +1034,11 @@
               <p>@dai123x</p>
             </a>
 
-            <!-- Email -->
-            <div class="contact-item" data-copy="daixuan26@outlook.com" title="点击复制邮箱">
+            <!-- Email（运行时拼装，防爬虫明文抓取） -->
+            <div class="contact-item" data-mailbox data-user="daixuan26" data-domain="outlook.com" title="点击复制邮箱">
               <span class="contact-item-icon">📬</span>
               <h4>电子邮箱 (点击复制)</h4>
-              <p>daixuan26@outlook.com</p>
+              <p class="mailbox-text"></p>
             </div>
 
             <!-- WeChat -->
@@ -1050,6 +1055,11 @@
               <p>浙江湖州 / 吉林长春</p>
             </div>
           </div>
+
+          <div class="resume-cta">
+            <a class="btn btn-primary" href="resume/" target="_blank" rel="noopener">📄 查看在线简历</a>
+            <a class="btn btn-secondary" href="resume/resume.pdf" download>⬇ 下载 PDF 版本</a>
+          </div>
         </div>
       </div>
     </section>
@@ -1061,10 +1071,11 @@
       <div>
         <p>© <span class="footer-year">2026</span> <strong>戴璇 (Dai Xuan)</strong> · 保留所有权利</p>
         <p style="font-size: 0.8rem; margin-top: 4px; color: var(--text-muted);">
-          GitHub 仓库：<a href="https://github.com/dai123x/dai123x.github.io" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline;">dai123x/dai123x.github.io</a> · 独立域名：<strong>daixuan.cloud</strong>
+          GitHub 仓库：<a href="https://github.com/dai123x/dai123x.github.io" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline;">dai123x/dai123x.github.io</a> · 独立域名：<strong>daixuan.cloud</strong> · 最后更新 <span class="lastmod">2026-10-05</span>
         </p>
       </div>
       <ul class="footer-links">
+        <li><a href="resume/">简历</a></li>
         <li><a href="#hero">回到顶部</a></li>
         <li><a href="#education">教育背景</a></li>
         <li><a href="#internships">实习经历</a></li>
@@ -1098,7 +1109,7 @@
         微信昵称：稜鏡
       </p>
       <p  class="text-meta">
-        邮箱：daixuan26@outlook.com · GitHub：@dai123x
+        邮箱：<span data-mailbox data-user="daixuan26" data-domain="outlook.com" class="mailbox-inline"></span> · GitHub：@dai123x
       </p>
     </div>
   </div>

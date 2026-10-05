@@ -30,6 +30,7 @@
     initTheme();
     initMobileMenu();
     initProjectFilter();
+    initMailbox();
     initClipboardToast();
     initWechatModal();
     initScrollEffects();
@@ -39,6 +40,8 @@
     initCountUp();
     initCardPointerGlow();
     initFooterYear();
+    initLastMod();
+    initCommandPalette();
   });
 
   /* --------------------------------------------------------------------------
@@ -166,6 +169,20 @@
 
     // 初始无障碍状态
     btns.forEach(b => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
+  }
+
+  /* --------------------------------------------------------------------------
+     3.5 邮箱运行时拼装（HTML 不落明文，防爬虫抓取）
+     在 initClipboardToast 之前执行，为元素补上 data-copy 供复制逻辑绑定
+     -------------------------------------------------------------------------- */
+  function initMailbox() {
+    document.querySelectorAll('[data-mailbox]').forEach(el => {
+      const email = `${el.dataset.user}@${el.dataset.domain}`;
+      el.querySelectorAll('.mailbox-text').forEach(t => { t.textContent = email; });
+      if (!el.querySelector('.mailbox-text')) el.textContent = email;
+      el.setAttribute('data-copy', email);
+      el.setAttribute('aria-label', `复制邮箱 ${email}`);
+    });
   }
 
   /* --------------------------------------------------------------------------
@@ -544,5 +561,211 @@
   function initFooterYear() {
     const el = document.querySelector('.footer-year');
     if (el) el.textContent = String(new Date().getFullYear());
+  }
+
+  /* --------------------------------------------------------------------------
+     13. 页脚“最后更新”（取 GitHub Pages 部署时间）
+     -------------------------------------------------------------------------- */
+  function initLastMod() {
+    const el = document.querySelector('.lastmod');
+    if (!el || !document.lastModified) return;
+    const d = new Date(document.lastModified);
+    if (isNaN(d.getTime())) return;
+    const pad = (n) => String(n).padStart(2, '0');
+    el.textContent = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  /* --------------------------------------------------------------------------
+     14. 命令面板（Ctrl/⌘ + K）：章节导航 · 子站页面 · 快捷操作
+     参考 leerob / brianlovin 等个人站的 ⌘K 交互，DOM 由脚本注入
+     -------------------------------------------------------------------------- */
+  function initCommandPalette() {
+    if (document.getElementById('palette-overlay')) return;
+
+    const mailboxEl = document.querySelector('[data-mailbox]');
+    const email = mailboxEl ? mailboxEl.getAttribute('data-copy') : '';
+
+    const groups = [
+      {
+        label: '页面与作品',
+        keywords: 'resume cv jianli',
+        items: [
+          { icon: '📄', label: '在线简历（附 PDF 下载）', href: 'resume/', keywords: 'resume cv jianli 简历' },
+          { icon: '❄️', label: '雪线之上 · 冰雪经济可视化系统', href: 'snow-viz/index.html', keywords: 'snow viz 3d 可视化 冰雪' },
+          { icon: '📘', label: '雪线之上 · 作品说明书', href: 'snow-viz/documentation.html', keywords: 'documentation 说明书 指标' },
+          { icon: '🗺️', label: '长春工业大学全景立体地图', href: 'campus-map/', keywords: 'campus map 3d 校园地图' },
+          { icon: '🏭', label: '案例 · 智能制造产线节拍异常诊断', href: 'case-studies/smart-manufacturing-takt-time-analysis.html', keywords: 'case ie 制造 takt' },
+          { icon: '🏦', label: '案例 · 信贷违约风险预警与数智定价', href: 'case-studies/applied-statistics-credit-risk.html', keywords: 'case 统计 信贷 risk' },
+          { icon: '🐙', label: 'GitHub 主页 @dai123x', href: 'https://github.com/dai123x', keywords: 'github 代码 repo' },
+          { icon: '⬇️', label: '下载简历 PDF', href: 'resume/resume.pdf', keywords: 'download pdf 简历下载' }
+        ]
+      },
+      {
+        label: '本页章节',
+        keywords: 'section',
+        items: [
+          { icon: '🏠', label: '首页 Hero', href: '#hero', keywords: 'home hero 首页' },
+          { icon: '👤', label: '个人概况', href: '#about', keywords: 'about 概况' },
+          { icon: '🎓', label: '教育背景', href: '#education', keywords: 'education 教育 硕士' },
+          { icon: '💼', label: '实习经历', href: '#internships', keywords: 'internship 实习 丰田' },
+          { icon: '🧰', label: '专业技能', href: '#skills', keywords: 'skills 技能 r python' },
+          { icon: '🏆', label: '竞赛荣誉', href: '#awards', keywords: 'awards 获奖 挑战杯' },
+          { icon: '🖥️', label: '参赛作品', href: '#competition', keywords: 'competition 虚拟现实大赛' },
+          { icon: '📂', label: '精选项目', href: '#projects', keywords: 'projects 项目 作品' },
+          { icon: '📮', label: '联系方式', href: '#contact', keywords: 'contact 联系 微信' }
+        ]
+      },
+      {
+        label: '快捷操作',
+        keywords: 'action',
+        items: [
+          {
+            icon: '🌓', label: '切换深色 / 浅色主题', keywords: 'theme dark light 主题 深色 浅色',
+            action: () => { const t = document.getElementById('theme-toggle'); if (t) t.click(); }
+          },
+          {
+            icon: '📧', label: '复制邮箱地址', keywords: 'email copy 邮箱 复制',
+            action: () => { if (mailboxEl) mailboxEl.click(); }
+          },
+          {
+            icon: '🔝', label: '回到顶部', keywords: 'top 回到顶部 顶部',
+            action: () => window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+          }
+        ]
+      }
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.id = 'palette-overlay';
+    overlay.className = 'palette-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', '快捷搜索与操作');
+    overlay.innerHTML = `
+      <div class="palette-panel">
+        <div class="palette-input-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="palette-input" class="palette-input" type="text" placeholder="搜索章节、页面或操作…" autocomplete="off" spellcheck="false" aria-label="搜索章节、页面或操作">
+          <kbd class="palette-kbd">Esc</kbd>
+        </div>
+        <div class="palette-list" id="palette-list" role="listbox" aria-label="结果列表"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const input = overlay.querySelector('.palette-input');
+    const list = overlay.querySelector('.palette-list');
+    let flat = [];        // [{ el, item }]
+    let activeIdx = 0;
+    let lastFocused = null;
+
+    function render() {
+      const q = input.value.trim().toLowerCase();
+      list.innerHTML = '';
+      flat = [];
+
+      groups.forEach(g => {
+        const hits = g.items.filter(it => !q
+          || it.label.toLowerCase().includes(q)
+          || (it.keywords || '').toLowerCase().includes(q)
+          || (g.keywords || '').toLowerCase().includes(q));
+        if (!hits.length) return;
+
+        const head = document.createElement('div');
+        head.className = 'palette-group';
+        head.textContent = g.label;
+        list.appendChild(head);
+
+        hits.forEach(it => {
+          const entry = { item: it, el: null };
+          const row = document.createElement('div');
+          entry.el = row;
+          row.className = 'palette-item';
+          row.id = `palette-item-${flat.length}`;
+          row.setAttribute('role', 'option');
+          row.innerHTML = `<span class="pi-icon" aria-hidden="true">${it.icon}</span><span>${it.label}</span>`
+            + (it.href && !it.href.startsWith('#') ? '<span class="pi-hint" aria-hidden="true">↗</span>' : '');
+          row.addEventListener('mouseenter', () => setActive(flat.indexOf(entry)));
+          row.addEventListener('click', () => run(it));
+          flat.push(entry);
+          list.appendChild(row);
+        });
+      });
+
+      if (!flat.length) {
+        list.innerHTML = '<div class="palette-empty">没有匹配的结果，换个关键词试试～</div>';
+      }
+      setActive(0);
+    }
+
+    function setActive(i) {
+      if (!flat.length) { activeIdx = 0; return; }
+      activeIdx = (i + flat.length) % flat.length;
+      flat.forEach((e, idx) => {
+        e.el.classList.toggle('active', idx === activeIdx);
+        e.el.setAttribute('aria-selected', String(idx === activeIdx));
+      });
+      const cur = flat[activeIdx].el;
+      list.setAttribute('aria-activedescendant', cur.id);
+      if (cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
+    }
+
+    function run(it) {
+      close();
+      if (it.action) { it.action(); return; }
+      if (!it.href) return;
+      if (it.href.startsWith('#')) {
+        const target = document.querySelector(it.href);
+        if (target) target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      } else {
+        window.open(it.href, '_blank', 'noopener');
+      }
+    }
+
+    function open() {
+      lastFocused = document.activeElement;
+      overlay.classList.add('active');
+      input.value = '';
+      render();
+      setTimeout(() => input.focus(), 0);
+    }
+
+    function close() {
+      overlay.classList.remove('active');
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        overlay.classList.contains('active') ? close() : open();
+        return;
+      }
+      if (!overlay.classList.contains('active')) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActive(activeIdx + 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(activeIdx - 1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (flat[activeIdx]) run(flat[activeIdx].item);
+      } else if (e.key === 'Tab') {
+        // 单输入框面板：Tab 留在输入框内即可
+        e.preventDefault();
+      }
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) close();
+    });
+    input.addEventListener('input', render);
+
+    const trigger = document.getElementById('palette-trigger');
+    if (trigger) trigger.addEventListener('click', open);
   }
 })();
