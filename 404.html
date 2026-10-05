@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>404 · 页面未找到 | 戴璇 · daixuan.cloud</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a0e17">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --card: rgba(17, 24, 39, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #818cf8;
+      --grad: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+      padding: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .orb-1 { width: 420px; height: 420px; background: #312e81; top: -160px; left: -120px; }
+    .orb-2 { width: 380px; height: 380px; background: #831843; bottom: -160px; right: -100px; }
+    .card {
+      position: relative;
+      max-width: 560px;
+      width: 100%;
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+    .code {
+      font-size: 5rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    h1 { font-size: 1.35rem; margin: 18px 0 10px; }
+    p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 11px 22px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      color: #fff;
+      background: var(--grad);
+    }
+    .btn-ghost {
+      color: var(--text);
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: rgba(99, 102, 241, 0.4); }
+    .meta { margin-top: 26px; font-size: 0.8rem; color: #64748b; }
+    .meta a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="code">404</div>
+    <h1>页面漂出了雪线之外</h1>
+    <p>你要找的页面不存在，或者已经被移动到了别的地方。<br>别担心，主页和下面这些作品都还在。</p>
+    <nav class="actions" aria-label="返回导航">
+      <a class="btn btn-primary" href="/">回到首页</a>
+      <a class="btn btn-ghost" href="/#projects">精选项目</a>
+      <a class="btn btn-ghost" href="/campus-map/">全景校园地图</a>
+      <a class="btn btn-ghost" href="/snow-viz/">雪线之上</a>
+    </nav>
+    <p class="meta">daixuan.cloud · <a href="https://github.com/dai123x" rel="noopener noreferrer">GitHub @dai123x</a></p>
+  </main>
+</body>
+</html>
