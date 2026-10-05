@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Aurora Chat · 极光 — 私有 AI 聊天工作台</title>
+  <meta name="description" content="纯前端、零后端的 AI 聊天工作台：支持智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow / Ollama，双模型对比，提示词库，数据只存在你的浏览器里。">
+  <meta name="theme-color" content="#0a0e14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2334d399'/%3E%3Cstop offset='.5' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230b0f14'/%3E%3Cpath d='M10 46 Q22 18 33 33 T54 18' stroke='url(%23g)' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M10 33 Q24 12 35 25 T54 11' stroke='url(%23g)' stroke-width='4' fill='none' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/hljs-github-dark.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<noscript><p style="padding:2rem;color:#e6ebf2">Aurora Chat 需要启用 JavaScript 才能运行。</p></noscript>
+
+<div id="app">
+  <!-- ========== 侧栏 ========== -->
+  <aside id="sidebar">
+    <div class="side-head">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 64 64" aria-hidden="true">
+          <defs><linearGradient id="lg-brand" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#34d399"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#818cf8"/>
+          </linearGradient></defs>
+          <rect width="64" height="64" rx="14" class="logo-bg"/>
+          <path d="M10 46 Q22 18 33 33 T54 18" stroke="url(#lg-brand)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M10 33 Q24 12 35 25 T54 11" stroke="url(#lg-brand)" stroke-width="4" fill="none" stroke-linecap="round" opacity=".55"/>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-name">Aurora Chat</span>
+          <span class="brand-sub">极光 · 私有 AI 工作台</span>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-hide-side" title="收起侧栏">«</button>
+    </div>
+
+    <button class="btn-new" id="btn-new">＋ 新建对话</button>
+
+    <div class="search-box">
+      <input id="search" type="search" placeholder="搜索对话…" autocomplete="off">
+    </div>
+
+    <nav id="conv-list" aria-label="对话列表"></nav>
+
+    <div class="side-foot">
+      <button class="side-action" id="btn-templates" title="提示词模板库">📚 提示词库</button>
+      <button class="side-action" id="btn-settings" title="全局设置">⚙️ 设置</button>
+      <button class="icon-btn" id="btn-theme" title="切换深浅主题">🌙</button>
+    </div>
+  </aside>
+  <div id="side-mask"></div>
+
+  <!-- ========== 主区域 ========== -->
+  <main id="main">
+    <header id="chat-head">
+      <button class="icon-btn mobile-only" id="btn-show-side" title="打开侧栏">☰</button>
+      <div id="head-info">
+        <div id="head-title">Aurora Chat</div>
+        <div id="head-sub">极光 · 数据只存在你的浏览器里</div>
+      </div>
+      <div class="head-actions">
+        <div class="seg" id="mode-seg">
+          <button data-mode="single" class="active" title="普通单模型对话">💬 单聊</button>
+          <button data-mode="arena" title="同一问题同时问两个模型，对比回答">⚔️ 对比</button>
+        </div>
+        <select id="model-select" class="select" title="模型 A"></select>
+        <select id="model-select-b" class="select hidden" title="模型 B"></select>
+        <button class="icon-btn" id="btn-conv-settings" title="对话设置">⋯</button>
+      </div>
+    </header>
+
+    <div id="messages"><div id="msg-col"></div></div>
+    <button id="btn-jump-bottom" class="hidden" title="回到底部">↓ 新回复</button>
+
+    <footer id="composer">
+      <div id="sys-pill" class="sys-pill hidden">
+        <span id="sys-pill-text">🎭 已设置系统提示</span>
+        <button id="sys-pill-edit">编辑</button>
+        <button id="sys-pill-clear" title="移除系统提示">✕</button>
+      </div>
+      <div class="input-row">
+        <button id="btn-quick-templates" class="icon-btn" title="提示词库">📚</button>
+        <textarea id="input" rows="1" placeholder="输入消息…（Enter 发送，Shift+Enter 换行）"></textarea>
+        <button id="btn-send" class="btn-send" title="发送" disabled>
+          <svg id="icon-send" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>
+          <svg id="icon-stop" viewBox="0 0 24 24" width="18" height="18" class="hidden"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <div class="input-foot">
+        <span id="foot-left"></span>
+        <span id="foot-right">内容由 AI 生成，请注意甄别 · Key 仅保存在本机</span>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<!-- 演示模式的内置回复（markdown 原文，避免在 JS 里转义反引号） -->
+<script type="text/template" id="demo-0">
+**你好，我是 Aurora Chat 的演示模式。** 我不在网上运行——这段回复由你的浏览器本地生成，用来展示界面的完整能力：流式输出、Markdown 渲染、代码高亮与思考过程折叠。
+
+你现在可以做三件事：
+
+1. **接上真实模型**：左侧 ⚙️ 设置 → 服务商，粘贴 API Key（智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow / Ollama 均可）；
+2. **试试对比模式**：点击顶部 ⚔️ 对比，选两个模型，同一个问题左右两侧同时流式回答；
+3. **翻翻提示词库**：点输入框旁的 📚，几十个现成的角色模板一键应用。
+
+下面是一段极光小知识，顺便演示排版效果 👇
+
+---
+
+## 🌌 极光为什么是绿色的？
+
+极光是太阳风的带电粒子被地球磁场导向两极、撞击高层大气而产生的。**颜色由气体种类和高度共同决定**：
+
+| 颜色 | 高度 | 来源 |
+| --- | --- | --- |
+| 🟢 绿色 | 100–300 km | 氧原子（人眼最敏感，所以最常见） |
+| 🔴 红色 | 300 km 以上 | 高层稀薄的氧 |
+| 🟣 蓝紫 | ~100 km | 氮分子 |
+
+> 💡 观测提示：高纬度 + 远离光污染 + 冬季晴夜 + 避开满月，四个条件凑齐成功率最高。
+
+把这个界面换成"极光绿"主题色的灵感正来源于此。
+</script>
+
+<script type="text/template" id="demo-1">
+收到！我来演示**思考过程**和**代码渲染**这两个特性：上面折叠的 💭 是模型的推理流（GLM-4.5+ 与 DeepSeek-R1 等推理模型会真实返回这一段），下面是一段可运行的代码。
+
+## 🐍 用 Python 感受中心极限定理
+
+不管总体什么分布，样本均值的分布会随样本量增大而趋近正态分布——这就是中心极限定理。30 行代码即可亲眼验证：
+
+```python
+import random, statistics
+
+def sample_means(distribution, n, times=2000):
+    return [statistics.mean(distribution() for _ in range(n))
+            for _ in range(times)]
+
+# 一个极度偏斜的总体：90% 的值是 0，10% 的值是 100
+population = lambda: 100 if random.random() < 0.1 else 0
+
+for n in (2, 10, 50):
+    means = sample_means(population, n)
+    print(f"n={n:>3}  均值={statistics.mean(means):.2f}  "
+          f"标准差={statistics.stdev(means):.2f}")
+```
+
+**输出解读**：`n` 越大，样本均值的标准差越小（约按 `1/√n` 收缩），分布形状越来越像钟形曲线——即使总体本身歪得不成样子。
+
+这就是它在统计推断里如此重要的原因：**我们能对"均值"做正态假设，而不必知道总体长什么样。**
+
+想让我再演示什么？比如表格、引用、公式排版，或者直接去设置里接一个真实模型 😄
+</script>
+
+<script type="text/template" id="demo-2">
+好问题。我来演示**多级标题、列表与引用的混合排版**，顺便把"接下来怎么玩"说清楚。
+
+### 这是什么项目？
+
+**Aurora Chat（极光）** 是一个纯静态的 AI 聊天工作台：
+
+- 🛰️ **零后端**——浏览器直连各服务商 API，无需自建服务器
+- 🔐 **隐私**——对话与 API Key 只存在浏览器 `localStorage`，不经过任何第三方
+- ⚔️ **对比模式**——灵感来自 LMSYS Chatbot Arena，同一问题双模型并行作答
+- 📚 **提示词库**——灵感来自 awesome-chatgpt-prompts，内置常用角色模板
+
+### 支持的服务商
+
+| 服务商 | Base URL | 浏览器直连 |
+| --- | --- | --- |
+| 智谱 GLM | `open.bigmodel.cn/api/paas/v4` | ✅ |
+| DeepSeek | `api.deepseek.com` | ✅ |
+| OpenAI | `api.openai.com/v1` | ✅ |
+| Kimi (Moonshot) | `api.moonshot.cn/v1` | ✅ |
+| SiliconFlow | `api.siliconflow.cn/v1` | ✅ |
+| Ollama / LM Studio | `localhost` | ⚠️ 需开启跨域配置 |
+
+> 💡 演示模式到此结束——去 **⚙️ 设置** 里配置一个真实模型，体验会完整得多。
+</script>
+
+<script src="vendor/marked.min.js"></script>
+<script src="vendor/purify.min.js"></script>
+<script src="vendor/highlight.min.js"></script>
+<script src="js/constants.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/markdown.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
