@@ -240,38 +240,7 @@
 
     .star-card:hover::after { opacity: 1; }
 
-    /* ---- 聚形按钮 & 氛围音按钮 ---- */
-    .g-morph {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(129, 140, 248, 0.45);
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(236, 72, 153, 0.14));
-      backdrop-filter: blur(14px) saturate(150%);
-      -webkit-backdrop-filter: blur(14px) saturate(150%);
-      color: var(--text-hi);
-      font-size: 0.88rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25);
-      font-family: inherit;
-    }
-
-    .g-morph:hover {
-      transform: translateY(-2px);
-      border-color: rgba(129, 140, 248, 0.8);
-      box-shadow: 0 12px 36px rgba(99, 102, 241, 0.4);
-    }
-
-    .g-morph[aria-pressed="true"] {
-      border-color: rgba(253, 246, 227, 0.55);
-      box-shadow: 0 0 24px rgba(253, 246, 227, 0.25), 0 8px 30px rgba(99, 102, 241, 0.3);
-    }
-
+    /* ---- 氛围音按钮 ---- */
     .g-sound {
       position: fixed;
       bottom: calc(22px + var(--safe-bottom));
@@ -743,7 +712,6 @@
       .g-back { order: -1; }
       .g-back span { display: none; }
       .g-back { padding: 10px 12px; }
-      .g-morph { padding: 9px 14px; font-size: 0.78rem; }
       .g-wall-btn, .g-lang-btn { padding: 9px 12px; font-size: 0.74rem; }
       .wall-drawer { width: calc(100vw - 24px); right: 12px; }
       .g-sound { padding: 8px 13px; font-size: 0.72rem; }
@@ -752,7 +720,6 @@
 
     @media (prefers-reduced-motion: reduce) {
       * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
-      .g-morph { display: none; } /* 聚形依赖位移动画，减弱动效下不提供 */
     }
 
     :focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 6px; }
@@ -789,7 +756,6 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
       <span data-i18n="back">返回主页</span>
     </a>
-    <button class="g-morph" id="morph-btn" type="button" aria-pressed="false" data-i18n-title="morphTitle" title="让光柱粒子汇聚成「璇」字">✦ <span data-i18n="morph">聚形</span></button>
     <button class="g-wall-btn" id="wall-btn" type="button" aria-expanded="false" aria-controls="wall-drawer">
       <span aria-hidden="true">💬</span><span data-i18n="wall">留言墙</span>
     </button>
@@ -953,7 +919,7 @@
     var I18N = {
       'zh-TW': {
         chrome: {
-          back: '返回主頁', morph: '聚形', morphTitle: '讓光柱粒子匯聚成「璇」字',
+          back: '返回主頁',
           soundOff: '氛圍音 · 關', soundOn: '氛圍音 · 開', soundTitle: 'Web Audio 即時合成的星海氛圍音（無音訊檔案）',
           hintPre: '移動滑鼠 ', hintBold1: '視差漂移', hintMid: ' · 點擊卡片 ', hintBold2: '查看印記',
           title: '璇璣星海', subtitle: '每一顆星 · 都是旅程的註腳',
@@ -981,7 +947,7 @@
       },
       'en': {
         chrome: {
-          back: 'Home', morph: 'Converge', morphTitle: 'Converge the light-column particles into the glyph 「璇」',
+          back: 'Home',
           soundOff: 'Ambience · Off', soundOn: 'Ambience · On', soundTitle: 'Real-time Web Audio ambience for the galaxy (no audio files)',
           hintPre: 'Move the mouse for ', hintBold1: 'parallax drift', hintMid: ' · click a card to ', hintBold2: 'view its imprint',
           title: 'Xuanji Galaxy', subtitle: 'EVERY STAR · A FOOTNOTE OF THE JOURNEY',
@@ -1090,7 +1056,7 @@
     };
 
     var BASE_CHROME = {
-      back: '返回主页', morph: '聚形', morphTitle: '让光柱粒子汇聚成「璇」字',
+      back: '返回主页',
       soundOff: '氛围音 · 关', soundOn: '氛围音 · 开', soundTitle: 'Web Audio 实时合成的星海氛围音（无音频文件）',
       hintPre: '移动鼠标 ', hintBold1: '视差漂移', hintMid: ' · 点击卡片 ', hintBold2: '查看印记',
       title: '璇玑星海', subtitle: '每一颗星 · 都是一段旅程的注脚',
@@ -1340,141 +1306,6 @@
       }
     });
 
-    /* ==================== 星海聚形：光柱粒子汇聚成「璇」字 ==================== */
-    var morphBtn = document.getElementById('morph-btn');
-    var morph = { phase: 'idle', t0: 0, parts: [] }; // phase: idle | in | hold | out
-
-    function buildGlyphTargets() {
-      var size = 220;
-      var off = document.createElement('canvas');
-      off.width = size; off.height = size;
-      var octx = off.getContext('2d');
-      octx.fillStyle = '#fff';
-      octx.font = '900 168px "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", "Noto Sans SC", sans-serif';
-      octx.textAlign = 'center';
-      octx.textBaseline = 'middle';
-      octx.fillText('璇', size / 2, size / 2 + 6);
-      var data = octx.getImageData(0, 0, size, size).data;
-      var pts = [];
-      for (var y = 0; y < size; y += 4) {
-        for (var x = 0; x < size; x += 4) {
-          if (data[(y * size + x) * 4 + 3] > 140) {
-            pts.push({ x: x - size / 2, y: y - size / 2 });
-          }
-        }
-      }
-      pts.sort(function () { return Math.random() - 0.5; });
-      return pts.slice(0, 900); // 「璇」笔画繁密，点数不足会糊成一片
-    }
-
-    function glyphLayout() {
-      var gScale = Math.min(W, H) / 3.4 / 168;
-      return { cx: CX, cy: CY - Math.min(H * 0.09, 70), scale: gScale };
-    }
-
-    function makeMorphParticles() {
-      var pts = morph._pts || (morph._pts = buildGlyphTargets());
-      var lay = glyphLayout();
-      var colTopL = H * 0.26, colBaseL = CY + 10;
-      morph.parts = pts.map(function (p, i) {
-        var fromX = CX + Math.sin(i * 12.9898) * 26;
-        var fromY = colTopL + (colBaseL - colTopL) * ((i * 0.618) % 1);
-        return {
-          fx: fromX, fy: fromY,
-          tx: lay.cx + p.x * lay.scale,
-          ty: lay.cy + p.y * lay.scale,
-          delay: Math.random() * 0.45,
-          dur: 0.9 + Math.random() * 0.5,
-          warm: i % 6 !== 0,
-          seed: Math.random() * Math.PI * 2
-        };
-      });
-    }
-
-    function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
-
-    function morphLabel(active) {
-      var c = I18N[getLang()] ? I18N[getLang()].chrome : null;
-      var txt = active ? (c ? '散開' : '散开') : (c ? c.morph : '聚形');
-      if (getLang() === 'zh-CN') txt = active ? '散开' : '聚形';
-      morphBtn.innerHTML = '✦ <span>' + txt + '</span>';
-    }
-
-    function startMorph() {
-      if (morph.phase !== 'idle' || prefersReducedMotion) return;
-      makeMorphParticles();
-      morph.phase = 'in';
-      morph.t0 = seconds();
-      if (morphBtn) { morphBtn.setAttribute('aria-pressed', 'true'); morphLabel(true); }
-    }
-
-    function endMorph() {
-      morph.phase = 'idle';
-      if (morphBtn) { morphBtn.setAttribute('aria-pressed', 'false'); morphLabel(false); }
-    }
-
-    function seconds() { return performance.now() / 1000; }
-
-    function drawMorph() {
-      if (morph.phase === 'idle') return;
-      var t = seconds() - morph.t0;
-
-      if (morph.phase === 'in') {
-        var allDone = true;
-        for (var i = 0; i < morph.parts.length; i++) {
-          var p = morph.parts[i];
-          var k = Math.min(Math.max((t - p.delay) / p.dur, 0), 1);
-          if (k < 1) allDone = false;
-          var e = easeInOut(k);
-          var x = p.fx + (p.tx - p.fx) * e;
-          var y = p.fy + (p.ty - p.fy) * e;
-          ctx.globalAlpha = 0.15 + 0.8 * e;
-          ctx.fillStyle = p.warm ? '#fdf6e3' : '#b3bdfa';
-          ctx.fillRect(x, y, 2.2, 2.2);
-        }
-        if (allDone || t > 2.2) { morph.phase = 'hold'; morph.t0 = seconds(); }
-        return;
-      }
-
-      if (morph.phase === 'hold') {
-        for (var h = 0; h < morph.parts.length; h++) {
-          var hp = morph.parts[h];
-          var sh = prefersReducedMotion ? 0 : Math.sin(T * 2.2 + hp.seed) * 1.1;
-          ctx.globalAlpha = 0.92;
-          ctx.fillStyle = hp.warm ? '#fdf6e3' : '#b3bdfa';
-          ctx.fillRect(hp.tx + sh, hp.ty + sh * 0.6, 2.2, 2.2);
-        }
-        if (t > 3.0) { morph.phase = 'out'; morph.t0 = seconds(); }
-        return;
-      }
-
-      if (morph.phase === 'out') {
-        var kk = Math.min(t / 1.0, 1);
-        for (var o = 0; o < morph.parts.length; o++) {
-          var op = morph.parts[o];
-          var ex = op.tx + (CX - op.tx) * kk * kk;
-          var ey = op.ty + ((CY + 20) - op.ty) * kk * kk;
-          ctx.globalAlpha = 0.9 * (1 - kk);
-          ctx.fillStyle = op.warm ? '#fdf6e3' : '#b3bdfa';
-          ctx.fillRect(ex, ey, 2, 2);
-        }
-        if (kk >= 1) endMorph();
-      }
-    }
-
-    if (morphBtn) {
-      morphBtn.addEventListener('click', function () {
-        morph.phase === 'idle' ? startMorph() : endMorph();
-      });
-      // 首次到访 5 秒后自动演示一次聚形（同会话仅一次）
-      var morphSeen = false;
-      try { morphSeen = sessionStorage.getItem('dx_galaxy_morph') === '1'; } catch (e) { /* 忽略 */ }
-      if (!morphSeen && !prefersReducedMotion) {
-        try { sessionStorage.setItem('dx_galaxy_morph', '1'); } catch (e) { /* 忽略 */ }
-        setTimeout(function () { if (!document.hidden && morph.phase === 'idle') startMorph(); }, 5200);
-      }
-    }
-
     /* ==================== Web Audio 氛围音：极光风声 + 空灵和声垫 ==================== */
     var soundBtn = document.getElementById('sound-btn');
     var soundLabel = document.getElementById('sound-label');
@@ -1672,9 +1503,9 @@
         ctx.fillRect(x, y, pt.size, pt.size);
       }
 
-      /* 中央光柱：柔和光束 + 自地平线升起的粒子流（聚形时自动变暗让位） */
+      /* 中央光柱：柔和光束 + 自地平线升起的粒子流 */
       var colTop = H * 0.26, colBase = CY + 10;
-      var colDim = (morph.phase !== 'idle') ? 0.22 : 1;
+      var colDim = 1;
 
       /* 光束本体（低透明度垂直渐变线） */
       var beam = ctx.createLinearGradient(0, colBase, 0, colTop);
@@ -1705,8 +1536,6 @@
         ctx.fillRect(x, y, cp.size * narrow + 0.6, cp.size * narrow + 0.6);
       }
 
-      /* 聚形字（若在进行中） */
-      drawMorph();
 
       /* 顶端脉冲星 */
       var pulse = prefersReducedMotion ? 1 : (1 + 0.16 * Math.sin(T * 2.4));
@@ -1786,7 +1615,7 @@
     buildParticles();
     layout();
 
-    // 语言应用需在卡片、音效、聚形组件全部构建完成后执行
+    // 语言应用需在卡片、音效组件全部构建完成后执行
     if (langBtn && langMenu) {
       applyLang(getLang());
     }
