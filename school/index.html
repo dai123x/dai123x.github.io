@@ -1076,12 +1076,10 @@
         var p = Math.min((now - bt0) / 1100, 1);
         bootText.textContent = (I18N[currentLang] ? I18N[currentLang].boot : '正在点亮工大灯塔') + ' … ' + Math.round((1 - Math.pow(1 - p, 2)) * 100) + '%';
         if (p < 1) requestAnimationFrame(btick);
-        else {
-          finishBoot();
-          setTimeout(startMorph, 500);
-        }
+        else finishBoot();
       })(bt0);
-      setTimeout(finishBoot, 2200);
+      setTimeout(finishBoot, 1400);   // 唤醒幕兜底退场
+      setTimeout(startMorph, 1700);   // 聚形与唤醒幕解耦:rAF 被节流也能照常聚形
       rafId = requestAnimationFrame(loop);
     }
   })();
