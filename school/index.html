@@ -874,6 +874,7 @@
     var W = 0, H = 0, DPR = 1;
     var stars = [];
     var glyphParts = [];
+    var glyphIsLogo = false; // buildGlyph 实际使用的聚形目标(画布污染降级后可能与 logoReady 不同)
     var morphT0 = 0;
     var morphActive = false;
     var morphBtn = document.getElementById('morph-btn');
@@ -898,7 +899,8 @@
 
     function buildGlyph() {
       var off, ow, oh, isLogo = logoReady;
-      if (isLogo) {
+
+      function drawLogo() {
         // 校徽位图采样:红章在白底上,按亮度取"墨迹"像素
         ow = 360; oh = 360;
         off = document.createElement('canvas');
@@ -907,8 +909,10 @@
         gctx.fillStyle = '#ffffff';
         gctx.fillRect(0, 0, ow, oh);
         gctx.drawImage(logoImg, 0, 0, ow, oh);
-      } else {
-        // 图片未就绪/加载失败的降级:沿用「工大」文字
+      }
+
+      function drawText() {
+        // 图片未就绪/加载失败/画布被污染的降级:沿用「工大」文字
         ow = 340; oh = 210;
         off = document.createElement('canvas');
         off.width = ow; off.height = oh;
@@ -919,27 +923,43 @@
         tctx.textBaseline = 'middle';
         tctx.fillText('工大', ow / 2, oh / 2);
       }
-      var data = off.getContext('2d').getImageData(0, 0, ow, oh).data;
+
+      if (isLogo) drawLogo(); else drawText();
+
+      var data;
+      try {
+        data = off.getContext('2d').getImageData(0, 0, ow, oh).data;
+      } catch (e) {
+        // file:// 等场景下校徽图会把画布染脏,getImageData 抛错 → 退回文字
+        if (!isLogo) throw e;
+        isLogo = false;
+        drawText();
+        data = off.getContext('2d').getImageData(0, 0, ow, oh).data;
+      }
+
       var pts = [];
       var step = isLogo ? 3 : 4;
       for (var y = 0; y < oh; y += step) {
         for (var x = 0; x < ow; x += step) {
           var i = (y * ow + x) * 4;
           var lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          if (isLogo ? lum < 200 : data[i + 3] > 140) {
-            pts.push({ x: x - ow / 2, y: y - oh / 2 });
+          if (isLogo ? lum < 160 : data[i + 3] > 140) {
+            // ±1px 抖动打散采样网格,避免聚形后出现摩尔纹
+            pts.push({ x: x - ow / 2 + rand(-1, 1), y: y - oh / 2 + rand(-1, 1) });
           }
         }
       }
       pts.sort(function () { return Math.random() - 0.5; });
-      return pts.slice(0, isLogo ? 2100 : 780);
+      glyphIsLogo = isLogo;
+      // 校徽墨迹约五千点,全量保留才能聚出可辨识的实心章形;文字线稿 780 点足够
+      return isLogo ? pts : pts.slice(0, 780);
     }
 
     function initGlyph() {
       var pts = buildGlyph();
-      var isLogo = logoReady;
-      // 校徽目标直径:窄屏取视宽的 66%,桌面封顶 420px;文字版沿用原比例
-      var diameter = isLogo ? Math.min(W * 0.66, H * 0.52, 420) : Math.min(W, H) / 2.4;
+      var isLogo = glyphIsLogo;
+      // 校徽目标直径:窄屏取视宽的 66%,桌面封顶 440px;文字版沿用原比例
+      var diameter = isLogo ? Math.min(W * 0.66, H * 0.52, 440) : Math.min(W, H) / 2.4;
       var gScale = diameter / (isLogo ? 360 : 300);
       var gx = W / 2, gy = H * 0.36;
       glyphParts = pts.map(function (p, i) {
@@ -1023,6 +1043,8 @@
     function loop(t) {
       rafId = null;
       if (document.hidden) return;
+      // 自愈:CSS 盒子与缓冲尺寸不一致时重建(移动端地址栏收展/内嵌视口变化可能不派发 resize)
+      if (canvas.clientWidth !== W || canvas.clientHeight !== H) sizeCanvas();
       draw(t);
       rafId = requestAnimationFrame(loop);
     }
