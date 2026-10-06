@@ -10,6 +10,7 @@
   <link rel="canonical" href="https://daixuan.cloud/school/">
   <meta name="theme-color" content="#05070f">
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="preload" as="image" href="ccut-logo.jpg" fetchpriority="high">
 
   <meta property="og:title" content="工大印记 · 长春工业大学">
   <meta property="og:description" content="粒子聚形校名 + 校情速览 + 足迹星图，戴璇的工大专属页。">
@@ -17,6 +18,27 @@
   <meta property="og:url" content="https://daixuan.cloud/school/">
   <meta property="og:site_name" content="戴璇 · Dai Xuan">
   <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="工大印记 · 长春工业大学">
+  <meta name="twitter:description" content="粒子聚形校名 + 校情速览 + 足迹星图，戴璇的工大专属页。">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "工大印记 · 长春工业大学",
+    "url": "https://daixuan.cloud/school/",
+    "author": { "@type": "Person", "name": "戴璇" },
+    "about": {
+      "@type": "CollegeOrUniversity",
+      "name": "长春工业大学",
+      "alternateName": "Changchun University of Technology",
+      "foundingDate": "1952",
+      "motto": "爱国敬业 · 求实创新",
+      "url": "https://www.ccut.edu.cn/"
+    }
+  }
+  </script>
 
   <style>
     :root {
@@ -61,11 +83,13 @@
     }
 
     #sky {
-      position: absolute;
+      position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       display: block;
+      z-index: 0;
+      pointer-events: none;
     }
 
     /* ---- 顶栏 ---- */
@@ -479,9 +503,65 @@
     }
 
     :focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 6px; }
+
+    /* ---- 深度优化:主题细节与滚动显现 ---- */
+    ::selection { background: rgba(99, 102, 241, 0.45); color: #f8fafc; }
+
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #05070f; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(129, 140, 248, 0.25);
+      border-radius: 999px;
+      border: 2px solid #05070f;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(129, 140, 248, 0.45); }
+
+    .hero-title h1 {
+      background-size: 220% 220%;
+      animation: gradShift 8s ease-in-out infinite;
+    }
+
+    @keyframes gradShift {
+      0%, 100% { background-position: 0% 45%; }
+      50%      { background-position: 100% 55%; }
+    }
+
+    .scroll-hint { transition: opacity 0.45s ease; }
+
+    .reveal { opacity: 0; }
+    .reveal.is-in {
+      opacity: 1;
+      animation: riseIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(28px); }
+    }
+
+    #sky-map path { animation: dashFlow 7s linear infinite; }
+
+    @keyframes dashFlow { to { stroke-dashoffset: -55; } }
+
+    .star-dot.origin circle.halo,
+    .star-dot.visitor circle.halo { animation: haloPulse 3.2s ease-in-out infinite; }
+
+    @keyframes haloPulse {
+      0%, 100% { opacity: 0.55; }
+      50%      { opacity: 0.95; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; }
+      .reveal.is-in { animation: none; }
+      #sky-map path,
+      .star-dot circle.halo { animation: none; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- 全页星野 + 校徽聚形(固定背景层,内容区在其上) -->
+  <canvas id="sky" aria-label="星空背景与长春工业大学校徽粒子聚形动画" role="img"></canvas>
 
   <!-- 唤醒幕 -->
   <div class="sc-boot" id="sc-boot" aria-hidden="true">
@@ -494,7 +574,7 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
       <span class="back-label" data-i18n="back">返回主页</span>
     </a>
-    <button class="pill pill-grad" id="morph-btn" type="button" aria-pressed="false" data-i18n-title="morphTitle" title="重新聚成形">
+    <button class="pill pill-grad" id="morph-btn" type="button" data-i18n-title="morphTitle" title="切换聚形形态：校徽 ⇄ 工大">
       ✦ <span data-i18n="morph">聚形</span>
     </button>
     <div class="lang">
@@ -513,7 +593,6 @@
 
   <!-- 首屏：粒子聚形 + 校名 -->
   <section class="hero">
-    <canvas id="sky" aria-label="长春工业大学校徽粒子聚形动画" role="img"></canvas>
     <div class="hero-title">
       <span class="kicker">CHANGCHUN UNIVERSITY OF TECHNOLOGY</span>
       <h1 data-i18n="uni">长春工业大学</h1>
@@ -524,27 +603,27 @@
 
   <!-- 校情速览 -->
   <section class="section">
-    <div class="sec-head">
+    <div class="sec-head reveal">
       <span class="en" data-i18n="factsEn">AT A GLANCE</span>
       <h2 data-i18n="factsTitle">校情速览</h2>
     </div>
     <div class="facts-grid">
-      <div class="fact-card">
+      <div class="fact-card reveal">
         <span class="f-key">1952</span>
         <span class="f-name" data-i18n="f1n">始建</span>
         <p data-i18n="f1d">建校初期，国家为筹建中国第一汽车制造厂而创办的学校。</p>
       </div>
-      <div class="fact-card">
+      <div class="fact-card reveal">
         <span class="f-key">2002</span>
         <span class="f-name" data-i18n="f2n">更名</span>
         <p data-i18n="f2d">前身吉林工学院，于 2002 年更名为长春工业大学。</p>
       </div>
-      <div class="fact-card">
+      <div class="fact-card reveal">
         <span class="f-key">×2</span>
         <span class="f-name" data-i18n="f3n">双校区</span>
         <p data-i18n="f3d">南湖校区（延安大街 2055 号）与北湖校区双翼并展。</p>
       </div>
-      <div class="fact-card">
+      <div class="fact-card reveal">
         <span class="f-key">✦</span>
         <span class="f-name" data-i18n="f4n">校训</span>
         <p data-i18n="f4d">爱国敬业 · 求实创新——作为一个有机整体，密不可分。</p>
@@ -554,17 +633,17 @@
 
   <!-- 我的工大足迹 -->
   <section class="section">
-    <div class="sec-head">
+    <div class="sec-head reveal">
       <span class="en" data-i18n="journeyEn">MY CCUT JOURNEY</span>
       <h2 data-i18n="journeyTitle">我的工大足迹</h2>
     </div>
     <div class="journey">
-      <div class="j-node">
+      <div class="j-node reveal">
         <span class="j-period">2025.09 - 2028.06</span>
         <h3 data-i18n="j1t">数学与统计学院 · 应用统计（硕士研究生在读）</h3>
         <p data-i18n="j1d">研究方向：数据分析——应用统计理论、数据挖掘与高维时间序列建模。</p>
       </div>
-      <div class="j-node">
+      <div class="j-node reveal">
         <span class="j-period">2021.09 - 2025.06</span>
         <h3 data-i18n="j2t">机电工程学院 · 工业工程（工学学士）</h3>
         <p data-i18n="j2d">机械制造基础、生产系统建模、运筹优化与现场工业工程改善方法。</p>
@@ -574,11 +653,11 @@
 
   <!-- 足迹星图 -->
   <section class="section">
-    <div class="sec-head">
+    <div class="sec-head reveal">
       <span class="en" data-i18n="fpEn">FOOTPRINT CONSTELLATION</span>
       <h2 data-i18n="fpTitle">足迹星图</h2>
     </div>
-    <div class="sky-map-wrap">
+    <div class="sky-map-wrap reveal">
       <svg id="sky-map" viewBox="0 0 600 340" role="group" aria-label="城市足迹星图">
         <defs>
           <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
@@ -608,19 +687,19 @@
       <h2 data-i18n="portalsTitle">传送门</h2>
     </div>
     <div class="portals">
-      <a class="portal" href="../campus-map/">
+      <a class="portal reveal" href="../campus-map/">
         <span class="p-emoji" aria-hidden="true">🗺️</span>
         <strong data-i18n="p1t">校园 3D 漫游</strong>
         <span data-i18n="p1d">长春工大全景立体地图 · 84 处建筑</span>
         <span class="p-go" data-i18n="pGo">前往 →</span>
       </a>
-      <a class="portal" href="https://www.ccut.edu.cn/" target="_blank" rel="noopener noreferrer">
+      <a class="portal reveal" href="https://www.ccut.edu.cn/" target="_blank" rel="noopener noreferrer">
         <span class="p-emoji" aria-hidden="true">🏛️</span>
         <strong data-i18n="p2t">学校官网</strong>
         <span>www.ccut.edu.cn</span>
         <span class="p-go" data-i18n="pGo">前往 →</span>
       </a>
-      <a class="portal" href="../galaxy/">
+      <a class="portal reveal" href="../galaxy/">
         <span class="p-emoji" aria-hidden="true">✦</span>
         <strong data-i18n="p3t">璇玑星海</strong>
         <span data-i18n="p3d">沉浸式记忆星系 · 一卡一里程碑</span>
@@ -666,7 +745,7 @@
     /* ==================== 多语言 ==================== */
     var I18N = {
       'zh-TW': {
-        back: '返回主頁', morph: '聚形', morphTitle: '重新聚成形',
+        back: '返回主頁', morph: '聚形', morphTitle: '切換聚形形態：校徽 ⇄ 工大',
         uni: '長春工業大學', mottoLabel: '校訓', motto: '愛國敬業 · 求實創新',
         factsEn: 'AT A GLANCE', factsTitle: '校情速覽',
         f1n: '始建', f1d: '建校初期，國家為籌建中國第一汽車製造廠而創辦的學校。',
@@ -688,7 +767,7 @@
         boot: '正在點亮工大燈塔'
       },
       'en': {
-        back: 'Home', morph: 'Converge', morphTitle: 'Replay the convergence',
+        back: 'Home', morph: 'Converge', morphTitle: 'Toggle convergence: emblem ⇄ CCUT',
         uni: 'Changchun University of Technology', mottoLabel: 'Motto', motto: 'Patriotism & Dedication · Truth & Innovation',
         factsEn: 'AT A GLANCE', factsTitle: 'The University at a Glance',
         f1n: 'Founded', f1d: 'Established in 1952 to support the build-up of the First Automobile Works.',
@@ -868,6 +947,51 @@
       });
     }
 
+    /* ==================== 滚动显现 + 数字滚动 ==================== */
+    function countUp(el) {
+      var text = (el.textContent || '').trim();
+      if (prefersReducedMotion || !/^\d+$/.test(text)) return;
+      var target = parseInt(text, 10);
+      var t0 = performance.now(), dur = 1400;
+      (function tick(now) {
+        var p = Math.min((now - t0) / dur, 1);
+        el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) requestAnimationFrame(tick);
+      })(t0);
+    }
+
+    function revealAll() {
+      document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-in'); });
+    }
+
+    try {
+      // 同组元素依次登场:卡片/传送门 90ms,时间线节点 150ms
+      document.querySelectorAll('.facts-grid, .portals').forEach(function (group) {
+        Array.prototype.forEach.call(group.children, function (child, i) {
+          child.style.animationDelay = (i * 90) + 'ms';
+        });
+      });
+      document.querySelectorAll('.journey').forEach(function (group) {
+        Array.prototype.forEach.call(group.children, function (child, i) {
+          child.style.animationDelay = (i * 150) + 'ms';
+        });
+      });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          en.target.classList.add('is-in');
+          io.unobserve(en.target);
+          if (en.target.classList.contains('fact-card')) {
+            var k = en.target.querySelector('.f-key');
+            if (k) countUp(k);
+          }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+    } catch (e) {
+      revealAll(); // IO 不可用时直接全部呈现
+    }
+
     /* ==================== Canvas：星野 + 「工大」粒子聚形 ==================== */
     var canvas = document.getElementById('sky');
     var ctx = canvas.getContext('2d');
@@ -877,7 +1001,12 @@
     var glyphIsLogo = false; // buildGlyph 实际使用的聚形目标(画布污染降级后可能与 logoReady 不同)
     var morphT0 = 0;
     var morphActive = false;
+    var morphForm = 'logo'; // 聚形按钮在 校徽 ⇄ 工大 之间切换
+    var meteors = [];       // 流星池
+    var nextMeteorAt = 2600;
     var morphBtn = document.getElementById('morph-btn');
+    var scrollHint = document.querySelector('.scroll-hint');
+    var lastHintAlpha = 1;
 
     function rand(a, b) { return a + Math.random() * (b - a); }
     function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -898,7 +1027,7 @@
     logoImg.src = 'ccut-logo.jpg';
 
     function buildGlyph() {
-      var off, ow, oh, isLogo = logoReady;
+      var off, ow, oh, isLogo = logoReady && morphForm === 'logo';
 
       function drawLogo() {
         // 校徽位图采样:红章在白底上,按亮度取"墨迹"像素
@@ -981,39 +1110,77 @@
       initGlyph();
       morphT0 = performance.now();
       morphActive = true;
-      if (morphBtn) morphBtn.setAttribute('aria-pressed', 'true');
+    }
+
+    function spawnMeteor() {
+      meteors.push({
+        x: rand(W * 0.2, W * 1.02),
+        y: rand(-30, H * 0.35),
+        vx: -rand(5.5, 8.5),
+        vy: rand(2.2, 3.6),
+        life: 1
+      });
     }
 
     function draw(t) {
       ctx.clearRect(0, 0, W, H);
+      var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
 
-      /* 星野 */
+      /* 星野:按景深随滚动做视差 */
       for (var i = 0; i < stars.length; i++) {
         var s = stars[i];
         var tw = prefersReducedMotion ? 0.7 : (0.4 + 0.6 * Math.abs(Math.sin(t * 0.001 * s.sp + s.ph)));
+        var yy = (s.y - scrollY * s.z) % H;
+        if (yy < 0) yy += H;
         ctx.globalAlpha = tw * 0.8;
         ctx.fillStyle = '#cdd7f3';
-        ctx.fillRect(s.x, s.y, s.r, s.r);
+        ctx.fillRect(s.x, yy, s.r, s.r);
       }
 
-      /* 地面辉光 */
       ctx.globalCompositeOperation = 'lighter';
-      var gr = ctx.createRadialGradient(W / 2, H * 0.40, 0, W / 2, H * 0.40, Math.min(W, H) * 0.42);
-      gr.addColorStop(0, 'rgba(99, 102, 241, 0.14)');
-      gr.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = gr;
-      ctx.fillRect(0, 0, W, H * 0.8);
 
-      /* 聚形字 */
-      if (morphActive) {
+      /* 地面辉光:锚定首屏,随滚动上移 */
+      if (scrollY < H) {
+        var glowY = H * 0.40 - scrollY;
+        var gr = ctx.createRadialGradient(W / 2, glowY, 0, W / 2, glowY, Math.min(W, H) * 0.42);
+        gr.addColorStop(0, 'rgba(99, 102, 241, 0.14)');
+        gr.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = gr;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      /* 流星 */
+      ctx.lineCap = 'round';
+      for (var m = meteors.length - 1; m >= 0; m--) {
+        var mt = meteors[m];
+        mt.x += mt.vx;
+        mt.y += mt.vy;
+        mt.life -= 0.016;
+        if (mt.life <= 0 || mt.x < -80 || mt.y > H + 80) { meteors.splice(m, 1); continue; }
+        var tx2 = mt.x - mt.vx * 11, ty2 = mt.y - mt.vy * 11;
+        var mg = ctx.createLinearGradient(mt.x, mt.y, tx2, ty2);
+        mg.addColorStop(0, 'rgba(253, 246, 227, ' + (0.85 * Math.min(mt.life, 1)).toFixed(3) + ')');
+        mg.addColorStop(1, 'rgba(129, 140, 248, 0)');
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = mg;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(mt.x, mt.y);
+        ctx.lineTo(tx2, ty2);
+        ctx.stroke();
+      }
+
+      /* 聚形字:以 0.9 倍滚动速率上移,与内容形成视差;滚远后跳过重绘省电 */
+      if (morphActive && scrollY < H * 1.25) {
+        var oy = -scrollY * 0.9;
         var elapsed = (t - morphT0) / 1000;
         for (var g = 0; g < glyphParts.length; g++) {
           var p = glyphParts[g];
           var k = Math.min(Math.max((elapsed - p.delay) / p.dur, 0), 1);
           var e = easeInOut(k);
           var x = p.sx + (p.tx - p.sx) * e;
-          var y = p.sy + (p.ty - p.sy) * e;
+          var y = p.sy + (p.ty - p.sy) * e + oy;
           var sh = prefersReducedMotion ? 0 : Math.sin(t * 0.0022 + p.seed) * 1.1;
           ctx.globalAlpha = 0.18 + 0.78 * e;
           ctx.fillStyle = p.warm ? '#fdf6e3' : '#b3bdfa';
@@ -1034,7 +1201,7 @@
       stars = [];
       var n = Math.round(W * H / 4200);
       for (var i = 0; i < n; i++) {
-        stars.push({ x: Math.random() * W, y: Math.random() * H, r: rand(0.4, 1.4), ph: Math.random() * 6.28, sp: rand(0.5, 1.5) });
+        stars.push({ x: Math.random() * W, y: Math.random() * H, r: rand(0.4, 1.4), ph: Math.random() * 6.28, sp: rand(0.5, 1.5), z: rand(0.15, 0.55) });
       }
       initGlyph();
     }
@@ -1045,7 +1212,18 @@
       if (document.hidden) return;
       // 自愈:CSS 盒子与缓冲尺寸不一致时重建(移动端地址栏收展/内嵌视口变化可能不派发 resize)
       if (canvas.clientWidth !== W || canvas.clientHeight !== H) sizeCanvas();
+      // 流星按随机间隔生成
+      if (t >= nextMeteorAt) {
+        spawnMeteor();
+        nextMeteorAt = t + rand(3800, 8500);
+      }
       draw(t);
+      // 首屏下滑后淡出滚动提示
+      var ha = (window.pageYOffset || 0) > 64 ? 0 : 1;
+      if (ha !== lastHintAlpha) {
+        lastHintAlpha = ha;
+        if (scrollHint) scrollHint.style.opacity = ha;
+      }
       rafId = requestAnimationFrame(loop);
     }
 
@@ -1062,7 +1240,15 @@
       }, 140);
     });
 
-    if (morphBtn) morphBtn.addEventListener('click', startMorph);
+    // 减动效下无 rAF 循环,滚动时静态重绘一次(全页星野随滚动位移)
+    if (prefersReducedMotion) {
+      window.addEventListener('scroll', function () { draw(0); }, { passive: true });
+    }
+
+    if (morphBtn) morphBtn.addEventListener('click', function () {
+      morphForm = morphForm === 'logo' ? 'text' : 'logo';
+      startMorph();
+    });
 
     /* ---- 启动 ---- */
     var bootEl = document.getElementById('sc-boot');
