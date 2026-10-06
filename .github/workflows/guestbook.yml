@@ -1,0 +1,125 @@
+# 星海留言墙审核发布
+# 访客在 galaxy/ 页提交留言 → 自动创建 Issue(打 pending-review 标签)
+# 站长审核:给 Issue 打 approved 标签 → 本工作流把留言写入 galaxy/comments.json 并随 Pages 上线
+# 撤回:移除 approved 标签 → 自动从 comments.json 移除该留言
+
+name: 星海留言墙审核发布
+
+on:
+  issues:
+    types: [opened, labeled, unlabeled]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: guestbook
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    # 新留言进队列时自动打"待审核"标签
+    if: github.event.action == 'opened' && startsWith(github.event.issue.title, '[留言墙]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 标记待审核
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['pending-review']
+            });
+
+  publish:
+    if: github.event.label.name == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 审核发布 / 撤回
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const action = context.payload.action; // labeled | unlabeled
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const PATH = 'galaxy/comments.json';
+
+            // ---- 逐行分段解析 issue 正文中的「### 昵称」「### 留言」 ----
+            function section(body, header) {
+              const lines = String(body || '').split(/\r?\n/);
+              const out = [];
+              let inSec = false;
+              for (const ln of lines) {
+                const h = ln.match(/^###\s*(.+?)\s*$/);
+                if (h) { inSec = (h[1].trim() === header); continue; }
+                if (inSec && /^>\s?/.test(ln)) break; // 引用行是提交元信息,不算内容
+                if (inSec) out.push(ln);
+              }
+              return out.join('\n').trim();
+            }
+
+            let name = section(issue.body, '昵称').slice(0, 20);
+            let text = section(issue.body, '留言').slice(0, 200);
+
+            // ---- 读取现有留言 ----
+            const fileResp = await github.rest.repos.getContent({ owner, repo, path: PATH });
+            const comments = JSON.parse(Buffer.from(fileResp.data.content, 'base64').toString('utf8'));
+
+            const reply = async (msg) => {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number, body: msg
+              });
+            };
+
+            if (action === 'labeled') {
+              if (!text) {
+                await reply('❌ 未解析到留言内容,格式需包含「### 昵称」与「### 留言」两节。请对照提交页模板重新提交。');
+                return;
+              }
+              if (comments.some(c => c.n === issue.number)) {
+                await reply('ℹ️ 该留言已在墙上,无需重复发布。');
+                return;
+              }
+              if (!name) name = '匿名访客';
+              comments.push({
+                n: issue.number,
+                name: name,
+                text: text,
+                date: issue.created_at.slice(0, 10)
+              });
+            } else {
+              // unlabeled → 撤回
+              const idx = comments.findIndex(c => c.n === issue.number);
+              if (idx === -1) {
+                await reply('ℹ️ 墙上没有该留言,无需撤回。');
+                return;
+              }
+              comments.splice(idx, 1);
+            }
+
+            // ---- 写回 comments.json(提交到默认分支,Pages 约 1 分钟后生效) ----
+            const newShaResp = await github.rest.repos.getContent({ owner, repo, path: PATH });
+            await github.rest.repos.createOrUpdateFileContents({
+              owner, repo,
+              path: PATH,
+              message: `留言墙: ${action === 'labeled' ? '发布' : '撤回'} #${issue.number}`,
+              content: Buffer.from(JSON.stringify(comments, null, 2) + '\n', 'utf8').toString('base64'),
+              sha: newShaResp.data.sha
+            });
+
+            // 摘掉"待审核"标签(若还在)
+            try {
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number: issue.number, name: 'pending-review'
+              });
+            } catch (e) { /* 标签可能已不存在,忽略 */ }
+
+            if (action === 'labeled') {
+              await reply('✅ 审核通过,已发布到 [星海留言墙](https://daixuan.cloud/galaxy/)。');
+            } else {
+              await reply('🔄 已从星海留言墙撤回。');
+            }

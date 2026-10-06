@@ -99,6 +99,20 @@
 </head>
 <body>
 
+  <!-- 开场加载幕：品牌星轨启动动画（仅 JS 可用且本会话首次访问时展示，约 1.2s） -->
+  <div class="boot-screen" id="boot-screen" aria-hidden="true">
+    <div class="boot-stars" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="boot-core">
+      <div class="boot-logo">DX</div>
+      <div class="boot-name">DAIXUAN<span>.CLOUD</span></div>
+      <div class="boot-bar" role="presentation"><span id="boot-bar-fill"></span></div>
+      <div class="boot-status"><span id="boot-status-text">正在校准星轨</span><span id="boot-pct">0%</span></div>
+    </div>
+    <p class="boot-tagline">璇者，美玉亦为星辰 —— 欢迎来到我的数字宇宙</p>
+  </div>
+
   <!-- 无障碍：跳转到主内容 -->
   <a class="skip-link" href="#main-content">跳转到主要内容</a>
 
@@ -197,6 +211,10 @@
               </a>
               <a href="#contact" class="btn btn-secondary">
                 <span>联系交流</span>
+              </a>
+              <a href="galaxy/" class="btn btn-galaxy" title="沉浸式 3D 记忆星系，一卡一里程碑">
+                <span class="btn-galaxy-star" aria-hidden="true">✦</span>
+                <span>璇玑星海</span>
               </a>
             </div>
 
@@ -315,6 +333,15 @@
           <span class="section-tag">Education</span>
           <h2 class="section-title">教育背景</h2>
           <p class="section-desc">长春工业大学本硕贯通，坚实数理基础与工程实践能力。</p>
+          <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+            <a href="school/" class="btn btn-galaxy btn-sm" title="工大印记：粒子聚形校名 · 校情速览 · 足迹星图">
+              <span class="btn-galaxy-star" aria-hidden="true">✦</span>
+              <span>走进工大 · 校园印记</span>
+            </a>
+            <a href="campus-map/index.html" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">
+              <span>🗺️ 校园 3D 漫游</span>
+            </a>
+          </div>
         </div>
 
         <div class="edu-grid">
@@ -1103,6 +1130,8 @@
       </div>
       <ul class="footer-links">
         <li><a href="resume/">简历</a></li>
+        <li><a href="galaxy/">✦ 璇玑星海</a></li>
+        <li><a href="school/">🏫 工大印记</a></li>
         <li><a href="#hero">回到顶部</a></li>
         <li><a href="#education">教育背景</a></li>
         <li><a href="#internships">实习经历</a></li>
@@ -1140,6 +1169,65 @@
       </p>
     </div>
   </div>
+
+  <!-- 欢迎来访 · 访客身份卡（首次到访弹出，同步后记忆在本地浏览器） -->
+  <div class="modal-overlay" id="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="modal-content welcome-card">
+      <button class="modal-close" id="welcome-close" aria-label="关闭身份卡">&times;</button>
+      <div class="welcome-spark" aria-hidden="true">✦</div>
+      <h3 id="welcome-title" class="welcome-title">欢迎来访！</h3>
+      <p class="welcome-sub">选一枚星徽、留下称呼，同步你的访客身份</p>
+      <div class="avatar-row" id="avatar-row" role="radiogroup" aria-label="选择头像星徽">
+        <button class="avatar-opt" type="button" role="radio" aria-checked="false" data-avatar="🎓" aria-label="学士帽头像">🎓</button>
+        <button class="avatar-opt" type="button" role="radio" aria-checked="false" data-avatar="📊" aria-label="统计图表头像">📊</button>
+        <button class="avatar-opt is-selected" type="button" role="radio" aria-checked="true" data-avatar="🛰️" aria-label="星轨站头像">🛰️</button>
+        <button class="avatar-opt" type="button" role="radio" aria-checked="false" data-avatar="❄️" aria-label="雪花头像">❄️</button>
+        <button class="avatar-opt" type="button" role="radio" aria-checked="false" data-avatar="🧭" aria-label="罗盘头像">🧭</button>
+      </div>
+      <label class="welcome-label" for="visitor-name">访客称呼</label>
+      <input id="visitor-name" class="welcome-input" type="text" maxlength="16" placeholder="怎么称呼你？（可留空）" autocomplete="off" spellcheck="false">
+      <button id="welcome-sync" class="btn btn-primary welcome-sync-btn" type="button">
+        <span>同步身份并进入</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+      <button id="welcome-skip" class="welcome-skip" type="button">暂不同步，随便逛逛 →</button>
+    </div>
+  </div>
+
+  <!-- 访客身份徽章（同步后常驻左下角，点击可修改身份） -->
+  <button class="identity-chip" id="identity-chip" type="button" hidden>
+    <span class="identity-avatar" id="identity-avatar" aria-hidden="true">🛰️</span>
+    <span class="identity-text">
+      <strong id="identity-name">访客</strong>
+      <em>访客身份已同步</em>
+    </span>
+  </button>
+
+  <!-- Cyber Twin · 数字分身挂件（本地规则知识库，零后端零依赖） -->
+  <button class="twin-launcher" id="twin-launcher" type="button" aria-label="与戴璇的数字分身对话" aria-expanded="false" aria-controls="twin-drawer">
+    <span class="twin-launcher-face" aria-hidden="true">璇</span>
+    <span class="twin-launcher-ring" aria-hidden="true"></span>
+  </button>
+
+  <section class="twin-drawer" id="twin-drawer" role="dialog" aria-label="Cyber Twin · 数字分身对话" hidden>
+    <header class="twin-head">
+      <span class="twin-avatar" aria-hidden="true">璇</span>
+      <div class="twin-title">
+        <strong>Cyber Twin</strong>
+        <span><i class="twin-dot" aria-hidden="true"></i>戴璇的数字分身 · 在线</span>
+      </div>
+      <button class="twin-close" id="twin-close" aria-label="收起对话面板">&times;</button>
+    </header>
+    <div class="twin-log" id="twin-log"></div>
+    <div class="twin-chips" id="twin-chips" aria-label="快捷提问"></div>
+    <form class="twin-input-row" id="twin-form">
+      <input id="twin-input" class="twin-input" type="text" placeholder="问问戴璇的事…" autocomplete="off" aria-label="输入你的问题">
+      <button class="twin-send" type="submit" aria-label="发送消息">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+      </button>
+    </form>
+    <p class="twin-foot">本地规则应答 · 深度对话请 <a href="aurora-chat/" target="_blank" rel="noopener noreferrer">打开 Aurora Chat ↗</a></p>
+  </section>
 
   <!-- Toast Notification Container -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>

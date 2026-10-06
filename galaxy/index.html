@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>璇玑星海 · 戴璇的记忆星系 | daixuan.cloud</title>
+  <meta name="description" content="璇玑星海——戴璇个人网站的沉浸式 3D 记忆星系：粒子星系中央光柱矗立，十张里程碑卡片绕轨漂浮，点击卡片查看每段旅程的印记与传送门。原生 Canvas 实现，零依赖。">
+  <meta name="author" content="戴璇">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://daixuan.cloud/galaxy/">
+  <meta name="theme-color" content="#05070f">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+
+  <meta property="og:title" content="璇玑星海 · 戴璇的记忆星系">
+  <meta property="og:description" content="粒子星系 + 绕轨里程碑卡片，原生 Canvas 零依赖实现的沉浸式个人记忆星系。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://daixuan.cloud/galaxy/">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <meta property="og:locale" content="zh_CN">
+
+  <style>
+    /* ============================================================
+       璇玑星海 · 单文件自包含（原生 Canvas + DOM 轨道卡片）
+       深空视觉固定为暗色主题；尊重 prefers-reduced-motion
+       ============================================================ */
+    :root {
+      --space-bg: #05070f;
+      --glass: rgba(15, 20, 38, 0.72);
+      --glass-border: rgba(148, 163, 184, 0.22);
+      --text-hi: #f8fafc;
+      --text-mid: #b6c2d9;
+      --text-low: #8494ab;
+      --indigo: #818cf8;
+      --violet: #a855f7;
+      --pink: #ec4899;
+      --cyan: #22d3ee;
+      --grad: linear-gradient(135deg, #818cf8 0%, #6366f1 28%, #a855f7 62%, #ec4899 100%);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "HarmonyOS Sans SC", "MiSans", Roboto, "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      font-family: var(--font);
+      color: var(--text-hi);
+      background:
+        radial-gradient(1200px 700px at 18% -10%, rgba(99, 102, 241, 0.16), transparent 62%),
+        radial-gradient(1000px 620px at 86% 108%, rgba(236, 72, 153, 0.10), transparent 60%),
+        radial-gradient(900px 500px at 50% 55%, rgba(34, 211, 238, 0.05), transparent 65%),
+        var(--space-bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #sky {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ---- 顶部栏 ---- */
+    .g-topbar {
+      position: fixed;
+      top: calc(18px + var(--safe-top));
+      left: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .g-topbar > * { pointer-events: auto; }
+
+    .g-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      color: var(--text-hi);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .g-back:hover {
+      transform: translateY(-2px);
+      border-color: rgba(129, 140, 248, 0.55);
+      box-shadow: 0 12px 34px rgba(99, 102, 241, 0.25);
+    }
+
+    .g-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      font-size: 0.76rem;
+      color: var(--text-mid);
+      letter-spacing: 0.08em;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .g-badge i {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* ---- 标题 ---- */
+    .g-title {
+      position: fixed;
+      top: calc(11vh + var(--safe-top));
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .g-title h1 {
+      font-size: clamp(1.7rem, 4.6vw, 2.7rem);
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-indent: 0.22em;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 24px rgba(129, 140, 248, 0.35));
+    }
+
+    .g-title p {
+      margin-top: 10px;
+      font-size: clamp(0.78rem, 2vw, 0.9rem);
+      color: var(--text-low);
+      letter-spacing: 0.28em;
+      text-indent: 0.28em;
+    }
+
+    /* ---- 底部提示 ---- */
+    .g-hint {
+      position: fixed;
+      bottom: calc(22px + var(--safe-bottom));
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--text-low);
+      letter-spacing: 0.12em;
+      z-index: 10;
+      pointer-events: none;
+      user-select: none;
+      padding: 0 16px;
+    }
+
+    .g-hint b { color: var(--text-mid); font-weight: 600; }
+
+    /* ---- 轨道里程碑卡片 ---- */
+    .star-card {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 158px;
+      padding: 13px 14px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      text-align: left;
+      color: var(--text-hi);
+      font-family: inherit;
+      will-change: transform, opacity;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .star-card:hover,
+    .star-card:focus-visible {
+      border-color: rgba(129, 140, 248, 0.65);
+      box-shadow: 0 18px 46px rgba(99, 102, 241, 0.35);
+      outline: none;
+    }
+
+    .star-card .sc-emoji { font-size: 1.5rem; line-height: 1; display: block; }
+
+    .star-card .sc-title {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .star-card .sc-meta {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.66rem;
+      color: var(--text-low);
+      letter-spacing: 0.05em;
+    }
+
+    .star-card::after {
+      content: "查看印记 ↗";
+      position: absolute;
+      right: 12px;
+      bottom: 10px;
+      font-size: 0.62rem;
+      color: var(--indigo);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .star-card:hover::after { opacity: 1; }
+
+    /* ---- 聚形按钮 & 氛围音按钮 ---- */
+    .g-morph {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.45);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(236, 72, 153, 0.14));
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      color: var(--text-hi);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25);
+      font-family: inherit;
+    }
+
+    .g-morph:hover {
+      transform: translateY(-2px);
+      border-color: rgba(129, 140, 248, 0.8);
+      box-shadow: 0 12px 36px rgba(99, 102, 241, 0.4);
+    }
+
+    .g-morph[aria-pressed="true"] {
+      border-color: rgba(253, 246, 227, 0.55);
+      box-shadow: 0 0 24px rgba(253, 246, 227, 0.25), 0 8px 30px rgba(99, 102, 241, 0.3);
+    }
+
+    .g-sound {
+      position: fixed;
+      bottom: calc(22px + var(--safe-bottom));
+      left: calc(20px + env(safe-area-inset-left, 0px));
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      color: var(--text-mid);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+      font-family: inherit;
+    }
+
+    .g-sound:hover { transform: translateY(-2px); color: var(--text-hi); border-color: rgba(129, 140, 248, 0.55); }
+
+    .g-sound[aria-pressed="true"] { color: var(--text-hi); border-color: rgba(129, 140, 248, 0.65); }
+    .g-sound[aria-pressed="true"] span:first-child { color: var(--indigo); text-shadow: 0 0 12px rgba(129, 140, 248, 0.8); }
+
+    /* ---- 留言墙按钮 & 抽屉 ---- */
+    .g-wall-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      color: var(--text-mid);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+      font-family: inherit;
+    }
+
+    .g-wall-btn:hover { transform: translateY(-2px); color: var(--text-hi); border-color: rgba(129, 140, 248, 0.55); }
+
+    .g-wall-btn[aria-expanded="true"] { color: var(--text-hi); border-color: rgba(129, 140, 248, 0.65); }
+
+    .wall-drawer {
+      position: fixed;
+      top: calc(76px + var(--safe-top));
+      right: calc(20px + env(safe-area-inset-right, 0px));
+      bottom: calc(20px + var(--safe-bottom));
+      width: min(400px, calc(100vw - 32px));
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      border: 1px solid var(--glass-border);
+      background: rgba(10, 14, 28, 0.88);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(24px);
+      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .wall-drawer.open { opacity: 1; transform: translateX(0); }
+
+    .wall-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--glass-border);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(236, 72, 153, 0.08));
+      font-size: 0.92rem;
+    }
+
+    .wall-spark { color: var(--indigo); text-shadow: 0 0 12px rgba(129, 140, 248, 0.8); }
+
+    .wall-close {
+      margin-left: auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text-mid);
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+
+    .wall-close:hover { color: #fff; border-color: rgba(129, 140, 248, 0.6); }
+
+    .wall-body {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 12px 12px 6px;
+    }
+
+    .wall-note {
+      padding: 10px 16px;
+      font-size: 0.72rem;
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.08);
+      border-bottom: 1px solid var(--glass-border);
+      letter-spacing: 0.02em;
+    }
+
+    .wall-loading {
+      text-align: center;
+      color: var(--text-low);
+      font-size: 0.8rem;
+      padding: 36px 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .wall-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: rgba(148, 163, 184, 0.06);
+      margin-bottom: 10px;
+      animation: twinMsgIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .wall-item .wi-head {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .wall-item .wi-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--indigo);
+    }
+
+    .wall-item .wi-date {
+      margin-left: auto;
+      font-size: 0.66rem;
+      color: var(--text-low);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .wall-item .wi-text {
+      font-size: 0.84rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .wall-empty {
+      text-align: center;
+      color: var(--text-low);
+      font-size: 0.82rem;
+      padding: 30px 16px;
+    }
+
+    .wall-form {
+      padding: 10px 12px 6px;
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .wall-input {
+      width: 100%;
+      padding: 9px 13px;
+      border-radius: 11px;
+      border: 1px solid var(--glass-border);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text-hi);
+      font-size: 0.84rem;
+      font-family: inherit;
+      resize: none;
+    }
+
+    .wall-input:focus {
+      outline: none;
+      border-color: rgba(129, 140, 248, 0.65);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+    }
+
+    .wall-form-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wall-submit {
+      padding: 8px 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--grad);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .wall-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
+
+    .wall-mail {
+      margin-left: auto;
+      font-size: 0.7rem;
+      color: var(--text-low);
+      text-decoration: none;
+    }
+
+    .wall-mail:hover { color: var(--indigo); text-decoration: underline; }
+
+    .wall-foot {
+      padding: 8px 14px 10px;
+      font-size: 0.66rem;
+      color: var(--text-low);
+      text-align: center;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    /* ---- 语言切换 ---- */
+    .g-lang { position: relative; }
+
+    .g-lang-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      color: var(--text-mid);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+      font-family: inherit;
+    }
+
+    .g-lang-btn:hover { transform: translateY(-2px); color: var(--text-hi); border-color: rgba(129, 140, 248, 0.55); }
+
+    .g-lang-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 150px;
+      border-radius: 14px;
+      border: 1px solid var(--glass-border);
+      background: rgba(10, 14, 28, 0.94);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+      padding: 6px;
+      z-index: 70;
+    }
+
+    .g-lang-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: none;
+      background: none;
+      color: var(--text-mid);
+      font-size: 0.84rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: 0.2s ease;
+    }
+
+    .g-lang-menu button:hover { background: rgba(129, 140, 248, 0.14); color: var(--text-hi); }
+    .g-lang-menu button.active { background: rgba(99, 102, 241, 0.22); color: var(--text-hi); font-weight: 700; }
+
+    /* ---- 印记弹窗 ---- */
+    .imprint-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(3, 5, 12, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .imprint-overlay.active { opacity: 1; visibility: visible; }
+
+    .imprint-card {
+      width: min(440px, 100%);
+      border-radius: 20px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      box-shadow: 0 40px 110px rgba(0, 0, 0, 0.6), 0 0 40px -12px rgba(99, 102, 241, 0.35);
+      padding: 28px;
+      transform: translateY(14px) scale(0.96);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .imprint-overlay.active .imprint-card { transform: translateY(0) scale(1); }
+
+    .imprint-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      color: var(--indigo);
+      text-transform: uppercase;
+    }
+
+    .imprint-kicker::before { content: "✦"; }
+
+    .imprint-title {
+      margin-top: 10px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .imprint-period {
+      margin-top: 4px;
+      font-size: 0.76rem;
+      color: var(--text-low);
+      letter-spacing: 0.06em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .imprint-desc {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+    }
+
+    .imprint-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .imprint-tags span {
+      font-size: 0.68rem;
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--glass-border);
+      color: var(--text-mid);
+      background: rgba(148, 163, 184, 0.08);
+    }
+
+    .imprint-actions { margin-top: 22px; display: flex; gap: 12px; align-items: center; }
+
+    .imprint-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      background: var(--grad);
+      color: #fff;
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 26px rgba(99, 102, 241, 0.4);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .imprint-link:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(99, 102, 241, 0.5); }
+
+    .imprint-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid var(--glass-border);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text-mid);
+      font-size: 1.15rem;
+      cursor: pointer;
+      transition: 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .imprint-close:hover { color: #fff; border-color: rgba(129, 140, 248, 0.6); }
+
+    /* ---- 星海唤醒幕 ---- */
+    .gw-boot {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: var(--space-bg);
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .gw-boot.is-done { opacity: 0; visibility: hidden; }
+
+    .gw-boot .gwb-heart {
+      font-size: 2rem;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gwbPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes gwbPulse {
+      0%, 100% { transform: scale(1); opacity: 0.75; }
+      50%      { transform: scale(1.18); opacity: 1; }
+    }
+
+    .gw-boot .gwb-text {
+      font-size: 0.82rem;
+      color: var(--text-low);
+      letter-spacing: 0.3em;
+      text-indent: 0.3em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 640px) {
+      .star-card { width: 128px; padding: 10px 11px 10px; border-radius: 13px; }
+      .star-card .sc-emoji { font-size: 1.2rem; }
+      .star-card .sc-title { font-size: 0.72rem; }
+      .star-card .sc-meta { font-size: 0.6rem; }
+      .star-card::after { display: none; }
+      .g-title { top: 8vh; }
+      .g-badge { display: none; }
+      .g-topbar { flex-wrap: wrap; justify-content: center; row-gap: 8px; }
+      .g-back { order: -1; }
+      .g-back span { display: none; }
+      .g-back { padding: 10px 12px; }
+      .g-morph { padding: 9px 14px; font-size: 0.78rem; }
+      .g-wall-btn, .g-lang-btn { padding: 9px 12px; font-size: 0.74rem; }
+      .wall-drawer { width: calc(100vw - 24px); right: 12px; }
+      .g-sound { padding: 8px 13px; font-size: 0.72rem; }
+      .imprint-card { padding: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+      .g-morph { display: none; } /* 聚形依赖位移动画，减弱动效下不提供 */
+    }
+
+    :focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 6px; }
+
+    .toast {
+      position: fixed;
+      bottom: calc(26px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(90px);
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 10px 20px;
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      font-size: 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 400;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      max-width: calc(100vw - 32px);
+      text-align: center;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <header class="g-topbar">
+    <a class="g-back" href="../">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      <span data-i18n="back">返回主页</span>
+    </a>
+    <button class="g-morph" id="morph-btn" type="button" aria-pressed="false" data-i18n-title="morphTitle" title="让光柱粒子汇聚成「璇」字">✦ <span data-i18n="morph">聚形</span></button>
+    <button class="g-wall-btn" id="wall-btn" type="button" aria-expanded="false" aria-controls="wall-drawer">
+      <span aria-hidden="true">💬</span><span data-i18n="wall">留言墙</span>
+    </button>
+    <div class="g-lang">
+      <button class="g-lang-btn" id="lang-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="切换语言 / Language">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        <span id="lang-current">简</span>
+      </button>
+      <div class="g-lang-menu" id="lang-menu" hidden>
+        <button type="button" data-lang="zh-CN">简体中文</button>
+        <button type="button" data-lang="zh-TW">繁體中文</button>
+        <button type="button" data-lang="en">English</button>
+      </div>
+    </div>
+    <span class="g-badge"><i aria-hidden="true"></i>ORBIT · LIVE</span>
+  </header>
+
+  <!-- 星海留言墙抽屉（先审后发：提交 → Issue 队列 → 站长打 approved 标签 → Action 发布） -->
+  <aside class="wall-drawer" id="wall-drawer" aria-label="星海留言墙" hidden>
+    <header class="wall-head">
+      <span class="wall-spark" aria-hidden="true">✦</span>
+      <strong data-i18n="wallTitle">星海留言墙</strong>
+      <button class="wall-close" id="wall-close" aria-label="收起留言墙">&times;</button>
+    </header>
+    <div class="wall-note" data-i18n="wallNote">所有留言经站长审核后才会展示</div>
+    <div class="wall-body" id="wall-body">
+      <div class="wall-list" id="wall-list">
+        <div class="wall-loading" data-i18n="wallLoading">正在载入留言…</div>
+      </div>
+    </div>
+    <form class="wall-form" id="wall-form">
+      <input id="wall-name" class="wall-input" type="text" maxlength="20" autocomplete="off" data-i18n-ph="wallNamePh" placeholder="昵称（可匿名）" aria-label="昵称">
+      <textarea id="wall-msg" class="wall-input wall-msg" maxlength="200" rows="2" data-i18n-ph="wallMsgPh" placeholder="写下你的印记…" aria-label="留言内容"></textarea>
+      <div class="wall-form-row">
+        <button type="submit" class="wall-submit" data-i18n="wallSubmit">提交审核</button>
+        <a class="wall-mail" id="wall-mail" href="mailto:daixuan26@outlook.com?subject=%E6%98%9F%E6%B5%B7%E7%95%99%E8%A8%80%E5%A2%99%E5%AE%A1%E6%A0%B8" data-i18n="wallMail">没有 GitHub？邮件提交</a>
+      </div>
+    </form>
+    <p class="wall-foot" data-i18n="wallFoot">留言审核通过后展示 · 数据存于本站 GitHub 仓库</p>
+  </aside>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <button class="g-sound" id="sound-btn" type="button" aria-pressed="false" data-i18n-title="soundTitle" title="Web Audio 实时合成的星海氛围音（无音频文件）">
+    <span aria-hidden="true">♪</span><span id="sound-label">氛围音 · 关</span>
+  </button>
+
+  <div class="g-title">
+    <h1>璇玑星海</h1>
+    <p>每一颗星 · 都是一段旅程的注脚</p>
+  </div>
+
+  <p class="g-hint">移动鼠标 <b>视差漂移</b> · 点击卡片 <b>查看印记</b></p>
+
+  <!-- 印记弹窗 -->
+  <div class="imprint-overlay" id="imprint-overlay" role="dialog" aria-modal="true" aria-labelledby="imprint-title">
+    <div class="imprint-card">
+      <button class="imprint-close" id="imprint-close" aria-label="关闭印记">&times;</button>
+      <span class="imprint-kicker" data-i18n="kicker">星海印记 · Imprint</span>
+      <h2 class="imprint-title" id="imprint-title"></h2>
+      <p class="imprint-period" id="imprint-period"></p>
+      <p class="imprint-desc" id="imprint-desc"></p>
+      <div class="imprint-tags" id="imprint-tags"></div>
+      <div class="imprint-actions">
+        <a class="imprint-link" id="imprint-link" href="#" target="_blank" rel="noopener noreferrer">
+          <span>前往查看</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 唤醒幕 -->
+  <div class="gw-boot" id="gw-boot" aria-hidden="true">
+    <span class="gwb-heart">✦</span>
+    <span class="gwb-text" id="gwb-text">正在唤醒记忆星海 … 0%</span>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ==================== 里程碑数据 ==================== */
+    var MILESTONES = [
+      {
+        emoji: '❄️', title: '雪线之上 · 冰雪经济可视化', meta: '2026 · 虚拟现实大赛',
+        period: '2026 · 吉林省大学生虚拟现实大赛（数据可视化分析赛道）',
+        desc: '围绕吉林省冰雪经济政策目标构建四维立体叙事：Canvas 3D 冰雪地理沙盘、九大原生 SVG 分析图表、双目立体 VR 与交互式回归推演器，全部数据可溯源至省政府公报。',
+        tags: ['Canvas 3D', '原生 SVG 图表', '计量建模', '零依赖'],
+        href: '../snow-viz/index.html', label: '进入交互系统'
+      },
+      {
+        emoji: '🛰️', title: 'Aurora Chat · 极光', meta: '2026.10 · MIT 开源',
+        period: '2026.10 上线 · 纯静态 AI 聊天工作台',
+        desc: '智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，流式 SSE 与双模型对比投票；对话与密钥仅存本机。MIT 协议，可商用。',
+        tags: ['纯前端', '流式 SSE', '双模型对比', 'MIT'],
+        href: '../aurora-chat/', label: '打开在线应用'
+      },
+      {
+        emoji: '🗺️', title: '长工大全景立体地图', meta: 'Three.js · 84 处建筑',
+        period: '独立研发 · Web 3D 数字孪生',
+        desc: '以公开地图数据为参考 1:1 呈现北湖与南湖校区 84 处建筑单体，第一人称沉浸漫游，支持卫星底图与季节场景切换。',
+        tags: ['Three.js', 'WebGL', '第一人称漫游'],
+        href: '../campus-map/', label: '在线 3D 漫游'
+      },
+      {
+        emoji: '📊', title: '智能制造节拍诊断案例', meta: 'ARIMA · 平衡率 +8.28pp',
+        period: '2026 · 应用统计案例分析',
+        desc: '基于 2,000 循环产线仿真数据，用 ARIMA 与分布拟合定位瓶颈工位的自相关拖滞（φ₁=0.453），产线平衡率 84.4% → 92.7%。',
+        tags: ['时间序列', '精益 IE', '案例分析'],
+        href: '../case-studies/smart-manufacturing-takt-time-analysis.html', label: '查阅完整报告'
+      },
+      {
+        emoji: '🏦', title: '信贷违约风险预警案例', meta: 'Cox / Frailty / DML',
+        period: '全国应用统计案例分析大赛',
+        desc: '13 阶段全流程、20 张学术级图表：Cox 比例风险、Frailty 脆弱模型与 DML 因果推断框架下的中小企业信贷违约预警系统。',
+        tags: ['生存分析', 'DML 因果推断', '风险预警'],
+        href: '../case-studies/applied-statistics-credit-risk.html', label: '查看案例详情'
+      },
+      {
+        emoji: '🏭', title: '一汽丰田 IE 实习', meta: '2024 · 生产效率',
+        period: '2024.09 - 2024.10 · 工业工程实习生',
+        desc: '发动机装配产线作业测定与时间研究，梳理非增值活动；对 AGV 小车运行轨迹建模，简化交叉干涉点，优化物流周转节拍。',
+        tags: ['作业测定', 'AGV 路径', '精益改善'],
+        href: '../#internships', label: '查看实习经历'
+      },
+      {
+        emoji: '🎓', title: '长春工业大学 · 应用统计', meta: '2025 - 2028 · 硕士在读',
+        period: '2025.09 - 2028.06 · 数学与统计学院',
+        desc: '研究方向：数据分析。系统钻研应用统计理论、数据挖掘与高维时间序列建模，探索工业制造场景下的数据驱动量化优化。',
+        tags: ['应用统计', '时间序列', 'R / Python'],
+        href: '../#education', label: '查看教育背景'
+      },
+      {
+        emoji: '🏆', title: '「挑战杯」省级二等奖', meta: '东北振兴专项赛',
+        period: '省级二等奖 · 创新创业竞赛',
+        desc: '以东北振兴专项赛为赛道的省级奖项；同获互联网+ 校级铜奖、全国高校大数据挑战赛优秀奖等荣誉。',
+        tags: ['省级奖项', '创新创业'],
+        href: '../#awards', label: '查看竞赛荣誉'
+      },
+      {
+        emoji: '📄', title: '在线简历', meta: 'Resume · 附 PDF',
+        period: '持续更新 · 一页纸学术与工程履历',
+        desc: '教育背景、实习实践、技能矩阵与获奖荣誉的一页式呈现，支持在线浏览与 PDF 下载。',
+        tags: ['求职', '一页纸'],
+        href: '../resume/', label: '查看简历'
+      },
+      {
+        emoji: '🐙', title: 'GitHub @dai123x', meta: '开源 · 持续更新',
+        period: '代码仓库与案例知识库',
+        desc: '全部项目源码与持续更新的《案例分析知识库》，欢迎 Star / Fork / Issue 交流。',
+        tags: ['开源', '代码'],
+        href: 'https://github.com/dai123x', label: '访问 GitHub'
+      }
+    ];
+
+    /* ==================== 多语言（简 / 繁 / EN） ==================== */
+    var I18N = {
+      'zh-TW': {
+        chrome: {
+          back: '返回主頁', morph: '聚形', morphTitle: '讓光柱粒子匯聚成「璇」字',
+          soundOff: '氛圍音 · 關', soundOn: '氛圍音 · 開', soundTitle: 'Web Audio 即時合成的星海氛圍音（無音訊檔案）',
+          hintPre: '移動滑鼠 ', hintBold1: '視差漂移', hintMid: ' · 點擊卡片 ', hintBold2: '查看印記',
+          title: '璇璣星海', subtitle: '每一顆星 · 都是旅程的註腳',
+          kicker: '星海印記 · Imprint', cta: '前往查看', close: '關閉印記',
+          wall: '留言牆', wallTitle: '星海留言牆',
+          wallNote: '所有留言經站長審核後才會展示', wallLoading: '正在載入留言…',
+          wallNamePh: '暱稱（可匿名）', wallMsgPh: '寫下你的印記…',
+          wallSubmit: '提交審核', wallMail: '沒有 GitHub？郵件提交',
+          wallEmpty: '還沒有留言，來搶第一個沙發吧 ✦',
+          wallOpenToast: '已開啟 GitHub 提交頁，提交後等待站長審核 ✦',
+          wallFoot: '留言審核通過後展示 · 數據存於本站 GitHub 倉庫'
+        },
+        cards: [
+          { t: '雪線之上 · 冰雪經濟可視化', m: '2026 · 虛擬現實大賽', p: '2026 · 吉林省大學生虛擬現實大賽（數據可視化分析賽道）', d: '圍繞吉林省冰雪經濟政策目標構建四維立體敘事：Canvas 3D 冰雪地理沙盤、九大原生 SVG 分析圖表、雙目立體 VR 與互動式回歸推演器，全部數據可溯源至省政府公報。', tags: ['Canvas 3D', '原生 SVG 圖表', '計量建模', '零依賴'] },
+          { t: 'Aurora Chat · 極光', m: '2026.10 · MIT 開源', p: '2026.10 上線 · 純靜態 AI 聊天工作台', d: '智譜 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 瀏覽器直連，串流 SSE 與雙模型對比投票；對話與金鑰僅存本機。MIT 協議，可商用。', tags: ['純前端', '串流 SSE', '雙模型對比', 'MIT'] },
+          { t: '長工大全景立體地圖', m: 'Three.js · 84 處建築', p: '獨立研發 · Web 3D 數位孿生', d: '以公開地圖數據為參考 1:1 呈現北湖與南湖校區 84 處建築單體，第一人稱沉浸漫遊，支援衛星底圖與季節場景切換。', tags: ['Three.js', 'WebGL', '第一人稱漫遊'] },
+          { t: '智慧製造節拍診斷案例', m: 'ARIMA · 平衡率 +8.28pp', p: '2026 · 應用統計案例分析', d: '基於 2,000 循環產線仿真數據，用 ARIMA 與分布擬合定位瓶頸工位的自相關拖滯（φ₁=0.453），產線平衡率 84.4% → 92.7%。', tags: ['時間序列', '精實 IE', '案例分析'] },
+          { t: '信貸違約風險預警案例', m: 'Cox / Frailty / DML', p: '全國應用統計案例分析大賽', d: '13 階段全流程、20 張學術級圖表：Cox 比例風險、Frailty 脆弱模型與 DML 因果推斷框架下的中小企業信貸違約預警系統。', tags: ['生存分析', 'DML 因果推斷', '風險預警'] },
+          { t: '一汽豐田 IE 實習', m: '2024 · 生產效率', p: '2024.09 - 2024.10 · 工業工程實習生', d: '發動機裝配產線作業測定與時間研究，梳理非增值活動；對 AGV 小車運行軌跡建模，簡化交叉干涉點，優化物流週轉節拍。', tags: ['作業測定', 'AGV 路徑', '精實改善'] },
+          { t: '長春工業大學 · 應用統計', m: '2025 - 2028 · 碩士在讀', p: '2025.09 - 2028.06 · 數學與統計學院', d: '研究方向：數據分析。系統鑽研應用統計理論、數據探勘與高維時間序列建模，探索工業製造場景下的數據驅動量化最佳化。', tags: ['應用統計', '時間序列', 'R / Python'] },
+          { t: '「挑戰盃」省級二等獎', m: '東北振興專項賽', p: '省級二等獎 · 創新創業競賽', desc: '', d: '以東北振興專項賽為賽道的省級獎項；同獲互聯網+ 校級銅獎、全國高校大數據挑戰賽優秀獎等榮譽。', tags: ['省級獎項', '創新創業'] },
+          { t: '線上簡歷', m: 'Resume · 附 PDF', p: '持續更新 · 一頁紙學術與工程履歷', d: '教育背景、實習實踐、技能矩陣與獲獎榮譽的一頁式呈現，支援線上瀏覽與 PDF 下載。', tags: ['求職', '一頁紙'] },
+          { t: 'GitHub @dai123x', m: '開源 · 持續更新', p: '程式碼倉庫與案例知識庫', d: '全部專案原始碼與持續更新的《案例分析知識庫》，歡迎 Star / Fork / Issue 交流。', tags: ['開源', '程式碼'] }
+        ]
+      },
+      'en': {
+        chrome: {
+          back: 'Home', morph: 'Converge', morphTitle: 'Converge the light-column particles into the glyph 「璇」',
+          soundOff: 'Ambience · Off', soundOn: 'Ambience · On', soundTitle: 'Real-time Web Audio ambience for the galaxy (no audio files)',
+          hintPre: 'Move the mouse for ', hintBold1: 'parallax drift', hintMid: ' · click a card to ', hintBold2: 'view its imprint',
+          title: 'Xuanji Galaxy', subtitle: 'EVERY STAR · A FOOTNOTE OF THE JOURNEY',
+          kicker: 'GALACTIC IMPRINT', cta: 'Open', close: 'Close imprint',
+          wall: 'Guestbook', wallTitle: 'Galaxy Guestbook',
+          wallNote: 'Every message is reviewed by the site owner before it appears',
+          wallLoading: 'Loading comments…',
+          wallNamePh: 'Name (optional)', wallMsgPh: 'Leave your imprint…',
+          wallSubmit: 'Submit for review', wallMail: 'No GitHub? Submit by email',
+          wallEmpty: 'No comments yet — be the first ✦',
+          wallOpenToast: 'GitHub submission page opened — awaiting review ✦',
+          wallFoot: 'Comments appear after review · stored in this site’s GitHub repo'
+        },
+        cards: [
+          { t: 'Snowline · Ice-Snow Economy Viz', m: '2026 · VR Contest', p: '2026 · Jilin Provincial VR Contest (Data-Visualization Track)', d: 'A four-dimensional narrative of Jilin’s ice-snow economy policy goals: a Canvas-3D terrain sandbox, nine hand-rolled SVG charts, stereo VR and an interactive regression playground — every figure traceable to provincial gazettes.', tags: ['Canvas 3D', 'Native SVG', 'Econometrics', 'Zero-dep'] },
+          { t: 'Aurora Chat ·极光', m: '2026.10 · MIT Open Source', p: 'Launched 2026.10 · Static AI chat workspace', d: 'GLM / DeepSeek / OpenAI / Kimi / SiliconFlow direct from the browser, with SSE streaming and dual-model side-by-side voting; chats and keys stay on your device. MIT licensed.', tags: ['Frontend-only', 'SSE', 'Dual-model', 'MIT'] },
+          { t: 'CCUT Panoramic 3D Map', m: 'Three.js · 84 buildings', p: 'Independent R&D · Web 3D digital twin', d: 'Both campuses rendered 1:1 from public map data with 84 building models, first-person roaming, optional satellite basemap and seasonal scenes.', tags: ['Three.js', 'WebGL', 'First-person'] },
+          { t: 'Smart-Mfg Takt Diagnosis', m: 'ARIMA · +8.28pp balance', p: '2026 · Applied-statistics case study', d: 'On a 2,000-cycle simulated assembly line, ARIMA and distribution fitting pinpoint autocorrelated takt lag (φ₁=0.453), lifting line balance from 84.4% to 92.7%.', tags: ['Time series', 'Lean IE', 'Case study'] },
+          { t: 'Credit-Default Early Warning', m: 'Cox / Frailty / DML', p: 'National applied-statistics case contest', d: 'A 13-stage pipeline with 20 academic charts: Cox proportional hazards, frailty models and DML causal inference for SME credit-risk early warning.', tags: ['Survival analysis', 'DML inference', 'Risk warning'] },
+          { t: 'FAW Toyota IE Internship', m: '2024 · Productivity', p: '2024.09 - 2024.10 · Industrial-engineering intern', d: 'Engine-assembly time studies and non-value-added activity mapping, plus AGV trajectory modeling that untangled route crossings to smooth logistics takt.', tags: ['Time study', 'AGV routing', 'Lean'] },
+          { t: 'CCUT · Applied Statistics', m: '2025 - 2028 · M.Sc. in progress', p: '2025.09 - 2028.06 · School of Mathematics & Statistics', d: 'Research focus: data analytics — applied statistics, data mining and high-dimensional time-series modeling for industrial manufacturing scenarios.', tags: ['Applied stats', 'Time series', 'R / Python'] },
+          { t: '“Challenge Cup” Provincial Silver', m: 'NE-revitalization track', p: 'Provincial second prize · Innovation & entrepreneurship', d: 'Provincial silver in the Challenge Cup NE-revitalization track, alongside Internet+ bronze and a national big-data contest excellence award.', tags: ['Provincial award', 'Innovation'] },
+          { t: 'Online Résumé', m: 'Resume · PDF inside', p: 'Living document · one-page academic & engineering CV', d: 'Education, internships, skills and honors on a single page — read online or download the PDF.', tags: ['Career', 'One-pager'] },
+          { t: 'GitHub @dai123x', m: 'Open source · active', p: 'Repositories & case-study knowledge base', d: 'All project source code plus a growing applied-statistics case library. Stars, forks and issues welcome.', tags: ['Open source', 'Code'] }
+        ]
+      }
+    };
+
+    var LANGS = { 'zh-CN': '简', 'zh-TW': '繁', 'en': 'EN' };
+    var langBtn = document.getElementById('lang-btn');
+    var langMenu = document.getElementById('lang-menu');
+    var langCurrent = document.getElementById('lang-current');
+
+    function getLang() {
+      try {
+        var v = localStorage.getItem('dx_lang');
+        return (v && LANGS[v]) ? v : 'zh-CN';
+      } catch (e) { return 'zh-CN'; }
+    }
+
+    function applyLang(lang) {
+      var dict = I18N[lang];
+      try { localStorage.setItem('dx_lang', lang); } catch (e) { /* 忽略 */ }
+      document.documentElement.lang = lang === 'en' ? 'en' : (lang === 'zh-TW' ? 'zh-TW' : 'zh-CN');
+      if (langCurrent) langCurrent.textContent = LANGS[lang];
+
+      // 简体基准与非简体字典统一成一个 chrome 视图，避免切回简体时残留外文
+      var c = dict ? dict.chrome : BASE_CHROME;
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n');
+        if (c[key]) el.textContent = c[key];
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n-title');
+        if (c[key]) el.setAttribute('title', c[key]);
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n-ph');
+        if (c[key]) el.setAttribute('placeholder', c[key]);
+      });
+
+      // 标题与提示
+      var h1 = document.querySelector('.g-title h1');
+      var sub = document.querySelector('.g-title p');
+      var hint = document.querySelector('.g-hint');
+      if (h1) h1.textContent = c.title;
+      if (sub) sub.textContent = c.subtitle;
+      if (hint) hint.innerHTML = c.hintPre + '<b>' + c.hintBold1 + '</b>' + c.hintMid + '<b>' + c.hintBold2 + '</b>';
+
+      // 音效按钮跟随当前状态（组件可能尚未构建）
+      if (soundLabel) soundLabel.textContent = (ambience && ambience.on) ? c.soundOn : c.soundOff;
+
+      // 里程碑卡片文案（印记弹窗的 CTA 用 LABELS 按 index 翻译）
+      if (dict) dict.cards.forEach(function (cd, i) {
+        if (!MILESTONES[i]) return;
+        MILESTONES[i].title = cd.t;
+        MILESTONES[i].meta = cd.m;
+        MILESTONES[i].period = cd.p;
+        MILESTONES[i].desc = cd.d;
+        MILESTONES[i].tags = cd.tags;
+        MILESTONES[i].label = CTA_LABELS[lang][i] || BASE_CARDS[i].label;
+        if (cards[i]) {
+          cards[i].el.innerHTML = '<span class="sc-emoji" aria-hidden="true">' + MILESTONES[i].emoji + '</span>' +
+            '<span class="sc-title">' + cd.t + '</span>' +
+            '<span class="sc-meta">' + cd.m + '</span>';
+          cards[i].el.setAttribute('aria-label', (c ? 'Imprint' : '查看印记') + '：' + cd.t);
+        }
+      });
+      if (lang === 'zh-CN') {
+        // 还原简体基准文案
+        MILESTONES.forEach(function (m, i) {
+          var b = BASE_CARDS[i];
+          m.title = b.title; m.meta = b.meta; m.period = b.period; m.desc = b.desc; m.tags = b.tags; m.label = b.label;
+          if (cards[i]) {
+            cards[i].el.innerHTML = '<span class="sc-emoji" aria-hidden="true">' + m.emoji + '</span>' +
+              '<span class="sc-title">' + b.title + '</span><span class="sc-meta">' + b.meta + '</span>';
+            cards[i].el.setAttribute('aria-label', '查看印记：' + b.title);
+          }
+        });
+      }
+    }
+
+    var CTA_LABELS = {
+      'zh-TW': ['進入互動系統', '開啟線上應用', '線上 3D 漫遊', '查閱完整報告', '查看案例詳情', '查看實習經歷', '查看教育背景', '查看競賽榮譽', '查看簡歷', '訪問 GitHub'],
+      'en': ['Enter the system', 'Open the app', '3D tour', 'Full report', 'Case details', 'Internship story', 'Education', 'Awards', 'View résumé', 'Visit GitHub']
+    };
+
+    var BASE_CHROME = {
+      back: '返回主页', morph: '聚形', morphTitle: '让光柱粒子汇聚成「璇」字',
+      soundOff: '氛围音 · 关', soundOn: '氛围音 · 开', soundTitle: 'Web Audio 实时合成的星海氛围音（无音频文件）',
+      hintPre: '移动鼠标 ', hintBold1: '视差漂移', hintMid: ' · 点击卡片 ', hintBold2: '查看印记',
+      title: '璇玑星海', subtitle: '每一颗星 · 都是一段旅程的注脚',
+      kicker: '星海印记 · Imprint', cta: '前往查看', close: '关闭印记',
+      wall: '留言墙', wallTitle: '星海留言墙',
+      wallNote: '所有留言经站长审核后才会展示', wallLoading: '正在载入留言…',
+      wallNamePh: '昵称（可匿名）', wallMsgPh: '写下你的印记…',
+      wallSubmit: '提交审核', wallMail: '没有 GitHub？邮件提交',
+      wallEmpty: '还没有留言，来抢第一个沙发吧 ✦',
+      wallOpenToast: '已打开 GitHub 提交页，提交后等待站长审核 ✦',
+      wallFoot: '留言审核通过后展示 · 数据存于本站 GitHub 仓库'
+    };
+    var BASE_CARDS = MILESTONES.map(function (m) {
+      return { title: m.title, meta: m.meta, period: m.period, desc: m.desc, tags: m.tags.slice(), label: m.label };
+    });
+
+    if (langBtn && langMenu) {
+      langBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = langMenu.hidden;
+        langMenu.hidden = !open;
+        langBtn.setAttribute('aria-expanded', String(open));
+      });
+      langMenu.addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-lang]');
+        if (!b) return;
+        langMenu.hidden = true;
+        langBtn.setAttribute('aria-expanded', 'false');
+        langMenu.querySelectorAll('button').forEach(function (x) { x.classList.toggle('active', x === b); });
+        applyLang(b.dataset.lang);
+      });
+      document.addEventListener('click', function (e) {
+        if (!langMenu.hidden && !langMenu.contains(e.target) && e.target !== langBtn) {
+          langMenu.hidden = true;
+          langBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+      langMenu.querySelectorAll('button').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.lang === getLang());
+      });
+      // 注意：applyLang 依赖 cards 与音效组件，推迟到 IIFE 末尾统一调用
+    }
+
+    /* ==================== 星海留言墙（先审后发：Issue 队列 + approved 标签 → Action 发布） ==================== */
+    var wallBtn = document.getElementById('wall-btn');
+    var wallDrawer = document.getElementById('wall-drawer');
+    var wallList = document.getElementById('wall-list');
+    var wallClose = document.getElementById('wall-close');
+    var wallForm = document.getElementById('wall-form');
+    var wallName = document.getElementById('wall-name');
+    var wallMsg = document.getElementById('wall-msg');
+    var wallMail = document.getElementById('wall-mail');
+    var commentsLoaded = false;
+
+    var ISSUE_BASE = 'https://github.com/dai123x/dai123x.github.io/issues/new';
+
+    function chromeText() {
+      var dict = I18N[getLang()];
+      return dict ? dict.chrome : BASE_CHROME;
+    }
+
+    function toastWall(key) {
+      try { showToast(chromeText()[key] || ''); } catch (e) { /* 忽略 */ }
+    }
+
+    function renderComments(list) {
+      if (!wallList) return;
+      wallList.innerHTML = '';
+      if (!list.length) {
+        var empty = document.createElement('div');
+        empty.className = 'wall-empty';
+        empty.textContent = chromeText().wallEmpty;
+        wallList.appendChild(empty);
+        return;
+      }
+      list.forEach(function (c) {
+        var item = document.createElement('div');
+        item.className = 'wall-item';
+
+        var head = document.createElement('div');
+        head.className = 'wi-head';
+        var name = document.createElement('span');
+        name.className = 'wi-name';
+        name.textContent = '✦ ' + (c.name || '匿名访客');
+        var date = document.createElement('span');
+        date.className = 'wi-date';
+        date.textContent = c.date || '';
+        head.appendChild(name); head.appendChild(date);
+
+        var text = document.createElement('p');
+        text.className = 'wi-text';
+        text.textContent = c.text || '';
+
+        item.appendChild(head); item.appendChild(text);
+        wallList.appendChild(item);
+      });
+    }
+
+    function loadComments() {
+      if (commentsLoaded || !wallList) return;
+      commentsLoaded = true;
+      fetch('comments.json?t=' + Date.now(), { cache: 'no-cache' })
+        .then(function (r) { return r.json(); })
+        .then(function (list) { renderComments(Array.isArray(list) ? list : []); })
+        .catch(function () {
+          wallList.innerHTML = '';
+          var err = document.createElement('div');
+          err.className = 'wall-empty';
+          err.textContent = chromeText().wallEmpty;
+          wallList.appendChild(err);
+        });
+    }
+
+    function submitWall(e) {
+      e.preventDefault();
+      var name = (wallName && wallName.value || '').trim().slice(0, 20);
+      var msg = (wallMsg && wallMsg.value || '').trim().slice(0, 200);
+      if (!msg) {
+        if (wallMsg) wallMsg.focus();
+        return;
+      }
+      var c = chromeText();
+      var d = new Date();
+      var pad = function (n) { return String(n).padStart(2, '0'); };
+      var dateStr = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+      var title = '[留言墙] ' + (name || (getLang() === 'en' ? 'Anonymous' : '匿名访客'));
+      var body = '### 昵称\n' + (name || '匿名访客') + '\n\n### 留言\n' + msg + '\n\n> 提交自 daixuan.cloud/galaxy · ' + dateStr;
+      window.open(ISSUE_BASE + '?title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body), '_blank', 'noopener');
+      toastWall('wallOpenToast');
+      if (wallMsg) wallMsg.value = '';
+    }
+
+    if (wallBtn && wallDrawer) {
+      wallBtn.addEventListener('click', function () {
+        var willOpen = !wallDrawer.classList.contains('open');
+        if (willOpen) {
+          wallDrawer.hidden = false;
+          requestAnimationFrame(function () { wallDrawer.classList.add('open'); });
+          loadComments();
+        } else {
+          wallDrawer.classList.remove('open');
+          setTimeout(function () { wallDrawer.hidden = true; }, 320);
+        }
+        wallBtn.setAttribute('aria-expanded', String(willOpen));
+      });
+      if (wallClose) wallClose.addEventListener('click', function () {
+        wallDrawer.classList.remove('open');
+        wallBtn.setAttribute('aria-expanded', 'false');
+        setTimeout(function () { wallDrawer.hidden = true; }, 320);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && wallDrawer.classList.contains('open')) {
+          wallDrawer.classList.remove('open');
+          wallBtn.setAttribute('aria-expanded', 'false');
+          setTimeout(function () { wallDrawer.hidden = true; }, 320);
+        }
+      });
+    }
+    if (wallForm) wallForm.addEventListener('submit', submitWall);
+
+    /* ==================== 唤醒幕 ==================== */
+    var bootEl = document.getElementById('gw-boot');
+    var bootText = document.getElementById('gwb-text');
+    var booted = false;
+    try { booted = sessionStorage.getItem('dx_galaxy_booted') === '1'; } catch (e) { /* 忽略 */ }
+
+    function finishBoot() {
+      if (!bootEl) return;
+      bootEl.classList.add('is-done');
+      setTimeout(function () { if (bootEl) bootEl.remove(); }, 700);
+    }
+
+    if (prefersReducedMotion || booted) {
+      if (bootEl) bootEl.remove();
+    } else {
+      try { sessionStorage.setItem('dx_galaxy_booted', '1'); } catch (e) { /* 忽略 */ }
+      var bt0 = performance.now();
+      (function btick(now) {
+        var p = Math.min((now - bt0) / 1150, 1);
+        bootText.textContent = '正在唤醒记忆星海 … ' + Math.round((1 - Math.pow(1 - p, 2)) * 100) + '%';
+        if (p < 1) requestAnimationFrame(btick);
+        else finishBoot();
+      })(bt0);
+      setTimeout(finishBoot, 2300); // 兜底
+    }
+
+    /* ==================== 轨道卡片 ==================== */
+    var cards = [];
+    var cardLayer = document.createDocumentFragment();
+    MILESTONES.forEach(function (m, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'star-card';
+      b.setAttribute('aria-label', '查看印记：' + m.title);
+      b.innerHTML = '<span class="sc-emoji" aria-hidden="true">' + m.emoji + '</span>' +
+                    '<span class="sc-title">' + m.title + '</span>' +
+                    '<span class="sc-meta">' + m.meta + '</span>';
+      b.addEventListener('click', function () { openImprint(i); });
+      cardLayer.appendChild(b);
+      cards.push({ el: b, angle: (i / MILESTONES.length) * Math.PI * 2, bob: Math.random() * Math.PI * 2 });
+    });
+    document.body.appendChild(cardLayer);
+
+    /* ==================== 印记弹窗 ==================== */
+    var overlay = document.getElementById('imprint-overlay');
+    var imTitle = document.getElementById('imprint-title');
+    var imPeriod = document.getElementById('imprint-period');
+    var imDesc = document.getElementById('imprint-desc');
+    var imTags = document.getElementById('imprint-tags');
+    var imLink = document.getElementById('imprint-link');
+    var imClose = document.getElementById('imprint-close');
+    var lastFocus = null;
+
+    function openImprint(i) {
+      var m = MILESTONES[i];
+      lastFocus = document.activeElement;
+      imTitle.textContent = m.emoji + ' ' + m.title;
+      imPeriod.textContent = m.period;
+      imDesc.textContent = m.desc;
+      imTags.innerHTML = '';
+      m.tags.forEach(function (t) {
+        var s = document.createElement('span');
+        s.textContent = t;
+        imTags.appendChild(s);
+      });
+      imLink.href = m.href;
+      imLink.querySelector('span').textContent = m.label;
+      overlay.classList.add('active');
+      setTimeout(function () { imClose.focus(); }, 80);
+    }
+
+    function closeImprint() {
+      overlay.classList.remove('active');
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    }
+
+    imClose.addEventListener('click', closeImprint);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeImprint(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && overlay.classList.contains('active')) closeImprint();
+      if (e.key === 'Tab' && overlay.classList.contains('active')) {
+        // 简单焦点陷阱：弹窗内只有关闭按钮与链接两个可聚焦元素
+        var f = [imClose, imLink];
+        var idx = f.indexOf(document.activeElement);
+        if (e.shiftKey && (idx === 0 || idx === -1)) { e.preventDefault(); f[1].focus(); }
+        else if (!e.shiftKey && idx === 1) { e.preventDefault(); f[0].focus(); }
+      }
+    });
+
+    /* ==================== 星海聚形：光柱粒子汇聚成「璇」字 ==================== */
+    var morphBtn = document.getElementById('morph-btn');
+    var morph = { phase: 'idle', t0: 0, parts: [] }; // phase: idle | in | hold | out
+
+    function buildGlyphTargets() {
+      var size = 220;
+      var off = document.createElement('canvas');
+      off.width = size; off.height = size;
+      var octx = off.getContext('2d');
+      octx.fillStyle = '#fff';
+      octx.font = '900 168px "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.fillText('璇', size / 2, size / 2 + 6);
+      var data = octx.getImageData(0, 0, size, size).data;
+      var pts = [];
+      for (var y = 0; y < size; y += 4) {
+        for (var x = 0; x < size; x += 4) {
+          if (data[(y * size + x) * 4 + 3] > 140) {
+            pts.push({ x: x - size / 2, y: y - size / 2 });
+          }
+        }
+      }
+      pts.sort(function () { return Math.random() - 0.5; });
+      return pts.slice(0, 900); // 「璇」笔画繁密，点数不足会糊成一片
+    }
+
+    function glyphLayout() {
+      var gScale = Math.min(W, H) / 3.4 / 168;
+      return { cx: CX, cy: CY - Math.min(H * 0.09, 70), scale: gScale };
+    }
+
+    function makeMorphParticles() {
+      var pts = morph._pts || (morph._pts = buildGlyphTargets());
+      var lay = glyphLayout();
+      var colTopL = H * 0.26, colBaseL = CY + 10;
+      morph.parts = pts.map(function (p, i) {
+        var fromX = CX + Math.sin(i * 12.9898) * 26;
+        var fromY = colTopL + (colBaseL - colTopL) * ((i * 0.618) % 1);
+        return {
+          fx: fromX, fy: fromY,
+          tx: lay.cx + p.x * lay.scale,
+          ty: lay.cy + p.y * lay.scale,
+          delay: Math.random() * 0.45,
+          dur: 0.9 + Math.random() * 0.5,
+          warm: i % 6 !== 0,
+          seed: Math.random() * Math.PI * 2
+        };
+      });
+    }
+
+    function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+    function morphLabel(active) {
+      var c = I18N[getLang()] ? I18N[getLang()].chrome : null;
+      var txt = active ? (c ? '散開' : '散开') : (c ? c.morph : '聚形');
+      if (getLang() === 'zh-CN') txt = active ? '散开' : '聚形';
+      morphBtn.innerHTML = '✦ <span>' + txt + '</span>';
+    }
+
+    function startMorph() {
+      if (morph.phase !== 'idle' || prefersReducedMotion) return;
+      makeMorphParticles();
+      morph.phase = 'in';
+      morph.t0 = seconds();
+      if (morphBtn) { morphBtn.setAttribute('aria-pressed', 'true'); morphLabel(true); }
+    }
+
+    function endMorph() {
+      morph.phase = 'idle';
+      if (morphBtn) { morphBtn.setAttribute('aria-pressed', 'false'); morphLabel(false); }
+    }
+
+    function seconds() { return performance.now() / 1000; }
+
+    function drawMorph() {
+      if (morph.phase === 'idle') return;
+      var t = seconds() - morph.t0;
+
+      if (morph.phase === 'in') {
+        var allDone = true;
+        for (var i = 0; i < morph.parts.length; i++) {
+          var p = morph.parts[i];
+          var k = Math.min(Math.max((t - p.delay) / p.dur, 0), 1);
+          if (k < 1) allDone = false;
+          var e = easeInOut(k);
+          var x = p.fx + (p.tx - p.fx) * e;
+          var y = p.fy + (p.ty - p.fy) * e;
+          ctx.globalAlpha = 0.15 + 0.8 * e;
+          ctx.fillStyle = p.warm ? '#fdf6e3' : '#b3bdfa';
+          ctx.fillRect(x, y, 2.2, 2.2);
+        }
+        if (allDone || t > 2.2) { morph.phase = 'hold'; morph.t0 = seconds(); }
+        return;
+      }
+
+      if (morph.phase === 'hold') {
+        for (var h = 0; h < morph.parts.length; h++) {
+          var hp = morph.parts[h];
+          var sh = prefersReducedMotion ? 0 : Math.sin(T * 2.2 + hp.seed) * 1.1;
+          ctx.globalAlpha = 0.92;
+          ctx.fillStyle = hp.warm ? '#fdf6e3' : '#b3bdfa';
+          ctx.fillRect(hp.tx + sh, hp.ty + sh * 0.6, 2.2, 2.2);
+        }
+        if (t > 3.0) { morph.phase = 'out'; morph.t0 = seconds(); }
+        return;
+      }
+
+      if (morph.phase === 'out') {
+        var kk = Math.min(t / 1.0, 1);
+        for (var o = 0; o < morph.parts.length; o++) {
+          var op = morph.parts[o];
+          var ex = op.tx + (CX - op.tx) * kk * kk;
+          var ey = op.ty + ((CY + 20) - op.ty) * kk * kk;
+          ctx.globalAlpha = 0.9 * (1 - kk);
+          ctx.fillStyle = op.warm ? '#fdf6e3' : '#b3bdfa';
+          ctx.fillRect(ex, ey, 2, 2);
+        }
+        if (kk >= 1) endMorph();
+      }
+    }
+
+    if (morphBtn) {
+      morphBtn.addEventListener('click', function () {
+        morph.phase === 'idle' ? startMorph() : endMorph();
+      });
+      // 首次到访 5 秒后自动演示一次聚形（同会话仅一次）
+      var morphSeen = false;
+      try { morphSeen = sessionStorage.getItem('dx_galaxy_morph') === '1'; } catch (e) { /* 忽略 */ }
+      if (!morphSeen && !prefersReducedMotion) {
+        try { sessionStorage.setItem('dx_galaxy_morph', '1'); } catch (e) { /* 忽略 */ }
+        setTimeout(function () { if (!document.hidden && morph.phase === 'idle') startMorph(); }, 5200);
+      }
+    }
+
+    /* ==================== Web Audio 氛围音：极光风声 + 空灵和声垫 ==================== */
+    var soundBtn = document.getElementById('sound-btn');
+    var soundLabel = document.getElementById('sound-label');
+    var ambience = { ctx: null, master: null, on: false };
+
+    function buildAmbience() {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      var actx = new AC();
+      var master = actx.createGain();
+      master.gain.value = 0;
+      master.connect(actx.destination);
+
+      // 高寒风声：白噪声 → 带通，中心频率被超低频 LFO 缓慢推移
+      var buf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate);
+      var ch = buf.getChannelData(0);
+      for (var i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+      var noise = actx.createBufferSource();
+      noise.buffer = buf;
+      noise.loop = true;
+      var bp = actx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 420;
+      bp.Q.value = 0.7;
+      var nGain = actx.createGain();
+      nGain.gain.value = 0.05;
+      noise.connect(bp); bp.connect(nGain); nGain.connect(master);
+      var lfo = actx.createOscillator();
+      lfo.frequency.value = 0.07;
+      var lfoGain = actx.createGain();
+      lfoGain.gain.value = 160;
+      lfo.connect(lfoGain); lfoGain.connect(bp.frequency);
+
+      // 和声垫：A2-E3-A3-C#4 正弦叠置，各自带独立失谐漂移
+      [110, 164.81, 220, 277.18].forEach(function (freq, idx) {
+        var osc = actx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        var g = actx.createGain();
+        g.gain.value = 0.012;
+        var lp = actx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 900;
+        osc.connect(g); g.connect(lp); lp.connect(master);
+        var det = actx.createOscillator();
+        det.frequency.value = 0.05 + idx * 0.017;
+        var detGain = actx.createGain();
+        detGain.gain.value = 1.4;
+        det.connect(detGain); detGain.connect(osc.detune);
+        det.start();
+        osc.start();
+      });
+
+      lfo.start();
+      noise.start();
+      ambience.ctx = actx;
+      ambience.master = master;
+      return true;
+    }
+
+    function toggleSound() {
+      if (!ambience.ctx && !buildAmbience()) {
+        if (soundLabel) soundLabel.textContent = '氛围音 · N/A';
+        return;
+      }
+      ambience.on = !ambience.on;
+      var actx = ambience.ctx;
+      if (actx.state === 'suspended') actx.resume();
+      ambience.master.gain.setTargetAtTime(ambience.on ? 0.9 : 0, actx.currentTime, 0.8);
+      if (soundBtn) soundBtn.setAttribute('aria-pressed', String(ambience.on));
+      if (soundLabel) {
+        var c = I18N[getLang()] ? I18N[getLang()].chrome : null;
+        soundLabel.textContent = ambience.on ? (c ? c.soundOn : 'Ambience · On') : (c ? c.soundOff : '氛围音 · 关');
+        if (getLang() === 'zh-CN') soundLabel.textContent = ambience.on ? '氛围音 · 开' : '氛围音 · 关';
+      }
+    }
+
+    if (soundBtn) soundBtn.addEventListener('click', toggleSound);
+
+    /* ==================== 星空渲染 ==================== */
+    var canvas = document.getElementById('sky');
+    var ctx = canvas.getContext('2d');
+    var W = 0, H = 0, DPR = 1, CX = 0, CY = 0;
+
+    var stars = [];      // 远景星野
+    var disk = [];       // 星系旋盘
+    var column = [];     // 中央光柱上升粒子
+    var PALETTE = ['#818cf8', '#a855f7', '#ec4899', '#22d3ee'];
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function buildParticles() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * DPR;
+      canvas.height = H * DPR;
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      CX = W / 2;
+      CY = H * 0.58;
+
+      var area = W * H;
+      var nStars = Math.round(area / 4200);
+      stars = [];
+      for (var i = 0; i < nStars; i++) {
+        stars.push({
+          x: Math.random() * W, y: Math.random() * H,
+          r: rand(0.4, 1.4), ph: Math.random() * Math.PI * 2,
+          sp: rand(0.4, 1.4), depth: rand(0.3, 1)
+        });
+      }
+
+      disk = [];
+      var nDisk = Math.round(Math.min(1700, area / 1000));
+      for (var j = 0; j < nDisk; j++) {
+        var t = Math.pow(Math.random(), 0.62);           // 内密外疏
+        var r = 0.06 + t * 0.94;                          // 归一化半径
+        var arm = Math.floor(Math.random() * 2);          // 双旋臂
+        var ang = r * 5.2 + arm * Math.PI + rand(-0.42, 0.42);
+        var color = r < 0.3 ? '#fdf6e3' : PALETTE[(Math.random() * PALETTE.length) | 0];
+        disk.push({
+          r: r, ang: ang,
+          size: rand(0.7, 2.1) * (r < 0.3 ? 1.15 : 1),
+          color: color,
+          alpha: (0.16 + 0.84 * (1 - r)) * rand(0.55, 1),
+          wSpeed: (0.10 / (0.25 + r)) * (Math.random() < 0.5 ? 1 : 1) // 内快外慢
+        });
+      }
+
+      column = [];
+      var nCol = Math.round(Math.min(220, area / 8000));
+      for (var k = 0; k < nCol; k++) {
+        column.push({ p: Math.random(), sp: rand(0.10, 0.30), sway: Math.random() * Math.PI * 2, size: rand(0.8, 2.4) });
+      }
+    }
+
+    /* 视差 */
+    var mx = 0.5, my = 0.5, px = 0, py = 0;
+
+    if (!prefersReducedMotion) {
+      window.addEventListener('pointermove', function (e) {
+        mx = e.clientX / W;
+        my = e.clientY / H;
+      }, { passive: true });
+    }
+
+    var orbitR = 0, orbitSquash = 0.30, orbitSpeed = 0.055, T = 0;
+
+    function layout() {
+      var mobile = W < 640;
+      orbitR = Math.min(W * (mobile ? 0.40 : 0.37), 500);
+      // 窄屏：椭圆竖向拉长成环带，避免卡片在水平窄轨道上叠成一团
+      orbitSquash = mobile ? 0.92 : 0.30;
+    }
+
+    function render() {
+      px += ((mx - 0.5) * 26 - px) * 0.045;
+      py += ((my - 0.5) * 16 - py) * 0.045;
+
+      ctx.clearRect(0, 0, W, H);
+
+      /* 远景星野（微视差） */
+      ctx.globalCompositeOperation = 'source-over';
+      for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        var tw = prefersReducedMotion ? 0.7 : (0.45 + 0.55 * Math.abs(Math.sin(T * s.sp + s.ph)));
+        ctx.globalAlpha = tw * 0.8;
+        ctx.fillStyle = '#cdd7f3';
+        ctx.fillRect(s.x - px * s.depth * 0.4, s.y - py * s.depth * 0.4, s.r, s.r);
+      }
+
+      ctx.globalCompositeOperation = 'lighter';
+
+      /* 地面辉光环 */
+      var gr = ctx.createRadialGradient(CX - px, CY + 8 - py, 0, CX - px, CY + 8 - py, orbitR * 0.95);
+      gr.addColorStop(0, 'rgba(129, 140, 248, 0.20)');
+      gr.addColorStop(0.55, 'rgba(168, 85, 247, 0.07)');
+      gr.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = gr;
+      ctx.beginPath();
+      ctx.ellipse(CX - px, CY + 8 - py, orbitR * 0.95, orbitR * 0.34, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      /* 星系旋盘（椭圆压扁 + 差速旋转） */
+      var squash = 0.34;
+      for (var d = 0; d < disk.length; d++) {
+        var pt = disk[d];
+        var a = pt.ang + (prefersReducedMotion ? 0 : T * pt.wSpeed);
+        var rx = pt.r * orbitR * 1.18;
+        var x = CX - px * 0.85 + Math.cos(a) * rx;
+        var y = CY + 6 - py * 0.85 + Math.sin(a) * rx * squash;
+        ctx.globalAlpha = pt.alpha;
+        ctx.fillStyle = pt.color;
+        ctx.fillRect(x, y, pt.size, pt.size);
+      }
+
+      /* 中央光柱：柔和光束 + 自地平线升起的粒子流（聚形时自动变暗让位） */
+      var colTop = H * 0.26, colBase = CY + 10;
+      var colDim = (morph.phase !== 'idle') ? 0.22 : 1;
+
+      /* 光束本体（低透明度垂直渐变线） */
+      var beam = ctx.createLinearGradient(0, colBase, 0, colTop);
+      beam.addColorStop(0, 'rgba(129, 140, 248, ' + (0.16 * colDim).toFixed(3) + ')');
+      beam.addColorStop(0.65, 'rgba(142, 160, 255, ' + (0.13 * colDim).toFixed(3) + ')');
+      beam.addColorStop(1, 'rgba(253, 246, 227, ' + (0.22 * colDim).toFixed(3) + ')');
+      ctx.strokeStyle = beam;
+      ctx.lineWidth = 54;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(CX - px * 0.5, colBase);
+      ctx.lineTo(CX - px * 0.5, colTop);
+      ctx.stroke();
+      ctx.lineWidth = 16;
+      ctx.globalAlpha = 0.85 * colDim;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      for (var c = 0; c < column.length; c++) {
+        var cp = column[c];
+        var prog = prefersReducedMotion ? cp.p : ((cp.p + T * cp.sp * 0.5) % 1);
+        var y = colBase - prog * (colBase - colTop);
+        var narrow = 1 - prog * 0.82;                       // 越高越收束
+        var x = CX - px * 0.5 + Math.sin(cp.sway + prog * 7) * 14 * narrow;
+        var fade = Math.sin(prog * Math.PI);                // 两端淡出
+        ctx.globalAlpha = 0.85 * fade * colDim;
+        ctx.fillStyle = prog > 0.72 ? '#fdf6e3' : '#9aa8ff';
+        ctx.fillRect(x, y, cp.size * narrow + 0.6, cp.size * narrow + 0.6);
+      }
+
+      /* 聚形字（若在进行中） */
+      drawMorph();
+
+      /* 顶端脉冲星 */
+      var pulse = prefersReducedMotion ? 1 : (1 + 0.16 * Math.sin(T * 2.4));
+      var sx = CX - px * 0.5, sy = colTop - 16 - py * 0.5;
+      var sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, 46 * pulse);
+      sg.addColorStop(0, 'rgba(253, 246, 227, 0.95)');
+      sg.addColorStop(0.25, 'rgba(129, 140, 248, 0.55)');
+      sg.addColorStop(1, 'rgba(129, 140, 248, 0)');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = sg;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 46 * pulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      /* 四芒 */
+      ctx.strokeStyle = 'rgba(253, 246, 227, 0.9)';
+      ctx.lineWidth = 1.4;
+      var L = 15 * pulse;
+      ctx.beginPath();
+      ctx.moveTo(sx - L, sy); ctx.lineTo(sx + L, sy);
+      ctx.moveTo(sx, sy - L); ctx.lineTo(sx, sy + L);
+      ctx.stroke();
+
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function placeCards() {
+      var mobile = W < 640;
+      var lift = mobile ? -104 : -130;
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i];
+        var a = c.angle + (prefersReducedMotion ? 0 : T * orbitSpeed);
+        var bobY = prefersReducedMotion ? 0 : Math.sin(T * 1.3 + c.bob) * 7;
+        var x = CX - px * 1.25 + Math.cos(a) * orbitR;
+        var depth = (Math.sin(a) + 1) / 2;                  // 0 远 → 1 近
+        var y = CY + 26 - py * 1.25 + Math.sin(a) * orbitR * orbitSquash + bobY + lift + depth * 46;
+        var scale = 0.72 + depth * 0.36;
+        var alpha = (mobile ? 0.22 : 0.34) + depth * (mobile ? 0.78 : 0.66);
+        var el = c.el;
+        el.style.transform = 'translate(-50%,-50%) translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')';
+        el.style.zIndex = String(10 + Math.round(depth * 18));
+        el.style.opacity = alpha.toFixed(3);
+        el.style.pointerEvents = depth < 0.14 ? 'none' : 'auto';
+      }
+    }
+
+    function frame() {
+      T += 1 / 60;
+      render();
+      placeCards();
+    }
+
+    var rafId = null;
+    function loop() {
+      rafId = null;
+      if (document.hidden) return;
+      frame();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && rafId === null && !prefersReducedMotion) rafId = requestAnimationFrame(loop);
+    });
+
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        buildParticles();
+        layout();
+        render();
+        placeCards();
+      }, 120);
+    });
+
+    buildParticles();
+    layout();
+
+    // 语言应用需在卡片、音效、聚形组件全部构建完成后执行
+    if (langBtn && langMenu) {
+      applyLang(getLang());
+    }
+
+    if (prefersReducedMotion) {
+      render();       // 静帧星海
+      placeCards();
+    } else {
+      rafId = requestAnimationFrame(loop);
+    }
+  })();
+  </script>
+</body>
+</html>

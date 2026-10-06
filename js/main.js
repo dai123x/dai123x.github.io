@@ -13,6 +13,10 @@
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // 沉浸体验层：由下方 init 函数注入，供命令面板调用
+  let openWelcomeModal = null;
+  let openTwinDrawer = null;
+
   /** rAF 节流：同一帧内多次触发只执行一次 */
   function rafThrottle(fn) {
     let ticking = false;
@@ -41,6 +45,9 @@
     initCardPointerGlow();
     initFooterYear();
     initLastMod();
+    initBootScreen();
+    initWelcomeIdentity();
+    initCyberTwin();
     initCommandPalette();
   });
 
@@ -576,7 +583,324 @@
   }
 
   /* --------------------------------------------------------------------------
-     14. 命令面板（Ctrl/⌘ + K）：章节导航 · 子站页面 · 快捷操作
+     15. 开场加载幕：星轨启动动画（本会话仅一次，支持深链跳过与双保险兜底）
+     -------------------------------------------------------------------------- */
+  function initBootScreen() {
+    const boot = document.getElementById('boot-screen');
+    if (!boot) return;
+
+    let skip = prefersReducedMotion || !!window.location.hash;
+    try {
+      if (skip || sessionStorage.getItem('dx_booted')) skip = true;
+      else sessionStorage.setItem('dx_booted', '1');
+    } catch (e) { /* 隐私模式无法使用 sessionStorage，按可播放处理 */ }
+
+    if (skip) { boot.remove(); return; }
+
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      boot.classList.add('is-done');
+      setTimeout(() => boot.remove(), 600);
+    };
+
+    const fill = document.getElementById('boot-bar-fill');
+    const pct = document.getElementById('boot-pct');
+    const status = document.getElementById('boot-status-text');
+    const phases = ['正在校准星轨', '正在点亮星海', '正在装载作品集', '即将抵达'];
+    const DURATION = 1250;
+    const t0 = performance.now();
+
+    function tick(now) {
+      if (done) return;
+      const p = Math.min((now - t0) / DURATION, 1);
+      const eased = 1 - Math.pow(1 - p, 2);
+      const val = Math.round(eased * 100);
+      if (fill) fill.style.width = `${val}%`;
+      if (pct) pct.textContent = `${val}%`;
+      if (status) status.textContent = phases[Math.min(phases.length - 1, Math.floor(p * phases.length))];
+      if (p < 1) requestAnimationFrame(tick);
+      else finish();
+    }
+
+    requestAnimationFrame(tick);
+    // 后台标签页 rAF 可能被节流，超时兜底确保加载幕必然退场
+    setTimeout(finish, DURATION + 900);
+  }
+
+  /* --------------------------------------------------------------------------
+     16. 访客身份卡：首次到访弹出，星徽 + 称呼同步到 localStorage
+     -------------------------------------------------------------------------- */
+  function initWelcomeIdentity() {
+    const modal = document.getElementById('welcome-modal');
+    if (!modal) return;
+
+    const chip = document.getElementById('identity-chip');
+    const row = document.getElementById('avatar-row');
+    const input = document.getElementById('visitor-name');
+    const syncBtn = document.getElementById('welcome-sync');
+    const closeBtn = document.getElementById('welcome-close');
+    const skipBtn = document.getElementById('welcome-skip');
+
+    const STORAGE_KEY = 'dx_visitor';
+    const SEEN_KEY = 'dx_welcome_seen';
+    let avatar = '🛰️';
+    let lastFocused = null;
+
+    function readVisitor() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); }
+      catch (e) { return null; }
+    }
+
+    function markSeen() {
+      try { localStorage.setItem(SEEN_KEY, '1'); } catch (e) { /* 忽略 */ }
+    }
+
+    function renderChip(v) {
+      if (!chip) return;
+      if (!v) { chip.hidden = true; chip.classList.remove('show'); return; }
+      const av = document.getElementById('identity-avatar');
+      const nm = document.getElementById('identity-name');
+      if (av) av.textContent = v.avatar || '🛰️';
+      if (nm) nm.textContent = v.name || '访客';
+      chip.hidden = false;
+      requestAnimationFrame(() => chip.classList.add('show'));
+    }
+
+    function openModal() {
+      lastFocused = document.activeElement;
+      const v = readVisitor();
+      if (v) {
+        avatar = v.avatar || '🛰️';
+        if (input) input.value = v.name || '';
+        row.querySelectorAll('.avatar-opt').forEach(b => {
+          const sel = b.dataset.avatar === avatar;
+          b.classList.toggle('is-selected', sel);
+          b.setAttribute('aria-checked', String(sel));
+        });
+      }
+      document.body.classList.add('nav-open');
+      modal.classList.add('active');
+      setTimeout(() => { if (input) input.focus(); }, 80);
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.classList.remove('nav-open');
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
+
+    function persist() {
+      const v = { avatar, name: (input ? input.value : '').trim().slice(0, 16) };
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); } catch (e) { /* 忽略 */ }
+      markSeen();
+      renderChip(v);
+      return v;
+    }
+
+    row.addEventListener('click', (e) => {
+      const btn = e.target.closest('.avatar-opt');
+      if (!btn) return;
+      avatar = btn.dataset.avatar;
+      row.querySelectorAll('.avatar-opt').forEach(b => {
+        const sel = b === btn;
+        b.classList.toggle('is-selected', sel);
+        b.setAttribute('aria-checked', String(sel));
+      });
+    });
+
+    if (syncBtn) syncBtn.addEventListener('click', () => {
+      const v = persist();
+      closeModal();
+      showToast(`身份已同步，欢迎你，${v.name || '访客'} ${v.avatar}`);
+    });
+
+    if (input) input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); if (syncBtn) syncBtn.click(); }
+    });
+
+    if (skipBtn) skipBtn.addEventListener('click', () => { markSeen(); closeModal(); });
+    if (closeBtn) closeBtn.addEventListener('click', () => { markSeen(); closeModal(); });
+
+    if (chip) chip.addEventListener('click', openModal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) { markSeen(); closeModal(); }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !modal.classList.contains('active')) return;
+      markSeen();
+      closeModal();
+    });
+
+    renderChip(readVisitor());
+
+    // 首次到访自动弹出（等开场加载幕落幕；已有身份或已关过则不再打扰）
+    const v = readVisitor();
+    let seen = false;
+    try { seen = localStorage.getItem(SEEN_KEY) === '1'; } catch (e) { /* 忽略 */ }
+    if (!v && !seen) setTimeout(openModal, 1800);
+
+    openWelcomeModal = openModal;
+  }
+
+  /* --------------------------------------------------------------------------
+     17. Cyber Twin · 数字分身挂件：本地规则知识库，零后端零依赖
+     -------------------------------------------------------------------------- */
+  function initCyberTwin() {
+    const launcher = document.getElementById('twin-launcher');
+    const drawer = document.getElementById('twin-drawer');
+    if (!launcher || !drawer) return;
+
+    const log = document.getElementById('twin-log');
+    const chipsBox = document.getElementById('twin-chips');
+    const form = document.getElementById('twin-form');
+    const input = document.getElementById('twin-input');
+    const closeBtn = document.getElementById('twin-close');
+
+    let greeted = false;
+    let hideTimer = null;
+
+    const QUICK = ['他是谁？', '实习经历', '精选项目', '怎么联系？', '璇玑星海？'];
+
+    const KB = [
+      {
+        keys: ['谁', '介绍', 'about', 'intro', '自我'],
+        a: '戴璇（Dai Xuan），长春工业大学<strong>应用统计硕士在读</strong>（2025-2028，研究方向：数据分析），本科工业工程——「统计 + IE」复合背景，玩得转时间序列建模、精益现场改善，也写得了 <strong>Web 3D</strong>。慢慢逛，或从<a href="#about">个人概况</a>看起～'
+      },
+      {
+        keys: ['教育', '学校', '硕士', '大学', '学历', 'edu', '专业'],
+        a: '长春工业大学本硕贯通：🎓 <strong>应用统计硕士</strong>（2025-2028，数据分析方向）＋ 🎓 <strong>工业工程学士</strong>（2021-2025）。主修课程与研究方向见<a href="#education">教育背景</a>。'
+      },
+      {
+        keys: ['实习', '丰田', '派格', 'intern', '工作'],
+        a: '两段制造企业实战：🏭 <strong>一汽丰田发动机</strong>——产线作业测定、时间研究与 AGV 物流路径优化；🏭 <strong>长春派格</strong>——注塑车间 VOCs 环境治理与离心式屋顶风机选型。细节在<a href="#internships">实习实践经历</a>。'
+      },
+      {
+        keys: ['项目', '作品', 'project', '雪线', 'aurora', '地图', '案例'],
+        a: '三个代表作：❄️ <strong>雪线之上</strong>（吉林省冰雪经济可视化交互系统，Canvas 3D + 原生 SVG）、🛰️ <strong>Aurora Chat</strong>（纯前端 AI 聊天工作台，MIT 开源）、🗺️ <strong>长工大全景立体地图</strong>（Three.js · 84 处建筑漫游）。滚到<a href="#projects">精选项目</a>，或进<a href="galaxy/">璇玑星海</a>沉浸式逛～'
+      },
+      {
+        keys: ['联系', '邮箱', 'email', 'contact', '微信', 'github', '找到'],
+        a: '📬 邮箱 daixuan26@outlook.com（首页徽章点击即复制）· 🐙 GitHub <a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer">@dai123x</a> · 💬 微信二维码在<a href="#contact">联系方式</a>区。'
+      },
+      {
+        keys: ['简历', 'resume', 'cv'],
+        a: '📄 <a href="resume/" target="_blank" rel="noopener noreferrer">在线简历</a> ｜ <a href="resume/resume.pdf" download>下载 PDF 版本</a>'
+      },
+      {
+        keys: ['星海', 'galaxy', '彩蛋', '星系'],
+        a: '✦ <strong>璇玑星海</strong>是本站的沉浸式彩蛋页：粒子星系中央立着一道光柱，10 张里程碑卡片绕轨漂浮，点开卡片就能看到对应「印记」与传送门。<a href="galaxy/">进入星海 ↗</a>'
+      },
+      {
+        keys: ['aurora chat', '聊天', '工作台', '大模型', 'ai'],
+        a: '🛰️ <strong>Aurora Chat · 极光</strong>是戴璇开源的纯静态 AI 工作台：智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，支持双模型对比投票，MIT 协议可商用。<a href="aurora-chat/" target="_blank" rel="noopener noreferrer">打开在线应用 ↗</a>'
+      },
+      {
+        keys: ['技能', 'skill', 'stack', '会什么'],
+        a: '技能池横跨三栏：R / Python 数据建模、ARIMA-GARCH 时间序列、FlexSim / CATIA 仿真制图、Three.js / WebGL 3D 研发、原生 SVG 图表渲染。完整清单见<a href="#skills">专业技能矩阵</a>。'
+      },
+      {
+        keys: ['竞赛', '获奖', 'award', '荣誉'],
+        a: '🏆 「挑战杯」东北振兴专项赛<strong>省级二等奖</strong>、互联网+ 校级铜奖、全国高校大数据挑战赛优秀奖等。完整清单见<a href="#awards">竞赛荣誉</a>。'
+      },
+      {
+        keys: ['你是', '分身', 'twin', '机器人', 'bot'],
+        a: '我是 <strong>Cyber Twin</strong>——戴璇的本地数字分身：纯前端规则知识库应答，零后端、不联网、不上传任何数据。想和真·大模型对话？<a href="aurora-chat/" target="_blank" rel="noopener noreferrer">Aurora Chat ↗</a>'
+      }
+    ];
+
+    const FALLBACK = '这个问题超出了我的知识库…换个问法试试？点下面的快捷提问，或者去<a href="#contact">联系方式</a>直接找本人～';
+
+    function addMsg(html, who) {
+      const div = document.createElement('div');
+      div.className = `twin-msg ${who}`;
+      div.innerHTML = html;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function botReply(question) {
+      const text = question.toLowerCase();
+      const hit = KB.find(item => item.keys.some(k => text.includes(k)));
+      const typing = document.createElement('div');
+      typing.className = 'twin-typing';
+      typing.innerHTML = '<i></i><i></i><i></i>';
+      log.appendChild(typing);
+      log.scrollTop = log.scrollHeight;
+
+      setTimeout(() => {
+        typing.remove();
+        addMsg(hit ? hit.a : FALLBACK, 'bot');
+      }, 420 + Math.random() * 380);
+    }
+
+    function greet() {
+      if (greeted) return;
+      greeted = true;
+      let name = '';
+      try { name = (JSON.parse(localStorage.getItem('dx_visitor') || 'null') || {}).name || ''; } catch (e) { /* 忽略 */ }
+      const hi = name ? `${name}，` : '';
+      addMsg(`Hello${hi}你好呀 ✦ 我是<strong>戴璇的数字分身</strong>，TA 的教育、实习、项目和联系方式都可以问我～`, 'bot');
+    }
+
+    function renderChips() {
+      if (!chipsBox) return;
+      chipsBox.innerHTML = '';
+      QUICK.forEach(q => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'twin-chip';
+        b.textContent = q;
+        b.addEventListener('click', () => {
+          addMsg(q, 'user');
+          botReply(q);
+        });
+        chipsBox.appendChild(b);
+      });
+    }
+
+    function open() {
+      clearTimeout(hideTimer);
+      drawer.hidden = false;
+      requestAnimationFrame(() => drawer.classList.add('open'));
+      launcher.setAttribute('aria-expanded', 'true');
+      greet();
+      renderChips();
+      setTimeout(() => { if (input) input.focus(); }, 120);
+    }
+
+    function close() {
+      drawer.classList.remove('open');
+      launcher.setAttribute('aria-expanded', 'false');
+      hideTimer = setTimeout(() => { drawer.hidden = true; }, 280);
+    }
+
+    launcher.addEventListener('click', () => {
+      drawer.classList.contains('open') ? close() : open();
+    });
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    if (form) form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = (input ? input.value : '').trim();
+      if (!q) return;
+      addMsg(q, 'user');
+      if (input) input.value = '';
+      botReply(q);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) close();
+    });
+
+    openTwinDrawer = open;
+  }
+
+  /* --------------------------------------------------------------------------
+     18. 命令面板（Ctrl/⌘ + K）：章节导航 · 子站页面 · 快捷操作
      参考 leerob / brianlovin 等个人站的 ⌘K 交互，DOM 由脚本注入
      -------------------------------------------------------------------------- */
   function initCommandPalette() {
@@ -592,6 +916,8 @@
         items: [
           { icon: '📄', label: '在线简历（附 PDF 下载）', href: 'resume/', keywords: 'resume cv jianli 简历' },
           { icon: '🌌', label: 'Aurora Chat · 极光 AI 聊天工作台', href: 'aurora-chat/', keywords: 'aurora chat ai 聊天 大模型 glm deepseek arena 对比' },
+          { icon: '✦', label: '璇玑星海 · 沉浸式记忆星系', href: 'galaxy/', keywords: 'galaxy 星海 星系 3d 粒子 彩蛋 沉浸 留言' },
+          { icon: '🏫', label: '工大印记 · 长春工业大学', href: 'school/', keywords: 'school 工大 长春工业大学 ccut 校园 校训 足迹' },
           { icon: '❄️', label: '雪线之上 · 冰雪经济可视化系统', href: 'snow-viz/index.html', keywords: 'snow viz 3d 可视化 冰雪' },
           { icon: '📘', label: '雪线之上 · 作品说明书', href: 'snow-viz/documentation.html', keywords: 'documentation 说明书 指标' },
           { icon: '🗺️', label: '长春工业大学全景立体地图', href: 'campus-map/', keywords: 'campus map 3d 校园地图' },
@@ -623,6 +949,18 @@
           {
             icon: '🌓', label: '切换深色 / 浅色主题', keywords: 'theme dark light 主题 深色 浅色',
             action: () => { const t = document.getElementById('theme-toggle'); if (t) t.click(); }
+          },
+          {
+            icon: '🪪', label: '编辑访客身份（星徽与称呼）', keywords: '身份 访客 名字 avatar 头像 welcome',
+            action: () => { if (openWelcomeModal) openWelcomeModal(); }
+          },
+          {
+            icon: '🛰️', label: '与数字分身对话（Cyber Twin）', keywords: '分身 twin 聊天 bot 对话',
+            action: () => { if (openTwinDrawer) openTwinDrawer(); }
+          },
+          {
+            icon: '✦', label: '进入璇玑星海', keywords: '星海 galaxy 星系 沉浸',
+            action: () => { window.location.href = 'galaxy/'; }
           },
           {
             icon: '📧', label: '复制邮箱地址', keywords: 'email copy 邮箱 复制',
