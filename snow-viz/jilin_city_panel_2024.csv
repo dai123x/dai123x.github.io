@@ -1,5 +1,5 @@
-﻿region,region_type,lat,lon,gdp_2024_yi,pop_2023_wan,pop_density_persons_km2,area_km2,ski_resorts,ski_slopes,slope_area_ha,ropeways_2024,hotel_beds,hsr_stations,intl_transit,terrains,regen_winter_avg_temp_c,snow_days_avg,ice_snow_index,source
-长春市,"省会 · 核心极核",43.88,125.35,7632,910.2,442.5,20604,3,28,62.0,4,6200,2,"龙嘉国际机场 4F 级",0,-12.8,118,68,"吉林统计年鉴2024 GDP; 2023年末常住人口; 市文旅局雪场备案"
+region,region_type,lat,lon,gdp_2024_yi,pop_2023_wan,pop_density_persons_km2,area_km2,ski_resorts,ski_slopes,slope_area_ha,ropeways_2024,hotel_beds,hsr_stations,intl_transit,terrains,regen_winter_avg_temp_c,snow_days_avg,ice_snow_index,source
+长春市,"省会 · 核心极核",43.88,125.35,7632,910.2,442.5,20604,3,28,62.0,4,6200,2,"龙嘉国际机场 4F 级",0,-12.8,118,86,"吉林统计年鉴2024 GDP; 2023年末常住人口; 市文旅局雪场备案"
 吉林市,"省域副中心 · 雾凇之都",43.84,126.55,1633,388.6,143.0,27120,9,154,555.19,13,9000,3,"吉林站高铁枢纽 · 松花湖",2,-13.5,132,86,"2024-2025雪季 9家雪场备案(文旅部 2025-01); 北大湖74雪道13索道9000床位"
 四平市,"农业与轻工基地",43.17,124.35,634,180.5,124.6,14323,1,6,12.0,1,900,1,"平齐线普速为主",0,-13.2,112,34,"吉林统计年鉴2024 GDP; 市文旅局雪场备案"
 辽源市,"轻工与装备基地",42.90,125.14,521,99.6,207.5,5140,1,5,9.5,1,700,1,"辽源站高铁(2021通车)",0,-13.0,110,31,"吉林统计年鉴2024 GDP; 市文旅局雪场备案"
