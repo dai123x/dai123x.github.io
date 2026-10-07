@@ -900,6 +900,8 @@ body {
 
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 10px;
   gap: 18px;
   list-style: none;
 }
