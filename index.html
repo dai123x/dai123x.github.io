@@ -187,372 +187,385 @@
   </header>
 
   <!-- Hero Section -->
+    <!-- Main Master Stage -->
   <main id="main-content">
-    <section class="hero-section" id="hero">
-      <div class="container">
-        <div class="hero-grid">
-          <div class="hero-content">
-            <div class="cyber-terminal-banner">
-              <span class="hud-tag"><span class="signal-beacon"></span> SYSTEM_ONLINE // ARCH_v2026</span>
-              <span class="hud-divider">|</span>
-              <span class="hud-tag">📍 COORD: 43.8°N 125.3°E [吉林长春 · 浙江湖州]</span>
-              <span class="hud-divider">|</span>
-              <span class="hud-tag">⚡ STAT: IE + APPLIED_STATISTICS</span>
-            </div>
-            <div class="hero-badge">
-              <span class="status-dot"></span>
-              长春工业大学 · 应用统计硕士研究生（研究方向：数据分析）
-            </div>
-            <h1 class="hero-title">
-              你好，我是 <span class="gradient-text">戴璇</span> 👋<br>
-              <span id="typing-role" style="font-weight: 700; color: var(--text-secondary);">应用统计硕士 · 工业工程复合背景</span>
-            </h1>
-            <p class="hero-desc">
-              具备<strong>工业工程（IE）与统计分析复合背景</strong>。熟练掌握时间序列分析、高等数理统计、应用概率及 R/Python 数据建模，拥有制造业现场生产线时间研究、AGV 路径优化及厂房通风改善实践经验，兼具 Web 3D 图形交互系统研发能力。
-            </p>
+    <div class="grand-bento-layout" id="hero">
+      <!-- 左侧粘性极客画卷 (Sticky Profile Sidebar - 参考 bobzhang.top 左侧画卷) -->
+      <aside class="bento-sidebar" id="sidebar-profile">
+        <div class="bento-avatar-ring">
+          <img src="assets/images/avatar.jpg" alt="戴璇" class="bento-avatar-img" width="110" height="110" loading="eager" fetchpriority="high">
+        </div>
 
-            <div class="latest-work-banner">
-              <span style="font-size: 0.85rem; color: var(--text-secondary);">
-                ❄️ 最新作品：<strong>《雪线之上 · 吉林冰雪经济目标可视化交互系统》</strong> — 吉林省大学生虚拟现实大赛（数据可视化分析赛道）参赛作品。
-                <a href="#competition">查看详情 →</a>
-              </span>
+        <!-- 访客身份同步徽章 -->
+        <div class="bento-visitor-badge" id="bento-visitor-chip">
+          <span class="signal-beacon"></span>
+          <span id="bento-visitor-name">访客身份已同步 👋</span>
+        </div>
+
+        <h1 class="bento-name-title">戴璇 · Dai Xuan</h1>
+
+        <div class="bento-role-pill">
+          <span id="typing-role">应用统计硕研 · 工业工程复合背景</span>
+          <span class="bento-typing-cursor"></span>
+        </div>
+
+        <div class="bento-sidebar-arch">SYSTEM_ARCHITECT v2026 // ONLINE</div>
+        <p class="bento-sidebar-motto">“璇者，美玉亦为星辰 —— 探索现实与数字的边界”</p>
+
+        <a href="#contact" class="btn-sidebar-contact">
+          <span>>_ 点击联系我</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+
+        <!-- Quick Contacts Buttons -->
+        <div style="display: flex; gap: 8px; width: 100%; margin-bottom: 22px;">
+          <a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" class="btn-sidebar-contact" style="flex: 1; margin: 0; padding: 8px 12px; font-size: 0.76rem;" title="GitHub @dai123x">
+            <span>🐙 GitHub</span>
+          </a>
+          <button type="button" class="btn-sidebar-contact" id="wechat-modal-trigger" style="flex: 1; margin: 0; padding: 8px 12px; font-size: 0.76rem;" title="微信交流">
+            <span>💬 微信交流</span>
+          </button>
+        </div>
+
+        <!-- 极客画像微标签列表 (GEEK_PROFILE) -->
+        <div class="bento-sidebar-traits-header">
+          <span class="line"></span>
+          <span class="title">GEEK_PROFILE</span>
+          <span class="line"></span>
+        </div>
+        <div class="bento-sidebar-traits">
+          <span class="bento-sidebar-trait-chip" title="8载工程与统计沉淀">[长期主义者]</span>
+          <span class="bento-sidebar-trait-chip" title="产线测定与效率工程">[自动化优先]</span>
+          <span class="bento-sidebar-trait-chip" title="WebGL动效与空间逻辑">[视觉逻辑控]</span>
+          <span class="bento-sidebar-trait-chip" title="拒绝假大空，坚守数据真实">[代码诚实者]</span>
+        </div>
+      </aside>
+
+      <!-- 右侧主舞台 (Stage Content) -->
+      <div class="bento-stage">
+        <!-- 顶部 Stage Bento Grid (参考 bobzhang.top Bento展板) -->
+        <div class="stage-bento-grid">
+          <!-- Card 1: 超大 Hero Showcase (跨 2 列，2 行) -->
+          <div class="stage-bento-card bento-card-hero">
+            <div class="hero-bg-gradient"></div>
+            <div class="bento-card-hero-content">
+              <div class="bento-hero-pill-badge">
+                <span class="signal-beacon"></span>
+                <span>BUILDING_FUTURE // 正在构建未来</span>
+              </div>
+              <h2 class="bento-hero-heading">
+                Hello, I'm <span class="gradient">戴璇</span> 👋
+              </h2>
+              <p class="bento-hero-desc">
+                具备<strong>工业工程（IE）现场实战与高等应用统计建模复合背景</strong>。熟练掌握时间序列预测、高等数理统计、R/Python 科学计算与 5000 次蒙特卡洛应力测试；兼具 Web 3D 虚拟现实数字孪生系统独立研发能力。
+              </p>
+              <div class="latest-work-banner" style="margin-bottom: 20px;">
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                  ❄️ 最新作品：<strong>《雪线之上 · 吉林冰雪经济目标可视化交互系统》</strong> — 吉林省大学生虚拟现实大赛（数据可视化赛道）。
+                  <a href="#competition" style="color: #38bdf8; text-decoration: underline;">查看详情 →</a>
+                </span>
+              </div>
+              <div class="bento-hero-actions">
+                <a href="#projects" class="btn btn-primary">
+                  <span>浏览精选作品</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                </a>
+                <a href="snow-viz/index.html" target="_blank" class="btn btn-secondary">
+                  <span>❄️ 体验冰雪交互大屏</span>
+                </a>
+                <a href="galaxy/" class="btn btn-galaxy">
+                  <span class="btn-galaxy-star" aria-hidden="true">✦</span>
+                  <span>璇玑星海 3D</span>
+                </a>
+              </div>
             </div>
-            
-            <div class="hero-actions">
-              <a href="#projects" class="btn btn-primary">
-                <span>浏览工程项目</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              </a>
-              <a href="#education" class="btn btn-secondary">
-                <span>教育与经历</span>
-              </a>
-              <a href="#contact" class="btn btn-secondary">
-                <span>联系交流</span>
-              </a>
-              <a href="galaxy/" class="btn btn-galaxy" title="沉浸式 3D 记忆星系，一卡一里程碑">
+          </div>
+
+          <!-- Card 2: 关键影响统计数据 (Stats) -->
+          <div class="stage-bento-card bento-card-stats">
+            <div class="bento-stat-item">
+              <span class="bento-stat-number counter-val" data-target="10" data-suffix="+">10+</span>
+              <span class="bento-stat-label">统计模型与随笔</span>
+            </div>
+            <div class="bento-stat-divider"></div>
+            <div class="bento-stat-item">
+              <span class="bento-stat-number counter-val" data-target="53" data-prefix="-" data-suffix="%" data-invert="true">-53%</span>
+              <span class="bento-stat-label">DrawCall 极限压缩</span>
+            </div>
+            <div class="bento-stat-divider"></div>
+            <div class="bento-stat-item">
+              <span class="bento-stat-number counter-val" data-target="84" data-suffix="处">84 处</span>
+              <span class="bento-stat-label">3D 建筑单体测绘</span>
+            </div>
+          </div>
+
+          <!-- Card 3: 核心技术栈 (Core Tech Stack) -->
+          <div class="stage-bento-card bento-card-tech">
+            <div>
+              <div class="bento-tech-header">
+                <span class="line"></span>
+                <span class="tag">CORE_TECH</span>
+              </div>
+              <h3 class="bento-tech-title">技术栈 // 复合能力池</h3>
+              <div class="bento-tech-list">
+                <div class="bento-tech-row">
+                  <span>📈 R 语言 / 时间序列 (ARIMA/GARCH)</span>
+                  <span class="badge">[核心驱动]</span>
+                </div>
+                <div class="bento-tech-row">
+                  <span>🌐 Three.js / WebGL 原生 3D 漫游</span>
+                  <span class="badge">[空间视觉]</span>
+                </div>
+                <div class="bento-tech-row">
+                  <span>🏭 精益生产 TPS / 产线工时测定</span>
+                  <span class="badge">[效率工程]</span>
+                </div>
+                <div class="bento-tech-row">
+                  <span>💻 Python / 蒙特卡洛应力测试</span>
+                  <span class="badge">[量化推导]</span>
+                </div>
+                <div class="bento-tech-row">
+                  <span>❄️ Canvas 3D / 宏观数据可视化</span>
+                  <span class="badge">[高阶交互]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: 记忆链接卡片 (Core Memory Gallery) -->
+          <div class="stage-bento-card bento-card-media" onclick="window.location.href='campus-map/'">
+            <img src="assets/images/og-campus-map.jpg" alt="校园3D地图" class="media-bg">
+            <span class="media-badge-tag media-badge-cyan">CORE_MEMORY // LINK</span>
+            <div class="media-content">
+              <h3 class="media-title">长工大 3D 校园全景</h3>
+              <p class="media-sub">84 栋测绘单体 · 第一人称漫游</p>
+            </div>
+          </div>
+
+          <!-- Card 5: 热爱与足迹卡片 (Life Matrix) -->
+          <div class="stage-bento-card bento-card-media" onclick="document.getElementById('star-footprint').scrollIntoView({behavior: 'smooth'})">
+            <img src="assets/images/og-snowviz.jpg" alt="雪线之上" class="media-bg">
+            <span class="media-badge-tag media-badge-purple">LIFE_MATRIX // SYNC</span>
+            <div class="media-content">
+              <h3 class="media-title">我的热爱 and 留下足迹</h3>
+              <p class="media-sub">点亮每一颗星星 · 纪念来过的足迹</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 极客画像 // GEEK_PROFILE 四重认知画卷 -->
+        <section class="section section-geek-profile" id="geek-profile" style="padding-top: 0;">
+          <div class="section-header" style="text-align: left; margin-bottom: 24px;">
+            <div class="hud-section-badge">
+              <span class="signal-beacon"></span>
+              <span>GEEK_PROFILE // 极客素养画卷</span>
+            </div>
+            <h2 class="section-title">极客画像 · 四重认知维度</h2>
+            <p class="section-desc" style="margin: 0;">工业工程工科底色与高等应用统计量化分析的深度融合，恪守工程真诚与数据实证。</p>
+          </div>
+
+          <div class="geek-profile-grid" style="margin-top: 0;">
+            <!-- Card 1 -->
+            <div class="geek-profile-card">
+              <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
+              <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
+              <div class="geek-card-head">
+                <div class="geek-icon-box">🎯</div>
+                <span class="geek-card-tag">LONG_TERMIST</span>
+              </div>
+              <h3 class="geek-card-title">长期主义者</h3>
+              <p class="geek-card-lead">数理与工科复合沉淀 · 追求底层复利增长</p>
+              <p class="geek-card-body">
+                坚持工科现场工程筑基与高维统计建模深耕。从扎实推导每一道数理公式到雕琢每一行工程代码，以极强自律与专注持续沉淀学术模型与技术作品，构建核心竞争力护城河。
+              </p>
+              <div class="geek-card-meta">
+                <span>#复合沉淀</span><span>#学术自律</span><span>#持续迭代</span>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="geek-profile-card">
+              <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
+              <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
+              <div class="geek-card-head">
+                <div class="geek-icon-box">⚙️</div>
+                <span class="geek-card-tag">EFFICIENCY_ENG</span>
+              </div>
+              <h3 class="geek-card-title">效率与实证工程</h3>
+              <p class="geek-card-lead">现场作业测定与消除浪费 · 工程真诚主义</p>
+              <p class="geek-card-body">
+                在一汽丰田发动机工厂装配线运用秒表作业测定与动作分析梳理消除非增值活动（MUDA），主导 AGV 物流交叉动线优化；在派格塑料攻坚注塑车间 VOCs 环境质量改造与风机选型。
+              </p>
+              <div class="geek-card-meta">
+                <span>#一汽丰田实战</span><span>#精益改善</span><span>#AGV调度</span>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="geek-profile-card">
+              <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
+              <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
+              <div class="geek-card-head">
+                <div class="geek-icon-box">👁️</div>
+                <span class="geek-card-tag">SPATIAL_3D_LOGIC</span>
+              </div>
+              <h3 class="geek-card-title">空间三维与视觉逻辑</h3>
+              <p class="geek-card-lead">Three.js / WebGL 原生研发 · 数字化空间孪生</p>
+              <p class="geek-card-body">
+                结合遥感测绘 1:1 独立三维建模还原长春工大两大校区 84 处建筑单体，实现 WebGL 原生高性能第一人称漫游，Draw Call 极限压降 53%；主研《雪线之上》吉林冰雪经济多维时空可视化大屏。
+              </p>
+              <div class="geek-card-meta">
+                <span>#WebGL原生</span><span>#84处建筑测绘</span><span>#冰雪可视化</span>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="geek-profile-card">
+              <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
+              <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
+              <div class="geek-card-head">
+                <div class="geek-icon-box">📐</div>
+                <span class="geek-card-tag">QUANTITATIVE_INTEGRITY</span>
+              </div>
+              <h3 class="geek-card-title">量化实证与严谨建模</h3>
+              <p class="geek-card-lead">拒绝浮夸假设 · 恪守统计推导与严密实证</p>
+              <p class="geek-card-body">
+                系统接受高等数理统计与应用概率严格训练，熟练掌握时间序列分析 (ARIMA/GARCH)、面板计量模型、生存分析与因果推断。搭建 10+ 学术级模型并完成 5000 次蒙特卡洛应力测试。
+              </p>
+              <div class="geek-card-meta">
+                <span>#学术级推导</span><span>#因果计量</span><span>#MonteCarlo</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 核心进化档案 // EVOLUTION_DOSSIER (带纵向发光光柱导轨，参考 bobzhang.top) -->
+        <section class="section" id="education" style="padding-top: 0;">
+          <div class="section-header" style="text-align: left; margin-bottom: 24px;">
+            <div class="hud-section-badge">
+              <span class="signal-beacon"></span>
+              <span>EVOLUTION_DOSSIER // 核心进化档案</span>
+            </div>
+            <h2 class="section-title">核心进化档案 · 思维基石</h2>
+            <p class="section-desc" style="margin: 0;">从基础工程与数理启蒙，到制造一线实战淬炼与高维统计建模的思维跃迁。</p>
+            <div style="margin-top: 14px; display: flex; gap: 12px; flex-wrap: wrap;">
+              <a href="school/" class="btn btn-galaxy btn-sm" title="工大印记：星空校徽 · 校情速览 · 足迹星图">
                 <span class="btn-galaxy-star" aria-hidden="true">✦</span>
-                <span>璇玑星海</span>
+                <span>走进工大 · 校园印记</span>
+              </a>
+              <a href="campus-map/index.html" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">
+                <span>🗺️ 校园 3D 漫游</span>
               </a>
             </div>
-
-            <!-- Quick Contacts Pills -->
-            <div class="hero-socials">
-              <a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" class="social-pill" title="GitHub 个人主页">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                <span>GitHub @dai123x</span>
-              </a>
-              <span class="social-pill is-clickable" data-mailbox data-user="daixuan26" data-domain="outlook.com" title="点击复制邮箱">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                <span class="mailbox-text"></span>
-              </span>
-              <button class="social-pill" id="wechat-modal-trigger" style="cursor: pointer; background: var(--bg-secondary); border: 1px solid var(--border-color);" title="微信交流">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 9h8"/><path d="M8 13h6"/><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
-                <span>微信</span>
-              </button>
-            </div>
           </div>
 
-          <!-- Profile Photo -->
-          <div class="hero-avatar-wrapper">
-            <div class="avatar-card">
-              <img src="assets/images/avatar.jpg" alt="戴璇" class="avatar-img" width="280" height="280" loading="eager" fetchpriority="high" decoding="async" style="object-fit: cover; object-position: center;">
-              <div class="avatar-floating-badge">
-                <span class="status-dot"></span>
-                <span>坐标：浙江湖州 / 吉林长春</span>
+          <div class="evolution-rail-wrap">
+            <div class="evolution-vertical-rail"></div>
+            <div class="evolution-timeline">
+              <!-- Stage 01: 硕士研究生 -->
+              <div class="evolution-card highlight">
+                <span class="evolution-node-dot"></span>
+                <div class="evolution-top">
+                  <div>
+                    <span class="evolution-stage-badge">STAGE // 01 · 硕士高维建模</span>
+                    <h3 class="evolution-inst">长春工业大学 · 数学与统计学院</h3>
+                    <div class="evolution-sub">应用统计硕士（研究方向：数据分析）</div>
+                  </div>
+                  <span class="evolution-period">2025.09 - 2028.06</span>
+                </div>
+                
+                <div class="evolution-quote">
+                  “在这里，我重塑了观察世界的维度。从微观制造工序走向高维宏观计量与统计推断，每一层逻辑都是通往未来的基石。”
+                </div>
+
+                <p class="evolution-body">
+                  深耕大型统计计算、高维时序分析与宏观因果计量。作为核心主研设计《雪线之上·吉林冰雪经济目标可视化交互系统》，基于吉林省地级市面板数据构建 Panel-VAR 与蒙特卡洛应力测试，打通理论推导与工程落地的完整价值闭环。
+                </p>
+
+                <div class="evolution-tags">
+                  <span class="evolution-tag">📈 时间序列预测 (ARIMA/GARCH)</span>
+                  <span class="evolution-tag">📊 高等数理统计</span>
+                  <span class="evolution-tag">💻 R 语言 & Python 科学计算</span>
+                  <span class="evolution-tag">🎲 Monte Carlo 仿真建模</span>
+                  <span class="evolution-tag">🔍 因果推断 & 生存分析</span>
+                </div>
+
+                <div class="evolution-actions">
+                  <a href="https://www.ccut.edu.cn/" target="_blank" rel="noopener noreferrer" class="evolution-btn">学校官网 ↗</a>
+                  <a href="https://st.ccut.edu.cn/" target="_blank" rel="noopener noreferrer" class="evolution-btn">数学与统计学院 ↗</a>
+                  <a href="#competition" class="evolution-btn">研读冰雪学术作品 ↗</a>
+                  <a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" class="evolution-btn">阅读 GitHub 源码 ↗</a>
+                </div>
+              </div>
+
+              <!-- Stage 02: 本科工业工程 -->
+              <div class="evolution-card">
+                <span class="evolution-node-dot" style="border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);"></span>
+                <div class="evolution-top">
+                  <div>
+                    <span class="evolution-stage-badge" style="background: linear-gradient(135deg, #0284c7, #0d9488);">STAGE // 02 · 本科工程筑基</span>
+                    <h3 class="evolution-inst">长春工业大学 · 机电工程学院</h3>
+                    <div class="evolution-sub">工业工程专业 · 工学学士</div>
+                  </div>
+                  <span class="evolution-period">2021.09 - 2025.06</span>
+                </div>
+
+                <div class="evolution-quote">
+                  “工科底色筑基。深入制造车间一线，掌握工业工程改善精髓，用秒表、动作分析与系统仿真消除一切浪费。”
+                </div>
+
+                <p class="evolution-body">
+                  系统打下机械制造基础、生产系统建模、运筹优化及现场工业工程改善方法。深入一汽丰田发动机工厂主导装配产线作业测定与 AGV 路径优化；在长春派格塑料攻关注塑车间环境质量改造与屋顶风机选型。独立研发《长春工业大学·全景立体地图》（Three.js），实现 84 处建筑 3D 实测漫游。
+                </p>
+
+                <div class="evolution-tags">
+                  <span class="evolution-tag">🏭 精益生产 (TPS)</span>
+                  <span class="evolution-tag">⏱️ 生产线作业测定 (IE)</span>
+                  <span class="evolution-tag">🤖 AGV 物流网络优化</span>
+                  <span class="evolution-tag">🌐 Web 3D / Three.js 研发</span>
+                  <span class="evolution-tag">📐 FlexSim 生产系统仿真</span>
+                </div>
+
+                <div class="evolution-actions">
+                  <a href="https://jd.ccut.edu.cn/" target="_blank" rel="noopener noreferrer" class="evolution-btn">机电工程学院 ↗</a>
+                  <a href="#internships" class="evolution-btn">查看一汽丰田改善实录 ↗</a>
+                  <a href="campus-map/index.html" target="_blank" rel="noopener noreferrer" class="evolution-btn">体验 3D 校园地图 ↗</a>
+                </div>
+              </div>
+
+              <!-- Stage 03: 数理启蒙 -->
+              <div class="evolution-card">
+                <span class="evolution-node-dot" style="border-color: #94a3b8; box-shadow: 0 0 10px rgba(148, 163, 184, 0.6);"></span>
+                <div class="evolution-top">
+                  <div>
+                    <span class="evolution-stage-badge" style="background: linear-gradient(135deg, #64748b, #475569);">STAGE // 03 · 逻辑起点</span>
+                    <h3 class="evolution-inst">数理启蒙与逻辑起点</h3>
+                    <div class="evolution-sub">浙江湖州 · 求真求实 · 极客基因萌芽</div>
+                  </div>
+                  <span class="evolution-period">早期阶段</span>
+                </div>
+
+                <div class="evolution-quote">
+                  “严谨的数理逻辑训练塑造了一丝不苟的工程习惯，首次窥见空间图形与计算机科学的无限广阔。”
+                </div>
+
+                <p class="evolution-body">
+                  在水乡湖州打下扎实的数理功底。早期对几何空间、计算机代码与三维逻辑产生浓厚兴趣，从最初编写简单的自动化脚本到探索算法设计，树立了以数字化工具重构现实世界的初心。
+                </p>
+
+                <div class="evolution-tags">
+                  <span class="evolution-tag">🧠 逻辑思辨</span>
+                  <span class="evolution-tag">📐 空间几何素养</span>
+                  <span class="evolution-tag">💻 编程初探</span>
+                  <span class="evolution-tag">🎯 求真求实</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Hero Impact Stats Strip -->
-        <div class="hero-stats-strip">
-          <div class="stat-strip-item">
-            <span class="stat-strip-num counter-val" data-target="10" data-suffix="+">10+</span>
-            <span class="stat-strip-label">学术级统计与因果计量分析模型</span>
-          </div>
-          <div class="stat-strip-item">
-            <span class="stat-strip-num counter-val" data-target="84" data-suffix="处">84 处</span>
-            <span class="stat-strip-label">真实测绘 3D 校园单体建筑</span>
-          </div>
-          <div class="stat-strip-item">
-            <span class="stat-strip-num counter-val" data-target="53" data-prefix="-" data-suffix="%" data-invert="true">-53%</span>
-            <span class="stat-strip-label">WebGL Draw Call 极限合批压缩</span>
-          </div>
-          <div class="stat-strip-item">
-            <span class="stat-strip-num counter-val" data-target="2" data-suffix="项">2 项</span>
-            <span class="stat-strip-label">省级 / 挑战杯竞赛获奖荣誉</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 极客画像 // GEEK_PROFILE (参考 bobzhang.top 赛博极客设计) -->
-    <section class="section section-geek-profile" id="geek-profile">
-      <div class="container">
-        <div class="section-header">
-          <div class="hud-section-badge">
-            <span class="signal-beacon"></span>
-            <span>GEEK_PROFILE // 极客素养画卷</span>
-          </div>
-          <h2 class="section-title">极客画像 · 四重认知维度</h2>
-          <p class="section-desc">工业工程工科底色与高等应用统计量化分析的深度融合，恪守工程真诚与数据实证。</p>
-        </div>
-
-        <div class="geek-profile-grid">
-          <!-- Card 1: 长期主义者 -->
-          <div class="geek-profile-card">
-            <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
-            <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
-            <div class="geek-card-head">
-              <div class="geek-icon-box">🎯</div>
-              <span class="geek-card-tag">LONG_TERMIST</span>
-            </div>
-            <h3 class="geek-card-title">长期主义者</h3>
-            <p class="geek-card-lead">数理与工科复合沉淀 · 追求底层复利增长</p>
-            <p class="geek-card-body">
-              坚持工科现场工程筑基与高维统计建模深耕。从扎实推导每一道数理公式到雕琢每一行工程代码，以极强自律与专注持续沉淀学术模型与技术作品，构建属于自己的核心竞争力护城河。
-            </p>
-            <div class="geek-card-meta">
-              <span>#复合沉淀</span><span>#学术自律</span><span>#持续迭代</span>
-            </div>
-          </div>
-
-          <!-- Card 2: 效率与实证工程 -->
-          <div class="geek-profile-card">
-            <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
-            <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
-            <div class="geek-card-head">
-              <div class="geek-icon-box">⚙️</div>
-              <span class="geek-card-tag">EFFICIENCY_ENG</span>
-            </div>
-            <h3 class="geek-card-title">效率与实证工程</h3>
-            <p class="geek-card-lead">现场作业测定与消除浪费 · 工程真诚主义</p>
-            <p class="geek-card-body">
-              在一汽丰田发动机工厂装配线运用秒表作业测定与动作分析梳理消除非增值活动（MUDA），主导 AGV 物流交叉动线优化；在派格塑料攻坚注塑车间 VOCs 环境质量改造与离心风机系统选型，坚守制造第一线。
-            </p>
-            <div class="geek-card-meta">
-              <span>#一汽丰田实战</span><span>#精益改善</span><span>#AGV调度</span>
-            </div>
-          </div>
-
-          <!-- Card 3: 空间三维与视觉逻辑 -->
-          <div class="geek-profile-card">
-            <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
-            <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
-            <div class="geek-card-head">
-              <div class="geek-icon-box">👁️</div>
-              <span class="geek-card-tag">SPATIAL_3D_LOGIC</span>
-            </div>
-            <h3 class="geek-card-title">空间三维与视觉逻辑</h3>
-            <p class="geek-card-lead">Three.js / WebGL 原生研发 · 数字化空间孪生</p>
-            <p class="geek-card-body">
-              结合遥感测绘 1:1 独立三维建模还原长春工大两大校区 84 处建筑单体，实现 WebGL 原生高性能第一人称漫游，Draw Call 极限压降 53%；主研《雪线之上》吉林冰雪经济多维时空可视化大屏，兼具宏观美感与微观洞察。
-            </p>
-            <div class="geek-card-meta">
-              <span>#WebGL原生</span><span>#84处建筑测绘</span><span>#冰雪可视化</span>
-            </div>
-          </div>
-
-          <!-- Card 4: 量化实证与严谨建模 -->
-          <div class="geek-profile-card">
-            <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
-            <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
-            <div class="geek-card-head">
-              <div class="geek-icon-box">📐</div>
-              <span class="geek-card-tag">QUANTITATIVE_INTEGRITY</span>
-            </div>
-            <h3 class="geek-card-title">量化实证与严谨建模</h3>
-            <p class="geek-card-lead">拒绝浮夸假设 · 恪守统计推导与严密实证</p>
-            <p class="geek-card-body">
-              系统接受高等数理统计与应用概率严格训练，熟练掌握时间序列分析 (ARIMA/GARCH)、面板计量模型、生存分析与因果推断。搭建 10+ 学术级模型并完成 5000 次蒙特卡洛应力测试，让数据说话。
-            </p>
-            <div class="geek-card-meta">
-              <span>#学术级推导</span><span>#因果计量</span><span>#MonteCarlo</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Me / Bento Grid -->
-    <section class="section" id="about">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">Profile Overview</span>
-          <h2 class="section-title">个人概况 · 复合素养</h2>
-          <p class="section-desc">工业工程工科底色与应用统计量化分析的深度融合。</p>
-        </div>
-
-        <div class="bento-grid">
-          <!-- Card 1: 工业工程实践 -->
-          <div class="bento-card bento-highlight">
-            <div class="bento-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            </div>
-            <h3>精益制造与工业工程 (IE) 现场改善</h3>
-            <p>
-              具备一线制造车间深入实战经验。在一汽丰田发动机工厂主导发动机产线作业测定与时间研究，梳理消除非增值活动；运用工业工程原理优化 AGV 物流搬运路径，实现装配节拍与流转效率双提升。
-            </p>
-          </div>
-
-          <!-- Card 2: 统计与数据建模 -->
-          <div class="bento-card">
-            <div class="bento-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            </div>
-            <h3>统计量化与时间序列建模</h3>
-            <p>
-              接受扎实的高等数理统计与应用概率训练，熟练使用 R 语言与 Python 进行数据挖掘、回归分析、时间序列预测与学术级统计建模。
-            </p>
-          </div>
-
-          <!-- Card 3: Web 3D 研发能力 -->
-          <div class="bento-card">
-            <div class="bento-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            </div>
-            <h3>Web 3D 数字孪生与全景研发</h3>
-            <p>
-              独立研发《长春工业大学·全景立体地图》，结合遥感测绘 1:1 还原两大校区 84 处建筑单体，实现第一人称漫游与 WebGL 原生高性能渲染。
-            </p>
-          </div>
-
-          <!-- Card 4: 厂房工程与环境改造 -->
-          <div class="bento-card bento-highlight">
-            <div class="bento-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
-            <h3>车间环境工程与设备选型评估</h3>
-            <p>
-              在长春派格塑料技术有限公司参与注塑车间环境质量改造，测定分析 VOCs、粉尘及一氧化碳浓度，克服现场进料口空间限制，完成离心式屋顶风机系统选型，实现绿色环保达标。
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 核心进化档案 // EVOLUTION_DOSSIER (参考 bobzhang.top 思维基石与编年史) -->
-    <section class="section" id="education">
-      <div class="container">
-        <div class="section-header">
-          <div class="hud-section-badge">
-            <span class="signal-beacon"></span>
-            <span>EVOLUTION_DOSSIER // 核心进化档案</span>
-          </div>
-          <h2 class="section-title">核心进化档案 · 思维基石</h2>
-          <p class="section-desc">从基础工程与数理启蒙，到制造一线实战淬炼与高维统计建模的思维跃迁。</p>
-          <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-            <a href="school/" class="btn btn-galaxy btn-sm" title="工大印记：星空校徽 · 校情速览 · 足迹星图">
-              <span class="btn-galaxy-star" aria-hidden="true">✦</span>
-              <span>走进工大 · 校园印记</span>
-            </a>
-            <a href="campus-map/index.html" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">
-              <span>🗺️ 校园 3D 漫游</span>
-            </a>
-          </div>
-        </div>
-
-        <div class="evolution-timeline">
-          <!-- Stage 01: 硕士研究生 -->
-          <div class="evolution-card highlight">
-            <div class="evolution-top">
-              <div>
-                <span class="evolution-stage-badge">STAGE // 01 · 硕士研究生</span>
-                <h3 class="evolution-inst">长春工业大学 · 数学与统计学院</h3>
-                <div class="evolution-sub">应用统计硕士（研究方向：数据分析）</div>
-              </div>
-              <span class="evolution-period">2025.09 - 2028.06</span>
-            </div>
-            
-            <div class="evolution-quote">
-              “在这里，我重塑了观察世界的维度。从微观制造工序走向高维宏观计量与统计推断，每一层逻辑都是通往未来的基石。”
-            </div>
-
-            <p class="evolution-body">
-              深耕大型统计计算、高维时序分析与宏观因果计量。作为核心主研设计《雪线之上·吉林冰雪经济目标可视化交互系统》，基于吉林省地级市面板数据构建 Panel-VAR 与蒙特卡洛应力测试，打通理论推导与工程落地的完整价值闭环。
-            </p>
-
-            <div class="evolution-tags">
-              <span class="evolution-tag">📈 时间序列预测 (ARIMA/GARCH)</span>
-              <span class="evolution-tag">📊 高等数理统计</span>
-              <span class="evolution-tag">💻 R 语言 & Python 科学计算</span>
-              <span class="evolution-tag">🎲 Monte Carlo 仿真建模</span>
-              <span class="evolution-tag">🔍 因果推断 & 生存分析</span>
-            </div>
-
-            <div class="evolution-actions">
-              <a href="https://www.ccut.edu.cn/" target="_blank" rel="noopener noreferrer" class="evolution-btn">学校官网 ↗</a>
-              <a href="https://st.ccut.edu.cn/" target="_blank" rel="noopener noreferrer" class="evolution-btn">数学与统计学院 ↗</a>
-              <a href="#competition" class="evolution-btn">研读冰雪学术作品 ↗</a>
-              <a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" class="evolution-btn">阅读 GitHub 源码 ↗</a>
-            </div>
-          </div>
-
-          <!-- Stage 02: 本科工业工程 -->
-          <div class="evolution-card">
-            <div class="evolution-top">
-              <div>
-                <span class="evolution-stage-badge" style="background: linear-gradient(135deg, #0284c7, #0d9488);">STAGE // 02 · 本科筑基</span>
-                <h3 class="evolution-inst">长春工业大学 · 机电工程学院</h3>
-                <div class="evolution-sub">工业工程专业 · 工学学士</div>
-              </div>
-              <span class="evolution-period">2021.09 - 2025.06</span>
-            </div>
-
-            <div class="evolution-quote">
-              “工科底色筑基。深入制造车间一线，掌握工业工程改善精髓，用秒表、动作分析与系统仿真消除一切浪费。”
-            </div>
-
-            <p class="evolution-body">
-              系统打下机械制造基础、生产系统建模、运筹优化及现场工业工程改善方法。深入一汽丰田发动机工厂主导装配产线作业测定与 AGV 路径优化；在长春派格塑料攻关注塑车间环境质量改造与屋顶风机选型。独立研发《长春工业大学·全景立体地图》（Three.js），实现 84 处建筑 3D 实测漫游。
-            </p>
-
-            <div class="evolution-tags">
-              <span class="evolution-tag">🏭 精益生产 (TPS)</span>
-              <span class="evolution-tag">⏱️ 生产线作业测定 (IE)</span>
-              <span class="evolution-tag">🤖 AGV 物流网络优化</span>
-              <span class="evolution-tag">🌐 Web 3D / Three.js 研发</span>
-              <span class="evolution-tag">📐 FlexSim 生产系统仿真</span>
-            </div>
-
-            <div class="evolution-actions">
-              <a href="https://jd.ccut.edu.cn/" target="_blank" rel="noopener noreferrer" class="evolution-btn">机电工程学院 ↗</a>
-              <a href="#internships" class="evolution-btn">查看一汽丰田改善实录 ↗</a>
-              <a href="campus-map/index.html" target="_blank" rel="noopener noreferrer" class="evolution-btn">体验 3D 校园地图 ↗</a>
-            </div>
-          </div>
-
-          <!-- Stage 03: 数理启蒙 -->
-          <div class="evolution-card">
-            <div class="evolution-top">
-              <div>
-                <span class="evolution-stage-badge" style="background: linear-gradient(135deg, #64748b, #475569);">STAGE // 03 · 逻辑起点</span>
-                <h3 class="evolution-inst">数理启蒙与逻辑起点</h3>
-                <div class="evolution-sub">浙江湖州 · 求真求实 · 极客基因萌芽</div>
-              </div>
-              <span class="evolution-period">早期阶段</span>
-            </div>
-
-            <div class="evolution-quote">
-              “严谨的数理逻辑训练塑造了一丝不苟的工程习惯，首次窥见空间图形与计算机科学的无限广阔。”
-            </div>
-
-            <p class="evolution-body">
-              在水乡湖州打下扎实的数理功底。早期对几何空间、计算机代码与三维逻辑产生浓厚兴趣，从最初编写简单的自动化脚本到探索算法设计，树立了以数字化工具重构现实世界的初心。
-            </p>
-
-            <div class="evolution-tags">
-              <span class="evolution-tag">🧠 逻辑思辨</span>
-              <span class="evolution-tag">📐 空间几何素养</span>
-              <span class="evolution-tag">💻 编程初探</span>
-              <span class="evolution-tag">🎯 求真求实</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Internships Section -->
+        <!-- 实习实践经历 -->
+        <!-- Internships Section -->
     <section class="section" id="internships">
       <div class="container">
         <div class="section-header">
@@ -603,177 +616,116 @@
       </div>
     </section>
 
-    <!-- 极客深度矩阵 // TECH_MATRIX (参考 bobzhang.top 领域解构) -->
-    <section class="section" id="skills">
-      <div class="container">
-        <div class="section-header">
-          <div class="hud-section-badge">
-            <span class="signal-beacon"></span>
-            <span>TECH_MATRIX // 极客深度矩阵</span>
-          </div>
-          <h2 class="section-title">极客深度矩阵 · 领域系统解构</h2>
-          <p class="section-desc">按领域解构与重组，贯通统计计算、精益制造、Web 3D 与宏观可视化的复合能力池。</p>
-        </div>
+    
 
-        <!-- 4大深度矩阵概览卡片 -->
-        <div class="matrix-grid">
-          <!-- Matrix 1: 统计量化 -->
-          <div class="matrix-card">
-            <div class="matrix-header">
-              <span class="matrix-badge-num">01 // QUANT</span>
-              <span class="matrix-stat-pill">10+ 学术级模型</span>
+        <!-- 极客深度矩阵 // SPECTRAL MATRIX (4大高光聚光灯卡片，参考 bobzhang.top) -->
+        <section class="section" id="skills" style="padding-top: 0;">
+          <div class="section-header" style="text-align: left; margin-bottom: 24px;">
+            <div class="hud-section-badge">
+              <span class="signal-beacon"></span>
+              <span>TECH_MATRIX // SPECTRAL MATRIX</span>
             </div>
-            <h3 class="matrix-title">统计量化与因果计量分析</h3>
-            <p class="matrix-desc">
-              高等数理统计、时间序列预测 (ARIMA/GARCH)、生存分析 Cox 比例风险模型与信用风险评分卡。具备从严谨推导到 5000 次蒙特卡洛应力测试的全流程能力。
-            </p>
-            <div class="matrix-chips">
-              <span class="matrix-chip">R / Python</span>
-              <span class="matrix-chip">ARIMA-GARCH</span>
-              <span class="matrix-chip">Cox 风险模型</span>
-              <span class="matrix-chip">Monte Carlo</span>
-              <span class="matrix-chip">因果推断</span>
-            </div>
-            <div class="matrix-footer">
-              <span style="font-size:0.8rem; color:var(--text-muted);">落地于多篇实证分析报告</span>
-              <a href="case-studies/applied-statistics-credit-risk.html" target="_blank" class="matrix-link">研读案例分析 →</a>
-            </div>
+            <h2 class="section-title">极客深度矩阵 · 领域系统解构</h2>
+            <p class="section-desc" style="margin: 0;">按领域解构与重组，贯通统计计算、精益制造、Web 3D 与宏观可视化的复合能力池。</p>
           </div>
 
-          <!-- Matrix 2: 精益制造 -->
-          <div class="matrix-card">
-            <div class="matrix-header">
-              <span class="matrix-badge-num">02 // LEAN_ENG</span>
-              <span class="matrix-stat-pill">丰田产线实战</span>
+          <div class="matrix-grid">
+            <!-- Matrix 1: 统计量化 (紫色聚光灯) -->
+            <div class="spectral-matrix-card" data-spot-color="rgba(168, 85, 247, 0.28)">
+              <div class="matrix-header">
+                <span class="matrix-badge-num">01 // QUANT</span>
+                <span class="matrix-stat-pill">10+ 学术级模型</span>
+              </div>
+              <h3 class="matrix-title">统计量化与因果计量分析</h3>
+              <p class="matrix-desc">
+                高等数理统计、时间序列预测 (ARIMA/GARCH)、生存分析 Cox 比例风险模型与信用风险评分卡。具备从严谨推导到 5000 次蒙特卡洛应力测试的全流程能力。
+              </p>
+              <div class="matrix-chips">
+                <span class="matrix-chip">R / Python</span>
+                <span class="matrix-chip">ARIMA-GARCH</span>
+                <span class="matrix-chip">Cox 风险模型</span>
+                <span class="matrix-chip">Monte Carlo</span>
+                <span class="matrix-chip">因果推断</span>
+              </div>
+              <div class="matrix-footer">
+                <span style="font-size:0.8rem; color:var(--text-muted);">落地于多篇实证分析报告</span>
+                <a href="case-studies/applied-statistics-credit-risk.html" target="_blank" class="matrix-link">研读案例分析 →</a>
+              </div>
             </div>
-            <h3 class="matrix-title">精益制造与工业工程 (IE) 现场改善</h3>
-            <p class="matrix-desc">
-              深扎一线制造现场。运用秒表作业测定与动作分析梳理消除 MUDA；主导 AGV 路径规划简化交叉动线；攻坚车间 VOCs 环境质量改造与通风工程选型。
-            </p>
-            <div class="matrix-chips">
-              <span class="matrix-chip">精益生产 TPS</span>
-              <span class="matrix-chip">标准作业测定</span>
-              <span class="matrix-chip">AGV 调度仿真</span>
-              <span class="matrix-chip">FlexSim</span>
-              <span class="matrix-chip">车间环境工程</span>
+
+            <!-- Matrix 2: 精益制造 (橙色聚光灯) -->
+            <div class="spectral-matrix-card" data-spot-color="rgba(249, 115, 22, 0.28)">
+              <div class="matrix-header">
+                <span class="matrix-badge-num">02 // LEAN_ENG</span>
+                <span class="matrix-stat-pill">丰田产线实战</span>
+              </div>
+              <h3 class="matrix-title">精益制造与工业工程 (IE) 现场改善</h3>
+              <p class="matrix-desc">
+                深扎一线制造现场。运用秒表作业测定与动作分析梳理消除 MUDA；主导 AGV 路径规划简化交叉动线；攻坚车间 VOCs 环境质量改造与通风工程选型。
+              </p>
+              <div class="matrix-chips">
+                <span class="matrix-chip">精益生产 TPS</span>
+                <span class="matrix-chip">标准作业测定</span>
+                <span class="matrix-chip">AGV 调度仿真</span>
+                <span class="matrix-chip">FlexSim</span>
+                <span class="matrix-chip">车间环境工程</span>
+              </div>
+              <div class="matrix-footer">
+                <span style="font-size:0.8rem; color:var(--text-muted);">一汽丰田 & 派格塑料落地</span>
+                <a href="#internships" class="matrix-link">查看改善复盘 →</a>
+              </div>
             </div>
-            <div class="matrix-footer">
-              <span style="font-size:0.8rem; color:var(--text-muted);">一汽丰田 & 派格塑料落地</span>
-              <a href="#internships" class="matrix-link">查看改善复盘 →</a>
+
+            <!-- Matrix 3: Web 3D (翡翠绿聚光灯) -->
+            <div class="spectral-matrix-card" data-spot-color="rgba(16, 185, 129, 0.28)">
+              <div class="matrix-header">
+                <span class="matrix-badge-num">03 // WEB_3D</span>
+                <span class="matrix-stat-pill">-53% DrawCall</span>
+              </div>
+              <h3 class="matrix-title">Web 3D 数字孪生与全景视界</h3>
+              <p class="matrix-desc">
+                Three.js 原生研发长春工业大学 3D 校园全景，遥感测绘 1:1 还原 84 处建筑单体，极致几何合批；支持第一人称沉浸式漫游、动态视锥剔除与全端适配。
+              </p>
+              <div class="matrix-chips">
+                <span class="matrix-chip">Three.js</span>
+                <span class="matrix-chip">WebGL 原生</span>
+                <span class="matrix-chip">Draw Call 压降</span>
+                <span class="matrix-chip">84 处建筑建模</span>
+                <span class="matrix-chip">第一人称漫游</span>
+              </div>
+              <div class="matrix-footer">
+                <span style="font-size:0.8rem; color:var(--text-muted);">独立自研数字孪生系统</span>
+                <a href="campus-map/index.html" target="_blank" class="matrix-link">进入 3D 漫游 →</a>
+              </div>
+            </div>
+
+            <!-- Matrix 4: 冰雪经济大屏 (青蓝聚光灯) -->
+            <div class="spectral-matrix-card" data-spot-color="rgba(34, 211, 238, 0.28)">
+              <div class="matrix-header">
+                <span class="matrix-badge-num">04 // VIZ_SYSTEM</span>
+                <span class="matrix-stat-pill">吉林省虚拟现实大赛</span>
+              </div>
+              <h3 class="matrix-title">宏观数据可视化与前瞻赛事系统</h3>
+              <p class="matrix-desc">
+                主研《雪线之上·吉林冰雪经济目标可视化交互系统》。结合吉林省地级市面板数据构建宏观沙盘、多维雷达图与沉浸式数据流播，融汇专业统计与前沿视觉。
+              </p>
+              <div class="matrix-chips">
+                <span class="matrix-chip">Canvas 3D</span>
+                <span class="matrix-chip">宏观沙盘</span>
+                <span class="matrix-chip">Panel VAR 计量</span>
+                <span class="matrix-chip">多维图表系统</span>
+                <span class="matrix-chip">音画同步</span>
+              </div>
+              <div class="matrix-footer">
+                <span style="font-size:0.8rem; color:var(--text-muted);">参赛级全景交互系统</span>
+                <a href="snow-viz/index.html" target="_blank" class="matrix-link">体验交互大屏 →</a>
+              </div>
             </div>
           </div>
+        </section>
 
-          <!-- Matrix 3: Web 3D -->
-          <div class="matrix-card">
-            <div class="matrix-header">
-              <span class="matrix-badge-num">03 // WEB_3D</span>
-              <span class="matrix-stat-pill">-53% DrawCall</span>
-            </div>
-            <h3 class="matrix-title">Web 3D 数字孪生与全景视界</h3>
-            <p class="matrix-desc">
-              Three.js 原生研发长春工业大学 3D 校园全景，遥感测绘 1:1 还原 84 处建筑单体，极致几何合批；支持第一人称沉浸式漫游、动态视锥剔除与全端适配。
-            </p>
-            <div class="matrix-chips">
-              <span class="matrix-chip">Three.js</span>
-              <span class="matrix-chip">WebGL 原生</span>
-              <span class="matrix-chip">Draw Call 压降</span>
-              <span class="matrix-chip">84 处建筑建模</span>
-              <span class="matrix-chip">第一人称漫游</span>
-            </div>
-            <div class="matrix-footer">
-              <span style="font-size:0.8rem; color:var(--text-muted);">独立自研数字孪生系统</span>
-              <a href="campus-map/index.html" target="_blank" class="matrix-link">进入 3D 漫游 →</a>
-            </div>
-          </div>
-
-          <!-- Matrix 4: 冰雪经济大屏 -->
-          <div class="matrix-card">
-            <div class="matrix-header">
-              <span class="matrix-badge-num">04 // VIZ_SYSTEM</span>
-              <span class="matrix-stat-pill">吉林省虚拟现实大赛</span>
-            </div>
-            <h3 class="matrix-title">宏观数据可视化与前瞻赛事系统</h3>
-            <p class="matrix-desc">
-              主研《雪线之上·吉林冰雪经济目标可视化交互系统》。结合吉林省地级市面板数据构建宏观沙盘、多维雷达图与沉浸式数据流播，融汇专业统计与前沿视觉。
-            </p>
-            <div class="matrix-chips">
-              <span class="matrix-chip">Canvas 3D</span>
-              <span class="matrix-chip">宏观沙盘</span>
-              <span class="matrix-chip">Panel VAR 计量</span>
-              <span class="matrix-chip">多维图表系统</span>
-              <span class="matrix-chip">音画同步</span>
-            </div>
-            <div class="matrix-footer">
-              <span style="font-size:0.8rem; color:var(--text-muted);">参赛级全景交互系统</span>
-              <a href="snow-viz/index.html" target="_blank" class="matrix-link">体验交互大屏 →</a>
-            </div>
-          </div>
-        </div>
-        <div style="height: 36px;"></div>
-
-        <div class="skills-container">
-          <!-- Column 1: 数据分析与统计 -->
-          <div class="skill-category-card">
-            <div class="category-header">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              <h3>统计分析与数据挖掘</h3>
-            </div>
-            <div class="chips-list">
-              <span class="skill-chip">R 语言统计分析</span>
-              <span class="skill-chip">Python 数据分析</span>
-              <span class="skill-chip">时间序列预测 (ARIMA/GARCH)</span>
-              <span class="skill-chip">高等数理统计</span>
-              <span class="skill-chip">应用概率模型</span>
-              <span class="skill-chip">多元统计回归</span>
-              <span class="skill-chip">运筹优化模型</span>
-              <span class="skill-chip">大数据处理与清洗</span>
-            </div>
-          </div>
-
-          <!-- Column 2: 工业工程与仿真 -->
-          <div class="skill-category-card">
-            <div class="category-header">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h10"/><path d="M7 12h10"/><path d="M7 17h10"/></svg>
-              <h3>工业工程与系统仿真</h3>
-            </div>
-            <div class="chips-list">
-              <span class="skill-chip">CATIA 三维建模</span>
-              <span class="skill-chip">FlexSim 物流系统仿真</span>
-              <span class="skill-chip">AutoCAD 工程制图</span>
-              <span class="skill-chip">作业测定与时间研究</span>
-              <span class="skill-chip">AGV 运行路径规划</span>
-              <span class="skill-chip">生产计划与控制 (PPC)</span>
-              <span class="skill-chip">基础工业工程 (Work Study)</span>
-              <span class="skill-chip">厂房通风系统设备选型</span>
-            </div>
-          </div>
-
-          <!-- Column 3: Web 3D 与开发工具 -->
-          <div class="skill-category-card">
-            <div class="category-header">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-              <h3>Web 3D、开发与语言</h3>
-            </div>
-            <div class="chips-list">
-              <span class="skill-chip">Three.js 3D 场景开发</span>
-              <span class="skill-chip">WebGL 原生渲染</span>
-              <span class="skill-chip">Canvas 3D 透视投影引擎</span>
-              <span class="skill-chip">D3-free 原生 SVG 图表渲染</span>
-              <span class="skill-chip">Web Audio API 声学合成</span>
-              <span class="skill-chip">VR 双目立体与瞳距视差</span>
-              <span class="skill-chip">JavaScript (ES6+)</span>
-              <span class="skill-chip">HTML5 / 现代 CSS3</span>
-              <span class="skill-chip">Git / GitHub (@dai123x)</span>
-              <span class="skill-chip">GitHub Pages & CNAME</span>
-              <span class="skill-chip">英语四级 (CET-4)</span>
-              <span class="skill-chip">Office 高阶办公软件</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Competitions & Honors Section -->
+        <!-- 竞赛荣誉 -->
+        <!-- Competitions & Honors Section -->
     <section class="section" id="awards">
       <div class="container">
         <div class="section-header">
@@ -840,7 +792,10 @@
       </div>
     </section>
 
-    <!-- Competition Work Showcase: 吉林省大学生虚拟现实大赛 -->
+    
+
+        <!-- 参赛作品: 雪线之上 -->
+        <!-- Competition Work Showcase: 吉林省大学生虚拟现实大赛 -->
     <section class="section" id="competition">
       <div class="container">
         <div class="section-header">
@@ -1035,7 +990,10 @@
       </div>
     </section>
 
-    <!-- Projects Section -->
+    
+
+        <!-- 精选项目 -->
+        <!-- Projects Section -->
     <section class="section" id="projects">
       <div class="container">
         <div class="section-header">
@@ -1319,7 +1277,10 @@
     </section>
 
 
-    <!-- 个人价值观与人格模型 // VALUE_SYSTEM (参考 bobzhang.top 认知心法) -->
+    
+
+        <!-- 价值观与人格模型 -->
+        <!-- 个人价值观与人格模型 // VALUE_SYSTEM (参考 bobzhang.top 认知心法) -->
     <section class="section" id="values">
       <div class="container">
         <div class="section-header">
@@ -1365,7 +1326,10 @@
       </div>
     </section>
 
-    <!-- 星空足迹 // STAR_FOOTPRINT 访客星图打卡互动 (参考 bobzhang.top 留下你的足迹) -->
+    
+
+        <!-- 星空足迹 -->
+        <!-- 星空足迹 // STAR_FOOTPRINT 访客星图打卡互动 (参考 bobzhang.top 留下你的足迹) -->
     <section class="section" id="star-footprint">
       <div class="container">
         <div class="section-header">
@@ -1414,87 +1378,117 @@
       </div>
     </section>
 
-    <!-- Contact & Callout -->
-    <section class="section" id="contact">
-      <div class="container">
-        <div class="contact-box">
-          <div class="hud-section-badge" style="margin-bottom: 16px;">
-            <span class="signal-beacon"></span>
-            <span>CONNECTION_MATRIX // 连接矩阵</span>
-          </div>
+    
 
-          <h2 class="section-title">安全通讯信道 · 连接矩阵</h2>
-          <p class="section-desc">
-            所有通道均已端到端就绪。无论是学术探讨、工程合作、精益制造改善交流，随时发起联路！
-          </p>
+        <!-- 安全通讯信道 · 连接矩阵 // CONNECTION_MATRIX (参考 bobzhang.top 实名/隐身双模) -->
+        <section class="section" id="contact" style="width: 100%; padding-top: 0;">
+          <div class="container" style="padding: 0;">
+            <div class="contact-box" style="position: relative; overflow: hidden; border-radius: 2rem;">
+              <!-- 科技 HUD 角标 -->
+              <div class="geek-card-corner tl"></div><div class="geek-card-corner tr"></div>
+              <div class="geek-card-corner bl"></div><div class="geek-card-corner br"></div>
+              <div class="scanline-effect"></div>
 
-          <div class="contact-grid-4">
-            <!-- GitHub -->
-            <a class="contact-item" href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" style="text-decoration: none;" title="访问 GitHub 主页">
-              <span class="contact-item-icon">🐙</span>
-              <h4>GitHub (点击访问)</h4>
-              <p>@dai123x</p>
-            </a>
-
-            <!-- Email（运行时拼装，防爬虫明文抓取） -->
-            <div class="contact-item" data-mailbox data-user="daixuan26" data-domain="outlook.com" title="点击复制邮箱">
-              <span class="contact-item-icon">📬</span>
-              <h4>电子邮箱 (点击复制)</h4>
-              <p class="mailbox-text"></p>
-            </div>
-
-            <!-- WeChat -->
-            <div class="contact-item" id="wechat-box-trigger" title="点击查看微信二维码">
-              <span class="contact-item-icon">💬</span>
-              <h4>微信交流 (点击查看)</h4>
-              <p>戴璇 (Dai Xuan)</p>
-            </div>
-
-            <!-- Location -->
-            <div class="contact-item">
-              <span class="contact-item-icon">📍</span>
-              <h4>所在地区 / 籍贯</h4>
-              <p>浙江湖州 / 吉林长春</p>
-            </div>
-          </div>
-
-          <div class="resume-cta">
-            <a class="btn btn-primary" href="resume/" target="_blank" rel="noopener">📄 查看在线简历</a>
-            <a class="btn btn-secondary" href="resume/resume.pdf" download>⬇ 下载 PDF 版本</a>
-          </div>
-
-          <!-- 赛博加密留言终端 (Geek Message Terminal) -->
-          <div class="matrix-terminal-card">
-            <div class="terminal-header">
-              <div class="terminal-title">
+              <div class="hud-section-badge" style="margin-bottom: 16px;">
                 <span class="signal-beacon"></span>
-                <span>直连热线 // ENCRYPTED_DISPATCH_TERMINAL</span>
+                <span>CONNECTION_MATRIX // 连接矩阵</span>
               </div>
-              <span style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">STATUS: READY</span>
+
+              <h2 class="section-title">安全通讯信道 · 连接矩阵</h2>
+              <p class="section-desc">
+                所有通道均已端到端就绪。无论是学术探讨、工程合作、精益制造改善交流，随时发起联路！
+              </p>
+
+              <div class="contact-grid-4">
+                <!-- GitHub -->
+                <a class="contact-item" href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" style="text-decoration: none;" title="访问 GitHub 主页">
+                  <span class="contact-item-icon">🐙</span>
+                  <h4>GitHub (点击访问)</h4>
+                  <p>@dai123x</p>
+                </a>
+
+                <!-- Email -->
+                <div class="contact-item" data-mailbox data-user="daixuan26" data-domain="outlook.com" title="点击复制邮箱">
+                  <span class="contact-item-icon">📬</span>
+                  <h4>电子邮箱 (点击复制)</h4>
+                  <p class="mailbox-text"></p>
+                </div>
+
+                <!-- WeChat -->
+                <div class="contact-item" id="wechat-box-trigger" title="点击查看微信二维码">
+                  <span class="contact-item-icon">💬</span>
+                  <h4>微信交流 (点击查看)</h4>
+                  <p>戴璇 (Dai Xuan)</p>
+                </div>
+
+                <!-- Location -->
+                <div class="contact-item">
+                  <span class="contact-item-icon">📍</span>
+                  <h4>所在地区 / 籍贯</h4>
+                  <p>浙江湖州 / 吉林长春</p>
+                </div>
+              </div>
+
+              <div class="resume-cta" style="margin-top: 24px;">
+                <a class="btn btn-primary" href="resume/" target="_blank" rel="noopener">📄 查看在线简历</a>
+                <a class="btn btn-secondary" href="resume/resume.pdf" download>⬇ 下载 PDF 版本</a>
+              </div>
+
+              <!-- 赛博加密留言终端 (Geek Message Terminal with Stealth Mode) -->
+              <div class="matrix-terminal-card" style="margin-top: 32px; background: rgba(10, 14, 23, 0.75); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 1.8rem; padding: 28px;">
+                <div class="terminal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 14px; margin-bottom: 20px;">
+                  <div class="terminal-title" style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; color: #fff;">
+                    <span class="signal-beacon"></span>
+                    <span>直连热线 // ENCRYPTED_DISPATCH_TERMINAL</span>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 0.78rem; color: #38bdf8;">STATUS: READY</span>
+                </div>
+
+                <!-- 实名通讯 / 匿名隐身模式双模切换开关 (参考 bobzhang.top) -->
+                <div class="stealth-toggle-row">
+                  <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; font-family: var(--font-mono);" id="label-realname">实名通讯</span>
+                  <button type="button" class="stealth-toggle-btn" id="stealth-toggle-btn" aria-label="切换实名或匿名隐身模式">
+                    <span class="stealth-toggle-knob"></span>
+                  </button>
+                  <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);" id="label-anonymous">匿名发送 (Stealth Mode)</span>
+                </div>
+
+                <!-- 隐身模式警告栏 (默认隐藏) -->
+                <div class="stealth-alert-banner" id="stealth-alert-banner" style="display: none;">
+                  <span class="stealth-alert-icon">🛡️</span>
+                  <div class="stealth-alert-text">
+                    <strong>Stealth Mode Active // 隐身模式已启动</strong>
+                    <p>所有身份特征已被抹除，此连接将在数据传输完成后销毁。</p>
+                  </div>
+                </div>
+
+                <form id="terminal-msg-form" class="terminal-form">
+                  <div id="real-fields-group" style="display: contents;">
+                    <div>
+                      <label for="terminal-sender" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">收到代号 [姓名 / 称呼]</label>
+                      <input id="terminal-sender" class="terminal-input" type="text" placeholder="输入您的身份代号">
+                    </div>
+                    <div>
+                      <label for="terminal-contact" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">通讯频段 [邮箱 / 微信]</label>
+                      <input id="terminal-contact" class="terminal-input" type="text" placeholder="加密频道@... (方便回复您)">
+                    </div>
+                  </div>
+                  <div class="terminal-form-full">
+                    <label for="terminal-text" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">核心信息 [留言内容]</label>
+                    <textarea id="terminal-text" class="terminal-textarea" placeholder="正在准备传输数据..." required></textarea>
+                  </div>
+                  <div class="terminal-form-full" style="display:flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-transmit" id="btn-transmit">
+                      <span>>_ 发送数据</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <form id="terminal-msg-form" class="terminal-form">
-              <div>
-                <label for="terminal-sender" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">输入您的身份代号</label>
-                <input id="terminal-sender" class="terminal-input" type="text" placeholder="称呼 / 访客代号" required>
-              </div>
-              <div>
-                <label for="terminal-contact" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">通讯频段 (邮箱 / 微信)</label>
-                <input id="terminal-contact" class="terminal-input" type="text" placeholder="方便戴璇回复您的方式" required>
-              </div>
-              <div class="terminal-form-full">
-                <label for="terminal-text" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">核心通讯数据</label>
-                <textarea id="terminal-text" class="terminal-textarea" placeholder="留下您的合作意向、学术探讨或寄语…" required></textarea>
-              </div>
-              <div class="terminal-form-full" style="display:flex; justify-content: flex-end;">
-                <button type="submit" class="btn-transmit" id="btn-transmit">
-                  <span>📡 发送加密数据</span>
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
+        </section>
       </div>
-    </section>
+    </div>
   </main>
 
   <!-- Footer -->

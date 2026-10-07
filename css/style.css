@@ -4072,3 +4072,734 @@ body:has(.twin-launcher) .back-to-top {
   .cyber-audio-capsule { left: 16px; bottom: calc(88px + var(--safe-bottom)); }
   .terminal-form { grid-template-columns: 1fr; }
 }
+
+
+/* ==========================================================================
+   BOBZHANG.TOP INSPIRED GRAND CYBER BENTO ARCHITECTURE
+   双栏赛博旗舰 Bento 布局 · 粘性极客画卷 · 动态聚光灯矩阵 · 双模隐身终端
+   ========================================================================== */
+
+/* 1. 双栏大 Bento 容器 */
+.grand-bento-layout {
+  display: flex;
+  gap: 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 1024px) {
+  .grand-bento-layout {
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 20px;
+  }
+}
+
+/* 2. 左侧粘性极客画卷 (Sticky Profile Sidebar) */
+.bento-sidebar {
+  width: 330px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 84px;
+  background: rgba(17, 24, 39, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 2.2rem;
+  padding: 32px 24px;
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+[data-theme="light"] .bento-sidebar {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.bento-sidebar:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .bento-sidebar {
+    width: 100%;
+    position: static;
+    border-radius: 1.5rem;
+    padding: 24px 20px;
+  }
+}
+
+/* 头像光晕环 */
+.bento-avatar-ring {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.6), rgba(34, 211, 238, 0.6));
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.4), 0 0 60px rgba(34, 211, 238, 0.2);
+  margin-bottom: 18px;
+  position: relative;
+  transition: transform 0.4s ease;
+}
+
+.bento-avatar-ring:hover {
+  transform: scale(1.05);
+}
+
+.bento-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 访客身份同步徽章 */
+.bento-visitor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.bento-name-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #fff;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.65) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .bento-name-title {
+  background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bento-role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+  margin-bottom: 14px;
+}
+
+.bento-typing-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 12px;
+  background: var(--accent-primary);
+  vertical-align: middle;
+  animation: cursorBlink 0.9s infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.bento-sidebar-arch {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: #38bdf8;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.bento-sidebar-motto {
+  font-size: 0.84rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 22px;
+}
+
+/* 侧边栏联系按钮 (带扫光) */
+.btn-sidebar-contact {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+}
+
+[data-theme="light"] .btn-sidebar-contact {
+  color: #0f172a;
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.btn-sidebar-contact::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.3), transparent);
+  transition: transform 0.8s ease;
+}
+
+.btn-sidebar-contact:hover::before {
+  transform: translateX(300%);
+}
+
+.btn-sidebar-contact:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+  transform: translateY(-2px);
+}
+
+/* 侧边栏极客画像小标签列表 */
+.bento-sidebar-traits-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.bento-sidebar-traits-header .line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.bento-sidebar-traits-header .title {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.bento-sidebar-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.bento-sidebar-trait-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  cursor: crosshair;
+  transition: all 0.2s ease;
+}
+
+.bento-sidebar-trait-chip:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+/* 3. 右侧舞台 (Stage Bento Grid) */
+.bento-stage {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.stage-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .stage-bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Bento Card 基础样式 (类似 bobzhang 的 Ip 组件) */
+.stage-bento-card {
+  position: relative;
+  border-radius: 1.8rem;
+  background: rgba(17, 24, 39, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  padding: 28px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme="light"] .stage-bento-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.stage-bento-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* 卡片 1: 超大 Hero Showcase (跨 2 列，2 行) */
+.bento-card-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+  padding: 36px 32px;
+  justify-content: flex-end;
+  min-height: 400px;
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  .bento-card-hero {
+    grid-column: span 1;
+    grid-row: span 1;
+    min-height: auto;
+    padding: 24px;
+  }
+}
+
+.bento-card-hero .hero-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.08) 50%, rgba(10, 14, 23, 0.95) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bento-card-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.bento-hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin-bottom: 16px;
+}
+
+.bento-hero-heading {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.bento-hero-heading span.gradient {
+  background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bento-hero-desc {
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 580px;
+  margin-bottom: 24px;
+}
+
+.bento-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 卡片 2: 关键影响数据统计 (Stats) */
+.bento-card-stats {
+  grid-column: span 1;
+  grid-row: span 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24px;
+}
+
+.bento-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bento-stat-number {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #fff;
+  font-family: var(--font-mono);
+  letter-spacing: -0.02em;
+}
+
+.bento-stat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.bento-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 卡片 3: 核心技术栈 (Core Tech Stack) */
+.bento-card-tech {
+  grid-column: span 1;
+  grid-row: span 2;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+@media (max-width: 900px) {
+  .bento-card-tech {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+.bento-tech-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.bento-tech-header .line {
+  width: 32px;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.bento-tech-header .tag {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: #3b82f6;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.bento-tech-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.bento-tech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bento-tech-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: all 0.25s ease;
+  cursor: default;
+}
+
+.bento-tech-row:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.bento-tech-row .badge {
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  font-family: var(--font-mono);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.bento-tech-row:hover .badge {
+  opacity: 1;
+  background: rgba(99, 102, 241, 0.25);
+}
+
+/* 卡片 4 & 5: 记忆链接卡片 & 热爱足迹卡片 (带大图沉浸) */
+.bento-card-media {
+  min-height: 200px;
+  padding: 24px;
+  cursor: pointer;
+  position: relative;
+  justify-content: flex-end;
+}
+
+.bento-card-media .media-bg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease;
+  filter: brightness(0.65);
+}
+
+.bento-card-media:hover .media-bg {
+  transform: scale(1.08);
+  filter: brightness(0.8);
+}
+
+.bento-card-media .media-badge-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+}
+
+.bento-card-media .media-badge-cyan {
+  background: rgba(34, 211, 238, 0.2);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  color: #38bdf8;
+}
+
+.bento-card-media .media-badge-purple {
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+.bento-card-media .media-content {
+  position: relative;
+  z-index: 2;
+}
+
+.bento-card-media .media-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+}
+
+.bento-card-media .media-sub {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 4. 核心进化档案纵向渐变光轨 (Evolution Dossier Rail) */
+.evolution-rail-wrap {
+  position: relative;
+  padding-left: 36px;
+  margin-top: 32px;
+}
+
+.evolution-vertical-rail {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: linear-gradient(180deg, #a855f7 0%, #06b6d4 50%, #3b82f6 85%, transparent 100%);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.7);
+  border-radius: var(--radius-full);
+}
+
+.evolution-node-dot {
+  position: absolute;
+  left: -32px;
+  top: 18px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0f172a;
+  border: 2px solid #c084fc;
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.8);
+  transition: transform 0.3s ease;
+}
+
+.evolution-card:hover .evolution-node-dot {
+  transform: scale(1.35);
+  box-shadow: 0 0 18px rgba(192, 132, 252, 1);
+}
+
+/* 5. 极客深度矩阵鼠标聚光灯卡片 (Spectral Matrix Cards with cursor tracking) */
+.spectral-matrix-card {
+  position: relative;
+  border-radius: 2.2rem;
+  padding: 36px 30px;
+  background: rgba(10, 14, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  transition: all 0.4s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.spectral-matrix-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 2.2rem;
+  background: radial-gradient(450px circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--spot-color, rgba(168, 85, 247, 0.2)), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.spectral-matrix-card:hover::before {
+  opacity: 1;
+}
+
+.spectral-matrix-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* 6. 联系终端隐身模式双模切换 (Stealth Mode Toggle & Terminal) */
+.stealth-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stealth-toggle-btn {
+  position: relative;
+  width: 46px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: rgba(34, 211, 238, 0.4);
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.stealth-toggle-btn.is-active {
+  background: rgba(217, 70, 239, 0.5);
+  border-color: rgba(217, 70, 239, 0.7);
+}
+
+.stealth-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.stealth-toggle-btn.is-active .stealth-toggle-knob {
+  transform: translateX(21px);
+}
+
+.stealth-alert-banner {
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: rgba(217, 70, 239, 0.12);
+  border: 1px solid rgba(217, 70, 239, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stealth-alert-icon {
+  font-size: 1.5rem;
+}
+
+.stealth-alert-text strong {
+  display: block;
+  font-size: 0.82rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #e879f9;
+  font-family: var(--font-mono);
+}
+
+.stealth-alert-text p {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+}

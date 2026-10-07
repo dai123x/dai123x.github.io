@@ -52,6 +52,9 @@
     initAudioCapsule();
     initStarFootprint();
     initMessageTerminal();
+    initSpotlightCards();
+    initStealthToggle();
+    initSidebarVisitorSync();
   });
 
   /* --------------------------------------------------------------------------
@@ -1433,6 +1436,80 @@
         }, 2500);
       }, 900);
     });
+  }
+
+
+  /* --------------------------------------------------------------------------
+     21. 鼠标动态聚光灯追踪 (Cursor Spotlight - 参考 bobzhang.top Xv/Ip 组件)
+     -------------------------------------------------------------------------- */
+  function initSpotlightCards() {
+    const cards = document.querySelectorAll('.spectral-matrix-card, .stage-bento-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--spot-x', `${x}px`);
+        card.style.setProperty('--spot-y', `${y}px`);
+        const spotColor = card.getAttribute('data-spot-color');
+        if (spotColor) card.style.setProperty('--spot-color', spotColor);
+      });
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+     22. 实名通讯 / 隐身模式双模切换 (Stealth Mode Toggle - 参考 bobzhang.top 直连热线)
+     -------------------------------------------------------------------------- */
+  function initStealthToggle() {
+    const toggleBtn = document.getElementById('stealth-toggle-btn');
+    const realFields = document.getElementById('real-fields-group');
+    const alertBanner = document.getElementById('stealth-alert-banner');
+    const labelReal = document.getElementById('label-realname');
+    const labelAnon = document.getElementById('label-anonymous');
+
+    if (!toggleBtn) return;
+
+    let isStealth = false;
+
+    toggleBtn.addEventListener('click', () => {
+      isStealth = !isStealth;
+      toggleBtn.classList.toggle('is-active', isStealth);
+
+      if (isStealth) {
+        if (realFields) realFields.style.display = 'none';
+        if (alertBanner) alertBanner.style.display = 'flex';
+        if (labelReal) { labelReal.style.color = 'var(--text-muted)'; }
+        if (labelAnon) { labelAnon.style.color = '#e879f9'; }
+      } else {
+        if (realFields) realFields.style.display = 'contents';
+        if (alertBanner) alertBanner.style.display = 'none';
+        if (labelReal) { labelReal.style.color = '#38bdf8'; }
+        if (labelAnon) { labelAnon.style.color = 'var(--text-muted)'; }
+      }
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+     23. 侧边栏访客身份同步联动 (Sidebar Visitor Sync)
+     -------------------------------------------------------------------------- */
+  function initSidebarVisitorSync() {
+    const visitorNameEl = document.getElementById('bento-visitor-name');
+    if (!visitorNameEl) return;
+
+    function update() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('dx_visitor') || 'null');
+        if (saved && saved.name) {
+          visitorNameEl.textContent = `${saved.name} · 访客已同步 👋`;
+        } else {
+          visitorNameEl.textContent = '访客身份已同步 👋';
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    update();
+    window.addEventListener('storage', update);
+    document.addEventListener('dx:identity-updated', update);
   }
 
 })();
