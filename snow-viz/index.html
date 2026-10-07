@@ -118,13 +118,13 @@
       height: 44px;
       border-radius: 12px;
       background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-      color: var(--text);
+      color: #ffffff !important;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 22px;
       font-weight: 900;
-      box-shadow: 0 4px 18px var(--ice-glow);
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
     }
     .brand-title h1 {
       font-size: 22px;
@@ -265,13 +265,12 @@
     }
     .season-toggle {
       display: flex;
-      background: #e2e8f0;
-      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 10px;
-      padding: 4px;
+      padding: 3px;
       gap: 4px;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(6px);
+      box-shadow: none;
     }
     .season-btn {
       font-family: inherit;
@@ -290,11 +289,10 @@
     }
     .season-btn.active {
       background: #ffffff;
-      color: var(--ice);
+      color: #0284c7;
       border-color: #bae6fd;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
       font-weight: 700;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 12px var(--ice-glow);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
     }
 
     /* KPI Cards Banner */
@@ -1772,10 +1770,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 18px 0 2px;
-      padding-bottom: 7px;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+      margin: 18px 0 6px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
       flex-wrap: wrap;
+    }
+    .lab-subhead b {
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 700;
     }
     .lab-subhead > b {
       color: var(--text);
@@ -2071,20 +2074,21 @@
     .da-var-beta { font-family: var(--font-mono); color: var(--ice); font-size: 12px; }
     .da-var-t { font-family: var(--font-mono); font-size: 12px; }
     .da-sig { font-size: 11px; padding: 1.5px 6px; border-radius: 4px; font-family: var(--font-mono); }
-    .da-sig.s3 { background: rgba(148,227,202,0.16); color: var(--mint); border: 1px solid rgba(148,227,202,0.42); }
-    .da-sig.s2 { background: rgba(56,189,248,0.15); color: var(--ice); border: 1px solid rgba(56,189,248,0.4); }
-    .da-sig.s1 { background: rgba(244,198,109,0.15); color: var(--gold); border: 1px solid rgba(244,198,109,0.4); }
-    .da-sig.s0 { background: rgba(230,120,110,0.14); color: var(--coral); border: 1px solid rgba(230,120,110,0.4); }
+    .da-sig.s3 { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-weight: 600; }
+    .da-sig.s2 { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; font-weight: 600; }
+    .da-sig.s1 { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; font-weight: 600; }
+    .da-sig.s0 { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; font-weight: 600; }
 
     /* 4 列 × 2 行 = 8 项，末行不留大片空位（原 5 列会导致第二行仅 2 项、右侧空 820px） */
     .da-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(292px, 1fr)); gap: 9px; padding-top: 12px; }
     .da-check {
       display: flex; gap: 9px; align-items: flex-start;
-      background: var(--bg);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-left: 3px solid var(--mint);
       border-radius: 0 8px 8px 0;
       padding: 9px 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     }
     .da-check.warn { border-left-color: var(--gold); }
     .da-check.flag { border-left-color: var(--coral); }
@@ -2108,12 +2112,13 @@
     }
     .da-loo-city { min-width: 42px; color: var(--text-2); }
     .da-loo-track {
-      flex: 1; height: 13px; background: rgba(56, 189, 248, 0.09);
+      flex: 1; height: 13px; background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       border-radius: 4px; position: relative; overflow: hidden;
     }
     .da-loo-mid {
       position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
-      background: rgba(56, 189, 248, 0.45);
+      background: #cbd5e1;
     }
     .da-loo-fill { position: absolute; top: 2px; bottom: 2px; border-radius: 4px; }
     .da-loo-fill.pos { background: linear-gradient(90deg, rgba(148,227,202,0.5), var(--mint)); }
@@ -2183,8 +2188,11 @@
     }
     .da-node-btn:hover { color: var(--ice); border-color: rgba(56,189,248,0.5); }
     .da-node-btn.active {
-      background: rgba(56,189,248,0.16); color: var(--ice);
-      border-color: var(--ice); font-weight: 600;
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(2, 132, 199, 0.35);
     }
 
     .da-gauge-wrap { text-align: center; padding: 6px 0 2px; }
@@ -2454,10 +2462,14 @@
         font-size: 12px;
       }
       .season-toggle {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-      }
+      display: flex;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+      box-shadow: none;
+    }
       .season-btn {
         flex: 1;
         padding: 6px 4px;
@@ -3219,7 +3231,7 @@
         <div class="brand-title">
           <div class="brand-eyebrow" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span>JILIN · ICE & SNOW ECONOMY</span>
-            <span class="badge" style="font-size:10px; padding:1px 6px; background:rgba(122,26,30,0.45); border:1px solid rgba(244,198,109,0.6); color:var(--gold);">长春工业大学 · 研究生团队</span>
+            <span class="badge" style="background:#eff6ff; border:1px solid #bfdbfe; color:#1d4ed8; font-weight:600; font-size:11px; padding:2px 10px; border-radius:12px;">长春工业大学 · 研究生团队</span>
           </div>
           <h1>雪线之上 · 吉林冰雪经济目标可视化</h1>
           <div class="brand-sub">吉林省大学生虚拟现实大赛 · 数据可视化分析方向申报作品</div>
@@ -3295,11 +3307,11 @@
         <h2>白雪换白银：吉林如何通过冰雪经济规划重塑东北振兴新引擎？</h2>
         <p>以中共吉林省委办公厅、省政府办公厅印发《关于推动吉林省冰雪经济高质量发展的实施意见》（吉办发〔2024〕16号）为权威依据。本系统通过多维交互数据可视化与三维数字孪生场景映射，深度解析两个关键雪季规划目标及供给端战略配套任务。</p>
         <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; font-size:12px;">
-          <span style="border:1px solid rgba(148,227,202,0.4); color:var(--mint); background:rgba(148,227,202,0.08); padding:3px 9px; border-radius:4px;" title="省统计局与文旅厅官方通报实绩">🟢 官方核准实绩：2023—2024雪季（1.25亿人次 / 2,419亿元）</span>
-          <span style="border:1px solid rgba(244,198,109,0.4); color:var(--gold); background:rgba(244,198,109,0.08); padding:3px 9px; border-radius:4px;" title="吉办发〔2024〕16号中期阶段目标">🟡 中期法定规划：2027—2028雪季（2.3亿人次 / 4,200亿元）</span>
-          <span style="border:1px solid rgba(255,159,104,0.4); color:var(--coral); background:rgba(255,159,104,0.08); padding:3px 9px; border-radius:4px;" title="吉办发〔2024〕16号远期跃升目标">🔴 远期法定目标：2029—2030雪季（3.0亿人次 / 5,400亿元 / 装备≥50亿元）</span>
-          <span style="border:1px solid rgba(56,189,248,0.4); color:var(--ice); background:rgba(56,189,248,0.08); padding:3px 9px; border-radius:4px;" title="应用统计团队自主构建的计量经济学模型">🔵 计量模型估计：OLS 时间趋势基准 & 9市州空间面板模型</span>
-          <span style="border:1px solid rgba(255,255,255,0.2); color:var(--text-2); background:rgba(255,255,255,0.05); padding:3px 9px; border-radius:4px;" title="外生变量参数情景推演">🟣 动态情景推演：沈白高铁红利 + 品牌营销乘数 + 气温异常</span>
+          <span style="border:1px solid #bbf7d0; color:#15803d; background:#f0fdf4; padding:5px 11px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:5px;" title="省统计局与文旅厅官方通报实绩">🟢 官方核准实绩：2023—2024雪季（1.25亿人次 / 2,419亿元）</span>
+          <span style="border:1px solid #fde68a; color:#b45309; background:#fffbeb; padding:5px 11px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:5px;" title="吉办发〔2024〕16号中期阶段目标">🟡 中期法定规划：2027—2028雪季（2.3亿人次 / 4,200亿元）</span>
+          <span style="border:1px solid #fecdd3; color:#be123c; background:#fff1f2; padding:5px 11px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:5px;" title="吉办发〔2024〕16号远期跃升目标">🔴 远期法定目标：2029—2030雪季（3.0亿人次 / 5,400亿元 / 装备≥50亿元）</span>
+          <span style="border:1px solid #bae6fd; color:#0369a1; background:#f0f9ff; padding:5px 11px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:5px;" title="应用统计团队自主构建的计量经济学模型">🔵 计量模型估计：OLS 时间趋势基准 & 9市州空间面板模型</span>
+          <span style="border:1px solid #e2e8f0; color:#475569; background:#f8fafc; padding:5px 11px; border-radius:6px; font-weight:600; display:inline-flex; align-items:center; gap:5px;" title="外生变量参数情景推演">🟣 动态情景推演：沈白高铁红利 + 品牌营销乘数 + 气温异常</span>
         </div>
       </div>
       <div class="season-toggle" id="seasonToggle">
@@ -4125,7 +4137,7 @@
           <div class="lab-subhead">
             <span style="font-size:15px;">🔬</span>
             <b>阶段一：七阶段数据分析流水线（Data Pipeline）</b>
-            <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(56,189,248,0.12); color:var(--ice); border-color:var(--ice);">从原始公报 → 决策结论</span>
+            <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">从原始公报 → 决策结论</span>
           </div>
           <div class="pipeline-flow">
             <div class="pipe-step">
@@ -4208,7 +4220,7 @@
           <div class="lab-subhead">
             <span style="font-size:15px;">📏</span>
             <b>阶段三：统计检验与模型诊断清单（Hypothesis Testing）</b>
-            <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(56,189,248,0.12); color:var(--ice); border-color:var(--ice);">OLS 模型 7 项诊断（n=6, df=4）</span>
+            <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">OLS 模型 7 项诊断（n=6, df=4）</span>
           </div>
           <div style="margin-top:10px; padding:9px 14px; border-radius:6px; background:rgba(244,198,109,0.07); border-left:3px solid var(--gold); font-size:12px; line-height:1.65; color:#cec8dc;">
             <b style="color:var(--gold);">口径与尺度声明（请评委与读者一并阅读）：</b>
@@ -4897,7 +4909,7 @@
           <div class="lab-subhead">
             <span style="font-size:15px;">📄</span>
             <b>核心源码片段（以下为系统内真实运行代码）</b>
-            <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(56,189,248,0.12); color:var(--ice); border-color:var(--ice);">可现场翻阅源码核验</span>
+            <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">可现场翻阅源码核验</span>
           </div>
           <div class="code-tabs">
             <button class="code-tab-btn active" data-code="proj">project3D · 三维透视投影</button>
@@ -5048,7 +5060,7 @@ async function initWebXRSession(gl) {
           <div class="lab-subhead">
             <span style="font-size:15px;">🎯</span>
             <b>落地场景：三类真实业务适配</b>
-            <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(56,189,248,0.12); color:var(--ice); border-color:var(--ice);">已完成原型验证</span>
+            <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">已完成原型验证</span>
           </div>
           <div class="team-grid">
             <div class="team-card" style="border-color:rgba(56,189,248,0.35);">
@@ -5175,20 +5187,20 @@ async function initWebXRSession(gl) {
       </article>
 
       <!-- 5. 深度数据分析专题（市州面板回归 · 留一交叉验证 · 稳健性诊断） -->
-      <article class="card wide-card" id="dataAnalysisSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(37,15,61,0.96) 0%, rgba(32,15,50,0.98) 100%); border: 1px solid rgba(56,189,248,0.34); border-top: 3px solid var(--ice); margin-top: 6px;">
+      <article class="card wide-card" id="dataAnalysisSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow: var(--shadow-2); border: 1px solid #e2e8f0; border-top: 3px solid var(--ice); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">📊</span>
             <div>
               <h3 style="color: var(--text); font-size:16px; margin:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span>深度数据分析专题 · 吉林省 9 市州冰雪经济截面回归</span>
-                <span class="badge" style="background:rgba(56,189,248,0.14); border:1px solid var(--ice); color:var(--ice); font-size:12px;">样本扩展 n=6 → 9</span>
-                <span class="badge" style="background:rgba(148,227,202,0.14); border:1px solid var(--mint); color:var(--mint); font-size:12px;">全流程可复算</span>
+                <span class="badge" style="background:#f0f9ff; border:1px solid #bae6fd; color:#0284c7; font-size:12px; font-weight:600;">样本扩展 n=6 → 9</span>
+                <span class="badge" style="background:#f0fdf4; border:1px solid #bbf7d0; color:#16a34a; font-size:12px; font-weight:600;">全流程可复算</span>
               </h3>
               <small style="color:var(--muted); font-size:12px;">由单一时间序列升级为「省域时序 + 市州截面」双样本结构：4 个候选模型横向比选、留一交叉验证、7 项计量诊断、供给端运力核验</small>
             </div>
           </div>
-          <div style="font-size:12px; color:var(--ice); font-family:var(--font-mono); background:rgba(56,189,248,0.08); padding:3px 8px; border-radius:4px;">
+          <div style="font-size:12px; color:var(--ice); font-family:var(--font-mono); background:#f0f9ff; border:1px solid #bae6fd; color:#0284c7; font-weight:600; padding:3px 8px; border-radius:4px;">
             🔬 方法论深化 · 对应大赛「科学性与分析深度」评分项
           </div>
         </div>
@@ -5197,7 +5209,7 @@ async function initWebXRSession(gl) {
         <div class="lab-subhead">
           <span style="font-size:15px;">🎯</span>
           <b>一、核心发现：冰雪经济的双重驱动结构</b>
-          <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(148,227,202,0.12); color:var(--mint); border-color:var(--mint);">两个自变量均在 5% 水平显著</span>
+          <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; font-weight:600;">两个自变量均在 5% 水平显著</span>
         </div>
         <div class="da-kpi-grid">
           <div class="da-kpi">
@@ -5240,7 +5252,7 @@ async function initWebXRSession(gl) {
         <div class="lab-subhead">
           <span style="font-size:15px;">⚖️</span>
           <b>二、四模型横向比选（同一 n=9 市州样本）</b>
-          <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(56,189,248,0.12); color:var(--ice); border-color:var(--ice);">候选模型择优过程完整披露</span>
+          <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">候选模型择优过程完整披露</span>
         </div>
         <div class="da-model-grid">
           <div class="da-model-card">
@@ -5346,7 +5358,7 @@ async function initWebXRSession(gl) {
         <div class="lab-subhead">
           <span style="font-size:15px;">🔁</span>
           <b>四、留一交叉验证（LOO-CV）：样本外泛化能力检验</b>
-          <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(244,198,109,0.12); color:var(--gold); border-color:var(--gold);">主动披露模型短板</span>
+          <span class="badge" style="font-size:10px; padding:2px 7px; background:#fffbeb; color:#b45309; border:1px solid #fde68a; font-weight:600;">主动披露模型短板</span>
         </div>
         <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:10px;">
           逐一剔除每个市州、用剩余 8 市州重新估计模型，再预测被剔除城市的冰雪指数。该检验用于回答「模型是否只是记住了样本内的噪声」。
@@ -5514,7 +5526,7 @@ async function initWebXRSession(gl) {
         <div class="lab-subhead">
           <span style="font-size:15px;">🎛️</span>
           <b>八、交互式回归推演器：亲手验证模型结论</b>
-          <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(148,227,202,0.12); color:var(--mint); border-color:var(--mint);">评委可现场拖动验证</span>
+          <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; font-weight:600;">评委可现场拖动验证</span>
         </div>
         <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:10px;">
           下方推演器直接调用主模型 D 的回归方程。<b style="color:var(--ice);">拖动滑块即可实时观察冰雪指数变化</b>，并可一键载入任一真实市州的实际参数进行比对——用来验证「积雪日数影响强于 GDP」这一核心结论。
