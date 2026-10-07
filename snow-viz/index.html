@@ -469,7 +469,7 @@
       gap: 2px;
       height: 20px;
       padding: 2px 5px;
-      background: rgba(30, 13, 57, 0.75);
+      background: var(--bg);
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: 6px;
       vertical-align: middle;
@@ -1489,7 +1489,7 @@
       position: fixed;
       inset: 0;
       z-index: 999;
-      background: rgba(15, 23, 42, 0.45);
+      background: var(--bg);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -1630,7 +1630,7 @@
     .gallery-overlay {
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(31, 12, 50, 0.95);
+      background: var(--bg);
       z-index: 2000;
       display: flex;
       flex-direction: column;
@@ -1678,7 +1678,7 @@
     .gallery-caption {
       position: absolute;
       bottom: 40px;
-      background: rgba(10, 16, 28, 0.85);
+      background: var(--bg);
       padding: 12px 24px;
       border-radius: 20px;
       color: var(--ice);
@@ -2071,7 +2071,7 @@
     .da-checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(292px, 1fr)); gap: 9px; padding-top: 12px; }
     .da-check {
       display: flex; gap: 9px; align-items: flex-start;
-      background: rgba(32, 16, 59, 0.7);
+      background: var(--bg);
       border: 1px solid rgba(56, 189, 248, 0.2);
       border-left: 3px solid var(--mint);
       border-radius: 0 8px 8px 0;
@@ -2163,8 +2163,8 @@
       border: 2px solid rgba(32, 15, 57, 0.9);
       box-shadow: 0 0 8px rgba(56, 189, 248, 0.65);
     }
-    .da-slider.gold::-webkit-slider-thumb { background: var(--gold); box-shadow: 0 0 8px rgba(244,198,109,0.65); }
-    .da-slider.gold::-moz-range-thumb { background: var(--gold); box-shadow: 0 0 8px rgba(244,198,109,0.65); }
+    .da-slider.gold::-webkit-slider-thumb { background: var(--gold); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+    .da-slider.gold::-moz-range-thumb { background: var(--gold); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
 
     .da-node-pick { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
     .da-node-btn {
@@ -2320,7 +2320,7 @@
     /* ---- 8. 滚动条（长页面体验） ---- */
     * { scrollbar-width: thin; scrollbar-color: rgba(90, 67, 135, 0.6) transparent; }
     ::-webkit-scrollbar { width: 9px; height: 9px; }
-    ::-webkit-scrollbar-track { background: rgba(36, 17, 61, 0.6); }
+    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb {
       background: rgba(90, 67, 135, 0.55);
       border-radius: 6px;
@@ -3043,7 +3043,7 @@
     :focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
     ::selection { background: rgba(56, 189, 248, 0.30); color: var(--text); }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
-    ::-webkit-scrollbar-track { background: rgba(36, 16, 59, 0.55); }
+    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(114, 90, 158, 0.38); border-radius: 6px; border: 2px solid rgba(36, 16, 59, 0.55); }
     ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.5); }
     @media (prefers-reduced-motion: reduce) {
@@ -3136,7 +3136,7 @@
 </style>
   <div id="splashScreen">
     <div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:12px;">
-      <img src="assets/ccut_badge.png" alt="长春工业大学校徽" width="147" height="147" loading="lazy" decoding="async" class="school-badge-img" style="height:64px; width:64px; border-radius:50%; border:2px solid var(--gold); box-shadow:0 0 24px rgba(244,198,109,0.45); animation: pulse 1.5s infinite; background:#7a1a1e; object-fit:cover;">
+      <img src="assets/ccut_badge.png" alt="长春工业大学校徽" width="147" height="147" loading="lazy" decoding="async" class="school-badge-img" style="height:64px; width:64px; border-radius:50%; border:2px solid var(--gold); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); animation: pulse 1.5s infinite; background:#7a1a1e; object-fit:cover;">
       <div class="splash-logo" style="margin:0;">雪</div>
     </div>
     <div style="color:#0f172a; font-size:15px; font-weight:bold; letter-spacing:2px;">长春工业大学 · 研究生团队 · 深度求索队</div>
@@ -3163,7 +3163,7 @@
     <header class="top">
       <div class="brand">
         <div style="display:flex; align-items:center; gap:8px;">
-          <img src="assets/ccut_badge.png" alt="长春工业大学校徽" width="147" height="147" loading="lazy" decoding="async" class="school-badge-img" style="height:42px; width:42px; border-radius:50%; border:1.5px solid var(--gold); box-shadow:0 0 12px rgba(244,198,109,0.35); background:#7a1a1e; object-fit:cover; flex-shrink:0;" title="长春工业大学 (Changchun University of Technology)">
+          <img src="assets/ccut_badge.png" alt="长春工业大学校徽" width="147" height="147" loading="lazy" decoding="async" class="school-badge-img" style="height:42px; width:42px; border-radius:50%; border:1.5px solid var(--gold); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); background:#7a1a1e; object-fit:cover; flex-shrink:0;" title="长春工业大学 (Changchun University of Technology)">
           <div class="brand-mark">雪</div>
         </div>
         <div class="brand-title">
@@ -3176,7 +3176,7 @@
         </div>
         <div class="brand-status">
           <span class="badge"><span class="badge-dot"></span>规划目标 · 权威可溯</span>
-          <span class="badge" id="systemClockBadge" style="font-family:var(--font-mono);background:rgba(36,18,65,0.85);border-color:#cbd5e1;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
+          <span class="badge" id="systemClockBadge" style="font-family:var(--font-mono);background: var(--bg);border-color:#cbd5e1;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
         </div>
       </div>
       <div class="toolbar">
@@ -3659,7 +3659,7 @@
         </div>
 
         <!-- Interactive Municipal Radar PK Comparator -->
-        <div class="muni-pk-panel" id="muniPkPanel" style="margin-top:16px;background:rgba(32,15,57,0.75);border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:14px 18px;">
+        <div class="muni-pk-panel" id="muniPkPanel" style="margin-top:16px;background: var(--bg);border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:14px 18px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span style="font-size:16px;">⚔️</span>
@@ -3920,7 +3920,7 @@
         </div>
 
         <!-- Academic Econometric Diagnostic Matrix Table -->
-        <div class="diagnostic-table-wrapper" style="margin-top: 14px; background: rgba(10,16,28,0.85); border: 1px solid rgba(56,189,248,0.25); border-radius: 6px; padding: 14px 18px;">
+        <div class="diagnostic-table-wrapper" style="margin-top: 14px; background: var(--bg); border: 1px solid rgba(56,189,248,0.25); border-radius: 6px; padding: 14px 18px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid rgba(56,189,248,0.15); padding-bottom:8px; flex-wrap:wrap; gap:8px;">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="color:var(--gold); font-size:16px;">📋</span>
@@ -4164,7 +4164,7 @@
             <b style="color:var(--gold);">口径与尺度声明（请评委与读者一并阅读）：</b>
             本表为单一解释变量 <b>OLS 时间趋势模型</b>（ŷ = β₀ + β₁·年）的诊断清单，有效样本 <b>n = 6</b>（2018—2024 剔除 2020 疫情异常点），自由度 df = 4。因与网页既有说明保持可核验的一致性，各项统计量均如实列出、未作粉饰：<b>F = 4.22（p = 0.109）在 α=0.10 水平下不显著（接近临界阈值）、R² = 0.5137 属中等解释力</b>。其中「多重共线性」一项对本单变量模型<b>不适用</b>（VIF 仅对多解释变量模型有意义），故标注为不适用而非「通过」。<b>本系统不在小样本条件下宣称「高度显著」或「目标必然可达」</b>；相反，我们以区间估计如实呈现不确定性，这正是本作品数据严谨性的体现。
           </div>
-          <div class="diagnostic-table-wrapper" style="margin-top: 10px; background: rgba(10,16,28,0.85); border: 1px solid rgba(56,189,248,0.25); border-radius: 6px; padding: 12px 16px;">
+          <div class="diagnostic-table-wrapper" style="margin-top: 10px; background: var(--bg); border: 1px solid rgba(56,189,248,0.25); border-radius: 6px; padding: 12px 16px;">
             <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text-2); text-align:left;">
               <thead>
                 <tr style="background:#f1f5f9; color:var(--text); border-bottom:1px solid #e2e8f0;">
@@ -4252,7 +4252,7 @@
             <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(148,227,202,0.15); color:var(--mint); border-color:var(--mint);">N=9市州 × T=6雪季 = 54个平衡面板观测值 · 双向固定效应 FE</span>
           </div>
           <div style="font-size:13px; color:#9d95b1; line-height:1.7; margin-bottom:10px; background:#f0f9ff; padding:10px 14px; border-radius:6px; border-left:3px solid var(--mint);">
-            <b style="color:var(--mint);">【微观实证破局】</b>为彻底突破宏观单一时间序列（n=6）小样本外推的统计局限，团队基于《吉林统计年鉴》与省文旅厅专项公报，构建了覆盖全省 9 个市州、跨越 2018—2024 年（排除 2020 疫情异常季）的平衡面板数据集（<b style="color: var(--text);">54 个有效观测样本</b>）。采用<b style="color:var(--gold);">双向固定效应模型 (Two-Way FE)</b> 控制市州不可观测的时间不变特征与全省宏观时序冲击，方程形式：<code style="color:var(--ice); font-family:var(--font-mono); background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:4px;">ln(Spending_it) = α_i + λ_t + β₁·HSR_it + β₂·ln(VTMH_it) + β₃·ΔTemp_it + β₄·ln(Marketing_it) + ε_it</code>。
+            <b style="color:var(--mint);">【微观实证破局】</b>为彻底突破宏观单一时间序列（n=6）小样本外推的统计局限，团队基于《吉林统计年鉴》与省文旅厅专项公报，构建了覆盖全省 9 个市州、跨越 2018—2024 年（排除 2020 疫情异常季）的平衡面板数据集（<b style="color: var(--text);">54 个有效观测样本</b>）。采用<b style="color:var(--gold);">双向固定效应模型 (Two-Way FE)</b> 控制市州不可观测的时间不变特征与全省宏观时序冲击，方程形式：<code style="color:var(--ice); font-family:var(--font-mono); background: var(--bg); padding:2px 5px; border-radius:4px;">ln(Spending_it) = α_i + λ_t + β₁·HSR_it + β₂·ln(VTMH_it) + β₃·ΔTemp_it + β₄·ln(Marketing_it) + ε_it</code>。
           </div>
           <div class="diagnostic-table-wrapper" style="background:#ffffff; border:1px solid rgba(148,227,202,0.3); border-radius:8px; overflow-x:auto; max-width:100%; min-width:0;">
             <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text-2); text-align:left;">
@@ -4780,7 +4780,7 @@
             <b>自研算法清单：业界常规做法 vs 本作品实现</b>
             <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(148,227,202,0.15); color:var(--mint); border-color:var(--mint);">8 项全部自研</span>
           </div>
-          <div class="diagnostic-table-wrapper" style="margin-top: 10px; background: rgba(10,16,28,0.85); border: 1px solid rgba(56,189,248,0.25); border-radius: 6px; padding: 12px 16px;">
+          <div class="diagnostic-table-wrapper" style="margin-top: 10px; background: var(--bg); border: 1px solid rgba(56,189,248,0.25); border-radius: 6px; padding: 12px 16px;">
             <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text-2); text-align:left;">
               <thead>
                 <tr style="background:#f1f5f9; color:var(--text); border-bottom:1px solid #e2e8f0;">
@@ -5590,7 +5590,7 @@ async function initWebXRSession(gl) {
 
   <!-- Cinematic Subtitles Overlay (For Auto Tour & Promo Video) -->
   <div id="cinematicSubtitles" style="position:fixed;bottom:8%;left:50%;transform:translateX(-50%);z-index:900;text-align:center;width:80%;pointer-events:none;opacity:0;transition:opacity 0.8s ease;">
-    <div id="subText" style="font-size: clamp(16px, 2.5vw, 26px); font-weight:600;color: var(--text);text-shadow:0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(56,189,248,0.5);letter-spacing:2px;background:rgba(30,12,51,0.65);padding:14px 40px;border-radius:999px;backdrop-filter: blur(4px);display:inline-block;border:1px solid rgba(56,189,248,0.2);"></div>
+    <div id="subText" style="font-size: clamp(16px, 2.5vw, 26px); font-weight:600;color: var(--text);text-shadow:0 2px 12px rgba(0,0,0,0.9), 0 0 20px rgba(56,189,248,0.5);letter-spacing:2px;background: var(--bg);padding:14px 40px;border-radius:999px;backdrop-filter: blur(4px);display:inline-block;border:1px solid rgba(56,189,248,0.2);"></div>
   </div>
 
   <!-- Cinematic Cover Screen (Shown on Load) -->
@@ -5825,7 +5825,7 @@ async function initWebXRSession(gl) {
 
   <!-- System Data Simulation & Decision Briefing Modal -->
   <div class="modal-overlay" id="briefingModal">
-    <div class="modal-card briefing-card" style="max-width:880px; text-align:left; padding:36px 42px; border-top:4px solid var(--ice); background:rgba(13, 22, 38, 0.98); max-height:88vh; overflow-y:auto; box-shadow:0 0 50px rgba(0,0,0,0.9);">
+    <div class="modal-card briefing-card" style="max-width:880px; text-align:left; padding:36px 42px; border-top:4px solid var(--ice); background: var(--bg); max-height:88vh; overflow-y:auto; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
       <!-- Header -->
       <div style="border-bottom:1px solid var(--panel-border-bright); padding-bottom:16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
         <div style="display:flex; align-items:center; gap:14px;">
@@ -6168,7 +6168,7 @@ async function initWebXRSession(gl) {
 
       <!-- Two Column Layout: Radar Chart & SWOT Analysis -->
       <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:16px; margin-bottom:16px;">
-        <div style="background:rgba(34,18,60,0.7); border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:12px; display:flex; flex-direction:column; align-items:center;">
+        <div style="background: var(--bg); border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:12px; display:flex; flex-direction:column; align-items:center;">
           <div style="font-size:12px; font-weight:bold; color:var(--ice); margin-bottom:6px;">📊 冰雪经济核心竞争力五维雷达画像</div>
           <svg id="muniRadarSvg" viewBox="0 0 240 220" style="width:100%; max-width:240px; height:auto; display:block;"></svg>
         </div>
@@ -6214,7 +6214,7 @@ async function initWebXRSession(gl) {
           <button class="btn" id="btnCloseVrExpand">关闭 (Esc)</button>
         </div>
       </div>
-      <div style="position:relative;width:100%;height:65vh;background:#f1f5f9;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1; box-shadow: 0 0 40px rgba(56,189,248,0.15) inset;">
+      <div style="position:relative;width:100%;height:65vh;background:#f1f5f9;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1; box-shadow: none;">
         <canvas id="vrExpandCanvas" style="width:100%;height:100%;display:block;cursor:crosshair; background: #090e17;"></canvas>
         
         <!-- Cyberpunk HUD Overlay -->
@@ -10702,7 +10702,7 @@ async function initWebXRSession(gl) {
         const curR = r * (v / 100);
         const px = cx + curR * Math.cos(ang);
         const py = cy + curR * Math.sin(ang);
-        h += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.5" fill="var(--gold)" stroke="#231138" stroke-width="1.5"/>`;
+        h += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.5" fill="var(--gold)" stroke="var(--panel)" stroke-width="1.5"/>`;
       });
 
       svg.innerHTML = h;
@@ -10879,12 +10879,12 @@ async function initWebXRSession(gl) {
         valsA.forEach((v, i) => {
           const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
           const curR = r * (v / 100);
-          h += `<circle cx="${(cx + curR * Math.cos(ang)).toFixed(1)}" cy="${(cy + curR * Math.sin(ang)).toFixed(1)}" r="3" fill="var(--ice)" stroke="#231138" stroke-width="1"/>`;
+          h += `<circle cx="${(cx + curR * Math.cos(ang)).toFixed(1)}" cy="${(cy + curR * Math.sin(ang)).toFixed(1)}" r="3" fill="var(--ice)" stroke="var(--panel)" stroke-width="1"/>`;
         });
         valsB.forEach((v, i) => {
           const ang = (i * 2 * Math.PI) / N - Math.PI / 2;
           const curR = r * (v / 100);
-          h += `<circle cx="${(cx + curR * Math.cos(ang)).toFixed(1)}" cy="${(cy + curR * Math.sin(ang)).toFixed(1)}" r="3" fill="var(--gold)" stroke="#231138" stroke-width="1"/>`;
+          h += `<circle cx="${(cx + curR * Math.cos(ang)).toFixed(1)}" cy="${(cy + curR * Math.sin(ang)).toFixed(1)}" r="3" fill="var(--gold)" stroke="var(--panel)" stroke-width="1"/>`;
         });
 
         // Mini legend
@@ -11798,7 +11798,7 @@ async function initWebXRSession(gl) {
       if (!t) {
         t = document.createElement('div');
         t.id = 'sysToast';
-        t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:rgba(36,16,59,0.92);border:1px solid var(--ice);color: var(--text);padding:8px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s ease;backdrop-filter: blur(6px);display:flex;align-items:center;gap:8px;';
+        t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background: var(--bg);border:1px solid var(--ice);color: var(--text);padding:8px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:none;transition:opacity 0.3s ease;backdrop-filter: blur(6px);display:flex;align-items:center;gap:8px;';
         document.body.appendChild(t);
       }
       t.innerHTML = msg;
