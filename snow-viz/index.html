@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="雪线之上 · 吉林冰雪经济目标可视化交互系统。国家级/省级数据驱动，集成3D高程地理孪生沙盘、政策敏感性推演与宏观微观多维看板。">
   <link rel="canonical" href="https://daixuan.cloud/snow-viz/">
-  <meta name="theme-color" content="#24113d">
+  <meta name="theme-color" content="#f8fafc">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%232A1641' stroke='%239475ED' stroke-width='1.5'/%3E%3Cpath d='M16 5v22M5 16h22M8 8l16 16M8 24l16-16' stroke='%239475ED' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23F4C66D'/%3E%3C/svg%3E">
   <title>雪线之上 · 吉林冰雪经济目标可视化交互系统</title>
 
@@ -23,36 +23,43 @@
   <meta name="twitter:image" content="https://daixuan.cloud/assets/images/project-snowviz.svg">
   <style>
     :root {
-      color-scheme: dark;
+      color-scheme: light;
       -webkit-tap-highlight-color: transparent;
-      --bg: #090e17;
-      --bg-gradient: radial-gradient(ellipse at 18% 0%, rgba(14, 116, 144, 0.25) 0%, transparent 48%),
-                     radial-gradient(ellipse at 82% 10%, rgba(56, 189, 248, 0.16) 0%, transparent 48%),
-                     radial-gradient(ellipse at 50% 100%, rgba(15, 23, 42, 0.88) 0%, transparent 58%),
-                     #090e17;
-      --panel: rgba(13, 22, 38, 0.88);
-      --panel-hover: rgba(19, 32, 54, 0.95);
-      --panel-border: rgba(56, 189, 248, 0.18);
-      --panel-border-bright: rgba(56, 189, 248, 0.45);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --dim: #64748b;
-      --ice: #38bdf8;
-      --ice-glow: rgba(56, 189, 248, 0.35);
-      --mint: #34d399;
-      --mint-glow: rgba(52, 211, 153, 0.3);
-      --gold: #fbbf24;
-      --gold-glow: rgba(251, 191, 36, 0.3);
-      --coral: #f87171;
-      --coral-glow: rgba(248, 113, 113, 0.35);
+      --bg: #f8fafc;
+      --bg-gradient: radial-gradient(ellipse at 15% 0%, rgba(224, 242, 254, 0.75) 0%, transparent 55%),
+                     radial-gradient(ellipse at 85% 10%, rgba(254, 243, 199, 0.5) 0%, transparent 50%),
+                     radial-gradient(ellipse at 50% 100%, rgba(241, 245, 249, 0.95) 0%, transparent 60%),
+                     #f8fafc;
+      --panel: #ffffff;
+      --panel-hover: #f8fafc;
+      --panel-border: #e2e8f0;
+      --panel-border-bright: #cbd5e1;
+      --text: #0f172a;
+      --text-secondary: #334155;
+      --muted: #64748b;
+      --dim: #94a3b8;
+      --ice: #0284c7;
+      --ice-dark: #0369a1;
+      --ice-bg: #e0f2fe;
+      --ice-glow: rgba(2, 132, 199, 0.16);
+      --mint: #059669;
+      --mint-bg: #d1fae5;
+      --mint-glow: rgba(5, 150, 105, 0.16);
+      --gold: #d97706;
+      --gold-bg: #fef3c7;
+      --gold-glow: rgba(217, 119, 6, 0.16);
+      --coral: #e11d48;
+      --coral-bg: #ffe4e6;
+      --coral-glow: rgba(225, 29, 72, 0.16);
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
       --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
       --font-mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
       --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-      --shadow-2: 0 4px 14px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.20);
-      --shadow-3: 0 12px 34px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.22);
+      --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+      --shadow-2: 0 4px 14px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+      --shadow-3: 0 12px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -110,8 +117,8 @@
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #dcf8f3 0%, #775bcc 100%);
-      color: #241148;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,7 +130,7 @@
       font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.5px;
-      color: #fff;
+      color: var(--text);
     }
     .brand-eyebrow {
       font-size: 11px;
@@ -152,8 +159,9 @@
       position: absolute;
       top: calc(100% + 6px);
       right: 0;
-      background: rgba(13, 22, 38, 0.96);
-      border: 1px solid var(--panel-border-bright);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--shadow-3);
       border-radius: var(--radius-sm);
       padding: 10px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
@@ -169,9 +177,10 @@
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      color: #c8f5e5;
-      background: rgba(31, 26, 77, 0.85);
-      border: 1px solid #327566;
+      color: var(--ice-dark);
+      background: var(--ice-bg);
+      border: 1px solid #bae6fd;
+      font-weight: 600;
       border-radius: 20px;
       padding: 5px 12px;
     }
@@ -190,8 +199,10 @@
       font-size: 13px;
       font-weight: 500;
       color: var(--text);
-      background: rgba(18, 30, 52, 0.8);
-      border: 1px solid var(--panel-border);
+      background: #ffffff;
+      color: var(--text-secondary);
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
       border-radius: var(--radius-sm);
       padding: 6px 12px;
       cursor: pointer;
@@ -202,22 +213,26 @@
       backdrop-filter: blur(6px);
     }
     .btn:hover {
-      background: rgba(49, 37, 85, 0.9);
+      background: #f8fafc;
       border-color: var(--ice);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+      color: var(--ice);
+      box-shadow: 0 0 12px var(--ice-glow);
     }
     .btn.active {
-      background: linear-gradient(135deg, #131f33, #0e1726);
-      border-color: var(--ice);
-      color: #fff;
+      background: #ffffff;
+      border-color: var(--panel-border-bright);
+      color: var(--ice); font-weight: 700;
+      box-shadow: 0 2px 8px var(--ice-glow);
     }
     .btn-gold {
-      border-color: #8c733d;
-      color: var(--gold);
+      border-color: #fcd34d;
+      background: #fffbeb;
+      color: #b45309;
     }
     .btn-gold:hover {
-      background: rgba(60, 50, 25, 0.8);
-      border-color: var(--gold);
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
     }
 
     /* Narrative Hero Section */
@@ -226,7 +241,8 @@
       grid-template-columns: 1fr auto;
       align-items: center;
       gap: 18px;
-      background: linear-gradient(135deg, rgba(43, 24, 78, 0.75), rgba(37, 19, 62, 0.75));
+      background: linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(254, 243, 199, 0.6));
+      box-shadow: var(--shadow-2);
       border: 1px solid var(--panel-border);
       border-radius: var(--radius-md);
       padding: 16px 22px;
@@ -235,7 +251,7 @@
     .hero-text h2 {
       font-size: 16px;
       font-weight: 600;
-      color: #fff;
+      color: var(--text);
       margin-bottom: 5px;
       display: flex;
       align-items: center;
@@ -243,14 +259,14 @@
     }
     .hero-text p {
       font-size: 13px;
-      color: var(--muted);
+      color: var(--text-secondary);
       max-width: 900px;
       line-height: 1.6;
     }
     .season-toggle {
       display: flex;
-      background: rgba(13, 22, 38, 0.88);
-      border: 1px solid var(--panel-border);
+      background: #e2e8f0;
+      border: 1px solid #cbd5e1;
       border-radius: 10px;
       padding: 4px;
       gap: 4px;
@@ -273,9 +289,11 @@
       color: var(--text);
     }
     .season-btn.active {
-      background: linear-gradient(135deg, rgba(57, 39, 107, 0.85), rgba(50, 28, 96, 0.95));
-      color: #fff;
-      border-color: rgba(56, 189, 248, 0.45);
+      background: #ffffff;
+      color: var(--ice);
+      border-color: #bae6fd;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+      font-weight: 700;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 12px var(--ice-glow);
     }
 
@@ -291,7 +309,7 @@
       border-radius: var(--radius-md);
       padding: 13px 15px;
       backdrop-filter: blur(8px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      box-shadow: var(--shadow-2);
       position: relative;
       overflow: hidden;
       transition: transform 0.25s ease, border-color 0.25s ease;
@@ -355,26 +373,26 @@
       border-radius: 4px;
       font-weight: 600;
       line-height: 1.25;
-      background: rgba(56, 189, 248, 0.14);
-      color: var(--ice);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: var(--ice-bg);
+      color: var(--ice-dark);
+      border: 1px solid #bae6fd;
       white-space: nowrap;
       transition: all 0.25s ease;
     }
     .kpi-card.gold .kpi-delta {
-      background: rgba(244, 198, 109, 0.14);
-      color: var(--gold);
-      border-color: rgba(244, 198, 109, 0.28);
+      background: var(--gold-bg);
+      color: #b45309;
+      border-color: #fde68a;
     }
     .kpi-card.mint .kpi-delta {
-      background: rgba(126, 232, 200, 0.14);
-      color: var(--mint);
-      border-color: rgba(126, 232, 200, 0.28);
+      background: var(--mint-bg);
+      color: #047857;
+      border-color: #a7f3d0;
     }
     .kpi-card.coral .kpi-delta {
-      background: rgba(255, 159, 104, 0.16);
-      color: var(--coral);
-      border-color: rgba(255, 159, 104, 0.32);
+      background: var(--coral-bg);
+      color: #be123c;
+      border-color: #fecdd3;
     }
 
     /* KPI Ring Progress Indicator */
@@ -394,7 +412,7 @@
     }
     .kpi-ring-track {
       fill: none;
-      stroke: rgba(56, 189, 248, 0.12);
+      stroke: #e2e8f0;
       stroke-width: 3;
     }
     .kpi-ring-fill {
@@ -562,7 +580,7 @@
       border-radius: var(--radius-md);
       padding: 16px;
       backdrop-filter: blur(8px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      box-shadow: var(--shadow-2);
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -572,13 +590,13 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid rgba(52, 40, 74, 0.6);
+      border-bottom: 1px solid #f1f5f9;
       padding-bottom: 8px;
     }
     .card-head h3 {
       font-size: 14px;
       font-weight: 600;
-      color: #fff;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -595,10 +613,10 @@
     .chart-tabs {
       display: flex;
       gap: 4px;
-      background: rgba(34, 18, 60, 0.7);
+      background: #f1f5f9;
       padding: 4px;
       border-radius: 8px;
-      border: 1px solid rgba(52, 40, 74, 0.6);
+      border: 1px solid var(--panel-border);
       overflow-x: auto;
       flex-wrap: wrap;
       -webkit-overflow-scrolling: touch;
@@ -622,14 +640,15 @@
       text-align: center;
     }
     .chart-tab-btn:hover {
-      color: #fff;
-      background: rgba(47, 32, 79, 0.4);
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.7);
     }
     .chart-tab-btn.active {
-      background: #2f204f;
-      color: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: #ffffff;
+      color: var(--ice);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--panel-border);
+      font-weight: 700;
     }
 
     /* Chart Container */
@@ -646,9 +665,9 @@
     .chart-tooltip {
       position: absolute;
       pointer-events: none;
-      background: rgba(30, 13, 57, 0.94);
-      border: 1px solid var(--ice);
-      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6), 0 0 12px var(--ice-glow);
+      background: #0f172a;
+      border: 1px solid #334155;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
       border-radius: 6px;
       padding: 6px 12px;
       font-size: 12px;
@@ -713,17 +732,17 @@
     .filter-btn {
       font-size: 11px;
       padding: 3px 8px;
-      background: rgba(45, 25, 77, 0.6);
-      border: 1px solid #33274a;
+      background: #f1f5f9;
+      border: 1px solid var(--panel-border);
       border-radius: 12px;
       color: var(--muted);
       cursor: pointer;
       transition: all 0.2s;
     }
     .filter-btn.active {
-      background: #332356;
-      border-color: var(--ice);
-      color: #fff;
+      background: #ffffff;
+      border-color: var(--panel-border-bright);
+      color: var(--ice); font-weight: 700;
     }
 
     /* Policy Location Nodes List */
@@ -741,8 +760,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(46, 26, 78, 0.7);
-      border: 1px solid rgba(56, 47, 79, 0.7);
+      background: #f8fafc;
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       padding: 7px 10px;
       cursor: pointer;
@@ -751,13 +770,14 @@
       color: var(--text);
     }
     .node-item:hover {
-      background: rgba(49, 33, 94, 0.9);
-      border-color: var(--ice);
+      background: #f0f9ff;
+      border-color: #38bdf8;
       transform: translateX(2px);
     }
     .node-item.active {
-      background: linear-gradient(135deg, rgba(47, 33, 80, 0.95), rgba(46, 27, 85, 0.95));
+      background: #e0f2fe;
       border-color: var(--ice);
+      color: var(--ice);
       box-shadow: 0 0 12px var(--ice-glow);
     }
     .node-badge {
@@ -765,7 +785,7 @@
       height: 22px;
       flex: 0 0 22px;
       border-radius: 50%;
-      background: #352267;
+      background: var(--ice-bg);
       color: var(--ice);
       display: flex;
       align-items: center;
@@ -796,14 +816,14 @@
 
     /* Policy Excerpt Spotlight */
     .policy-detail-box {
-      background: rgba(41, 23, 65, 0.85);
-      border: 1px solid #33274a;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
       border-left: 3px solid var(--ice);
       border-radius: var(--radius-sm);
       padding: 10px 12px;
       font-size: 12px;
       line-height: 1.6;
-      color: #d8e6e4;
+      color: var(--text);
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -822,8 +842,8 @@
       margin-top: 8px;
     }
     .node-metric-card {
-      background: rgba(43, 24, 78, 0.7);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #f8fafc;
+      border: 1px solid var(--panel-border);
       border-radius: 4px;
       padding: 6px 8px;
     }
@@ -858,8 +878,9 @@
       position: static;
       display: flex;
       gap: 3px;
-      background: rgba(10, 16, 28, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
       border-radius: 20px;
       padding: 2px 4px;
       backdrop-filter: blur(4px);
@@ -887,8 +908,8 @@
     .scenario-pill {
       flex: 1;
       padding: 8px 10px;
-      background: rgba(43, 25, 73, 0.6);
-      border: 1px solid #3c2367;
+      background: #f1f5f9;
+      border: 1px solid var(--panel-border);
       color: var(--muted);
       border-radius: 4px;
       font-size: 12px;
@@ -901,9 +922,9 @@
       color: #fff;
     }
     .scenario-pill.active {
-      background: rgba(56, 189, 248, 0.15);
+      background: var(--ice-bg);
       border-color: var(--ice);
-      color: #fff;
+      color: var(--ice); font-weight: 700;
       font-weight: bold;
     }
 
@@ -912,11 +933,11 @@
       position: relative;
       width: 100%;
       height: 228px;
-      background: #240f39;
+      background: #eef4f9;
       border-radius: 10px;
       overflow: hidden;
-      border: 1px solid #392266;
-      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+      border: 1px solid #cbd5e1;
+      box-shadow: inset 0 0 16px rgba(15, 23, 42, 0.05);
     }
     #vrCanvas {
       width: 100%;
@@ -929,8 +950,9 @@
     }
     .vr-overlay {
       position: static;
-      background: rgba(36, 17, 61, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
       border-radius: 6px;
       padding: 4px 8px;
       font-size: 11px;
@@ -964,8 +986,9 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      background: rgba(33, 13, 53, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
       border-radius: 6px;
       padding: 3px 6px;
       backdrop-filter: blur(4px);
@@ -987,8 +1010,9 @@
       position: static;
       display: flex;
       gap: 3px;
-      background: rgba(33, 13, 53, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
       border-radius: 6px;
       padding: 2px 4px;
       backdrop-filter: blur(4px);
@@ -998,16 +1022,17 @@
     .vr-btn {
       font-size: 11px;
       padding: 3px 6px;
-      background: rgba(43, 25, 73, 0.85);
-      border: 1px solid #382c53;
-      color: #fff;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--text-secondary);
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s;
       white-space: nowrap;
     }
     .vr-btn:hover {
-      background: rgba(49, 35, 82, 0.95);
+      background: #f1f5f9;
+      color: var(--ice);
       border-color: var(--ice);
     }
 
@@ -1018,7 +1043,7 @@
       gap: 8px;
     }
     .supply-item {
-      background: rgba(42, 24, 72, 0.7);
+      background: #ffffff;
       border: 1px solid var(--panel-border);
       border-radius: 10px;
       padding: 10px;
@@ -1026,8 +1051,8 @@
       transition: all 0.2s ease;
     }
     .supply-item:hover {
-      border-color: var(--panel-border-bright);
-      background: rgba(49, 28, 84, 0.85);
+      border-color: #38bdf8;
+      background: #f0f9ff;
     }
     .supply-item h4 {
       font-size: 12px;
@@ -1052,8 +1077,8 @@
       gap: 12px;
     }
     .culture-card {
-      background: rgba(41, 21, 67, 0.75);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       padding: 14px;
       transition: all 0.25s ease;
@@ -1062,8 +1087,8 @@
       gap: 8px;
     }
     .culture-card:hover {
-      border-color: var(--ice);
-      background: rgba(48, 26, 78, 0.95);
+      border-color: #38bdf8;
+      background: #f0f9ff;
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
@@ -1114,7 +1139,7 @@
     /* Interactive Simulation Sandbox Panel */
     .sim-sandbox-panel {
       margin-top: 12px;
-      background: linear-gradient(135deg, rgba(38, 16, 62, 0.95), rgba(33, 13, 53, 0.9));
+      background: #ffffff;
       border: 1px solid rgba(56, 189, 248, 0.35);
       border-radius: 8px;
       padding: 14px 16px;
@@ -1126,7 +1151,7 @@
       align-items: center;
       margin-bottom: 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      border-bottom: 1px solid #f1f5f9;
     }
     .sim-presets-bar {
       display: flex;
@@ -1144,9 +1169,9 @@
     .sim-preset-btn {
       font-size: 11px;
       padding: 4px 10px;
-      background: rgba(43, 24, 78, 0.7);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      color: var(--muted);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--text-secondary);
       border-radius: 6px;
       cursor: pointer;
       white-space: nowrap;
@@ -1154,13 +1179,13 @@
       transition: all 0.2s ease;
     }
     .sim-preset-btn:hover {
-      background: rgba(47, 32, 79, 0.8);
-      color: #fff;
+      background: #f8fafc;
+      color: var(--ice);
       border-color: var(--ice);
     }
     .sim-preset-btn.active {
-      background: linear-gradient(135deg, rgba(49, 36, 85, 0.9), rgba(49, 32, 97, 0.9));
-      color: #fff;
+      background: var(--ice);
+      color: #ffffff;
       border-color: var(--ice);
       font-weight: 600;
       box-shadow: 0 0 8px var(--ice-glow);
@@ -1172,8 +1197,8 @@
       margin-bottom: 12px;
     }
     .sim-control-group {
-      background: rgba(43, 24, 78, 0.6);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #f8fafc;
+      border: 1px solid var(--panel-border);
       border-radius: 6px;
       padding: 10px 12px;
       display: flex;
@@ -1192,7 +1217,7 @@
       width: 100%;
       height: 5px;
       border-radius: 4px;
-      background: #39225f;
+      background: #e2e8f0;
       outline: none;
       cursor: pointer;
     }
@@ -1217,8 +1242,8 @@
       gap: 8px;
     }
     .sim-result-card {
-      background: rgba(39, 22, 65, 0.8);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 6px;
       padding: 8px 10px;
       text-align: center;
@@ -1248,8 +1273,8 @@
       margin-top: 12px;
     }
     .region-card {
-      background: rgba(41, 21, 65, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       padding: 12px;
       transition: all 0.25s ease;
@@ -1259,8 +1284,8 @@
       cursor: pointer;
     }
     .region-card:hover {
-      border-color: var(--ice);
-      background: rgba(47, 25, 78, 0.95);
+      border-color: #38bdf8;
+      background: #f0f9ff;
       transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
     }
@@ -1289,7 +1314,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
-      background: rgba(10, 16, 28, 0.5);
+      background: #f8fafc;
       padding: 6px 8px;
       border-radius: 4px;
     }
@@ -1326,12 +1351,12 @@
       text-align: left;
     }
     .resorts-table th {
-      background: rgba(51, 28, 88, 0.9);
-      color: var(--ice);
+      background: #f8fafc;
+      color: var(--text);
       padding: 10px 7px;
       font-weight: 600;
       white-space: nowrap;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+      border-bottom: 1px solid var(--panel-border);
     }
     .resorts-table td {
       padding: 9px 7px;
@@ -1351,8 +1376,8 @@
       margin-top: 10px;
     }
     .method-card {
-      background: rgba(34, 18, 60, 0.7);
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 6px;
       padding: 12px;
     }
@@ -1368,8 +1393,8 @@
     .method-formula {
       font-family: 'Consolas', 'Courier New', monospace;
       font-size: 12px;
-      color: var(--gold);
-      background: rgba(27, 13, 50, 0.8);
+      color: #92400e;
+      background: #fffbeb;
       padding: 6px 10px;
       border-radius: 4px;
       border-left: 2px solid var(--gold);
@@ -1385,7 +1410,9 @@
     /* Tour Progress Bar */
     #tourBanner {
       display: none;
-      background: linear-gradient(90deg, #301c5d, #2e1e53);
+      background: linear-gradient(90deg, #e0f2fe, #f0f9ff);
+      border: 1px solid #bae6fd;
+      color: var(--text);
       border: 1px solid var(--ice);
       border-radius: var(--radius-sm);
       padding: 8px 14px;
@@ -1404,7 +1431,7 @@
       width: 9px;
       height: 9px;
       border-radius: 50%;
-      background: #34294e;
+      background: #cbd5e1;
       transition: all 0.3s;
     }
     .tour-dot.active {
@@ -1415,7 +1442,7 @@
     .tour-progress {
       width: 20px;
       height: 2px;
-      background: #34294e;
+      background: #cbd5e1;
       border-radius: 4px;
       overflow: hidden;
     }
@@ -1450,7 +1477,7 @@
       position: fixed;
       inset: 0;
       z-index: 999;
-      background: rgba(30, 12, 51, 0.85);
+      background: rgba(15, 23, 42, 0.45);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -1463,8 +1490,9 @@
     }
     .modal-card {
       width: min(720px, 94vw);
-      background: linear-gradient(145deg, #2d184b, #26143f);
-      border: 1px solid #463667;
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--shadow-3);
       border-radius: var(--radius-lg);
       padding: 32px 36px;
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
@@ -1539,11 +1567,11 @@
     }
     .form-group input {
       width: 100%;
-      background: #2f1d4f;
-      border: 1px solid #3e3254;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: var(--radius-sm);
       padding: 9px 12px;
-      color: #fff;
+      color: var(--text);
       font-size: 14px;
     }
     .form-group input:focus {
@@ -1672,8 +1700,8 @@
       padding: 4px 0;
     }
     .timeline-card {
-      background: rgba(39, 21, 63, 0.75);
-      border: 1px solid rgba(56, 189, 248, 0.22);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: var(--radius-md);
       padding: 14px 16px;
       position: relative;
@@ -1785,8 +1813,8 @@
       padding-top: 12px;
     }
     .dq-card {
-      background: rgba(32, 15, 57, 0.72);
-      border: 1px solid rgba(56, 189, 248, 0.22);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       padding: 10px 12px;
     }
@@ -1809,7 +1837,8 @@
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: 8px;
       padding: 12px;
-      background: rgba(38, 16, 62, 0.72);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
     }
     .team-role { font-size: 11px; color: var(--gold); }
     .team-name { font-size: 14px; color: #fff; font-weight: 700; margin: 3px 0 5px; }
@@ -1837,8 +1866,8 @@
       padding-top: 10px;
     }
     .code-tab-btn {
-      background: rgba(34, 18, 60, 0.7);
-      border: 1px solid rgba(52, 40, 74, 0.6);
+      background: #f1f5f9;
+      border: 1px solid var(--panel-border);
       color: var(--muted);
       font-size: 12px;
       padding: 5px 11px;
@@ -1856,8 +1885,8 @@
     }
     .code-block {
       margin-top: 9px;
-      background: rgba(27, 13, 50, 0.92);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: #f8fafc;
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       padding: 13px 16px;
       overflow-x: auto;
@@ -1885,13 +1914,13 @@
       gap: 7px;
       padding: 6px 13px;
       border-radius: 20px;
-      background: rgba(33, 13, 53, 0.55);
-      border: 1px solid rgba(244, 198, 109, 0.32);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #cbd5e1;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
       font-size: 12px;
-      color: rgba(222, 214, 238, 0.92);
+      color: var(--text-secondary);
       letter-spacing: 0.4px;
       max-width: 62vw;
     }
@@ -1965,16 +1994,17 @@
       padding-top: 12px;
     }
     .da-model-card {
-      background: rgba(32, 15, 57, 0.75);
-      border: 1px solid rgba(56, 189, 248, 0.22);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
       padding: 13px 15px;
       transition: border-color .25s ease, transform .25s ease;
     }
     .da-model-card:hover { border-color: rgba(56, 189, 248, 0.5); transform: translateY(-2px); }
     .da-model-card.chosen {
-      border-color: rgba(244, 198, 109, 0.55);
-      background: linear-gradient(150deg, rgba(244, 198, 109, 0.09) 0%, rgba(32, 15, 57, 0.82) 100%);
+      border-color: var(--gold);
+      background: #fffbeb;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.1);
     }
     .da-model-head {
       display: flex; align-items: center; justify-content: space-between;
@@ -1989,9 +2019,9 @@
     .da-model-title { font-size: 14px; color: #fff; font-weight: 700; }
     .da-model-eq {
       font-family: Consolas, 'Courier New', monospace;
-      font-size: 12px; color: var(--text-2);
-      background: rgba(27, 13, 50, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.18);
+      font-size: 12px; color: #0f172a;
+      background: #f8fafc;
+      border: 1px solid var(--panel-border);
       border-radius: 6px; padding: 8px 10px;
       margin: 7px 0; overflow-x: auto; white-space: normal; word-break: keep-all;
       line-height: 1.6;
@@ -2000,7 +2030,7 @@
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 6px; margin-top: 8px;
     }
-    .da-stat { text-align: center; background: rgba(33, 13, 53, 0.6); border-radius: 6px; padding: 6px 4px; }
+    .da-stat { text-align: center; background: #f8fafc; border: 1px solid var(--panel-border); border-radius: 6px; padding: 6px 4px; }
     .da-stat-k { font-size: 10px; color: var(--dim); display: block; }
     .da-stat-v { font-family: var(--font-mono); font-size: 14px; color: var(--ice); font-weight: 700; }
     .da-model-note { font-size: 11px; color: var(--muted); line-height: 1.55; margin-top: 8px; }
@@ -2066,10 +2096,11 @@
     .da-loo-val { font-family: var(--font-mono); min-width: 52px; text-align: right; }
 
     .da-src-note {
-      margin-top: 14px; background: rgba(36, 17, 63, 0.62);
+      margin-top: 14px; background: #fffbeb;
+      border: 1px solid #fde68a;
       border-left: 3px solid var(--gold);
       padding: 10px 14px; border-radius: 0 4px 4px 0;
-      font-size: 12px; line-height: 1.7; color: var(--text-2);
+      font-size: 12px; line-height: 1.7; color: #92400e;
     }
     .da-src-note b { color: var(--gold); }
 
@@ -2080,9 +2111,10 @@
     }
     @media (max-width: 860px) { .da-play { grid-template-columns: 1fr; } }
     .da-play-panel {
-      background: rgba(33, 13, 53, 0.78);
-      border: 1px solid rgba(56, 189, 248, 0.24);
+      background: #ffffff;
+      border: 1px solid var(--panel-border);
       border-radius: 8px; padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
     }
     .da-play-h {
       font-size: 13px; color: #fff; font-weight: 600;
@@ -2120,7 +2152,7 @@
 
     .da-node-pick { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
     .da-node-btn {
-      background: rgba(34, 18, 60, 0.75); border: 1px solid rgba(52, 40, 74, 0.7);
+      background: #f1f5f9; border: 1px solid var(--panel-border);
       color: var(--muted); font-size: 11px; padding: 4px 9px; border-radius: 6px;
       cursor: pointer; transition: all .18s ease;
     }
@@ -2616,9 +2648,9 @@
       bottom: 24px;
       transform: translateX(-50%) translateY(0);
       z-index: 1500;
-      background: rgba(36, 16, 59, 0.94);
-      border: 1px solid rgba(255, 159, 104, 0.45);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 159, 104, 0.2);
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--shadow-3);
       border-radius: 999px;
       padding: 8px 18px;
       backdrop-filter: blur(10px);
@@ -3104,7 +3136,7 @@
         </div>
         <div class="brand-status">
           <span class="badge"><span class="badge-dot"></span>规划目标 · 权威可溯</span>
-          <span class="badge" id="systemClockBadge" style="font-family:var(--font-mono);background:rgba(36,18,65,0.85);border-color:#1e293b;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
+          <span class="badge" id="systemClockBadge" style="font-family:var(--font-mono);background:rgba(36,18,65,0.85);border-color:#cbd5e1;"><span class="badge-dot" style="background:var(--ice);box-shadow:0 0 6px var(--ice);"></span><span id="systemClockText">ONLINE</span></span>
         </div>
       </div>
       <div class="toolbar">
@@ -3361,7 +3393,7 @@
       </article>
 
       <!-- Dedicated Policy Simulation Sandbox Console (Full Width Dedicated Card) -->
-      <article class="card wide-card" id="simSandboxSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 4px;">
+      <article class="card wide-card" id="simSandboxSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 4px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🎛️</span>
@@ -3390,7 +3422,7 @@
         <!-- 3-Column Command Body Grid on Desktop -->
         <div class="sim-body-grid" id="simSandboxPanel">
           <!-- Col A: Sliders -->
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(56,189,248,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
             <div style="font-size:13px; font-weight:700; color:var(--ice); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
               <span>🎚️ 核心外生变量冲击调节滑块</span>
             </div>
@@ -3423,7 +3455,7 @@
           </div>
 
           <!-- Col B: Live Simulation Outcomes -->
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(56,189,248,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
             <div style="font-size:13px; font-weight:700; color:var(--gold); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
               <span>📊 2029—2030 雪季目标达成动态推演</span>
             </div>
@@ -3452,7 +3484,7 @@
           </div>
 
           <!-- Col C: Tornado Sensitivity Diagram -->
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(56,189,248,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.2); border-radius:6px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <span style="font-size:15px;">🌪️</span>
@@ -3460,7 +3492,7 @@
               </div>
               <span class="badge" style="font-size:10px; background:rgba(244,198,109,0.15); border:1px solid var(--gold); color:var(--gold); padding:1px 6px;">弹性边界</span>
             </div>
-            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; max-width:680px; height:auto; display:block; background:rgba(33,13,53,0.5); border:1px solid rgba(56,189,248,0.15); border-radius:6px; margin:0 auto 6px;"></svg>
+            <svg id="tornadoSensitivitySvg" viewBox="0 0 540 170" style="width:100%; max-width:680px; height:auto; display:block; background:#f8fafc; border:1px solid rgba(56,189,248,0.15); border-radius:6px; margin:0 auto 6px;"></svg>
             <div style="font-size:11px; color:var(--dim); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
               <span>基准线：2030 规划总花费 5,400 亿元</span>
               <span style="color:var(--mint);">高铁与营销乘数弹性贡献前二位</span>
@@ -3503,22 +3535,22 @@
             <span style="font-size:11px; color:var(--muted);">数据源：吉林省体育局与文旅厅专项公报 · 支撑 OLS 拓展样本 n=8</span>
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:8px;">
-            <div style="background:rgba(10,16,28,0.7); padding:8px 10px; border-radius:5px; border-left:3px solid var(--mint);">
+            <div style="background:#ecfdf5; padding:8px 10px; border-radius:5px; border-left:3px solid var(--mint); border:1px solid #a7f3d0; color:#065f46;">
               <div style="font-size:11px; color:var(--muted);">群众性赛事活动</div>
               <div style="font-size:13px; font-weight:700; color:var(--mint); margin-top:2px;">300+ 场次已推出</div>
               <small style="font-size:10px; color:var(--dim);">年目标≥300项，100%全额兑现</small>
             </div>
-            <div style="background:rgba(10,16,28,0.7); padding:8px 10px; border-radius:5px; border-left:3px solid var(--ice);">
+            <div style="background:#f0f9ff; padding:8px 10px; border-radius:5px; border-left:3px solid var(--ice); border:1px solid #bae6fd; color:#0f172a;">
               <div style="font-size:11px; color:var(--muted);">高标准滑雪场地</div>
               <div style="font-size:13px; font-weight:700; color:var(--ice); margin-top:2px;">建成运营 68 座</div>
               <small style="font-size:10px; color:var(--dim);">居全国前列，顶级雪场聚集</small>
             </div>
-            <div style="background:rgba(10,16,28,0.7); padding:8px 10px; border-radius:5px; border-left:3px solid var(--gold);">
+            <div style="background:#fffbeb; padding:8px 10px; border-radius:5px; border-left:3px solid var(--gold); border:1px solid #fde68a; color:#92400e;">
               <div style="font-size:11px; color:var(--muted);">标准化室内滑冰馆</div>
               <div style="font-size:13px; font-weight:700; color:var(--gold); margin-top:2px;">建成投运 14 座</div>
               <small style="font-size:10px; color:var(--dim);">省市联动四季上冰支撑底座</small>
             </div>
-            <div style="background:rgba(10,16,28,0.7); padding:8px 10px; border-radius:5px; border-left:3px solid var(--coral);">
+            <div style="background:#fff1f2; padding:8px 10px; border-radius:5px; border-left:3px solid var(--coral); border:1px solid #fecdd3; color:#9f1239;">
               <div style="font-size:11px; color:var(--muted);">全省公益浇建冰场</div>
               <div style="font-size:13px; font-weight:700; color:var(--coral); margin-top:2px;">累计浇建 500+ 块</div>
               <small style="font-size:10px; color:var(--dim);">覆盖城乡校园与公共运动空间</small>
@@ -3526,19 +3558,19 @@
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;">
-          <div style="background:rgba(10,16,28,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--ice);">
+          <div style="background:#f0f9ff; padding:8px 10px; border-radius:6px; border-left:2px solid var(--ice); border:1px solid #bae6fd; color:#0f172a;">
             <b style="font-size:12px;color:var(--ice);">01 · 阶段目标</b>
             <p style="font-size:11px;color:var(--muted);margin-top:2px;">对比游客与花费双核心指标，呈现战略跃升路径。</p>
           </div>
-          <div style="background:rgba(10,16,28,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--gold);">
+          <div style="background:#fffbeb; padding:8px 10px; border-radius:6px; border-left:2px solid var(--gold); border:1px solid #fde68a; color:#92400e;">
             <b style="font-size:12px;color:var(--gold);">02 · 空间支点</b>
             <p style="font-size:11px;color:var(--muted);margin-top:2px;">冰雪名城、世界级滑雪度假地与主题景区矩阵。</p>
           </div>
-          <div style="background:rgba(10,16,28,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--mint);">
+          <div style="background:#ecfdf5; padding:8px 10px; border-radius:6px; border-left:2px solid var(--mint); border:1px solid #a7f3d0; color:#065f46;">
             <b style="font-size:12px;color:var(--mint);">03 · 供给任务</b>
             <p style="font-size:11px;color:var(--muted);margin-top:2px;">赛事活动、冰场基础设施与特色乐园年度供给。</p>
           </div>
-          <div style="background:rgba(10,16,28,0.6);padding:8px 10px;border-radius:6px;border-left:2px solid var(--coral);">
+          <div style="background:#fff1f2; padding:8px 10px; border-radius:6px; border-left:2px solid var(--coral); border:1px solid #fecdd3; color:#9f1239;">
             <b style="font-size:12px;color:var(--coral);">04 · 边界规范</b>
             <p style="font-size:11px;color:var(--muted);margin-top:2px;">严谨区分政策规划值与实际业绩，保障科学真实。</p>
           </div>
@@ -3561,7 +3593,7 @@
       </article>
 
       <!-- Full-Width Row: Municipal Strategy Grid ("One Core & Six Duals") -->
-      <article class="card wide-card" id="municipalBenchmarkSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--ice); margin-top: 6px;">
+      <article class="card wide-card" id="municipalBenchmarkSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--ice); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🗺️</span>
@@ -3573,7 +3605,7 @@
               <small style="color:var(--muted); font-size:12px;">长春都市核心、吉林市顶级滑雪聚集区、长白山世界级胜地龙头、通化滑雪之乡支撑、沿边与西部湿地两翼协同</small>
             </div>
           </div>
-          <div class="chart-tabs" id="regionTabs" style="background:rgba(10,16,28,0.8);">
+          <div class="chart-tabs" id="regionTabs" style="background:#f8fafc;">
             <button class="chart-tab-btn active" data-rtab="all">全部市州 (9)</button>
             <button class="chart-tab-btn" data-rtab="core">核心极核圈</button>
             <button class="chart-tab-btn" data-rtab="resort">世界级胜地</button>
@@ -3597,12 +3629,12 @@
             <div style="display:flex;align-items:center;gap:10px;">
               <label style="font-size:12px;color:var(--ice);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                 <span>对比市州 A:</span>
-                <select id="selectMuniA" class="sim-preset-btn" style="background:#281449;color:var(--ice);border:1px solid var(--ice);border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;max-width:100%;"></select>
+                <select id="selectMuniA" class="sim-preset-btn" style="background:#e0f2fe;color:var(--ice);border:1px solid var(--ice);border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;max-width:100%;"></select>
               </label>
               <span style="color:var(--gold);font-weight:bold;font-size:13px;">VS</span>
               <label style="font-size:12px;color:var(--gold);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                 <span>对比市州 B:</span>
-                <select id="selectMuniB" class="sim-preset-btn" style="background:#281449;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;max-width:100%;"></select>
+                <select id="selectMuniB" class="sim-preset-btn" style="background:#e0f2fe;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;max-width:100%;"></select>
               </label>
             </div>
           </div>
@@ -3618,7 +3650,7 @@
       </article>
 
       <!-- Technical Benchmarks: 5 National Ski Resorts -->
-      <article class="card wide-card" id="nationalResortsSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.92) 0%, rgba(10,16,28,0.95) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+      <article class="card wide-card" id="nationalResortsSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">⛷️</span>
@@ -3660,7 +3692,7 @@
           </div>
         </div>
 
-                <div style="font-size:12px; color:var(--muted); margin-bottom:8px; background:rgba(38,18,66,0.6); padding:8px 12px; border-radius:6px; border-left:3px solid var(--gold);">
+                <div style="font-size:12px; color:var(--muted); margin-bottom:8px; background:#f8fafc; padding:8px 12px; border-radius:6px; border-left:3px solid var(--gold);">
           📐 <b>国际 VTMH 索道垂直运力计算公式</b>：<code>VTMH = 垂直落差 (m) × 索道小时运力 (人/h) ÷ 1,000</code>，单位为 <code>k m·人/h</code>。依据瑞士专家 Laurent Vanat《全球滑雪与山地旅游国际报告》全球通行金标准测算，彻底克服单一缆车数量统计偏差。
         </div>
         <div class="resorts-table-wrapper">
@@ -3792,7 +3824,7 @@
       </article>
 
       <!-- Econometric Methodologies & Provenance Full Documentation -->
-      <article class="card wide-card" id="econometricMethodSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.25); border-left: 3px solid var(--gold); margin-top: 6px;">
+      <article class="card wide-card" id="econometricMethodSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.25); border-left: 3px solid var(--gold); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.2); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">📐</span>
@@ -3872,7 +3904,7 @@
             </thead>
             <tbody>
               <tr style="border-bottom:1px solid rgba(56,189,248,0.1);">
-                <td style="padding:7px 10px; font-weight:bold; color:#fff;">时间趋势项 t (年份)</td>
+                <td style="padding:7px 10px; font-weight:bold; color:var(--text);">时间趋势项 t (年份)</td>
                 <td style="padding:7px 10px; color:var(--gold); font-weight:bold; font-family:var(--font-mono);">+578.26 万人/年</td>
                 <td style="padding:7px 10px; font-family:var(--font-mono);">281.34</td>
                 <td style="padding:7px 10px; font-family:var(--font-mono); color:var(--gold);">2.055</td>
@@ -3882,7 +3914,7 @@
                 <td style="padding:7px 10px; color:var(--gold); font-weight:bold;">★ 在 接近α=0.10临界阈值(未达显著) (df=4)</td>
               </tr>
               <tr style="border-bottom:1px solid rgba(56,189,248,0.1);">
-                <td style="padding:7px 10px; font-weight:bold; color:#fff;">常数项 (Constant)</td>
+                <td style="padding:7px 10px; font-weight:bold; color:var(--text);">常数项 (Constant)</td>
                 <td style="padding:7px 10px; color:var(--text-2); font-family:var(--font-mono);">-1,159,478 万人</td>
                 <td style="padding:7px 10px; font-family:var(--font-mono);">568,635</td>
                 <td style="padding:7px 10px; font-family:var(--font-mono); color:var(--gold);">-2.039</td>
@@ -3894,32 +3926,32 @@
           </table>
           <!-- Diagnostic Stat Badges Grid -->
           <div class="grid-3" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:12px;">
-            <div style="background:rgba(43,24,78,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
+            <div style="background:#ffffff; padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:11px; color:var(--muted);">拟合优度 R²</div>
               <div style="font-size:16px; font-weight:bold; color:var(--gold); font-family:var(--font-mono); margin:2px 0;">0.5137</div>
               <div style="font-size:10px; color:var(--muted); white-space:nowrap;">Adj R² = 0.3921 (中等解释力)</div>
             </div>
-            <div style="background:rgba(43,24,78,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
+            <div style="background:#ffffff; padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:11px; color:var(--muted);">整体模型 F 检验</div>
               <div style="font-size:16px; font-weight:bold; color:var(--gold); font-family:var(--font-mono); margin:2px 0;">F = 4.22</div>
               <div style="font-size:10px; color:var(--gold); white-space:nowrap;">p = 0.109 · 接近α=0.10临界阈值</div>
             </div>
-            <div style="background:rgba(43,24,78,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--ice); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
+            <div style="background:#ffffff; padding:10px 12px; border-radius:4px; border-left:3px solid var(--ice); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:11px; color:var(--muted);">Durbin-Watson 检验</div>
               <div style="font-size:16px; font-weight:bold; color:var(--gold); font-family:var(--font-mono); margin:2px 0;">DW = 1.242</div>
               <div style="font-size:10px; color:var(--gold); white-space:nowrap;">⚠ 落入 d_L=0.61~d_U=1.40 无结论区</div>
             </div>
-            <div style="background:rgba(43,24,78,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--ice); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
+            <div style="background:#ffffff; padding:10px 12px; border-radius:4px; border-left:3px solid var(--ice); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:11px; color:var(--muted);">残差标准误 Sₑ</div>
               <div style="font-size:16px; font-weight:bold; color:var(--text); font-family:var(--font-mono); margin:2px 0;">1,457 万</div>
               <div style="font-size:10px; color:var(--muted); white-space:nowrap;">Sₑ = 1,457 万人次（预测误差约 ±0.15 亿人次）</div>
             </div>
-            <div style="background:rgba(43,24,78,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
+            <div style="background:#ffffff; padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:11px; color:var(--muted);">有效样本量 n / df</div>
               <div style="font-size:16px; font-weight:bold; color:var(--gold); font-family:var(--font-mono); margin:2px 0;">n = 6 / df = 4</div>
               <div style="font-size:10px; color:var(--gold); white-space:nowrap;">⚠ 小样本，结论须审慎外推</div>
             </div>
-            <div style="background:rgba(43,24,78,0.7); padding:10px 12px; border-radius:4px; border-left:3px solid var(--mint); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
+            <div style="background:#ffffff; padding:10px 12px; border-radius:4px; border-left:3px solid var(--mint); display:flex; flex-direction:column; justify-content:space-between; min-height:56px;">
               <div style="font-size:11px; color:var(--muted);">单变量模型 VIF</div>
               <div style="font-size:16px; font-weight:bold; color:var(--mint); font-family:var(--font-mono); margin:2px 0;">VIF = 1.00</div>
               <div style="font-size:10px; color:var(--mint); white-space:nowrap;">🟢 单解释变量，共线性不适用</div>
@@ -3929,7 +3961,7 @@
       </article>
 
       <!-- 1. Industrial Ecosystem & Key Enterprise Directory -->
-      <article class="card wide-card" id="industryEcosystemSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+      <article class="card wide-card" id="industryEcosystemSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🏭</span>
@@ -3942,7 +3974,7 @@
             </div>
           </div>
           <!-- Industry Filter Tabs -->
-          <div class="chart-tabs" id="industryFilterBar" style="background:rgba(10,16,28,0.8);">
+          <div class="chart-tabs" id="industryFilterBar" style="background:#f8fafc;">
             <button class="chart-tab-btn active" data-ifilter="all">全部企业 (8家生态)</button>
             <button class="chart-tab-btn" data-ifilter="mfg">⚙️ 装备智造与重工</button>
             <button class="chart-tab-btn" data-ifilter="ops">🚠 雪场与文旅运营</button>
@@ -3957,7 +3989,7 @@
       </article>
 
       <!-- 2. Major Infrastructure Projects Timeline / Roadmap Section -->
-      <article class="card wide-card" id="infrastructureRoadmapSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
+      <article class="card wide-card" id="infrastructureRoadmapSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🚀</span>
@@ -3980,7 +4012,7 @@
       </article>
 
       <!-- 3.5 研究生团队 · 数据治理与分析链路中心 -->
-      <article class="card wide-card" id="dataAnalyticsLabSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
+      <article class="card wide-card" id="dataAnalyticsLabSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🎓</span>
@@ -4179,13 +4211,13 @@
             <b>阶段三(B)：吉林全省 9 市州空间面板与双向固定效应计量模型（Panel Data Econometrics）</b>
             <span class="badge" style="font-size:10px; padding:2px 7px; background:rgba(148,227,202,0.15); color:var(--mint); border-color:var(--mint);">N=9市州 × T=6雪季 = 54个平衡面板观测值 · 双向固定效应 FE</span>
           </div>
-          <div style="font-size:13px; color:#9d95b1; line-height:1.7; margin-bottom:10px; background:rgba(36,17,63,0.5); padding:10px 14px; border-radius:6px; border-left:3px solid var(--mint);">
+          <div style="font-size:13px; color:#9d95b1; line-height:1.7; margin-bottom:10px; background:#f0f9ff; padding:10px 14px; border-radius:6px; border-left:3px solid var(--mint);">
             <b style="color:var(--mint);">【微观实证破局】</b>为彻底突破宏观单一时间序列（n=6）小样本外推的统计局限，团队基于《吉林统计年鉴》与省文旅厅专项公报，构建了覆盖全省 9 个市州、跨越 2018—2024 年（排除 2020 疫情异常季）的平衡面板数据集（<b style="color:#fff;">54 个有效观测样本</b>）。采用<b style="color:var(--gold);">双向固定效应模型 (Two-Way FE)</b> 控制市州不可观测的时间不变特征与全省宏观时序冲击，方程形式：<code style="color:var(--ice); font-family:var(--font-mono); background:rgba(0,0,0,0.3); padding:2px 5px; border-radius:4px;">ln(Spending_it) = α_i + λ_t + β₁·HSR_it + β₂·ln(VTMH_it) + β₃·ΔTemp_it + β₄·ln(Marketing_it) + ε_it</code>。
           </div>
           <div class="diagnostic-table-wrapper" style="background:rgba(10,16,28,0.85); border:1px solid rgba(148,227,202,0.3); border-radius:8px; overflow-x:auto; max-width:100%; min-width:0;">
             <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text-2); text-align:left;">
               <thead>
-                <tr style="border-bottom:1px solid rgba(148,227,202,0.25); color:var(--ice); background:rgba(38,18,66,0.7);">
+                <tr style="border-bottom:1px solid rgba(148,227,202,0.25); color:var(--ice); background:#f8fafc;">
                   <th style="padding:7px 10px;">解释变量与核心驱动因子</th>
                   <th style="padding:7px 10px;">变量定义与口径</th>
                   <th style="padding:7px 10px;">估计系数 β</th>
@@ -4199,7 +4231,7 @@
               </thead>
               <tbody>
                 <tr style="border-bottom:1px solid rgba(56,189,248,0.08);">
-                  <td style="padding:6px 10px; font-weight:bold; color:#fff;">高铁枢纽接入 (HSR_it)</td>
+                  <td style="padding:6px 10px; font-weight:bold; color:var(--text);">高铁枢纽接入 (HSR_it)</td>
                   <td style="padding:6px 10px;">高铁通达虚拟变量 (0/1)</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono); color:var(--gold); font-weight:bold;">+0.284***</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono);">0.052</td>
@@ -4209,7 +4241,7 @@
                   <td style="padding:6px 10px;" class="verdict-pass">高铁直达呈现 +32.8% 净产值提升效应（exp(0.284)-1≈32.8%，Halvorsen-Palmquist 校正）</td>
                 </tr>
                 <tr style="border-bottom:1px solid rgba(56,189,248,0.08);">
-                  <td style="padding:6px 10px; font-weight:bold; color:#fff;">VTMH 索道运力 (ln VTMH)</td>
+                  <td style="padding:6px 10px; font-weight:bold; color:var(--text);">VTMH 索道运力 (ln VTMH)</td>
                   <td style="padding:6px 10px;">国际垂直提升力对数</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono); color:var(--gold); font-weight:bold;">+0.412***</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono);">0.068</td>
@@ -4219,7 +4251,7 @@
                   <td style="padding:6px 10px;" class="verdict-pass">提升力每增加 10%，市州产值提升 4.12%（重资产索道投资弹性最高）</td>
                 </tr>
                 <tr style="border-bottom:1px solid rgba(56,189,248,0.08);">
-                  <td style="padding:6px 10px; font-weight:bold; color:#fff;">气温异常偏离 (ΔTemp)</td>
+                  <td style="padding:6px 10px; font-weight:bold; color:var(--text);">气温异常偏离 (ΔTemp)</td>
                   <td style="padding:6px 10px;">冬季平均气温距平(℃)</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono); color:var(--coral); font-weight:bold;">-0.068**</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono);">0.027</td>
@@ -4229,7 +4261,7 @@
                   <td style="padding:6px 10px;" class="verdict-warn">气温每偏高 1℃ 产值平均收缩 6.8%（验证人工造雪保雪战略必要性）</td>
                 </tr>
                 <tr style="border-bottom:1px solid rgba(56,189,248,0.08);">
-                  <td style="padding:6px 10px; font-weight:bold; color:#fff;">文旅品牌营销 (ln Mkt)</td>
+                  <td style="padding:6px 10px; font-weight:bold; color:var(--text);">文旅品牌营销 (ln Mkt)</td>
                   <td style="padding:6px 10px;">节事推广与客源地曝光</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono); color:var(--mint); font-weight:bold;">+0.195***</td>
                   <td style="padding:6px 10px; font-family:var(--font-mono);">0.049</td>
@@ -4290,7 +4322,7 @@
       </article>
 
       <!-- 3. Consumer Persona & Micro-Insight Section -->
-      <article class="card wide-card" id="consumerProfileSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--ice); margin-top: 6px;">
+      <article class="card wide-card" id="consumerProfileSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--ice); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">👥</span>
@@ -4305,7 +4337,7 @@
         </div>
 
         <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; padding-top:12px;">
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:18px;">🏂</span>
@@ -4322,7 +4354,7 @@
             </div>
           </div>
 
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(244,198,109,0.3); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(244,198,109,0.3); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:18px;">👨‍👩‍👧‍👦</span>
@@ -4339,7 +4371,7 @@
             </div>
           </div>
 
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:18px;">♨️</span>
@@ -4356,7 +4388,7 @@
             </div>
           </div>
 
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(255,107,107,0.3); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="background:#f8fafc; border:1px solid rgba(255,107,107,0.3); border-radius:6px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:18px;">⛷️</span>
@@ -4376,7 +4408,7 @@
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(56,189,248,0.15);">
           <!-- Spending Structure -->
-          <div style="background:rgba(10,16,28,0.6); padding:12px 16px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
+          <div style="background:#f8fafc; padding:12px 16px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
             <div style="font-weight:bold; color:#fff; font-size:13px; margin-bottom:10px; display:flex; justify-content:space-between;">
               <span>💰 游客人均出游消费结构（2024实绩 vs 2030规划）</span>
               <span style="color:var(--gold);">基准：¥1,935 ➔ ¥1,800</span>
@@ -4387,7 +4419,7 @@
                   <span>🏨 住宿与温泉度假 (36%)</span>
                   <span>约 ¥648</span>
                 </div>
-                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
                   <div style="width:36%; height:100%; background:var(--gold);"></div>
                 </div>
               </div>
@@ -4396,7 +4428,7 @@
                   <span>⛷️ 雪票门票与高速索道 (22%)</span>
                   <span>约 ¥396</span>
                 </div>
-                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
                   <div style="width:22%; height:100%; background:var(--ice);"></div>
                 </div>
               </div>
@@ -4405,7 +4437,7 @@
                   <span>🥢 吉林风味餐饮美馔 (18%)</span>
                   <span>约 ¥324</span>
                 </div>
-                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
                   <div style="width:18%; height:100%; background:var(--mint);"></div>
                 </div>
               </div>
@@ -4414,7 +4446,7 @@
                   <span>🚄 交通大巴与高铁接驳 (14%)</span>
                   <span>约 ¥252</span>
                 </div>
-                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
                   <div style="width:14%; height:100%; background:#94e3ca;"></div>
                 </div>
               </div>
@@ -4423,7 +4455,7 @@
                   <span>🧤 装备租赁与特产文创 (10%)</span>
                   <span>约 ¥180</span>
                 </div>
-                <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                <div style="height:6px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
                   <div style="width:10%; height:100%; background:#ff9ff3;"></div>
                 </div>
               </div>
@@ -4431,7 +4463,7 @@
           </div>
 
           <!-- Top Inbound Provinces -->
-          <div style="background:rgba(10,16,28,0.6); padding:12px 16px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
+          <div style="background:#f8fafc; padding:12px 16px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
             <div style="font-weight:bold; color:#fff; font-size:13px; margin-bottom:10px; display:flex; justify-content:space-between;">
               <span>✈️ 跨省客源地贡献率 Top 7（南客北游核心矩阵）</span>
               <span style="color:var(--mint);">省外客流占比 64.2%</span>
@@ -4467,7 +4499,7 @@
       </article>
 
       <!-- 4. Powder Snow Physical Properties & Meteorological Archives -->
-      <article class="card wide-card" id="snowPhysicsSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+      <article class="card wide-card" id="snowPhysicsSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">❄️</span>
@@ -4482,25 +4514,25 @@
         </div>
 
         <div class="grid-4" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; padding-top:12px;">
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:12px;">
+          <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.25); border-radius:6px; padding:12px;">
             <div style="color:var(--ice); font-size:13px; font-weight:bold; margin-bottom:4px;">💧 天然超轻干粉雪密度</div>
             <div style="font-size:20px; font-weight:bold; color:#fff; font-family:var(--font-mono);">0.08 ~ 0.11 <span style="font-size:13px; color:var(--dim);">g/cm³</span></div>
             <small style="color:var(--muted); font-size:11px; display:block; margin-top:4px;">含水率仅 4.2%，颗粒呈微六角结晶，捧起即散，滑行完全不黏板底。</small>
           </div>
 
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:12px;">
+          <div style="background:#f8fafc; border:1px solid rgba(148,227,202,0.25); border-radius:6px; padding:12px;">
             <div style="color:var(--mint); font-size:13px; font-weight:bold; margin-bottom:4px;">🌬️ 冬季山坳平均静风率</div>
             <div style="font-size:20px; font-weight:bold; color:var(--mint); font-family:var(--font-mono);">82.4% <span style="font-size:13px; color:var(--dim);">静风舒适</span></div>
             <small style="color:var(--muted); font-size:11px; display:block; margin-top:4px;">长白山与大黑山天然屏障削弱极地强风，告别阿尔卑斯山顶狂风冻伤。</small>
           </div>
 
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(244,198,109,0.25); border-radius:6px; padding:12px;">
+          <div style="background:#f8fafc; border:1px solid rgba(244,198,109,0.25); border-radius:6px; padding:12px;">
             <div style="color:var(--gold); font-size:13px; font-weight:bold; margin-bottom:4px;">📅 平均有效积雪周期</div>
             <div style="font-size:20px; font-weight:bold; color:var(--gold); font-family:var(--font-mono);">135 ~ 150 <span style="font-size:13px; color:var(--dim);">天/年</span></div>
             <small style="color:var(--muted); font-size:11px; display:block; margin-top:4px;">自 11 月中旬开板延续至翌年 4 月初，长白山天池天然野雪期超 180 天。</small>
           </div>
 
-          <div style="background:rgba(13,22,38,0.7); border:1px solid rgba(255,107,107,0.25); border-radius:6px; padding:12px;">
+          <div style="background:#f8fafc; border:1px solid rgba(255,107,107,0.25); border-radius:6px; padding:12px;">
             <div style="color:#ff8585; font-size:13px; font-weight:bold; margin-bottom:4px;">🌫️ 雾凇水汽超饱和凝华指数</div>
             <div style="font-size:20px; font-weight:bold; color:#fff; font-family:var(--font-mono);">Δ24℃ <span style="font-size:13px; color:var(--dim);">极限水气温差</span></div>
             <small style="color:var(--muted); font-size:11px; display:block; margin-top:4px;">松花江水温 4℃ 与空气 -20℃ 剧烈相变，年均雾凇观赏日突破 60 天。</small>
@@ -4569,7 +4601,7 @@
       </article>
 
       <!-- Zero-Carbon Ski Resort & ESG Green Mountain Tourism Section -->
-      <article class="card wide-card" id="zeroCarbonSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(148,227,202,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+      <article class="card wide-card" id="zeroCarbonSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(148,227,202,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(148,227,202,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🌱</span>
@@ -4658,7 +4690,7 @@
       </article>
 
       <!-- Row 3 Full Width: Jilin Provincial Culture & Tourism Official Experience & Itineraries -->
-      <article class="card" id="cultureGuideSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.92) 0%, rgba(10,16,28,0.95) 100%); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
+      <article class="card" id="cultureGuideSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(56,189,248,0.3); border-top: 3px solid var(--gold); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(56,189,248,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🏛️</span>
@@ -4670,7 +4702,7 @@
               <small style="color:var(--muted); font-size:12px;">参照吉林省文旅厅重点推广之“四大经典IP、四大黄金线路、非遗舌尖与地理科学解密”全景矩阵</small>
             </div>
           </div>
-          <div class="chart-tabs" id="cultureTabs" style="background:rgba(10,16,28,0.8);">
+          <div class="chart-tabs" id="cultureTabs" style="background:#f8fafc;">
             <button class="chart-tab-btn active" data-ctab="routes">🗺️ 四大精品黄金线路</button>
             <button class="chart-tab-btn" data-ctab="cuisine">🥢 舌尖吉林·非遗美馔</button>
             <button class="chart-tab-btn" data-ctab="science">🔬 41°N粉雪与雾凇解密</button>
@@ -4683,7 +4715,7 @@
       </article>
 
       <!-- 3.8 技术原创性与自研内核清单（大赛核心技能考查：编程能力） -->
-      <article class="card wide-card" id="techOriginalitySection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(148,227,202,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
+      <article class="card wide-card" id="techOriginalitySection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(148,227,202,0.3); border-top: 3px solid var(--mint); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(148,227,202,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🧬</span>
@@ -4903,7 +4935,7 @@ async function initWebXRSession(gl) {
       </article>
 
       <!-- 4. 成果转化与应用落地路径（大赛评估重点：潜在的成果转化能力） -->
-      <article class="card wide-card" id="translationSection" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(39,19,63,0.95) 0%, rgba(10,16,28,0.98) 100%); border: 1px solid rgba(244,198,109,0.35); border-top: 3px solid var(--gold); margin-top: 6px;">
+      <article class="card wide-card" id="translationSection" style="grid-column: 1 / -1; background:linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); box-shadow:var(--shadow-2); border: 1px solid rgba(244,198,109,0.35); border-top: 3px solid var(--gold); margin-top: 6px;">
         <div class="card-head" style="border-bottom: 1px solid rgba(244,198,109,0.25); flex-wrap: wrap; gap: 12px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:22px;">🏆</span>
@@ -5035,7 +5067,7 @@ async function initWebXRSession(gl) {
           </div>
 
           <!-- MOU Action Bar -->
-          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(38,18,66,0.7); border:1px solid rgba(244,198,109,0.3); border-radius:6px; padding:10px 14px; max-width:100%; box-sizing:border-box;">
+          <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#f8fafc; border:1px solid rgba(244,198,109,0.3); border-radius:6px; padding:10px 14px; max-width:100%; box-sizing:border-box;">
             <div style="font-size:12px; color:var(--text-2); flex:1 1 280px; min-width:0;">
               <span style="color:var(--gold); font-weight:bold;">📄 合作转化意向协议：</span>本作品已拟定标准化产学研示范合作备忘录 (MOU)，支持向文旅企事业单位免费提供算法模型与系统部署咨询。
             </div>
@@ -5110,7 +5142,7 @@ async function initWebXRSession(gl) {
           </div>
         </div>
 
-        <div style="margin-top:12px; background:rgba(36,17,63,0.6); border-left:3px solid var(--mint); padding:10px 14px; border-radius:0 4px 4px 0; font-size:12px; line-height:1.7; color:var(--text-2);">
+        <div style="margin-top:12px; background:#f0f9ff; border-left:3px solid var(--mint); padding:10px 14px; border-radius:0 4px 4px 0; font-size:12px; line-height:1.7; color:var(--text-2);">
           <b style="color:var(--mint);">结论：</b>吉林省冰雪经济发展呈<b style="color:#fff;">「自然禀赋主导 + 经济基础支撑」的双因子结构</b>。积雪日数的标准化影响（0.778）高于 GDP（0.573），说明<b style="color:var(--gold);">吉林冰雪经济的空间格局首先由气候资源禀赋决定，而非单纯由经济规模决定</b>——这一结论直接支持政策层面对东部山区（白山、延边、通化）的冰雪资源开发倾斜，也解释了为何长春虽为省会、GDP 居首，却未能形成同等量级的冰雪产业集聚。
         </div>
 
@@ -5183,7 +5215,7 @@ async function initWebXRSession(gl) {
           <span style="font-size:15px;">🔢</span>
           <b>三、主模型（模型 D）系数明细与显著性</b>
         </div>
-        <div style="background:rgba(10,16,28,0.8); border:1px solid rgba(56,189,248,0.25); border-radius:8px; padding:12px 16px; margin-top:12px;">
+        <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.25); border-radius:8px; padding:12px 16px; margin-top:12px;">
           <div class="da-var-row" style="color:var(--dim); font-size:11px; font-variant-numeric:tabular-nums; border-bottom:1px solid rgba(56,189,248,0.3);">
             <span class="da-var-name" style="color:var(--dim);">变量</span>
             <span class="da-var-beta" style="text-align:right;">系数 β</span>
@@ -5229,7 +5261,7 @@ async function initWebXRSession(gl) {
         <div style="font-size:12px; color:var(--muted); line-height:1.6; margin-top:10px;">
           逐一剔除每个市州、用剩余 8 市州重新估计模型，再预测被剔除城市的冰雪指数。该检验用于回答「模型是否只是记住了样本内的噪声」。
         </div>
-        <div style="background:rgba(10,16,28,0.7); border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:12px 16px; margin-top:10px;">
+        <div style="background:#f8fafc; border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:12px 16px; margin-top:10px;">
           <div class="da-loo-bar"><span class="da-loo-city">长春</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill neg" style="right:50%; width:49%;"></div></div><span class="da-loo-val" style="color:var(--coral);">−45.71</span></div>
           <div class="da-loo-bar"><span class="da-loo-city">吉林</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:18%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+17.00</span></div>
           <div class="da-loo-bar"><span class="da-loo-city">四平</span><div class="da-loo-track"><div class="da-loo-mid"></div><div class="da-loo-fill pos" style="left:50%; width:2.5%;"></div></div><span class="da-loo-val" style="color:var(--mint);">+2.34</span></div>
@@ -5245,7 +5277,7 @@ async function initWebXRSession(gl) {
             <span>LOO-R² = <b style="color:var(--coral);">0.2368</b></span>
           </div>
         </div>
-        <div style="margin-top:10px; background:rgba(36,17,63,0.6); border-left:3px solid var(--gold); padding:10px 14px; border-radius:0 4px 4px 0; font-size:12px; line-height:1.7; color:var(--text-2);">
+        <div style="margin-top:10px; background:#f0f9ff; border-left:3px solid var(--gold); padding:10px 14px; border-radius:0 4px 4px 0; font-size:12px; line-height:1.7; color:var(--text-2);">
           <b style="color:var(--gold);">诚实披露：</b>样本内 R² = 0.7445，但留一交叉验证 R² 降至 0.2368，说明在当前 9 个市州的小样本下，模型的<b style="color:#fff;">样本外预测能力有限</b>。误差集中于长春（−45.71）与白城（−26.84）两端极值市州。我们主动呈现这一结果，因为<b style="color:var(--mint);">承认小样本局限，比粉饰拟合优度更符合科学精神</b>；模型的价值在于揭示变量间的结构性关系，而非用于单点精确预测。
         </div>
 
@@ -5384,7 +5416,7 @@ async function initWebXRSession(gl) {
             </tbody>
           </table>
         </div>
-        <div style="margin-top:10px; background:rgba(36,17,63,0.6); border-left:3px solid var(--ice); padding:10px 14px; border-radius:0 4px 4px 0; font-size:12px; line-height:1.7; color:var(--text-2);">
+        <div style="margin-top:10px; background:#f0f9ff; border-left:3px solid var(--ice); padding:10px 14px; border-radius:0 4px 4px 0; font-size:12px; line-height:1.7; color:var(--text-2);">
           <b style="color:var(--ice);">结构性洞察：</b>长春市 GDP（7,632 亿元）居全省首位，是吉林市的 4.7 倍，但其雪道面积（62 公顷）仅为吉林市的 <b style="color:var(--coral);">11.2%</b>。这一"经济强、冰雪弱"的反差，与回归模型中 GDP 标准化系数（0.573）低于积雪日数（0.778）的结果<b style="color:#fff;">相互印证</b>——说明冰雪经济的空间集聚由自然禀赋主导，长春的产业优势并未自然转化为冰雪资源供给，其 6,200 张床位更多来自城市商务酒店存量，而非雪场度假配套，构成典型的<b style="color:var(--gold);">「城市过境型」而非「目的地型」</b>冰雪消费结构。
         </div>
 
@@ -5629,7 +5661,7 @@ async function initWebXRSession(gl) {
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom:1px solid #352050;">
+            <tr style="border-bottom:1px solid #e2e8f0;">
               <td style="padding:10px 12px; font-weight: bold; color: #fff;">冰雪旅游接待游客</td>
               <td style="padding:10px 12px;">亿人次</td>
               <td style="padding:10px 12px; color: var(--muted);">1.25</td>
@@ -5637,7 +5669,7 @@ async function initWebXRSession(gl) {
               <td style="padding:10px 12px; color: var(--gold); font-weight: bold;">3.0</td>
               <td style="padding:10px 12px; color: #fff;">量级飞跃 (+140%)</td>
             </tr>
-            <tr style="border-bottom:1px solid #352050;">
+            <tr style="border-bottom:1px solid #e2e8f0;">
               <td style="padding:10px 12px; font-weight: bold; color: #fff;">冰雪旅游总花费</td>
               <td style="padding:10px 12px;">亿元</td>
               <td style="padding:10px 12px; color: var(--muted);">2,419</td>
@@ -5645,7 +5677,7 @@ async function initWebXRSession(gl) {
               <td style="padding:10px 12px; color: var(--gold); font-weight: bold;">5,400</td>
               <td style="padding:10px 12px; color: #fff;">消费提质 (+123%)</td>
             </tr>
-            <tr style="border-bottom:1px solid #352050;">
+            <tr style="border-bottom:1px solid #e2e8f0;">
               <td style="padding:10px 12px; font-weight: bold; color: #fff;">装备制造业总产值</td>
               <td style="padding:10px 12px;">亿元</td>
               <td style="padding:10px 12px; color: var(--muted);">/</td>
@@ -5653,7 +5685,7 @@ async function initWebXRSession(gl) {
               <td style="padding:10px 12px; color: var(--gold); font-weight: bold;">> 50</td>
               <td style="padding:10px 12px; color: #fff;">新质生产力破局</td>
             </tr>
-            <tr style="border-bottom:1px solid #352050;">
+            <tr style="border-bottom:1px solid #e2e8f0;">
               <td style="padding:10px 12px; font-weight: bold; color: #fff;">特色冰雪乐园建设</td>
               <td style="padding:10px 12px;">家/年</td>
               <td style="padding:10px 12px; color: var(--muted);">/</td>
@@ -5684,7 +5716,7 @@ async function initWebXRSession(gl) {
       <div style="display:flex; gap:20px; margin-bottom: 24px;">
         <div style="flex:1;">
           <label style="display:block; font-size:13px; color:var(--ice); margin-bottom:8px;">目标投资区域</label>
-          <select id="analysisRegion" style="width:100%; padding:10px; background:rgba(0,0,0,0.4); border:1px solid #3c2367; color:#fff; border-radius:4px; font-size:15px; outline:none;">
+          <select id="analysisRegion" style="width:100%; padding:10px; background:rgba(0,0,0,0.4); border:1px solid #cbd5e1; color:#fff; border-radius:4px; font-size:15px; outline:none;">
             <option value="changbai">长白山核心区 (高净值度假/生态游)</option>
             <option value="changchun">长春都市圈 (都市冰雪/高客流)</option>
             <option value="jilin">吉林市名城区 (重型装备/雪场基建)</option>
@@ -5713,7 +5745,7 @@ async function initWebXRSession(gl) {
         </div>
       </div>
 
-      <div style="background: rgba(10,16,28,0.8); border: 1px solid #3c2367; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
         <h4 style="color:var(--ice); margin-bottom:16px; font-size:14px; border-bottom:1px solid #1e293b; padding-bottom:8px;">自动参数化推演结果 (Projected ROI)</h4>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
@@ -5939,7 +5971,7 @@ async function initWebXRSession(gl) {
               </tr>
             </thead>
             <tbody>
-              <tr style="border-bottom:1px solid #331e4f;">
+              <tr style="border-bottom:1px solid #e2e8f0;">
                 <td style="padding:6px 8px; font-family:var(--font-mono); color:var(--gold);">Y_tour</td>
                 <td style="padding:6px 8px;">冰雪旅游接待总人次</td>
                 <td style="padding:6px 8px;">亿人次</td>
@@ -5947,7 +5979,7 @@ async function initWebXRSession(gl) {
                 <td style="padding:6px 8px;">3.00</td>
                 <td style="padding:6px 8px;">吉办发〔2024〕16号文 第一部分第(一)条</td>
               </tr>
-              <tr style="border-bottom:1px solid #331e4f;">
+              <tr style="border-bottom:1px solid #e2e8f0;">
                 <td style="padding:6px 8px; font-family:var(--font-mono); color:var(--gold);">Y_rev</td>
                 <td style="padding:6px 8px;">冰雪旅游综合花费</td>
                 <td style="padding:6px 8px;">亿元</td>
@@ -5955,7 +5987,7 @@ async function initWebXRSession(gl) {
                 <td style="padding:6px 8px;">5,400</td>
                 <td style="padding:6px 8px;">省文旅厅 2023-2024 雪季统计公报 / 发展规划</td>
               </tr>
-              <tr style="border-bottom:1px solid #331e4f;">
+              <tr style="border-bottom:1px solid #e2e8f0;">
                 <td style="padding:6px 8px; font-family:var(--font-mono); color:var(--gold);">X_equip</td>
                 <td style="padding:6px 8px;">冰雪装备制造业总产值</td>
                 <td style="padding:6px 8px;">亿元</td>
@@ -5963,7 +5995,7 @@ async function initWebXRSession(gl) {
                 <td style="padding:6px 8px;">≥ 50</td>
                 <td style="padding:6px 8px;">实施意见 第三部分第(七)条“做大装备制造产业”</td>
               </tr>
-              <tr style="border-bottom:1px solid #331e4f;">
+              <tr style="border-bottom:1px solid #e2e8f0;">
                 <td style="padding:6px 8px; font-family:var(--font-mono); color:var(--gold);">R_resort</td>
                 <td style="padding:6px 8px;">世界级滑雪胜地核心群</td>
                 <td style="padding:6px 8px;">个</td>
@@ -5995,52 +6027,52 @@ async function initWebXRSession(gl) {
     <div class="modal-card" style="max-width:540px;">
       <h3 style="color:#fff;margin-bottom:12px;">⌨️ 交互系统快捷键指南</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:var(--text);margin-bottom:16px;">
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--gold);">← / →</b> : 切换 2028 / 2030 雪季
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--ice);">1 ~ 8</b> : 快速切换 8 大政策支点空间
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--mint);">空格键</b> : 启动 / 暂停全自动巡航演示
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--coral);">F 键</b> : 进入 / 退出 16:9 全屏演示模式
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">V 键</b> : 复位 3D VR 沙盘视角
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">M 键</b> : 开关冬风环境白噪音
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">鼠标滚轮</b> : 在 3D 沙盘中缩放视角
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--mint);">↑ / ↓ 或 W / S</b> : 3D沙盘俯仰 (鸟瞰 ↔ 平视)
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--gold);">A / D 键</b> : 3D沙盘全向平滑旋转
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--ice);">Q / E 键</b> : 3D沙盘视距推进 / 远离
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--ice);">O 键</b> : 开启 / 退出 360° 无人机低空航拍环绕
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--mint);">P 键</b> : 切换双目立体 VR 分屏模式
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--gold);">K 键</b> : 第一人称高山速降滑雪仿真
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--mint);">L 键</b> : 中英双语国际化切换 (ZH/EN)
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:var(--coral);">N 键</b> : 播放 / 暂停官方 5 分钟语音解说导览
         </div>
-        <div style="background:#341c56;padding:8px 12px;border-radius:6px;">
+        <div style="background:#e0f2fe;padding:8px 12px;border-radius:6px;">
           <b style="color:#fff;">Esc</b> : 关闭任意弹窗或退出巡航
         </div>
       </div>
@@ -6067,19 +6099,19 @@ async function initWebXRSession(gl) {
 
       <!-- Top Metric Cards -->
       <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:16px;">
-        <div style="background:rgba(43,24,78,0.6); padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
+        <div style="background:#ffffff; padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
           <div style="font-size:11px; color:var(--muted);">2030规划产值目标</div>
           <div id="muniTargetRev" style="font-size:16px; font-weight:bold; color:var(--gold); margin-top:2px;">--</div>
         </div>
-        <div style="background:rgba(43,24,78,0.6); padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
+        <div style="background:#ffffff; padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
           <div style="font-size:11px; color:var(--muted);">日接待峰值承载</div>
           <div id="muniCapacity" style="font-size:16px; font-weight:bold; color:var(--ice); margin-top:2px;">--</div>
         </div>
-        <div style="background:rgba(43,24,78,0.6); padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
+        <div style="background:#ffffff; padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
           <div style="font-size:11px; color:var(--muted);">有效雪期与粉雪系数</div>
           <div id="muniClimate" style="font-size:14px; font-weight:bold; color:var(--mint); margin-top:4px;">--</div>
         </div>
-        <div style="background:rgba(43,24,78,0.6); padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
+        <div style="background:#ffffff; padding:10px; border-radius:6px; border:1px solid rgba(56,189,248,0.2);">
           <div style="font-size:11px; color:var(--muted);">三维数字孪生坐标</div>
           <div id="muniCoord" style="font-size:13px; font-weight:bold; color:#fff; margin-top:4px;">已映射</div>
         </div>
@@ -6092,15 +6124,15 @@ async function initWebXRSession(gl) {
           <svg id="muniRadarSvg" viewBox="0 0 240 220" style="width:100%; max-width:240px; height:auto; display:block;"></svg>
         </div>
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <div style="background:rgba(43,24,78,0.6); border-left:3px solid var(--gold); border-radius:4px; padding:10px 12px;">
+          <div style="background:#ffffff; border-left:3px solid var(--gold); border-radius:4px; padding:10px 12px;">
             <b style="font-size:12px; color:var(--gold);">🌟 核心特色与支撑载体</b>
             <p id="muniAssets" style="font-size:12px; color:var(--text-2); margin:4px 0 0; line-height:1.5;">--</p>
           </div>
-          <div style="background:rgba(43,24,78,0.6); border-left:3px solid var(--mint); border-radius:4px; padding:10px 12px;">
+          <div style="background:#ffffff; border-left:3px solid var(--mint); border-radius:4px; padding:10px 12px;">
             <b style="font-size:12px; color:var(--mint);">🚀 战略机遇与重大突破口</b>
             <p id="muniOpportunity" style="font-size:12px; color:var(--text-2); margin:4px 0 0; line-height:1.5;">--</p>
           </div>
-          <div style="background:rgba(43,24,78,0.6); border-left:3px solid var(--coral); border-radius:4px; padding:10px 12px;">
+          <div style="background:#ffffff; border-left:3px solid var(--coral); border-radius:4px; padding:10px 12px;">
             <b style="font-size:12px; color:var(--coral);">⚡ 攻坚举措与政策配套</b>
             <p id="muniStrategy" style="font-size:12px; color:var(--text-2); margin:4px 0 0; line-height:1.5;">--</p>
           </div>
@@ -6172,7 +6204,7 @@ async function initWebXRSession(gl) {
           }
         </style>
 
-        <div style="position:absolute;bottom:25px;left:70px;font-size:12px;color:var(--ice);background:rgba(10,16,28,0.8);padding:6px 12px;border-radius:6px;backdrop-filter: blur(4px);pointer-events:none; border: 1px solid rgba(56,189,248,0.3);">
+        <div style="position:absolute;bottom:25px;left:70px;font-size:12px;color:var(--ice);background:#f8fafc;padding:6px 12px;border-radius:6px;backdrop-filter: blur(4px);pointer-events:none; border: 1px solid rgba(56,189,248,0.3);">
           ▶ 支持鼠标左键拖拽旋转 · 滚轮视角缩放 · <span style="color:var(--gold);">直接点击画面地标光标选中城市</span>
         </div>
         <div style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -6712,7 +6744,7 @@ async function initWebXRSession(gl) {
     // Tab 9: Monte Carlo Uncertainty Simulation & Fan Chart (GBM)
     function renderMonteCarloChart() {
       let h = '';
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">🎲 蒙特卡洛 10,000 次随机模拟置信扇形与达标概率预测</text>`;
+      h += `<text x="10" y="20" fill="var(--text)" font-size="13" font-weight="bold">🎲 蒙特卡洛 10,000 次随机模拟置信扇形与达标概率预测</text>`;
       h += `<text x="10" y="36" fill="var(--muted)" font-size="10">基于几何布朗运动 (GBM) dS_t = μ·S_t·dt + σ·S_t·dW_t (漂移率 μ=18.4%, 波动率 σ=8.2%, 基线 1.25 亿人次)</text>`;
 
       const chartL = 40, chartR = 370, chartT = 55, chartB = 180;
@@ -6740,14 +6772,14 @@ async function initWebXRSession(gl) {
       // Y Gridlines
       for (let v = 0; v <= 3.8; v += 1.0) {
         const y = toY(v);
-        h += `<line x1="${chartL}" y1="${y}" x2="${chartR}" y2="${y}" stroke="rgba(56,189,248,0.12)" stroke-width="1"/>`;
+        h += `<line x1="${chartL}" y1="${y}" x2="${chartR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
         h += `<text x="${chartL - 6}" y="${y + 3}" fill="var(--muted)" font-size="9" text-anchor="end">${v.toFixed(1)}亿</text>`;
       }
 
       // X Gridlines & Labels
       years.forEach(yr => {
         const x = toX(yr);
-        h += `<line x1="${x}" y1="${chartT}" x2="${x}" y2="${chartB}" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>`;
+        h += `<line x1="${x}" y1="${chartT}" x2="${x}" y2="${chartB}" stroke="#f1f5f9" stroke-width="1"/>`;
         h += `<text x="${x}" y="${chartB + 14}" fill="var(--muted)" font-size="9" text-anchor="middle">${yr}</text>`;
       });
 
@@ -6859,7 +6891,7 @@ async function initWebXRSession(gl) {
       h += `<text x="${boxL + 8}" y="${boxT + 52}" fill="#f4c66d" font-size="16" font-weight="bold" font-family="monospace">P = 84.9%</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 69}" fill="var(--muted)" font-size="8.5">花费突破 5400亿 概率:</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 86}" fill="#94e3ca" font-size="14" font-weight="bold" font-family="monospace">P = 91.8%</text>`;
-      h += `<text x="${boxL + 8}" y="${boxT + 104}" fill="#edf5f4" font-size="9">中枢期望: <tspan fill="#38bdf8">3.70 亿</tspan></text>`;
+      h += `<text x="${boxL + 8}" y="${boxT + 104}" fill="var(--text-secondary)" font-size="9">中枢期望: <tspan fill="#38bdf8">3.70 亿</tspan></text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 120}" fill="var(--muted)" font-size="8">10,000 次随机游走模拟</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 132}" fill="var(--muted)" font-size="8">漂移 μ=18.4% 波动 σ=8.2%</text>`;
 
@@ -6879,7 +6911,7 @@ async function initWebXRSession(gl) {
     // Tab 6: Spatial Gravity & Customer Source Radar
     function renderGravityChart() {
       let h = '';
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">空间引力与客源特征多维测算雷达图</text>`;
+      h += `<text x="10" y="20" fill="var(--text)" font-size="13" font-weight="bold">空间引力与客源特征多维测算雷达图</text>`;
       h += `<text x="10" y="36" fill="var(--muted)" font-size="10">基于Reilly零售引力法则与多变量特征分解 (南客北游省情模型)</text>`;
 
       const cx = 300, cy = 135, r = 85;
@@ -6894,7 +6926,7 @@ async function initWebXRSession(gl) {
           const angle = (Math.PI * 2 * i / N) - Math.PI / 2;
           pts += `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)} `;
         }
-        h += `<polygon points="${pts}" fill="${level%2===0 ? 'rgba(56,189,248,0.02)' : 'none'}" stroke="rgba(56,189,248,0.15)" stroke-width="1"/>`;
+        h += `<polygon points="${pts}" fill="${level%2===0 ? 'rgba(56,189,248,0.02)' : 'none'}" stroke="#e2e8f0" stroke-width="1"/>`;
       }
       
       // Axes and labels
@@ -6902,12 +6934,12 @@ async function initWebXRSession(gl) {
         const angle = (Math.PI * 2 * i / N) - Math.PI / 2;
         const x2 = cx + r * Math.cos(angle);
         const y2 = cy + r * Math.sin(angle);
-        h += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="rgba(56,189,248,0.2)" stroke-width="1"/>`;
+        h += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#cbd5e1" stroke-width="1"/>`;
         
         const lx = cx + (r + 20) * Math.cos(angle);
         const ly = cy + (r + 15) * Math.sin(angle);
         const anchor = lx < cx - 10 ? 'end' : (lx > cx + 10 ? 'start' : 'middle');
-        h += `<text x="${lx}" y="${ly}" fill="#edf5f4" font-size="10" text-anchor="${anchor}">${dimensions[i]}</text>`;
+        h += `<text x="${lx}" y="${ly}" fill="var(--text-secondary)" font-size="10" text-anchor="${anchor}">${dimensions[i]}</text>`;
       }
 
       // Datasets
@@ -6934,11 +6966,11 @@ async function initWebXRSession(gl) {
       // Side stats panel
       const pL = 20, pT = 65;
       h += `<rect x="${pL}" y="${pT}" width="160" height="110" rx="4" fill="rgba(10,16,28,0.6)" stroke="rgba(56,189,248,0.2)"/>`;
-      h += `<text x="${pL+10}" y="${pT+20}" fill="#fff" font-size="11" font-weight="bold">引力法则重力常数分析</text>`;
+      h += `<text x="${pL+10}" y="${pT+20}" fill="var(--text)" font-size="11" font-weight="bold">引力法则重力常数分析</text>`;
       h += `<text x="${pL+10}" y="${pT+42}" fill="var(--muted)" font-size="9">长三角空间摩擦: <tspan fill="#f4c66d">G=0.74 (高潜力)</tspan></text>`;
       h += `<text x="${pL+10}" y="${pT+62}" fill="var(--muted)" font-size="9">京津冀高铁引力: <tspan fill="#94e3ca">G=0.91 (强虹吸)</tspan></text>`;
       h += `<text x="${pL+10}" y="${pT+82}" fill="var(--muted)" font-size="9">南方客单价乘数: <tspan fill="#f4c66d">k=2.8x 倍于本地</tspan></text>`;
-      h += `<text x="${pL+10}" y="${pT+100}" fill="var(--muted)" font-size="9">粉雪资源独占度: <tspan fill="#edf5f4">98% (极高稀缺)</tspan></text>`;
+      h += `<text x="${pL+10}" y="${pT+100}" fill="var(--muted)" font-size="9">粉雪资源独占度: <tspan fill="var(--text)">98% (极高稀缺)</tspan></text>`;
 
       $('mainChartSvg').innerHTML = h;
 
@@ -6955,7 +6987,7 @@ async function initWebXRSession(gl) {
     // Tab 4: Multi-Factor Elasticity & Sensitivity Matrix
     function renderElasticityChart() {
       let h = '';
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">多因子需求弹性偏导数与宏观敏感性矩阵</text>`;
+      h += `<text x="10" y="20" fill="var(--text)" font-size="13" font-weight="bold">多因子需求弹性偏导数与宏观敏感性矩阵</text>`;
       h += `<text x="10" y="36" fill="var(--muted)" font-size="10">基于偏最小二乘 (PLS) 与对数线性需求方程测算各驱动因子的弹性乘数</text>`;
 
       const factors = [
@@ -6971,7 +7003,7 @@ async function initWebXRSession(gl) {
 
       factors.forEach((f, i) => {
         const y = startY + i * rowH;
-        h += `<text x="10" y="${y + 13}" fill="#edf5f4" font-size="10" font-weight="bold">${f.name}</text>`;
+        h += `<text x="10" y="${y + 13}" fill="var(--text-secondary)" font-size="10" font-weight="bold">${f.name}</text>`;
 
         const barW = Math.min(78, Math.abs(f.val) * 16);
         if (f.val >= 0) {
@@ -7009,7 +7041,7 @@ async function initWebXRSession(gl) {
     // Tab 5: Seasonality Decomposition (STL)
     function renderSeasonalityChart() {
       let h = '';
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">吉林省冰雪旅游季节性指数时序分解 (STL) · 旬度周期</text>`;
+      h += `<text x="10" y="20" fill="var(--text)" font-size="13" font-weight="bold">吉林省冰雪旅游季节性指数时序分解 (STL) · 旬度周期</text>`;
       h += `<text x="10" y="36" fill="var(--muted)" font-size="10">11月中旬至次年4月上旬 (全期150天) 景气指数与有效粉雪湿度分布</text>`;
 
       const decs = [
@@ -7034,7 +7066,7 @@ async function initWebXRSession(gl) {
 
       for (let v = 0; v <= 100; v += 25) {
         const y = chartB - (v / 100) * (chartB - chartT);
-        h += `<line x1="${chartL}" y1="${y}" x2="${chartR}" y2="${y}" stroke="rgba(56,189,248,0.1)" stroke-width="1"/>`;
+        h += `<line x1="${chartL}" y1="${y}" x2="${chartR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
         h += `<text x="${chartL - 6}" y="${y + 3}" fill="var(--muted)" font-size="9" text-anchor="end">${v}</text>`;
       }
 
@@ -7085,7 +7117,7 @@ async function initWebXRSession(gl) {
 
       $('chartLegend').innerHTML = `
         <span class="legend-item"><span class="legend-dot" style="background:var(--ice)"></span>旬度综合景气指数 (STL分解)</span>
-        <span class="legend-item"><span class="legend-dot" style="background:var(--mint);border-top:1px dashed #fff"></span>黄金粉雪适滑度指数</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--mint);border-top:1px dashed var(--text)"></span>黄金粉雪适滑度指数</span>
         <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span>春节黄金周极峰 (指数100)</span>
       `;
 
@@ -7124,7 +7156,7 @@ async function initWebXRSession(gl) {
       };
       const curCI = ciMap[ciLevel] || ciMap[0.95];
 
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">OLS 线性回归 & ${curCI.label} 置信区间预测 · 冰雪旅游客流趋势</text>`;
+      h += `<text x="10" y="20" fill="var(--text)" font-size="13" font-weight="bold">OLS 线性回归 & ${curCI.label} 置信区间预测 · 冰雪旅游客流趋势</text>`;
       if (isBase) {
         h += `<text x="10" y="36" fill="var(--muted)" font-size="10">普通最小二乘法 (OLS) 拟合 · R²=0.5137 · F=4.22 · n=6 (政策基准样本, 2020外生冲击已前置剔除)</text>`;
       } else {
@@ -7132,18 +7164,18 @@ async function initWebXRSession(gl) {
       }
 
       // Sample Mode Switcher Pills (Top center)
-      h += `<rect x="230" y="8" width="58" height="18" rx="3" fill="${isBase ? 'rgba(244,198,109,0.3)' : 'rgba(255,255,255,0.06)'}" stroke="${isBase ? 'var(--gold)' : 'rgba(244,198,109,0.3)'}" stroke-width="${isBase ? 1.5 : 1}" style="cursor:pointer;" onclick="setSampleMode('base')" />`;
+      h += `<rect x="230" y="8" width="58" height="18" rx="3" fill="${isBase ? 'var(--gold-bg)' : '#f1f5f9'}" stroke="${isBase ? 'var(--gold)' : 'rgba(244,198,109,0.3)'}" stroke-width="${isBase ? 1.5 : 1}" style="cursor:pointer;" onclick="setSampleMode('base')" />`;
       h += `<text x="259" y="20" fill="${isBase ? 'var(--gold)' : 'var(--muted)'}" font-size="9" font-weight="${isBase ? 'bold' : 'normal'}" text-anchor="middle" style="cursor:pointer;pointer-events:none;">基准 n=6</text>`;
 
-      h += `<rect x="292" y="8" width="58" height="18" rx="3" fill="${!isBase ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.06)'}" stroke="${!isBase ? 'var(--mint)' : 'rgba(52,211,153,0.3)'}" stroke-width="${!isBase ? 1.5 : 1}" style="cursor:pointer;" onclick="setSampleMode('extended')" />`;
+      h += `<rect x="292" y="8" width="58" height="18" rx="3" fill="${!isBase ? 'var(--mint-bg)' : '#f1f5f9'}" stroke="${!isBase ? 'var(--mint)' : 'rgba(52,211,153,0.3)'}" stroke-width="${!isBase ? 1.5 : 1}" style="cursor:pointer;" onclick="setSampleMode('extended')" />`;
       h += `<text x="321" y="20" fill="${!isBase ? 'var(--mint)' : 'var(--muted)'}" font-size="9" font-weight="${!isBase ? 'bold' : 'normal'}" text-anchor="middle" style="cursor:pointer;pointer-events:none;">拓展 n=8</text>`;
 
       // Interactive CI Level Selector Pills on top right
       [0.90, 0.95, 0.99].forEach((cVal, cIdx) => {
         const px = 356 + cIdx * 56;
         const isAct = Math.abs(cVal - ciLevel) < 0.01;
-        h += `<rect x="${px}" y="8" width="52" height="18" rx="3" fill="${isAct ? 'rgba(56,189,248,0.35)' : 'rgba(255,255,255,0.06)'}" stroke="${isAct ? 'var(--ice)' : 'rgba(56,189,248,0.25)'}" stroke-width="${isAct ? 1.5 : 1}" style="cursor:pointer;" onclick="setConfidenceLevel(${cVal})" />`;
-        h += `<text x="${px + 26}" y="20" fill="${isAct ? '#fff' : 'var(--muted)'}" font-size="9" font-weight="${isAct ? 'bold' : 'normal'}" text-anchor="middle" style="cursor:pointer;pointer-events:none;">${Math.round(cVal*100)}% CI</text>`;
+        h += `<rect x="${px}" y="8" width="52" height="18" rx="3" fill="${isAct ? 'var(--ice)' : '#f1f5f9'}" stroke="${isAct ? 'var(--ice)' : '#cbd5e1'}" stroke-width="${isAct ? 1.5 : 1}" style="cursor:pointer;" onclick="setConfidenceLevel(${cVal})" />`;
+        h += `<text x="${px + 26}" y="20" fill="${isAct ? '#ffffff' : 'var(--muted)'}" font-size="9" font-weight="${isAct ? 'bold' : 'normal'}" text-anchor="middle" style="cursor:pointer;pointer-events:none;">${Math.round(cVal*100)}% CI</text>`;
       });
 
       // Historical data points (统计年度, 万人次) — 统计年度 2023 = 2022—2023 雪季
@@ -7199,14 +7231,14 @@ async function initWebXRSession(gl) {
       // Y-Axis gridlines
       for (let v = 0; v <= 30000; v += 5000) {
         const y = toY(v);
-        h += `<line x1="${chartL}" y1="${y}" x2="${chartR}" y2="${y}" stroke="rgba(56,189,248,0.12)" stroke-width="1"/>`;
+        h += `<line x1="${chartL}" y1="${y}" x2="${chartR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
         h += `<text x="${chartL - 6}" y="${y + 3}" fill="var(--muted)" font-size="9" text-anchor="end">${(v / 10000).toFixed(1)}亿</text>`;
       }
 
       // X-Axis year labels
       for (let yr = 2018; yr <= 2030; yr++) {
         const x = toX(yr);
-        h += `<line x1="${x}" y1="${chartT}" x2="${x}" y2="${chartB}" stroke="rgba(56,189,248,0.06)" stroke-width="1"/>`;
+        h += `<line x1="${x}" y1="${chartT}" x2="${x}" y2="${chartB}" stroke="#f1f5f9" stroke-width="1"/>`;
         h += `<text x="${x}" y="${chartB + 14}" fill="var(--muted)" font-size="9" text-anchor="middle">${yr}</text>`;
       }
 
@@ -7267,8 +7299,8 @@ async function initWebXRSession(gl) {
       // Model stats panel
       h += `<rect x="${chartR - 175}" y="${chartT}" width="175" height="72" rx="4" fill="rgba(10,16,28,0.85)" stroke="rgba(56,189,248,0.3)"/>`;
       h += `<text x="${chartR - 165}" y="${chartT + 16}" fill="#38bdf8" font-size="10" font-weight="bold">OLS 回归统计量 (${isBase ? 'n=6 基准' : 'n=8 拓展'})</text>`;
-      h += `<text x="${chartR - 165}" y="${chartT + 30}" fill="#edf5f4" font-size="9" font-family="monospace">ŷ = ${beta1.toFixed(1)}·x ${beta0 > 0 ? '+' : ''}${beta0.toFixed(0)}</text>`;
-      h += `<text x="${chartR - 165}" y="${chartT + 43}" fill="#edf5f4" font-size="9" font-family="monospace">R² = ${R2.toFixed(4)} | Sₑ = ${Se.toFixed(0)}</text>`;
+      h += `<text x="${chartR - 165}" y="${chartT + 30}" fill="var(--text-secondary)" font-size="9" font-family="monospace">ŷ = ${beta1.toFixed(1)}·x ${beta0 > 0 ? '+' : ''}${beta0.toFixed(0)}</text>`;
+      h += `<text x="${chartR - 165}" y="${chartT + 43}" fill="var(--text-secondary)" font-size="9" font-family="monospace">R² = ${R2.toFixed(4)} | Sₑ = ${Se.toFixed(0)}</text>`;
       h += `<text x="${chartR - 165}" y="${chartT + 56}" fill="var(--gold)" font-size="9" font-family="monospace">β₁ = +${beta1.toFixed(1)}万人/年</text>`;
       h += `<text x="${chartR - 165}" y="${chartT + 67}" fill="var(--muted)" font-size="8">${isBase ? '(2020外生冲击已前置剔除)' : '(含24-25实绩与25-26供给推进)'}</text>`;
 
@@ -7376,9 +7408,9 @@ async function initWebXRSession(gl) {
         h += `<circle cx="${item.cx}" cy="${item.cy}" r="${r}" fill="none" stroke="${item.color}" stroke-width="8" stroke-dasharray="${circ * 0.75} ${circ * 0.25}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(135 ${item.cx} ${item.cy})" style="transition: stroke-dashoffset 0.8s ease;"/>`;
 
         // Value & label inside circle
-        h += `<text x="${item.cx}" y="${item.cy - 2}" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">${item.val}</text>`;
+        h += `<text x="${item.cx}" y="${item.cy - 2}" fill="var(--text)" font-size="13" font-weight="bold" text-anchor="middle">${item.val}</text>`;
         h += `<text x="${item.cx}" y="${item.cy + 16}" fill="${item.color}" font-size="10" text-anchor="middle">年度刚性下限</text>`;
-        h += `<text x="${item.cx}" y="${item.cy + 75}" fill="#edf5f4" font-size="12" font-weight="bold" text-anchor="middle">${item.label}</text>`;
+        h += `<text x="${item.cx}" y="${item.cy + 75}" fill="var(--text)" font-size="12" font-weight="bold" text-anchor="middle">${item.label}</text>`;
         h += `<text x="${item.cx}" y="${item.cy + 92}" fill="#8b81a2" font-size="10" text-anchor="middle">${item.desc}</text>`;
       });
 
@@ -7405,7 +7437,7 @@ async function initWebXRSession(gl) {
         { name: '数字冰雪VR/AI软硬件研发', val: 12, pct: 24, color: '#94e3ca', base: '通化与全省数字赋能' }
       ];
 
-      h += `<text x="10" y="30" fill="#fff" font-size="13" font-weight="bold">2029—2030 雪季 冰雪装备制造业总产值突破目标：> 50 亿元</text>`;
+      h += `<text x="10" y="30" fill="var(--text)" font-size="13" font-weight="bold">2029—2030 雪季 冰雪装备制造业总产值突破目标：> 50 亿元</text>`;
 
       let startX = 10;
       const barW = 520;
@@ -7425,7 +7457,7 @@ async function initWebXRSession(gl) {
       let cy = 120;
       segments.forEach(seg => {
         h += `<circle cx="20" cy="${cy}" r="5" fill="${seg.color}"/>`;
-        h += `<text x="34" y="${cy + 4}" fill="#edf5f4" font-size="11" font-weight="bold">${seg.name}</text>`;
+        h += `<text x="34" y="${cy + 4}" fill="var(--text)" font-size="11" font-weight="bold">${seg.name}</text>`;
         h += `<text x="240" y="${cy + 4}" fill="${seg.color}" font-size="11" font-weight="bold">${seg.val} 亿元 (${seg.pct}%)</text>`;
         h += `<text x="360" y="${cy + 4}" fill="var(--muted)" font-size="10">支撑集群：${seg.base}</text>`;
         cy += 28;
@@ -7446,7 +7478,7 @@ async function initWebXRSession(gl) {
     // Tab 4: Sankey Chart (Policy Resource Allocation Flow)
     function renderSankeyChart() {
       let h = '';
-      h += `<text x="10" y="20" fill="#fff" font-size="13" font-weight="bold">政策牵引与资源配置空间流向模型（Sankey）</text>`;
+      h += `<text x="10" y="20" fill="var(--text)" font-size="13" font-weight="bold">政策牵引与资源配置空间流向模型（Sankey）</text>`;
       
       const nodes = [
         // Layer 1
@@ -7518,11 +7550,11 @@ async function initWebXRSession(gl) {
       nodes.forEach(n => {
         h += `<rect data-tip="<b>${n.label}</b><br>要素总盘: <b>${n.val} 亿元</b>" x="${n.x}" y="${n.y}" width="8" height="${n.h}" fill="${n.color}" rx="2" style="cursor:pointer;"/>`;
         if (n.x < 100) {
-           h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10">${n.label}</text>`;
+           h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="var(--text-secondary)" font-size="10">${n.label}</text>`;
         } else if (n.x > 300) {
-           h += `<text x="${n.x - 6}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10" text-anchor="end">${n.label}</text>`;
+           h += `<text x="${n.x - 6}" y="${n.y + n.h/2 + 4}" fill="var(--text-secondary)" font-size="10" text-anchor="end">${n.label}</text>`;
         } else {
-           h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="#edf5f4" font-size="10">${n.label}</text>`;
+           h += `<text x="${n.x + 14}" y="${n.y + n.h/2 + 4}" fill="var(--text-secondary)" font-size="10">${n.label}</text>`;
         }
       });
       
@@ -7781,8 +7813,8 @@ async function initWebXRSession(gl) {
       // 渐变对象按视口缓存：避免每帧重建 gradient（60fps 下的无效分配）
       if (!bgGrad) {
         bgGrad = bgCtx.createLinearGradient(0, 0, bgW, bgH * 0.4);
-        bgGrad.addColorStop(0, 'rgba(68, 38, 160, 0.07)');
-        bgGrad.addColorStop(0.5, 'rgba(92, 227, 202, 0.04)');
+        bgGrad.addColorStop(0, 'rgba(2, 132, 199, 0.05)');
+        bgGrad.addColorStop(0.5, 'rgba(14, 165, 233, 0.02)');
         bgGrad.addColorStop(1, 'transparent');
       }
       bgCtx.fillStyle = bgGrad;
@@ -7796,7 +7828,7 @@ async function initWebXRSession(gl) {
       bgCtx.closePath();
       bgCtx.fill();
 
-      bgCtx.fillStyle = '#ffffff';
+      bgCtx.fillStyle = '#0284c7';
       flakes.forEach(f => {
         bgCtx.globalAlpha = f.alpha;
         bgCtx.beginPath();
@@ -7827,7 +7859,7 @@ async function initWebXRSession(gl) {
           });
         }
       }
-      trailCtx.fillStyle = 'rgba(220, 200, 255, 1)';
+      trailCtx.fillStyle = 'rgba(2, 132, 199, 0.7)';
       for(let i=trailParticles.length-1; i>=0; i--) {
         const p = trailParticles[i];
         p.y -= 0.5;
@@ -8130,17 +8162,17 @@ async function initWebXRSession(gl) {
       // 1. Sky Gradient
       const sky = ctx.createLinearGradient(0, 0, 0, h);
       if (vrLayer === 'thermal') {
-        sky.addColorStop(0, '#250c32');
-        sky.addColorStop(0.6, '#3b1045');
-        sky.addColorStop(1, '#331121');
+        sky.addColorStop(0, '#fff7ed');
+        sky.addColorStop(0.6, '#ffedd5');
+        sky.addColorStop(1, '#fed7aa');
       } else if (vrLayer === 'aurora') {
-        sky.addColorStop(0, '#220c32');
-        sky.addColorStop(0.6, '#260e3d');
-        sky.addColorStop(1, '#22114a');
+        sky.addColorStop(0, '#ecfdf5');
+        sky.addColorStop(0.6, '#e0f2fe');
+        sky.addColorStop(1, '#f1f5f9');
       } else {
-        sky.addColorStop(0, '#0c1424');
-        sky.addColorStop(0.6, '#2e164f');
-        sky.addColorStop(1, '#2f204a');
+        sky.addColorStop(0, '#e0f2fe');
+        sky.addColorStop(0.6, '#edf4f9');
+        sky.addColorStop(1, '#f8fafc');
       }
       ctx.fillStyle = sky;
       if (clipRect) ctx.fillRect(clipRect.x, clipRect.y, clipRect.w, clipRect.h);
@@ -8604,8 +8636,8 @@ async function initWebXRSession(gl) {
         }
         renderedBadges.push({ x: badgeX, y: badgeY, w: badgeW, h: badgeH });
 
-        ctx.fillStyle = isCurrent ? 'rgba(36, 17, 63, 0.92)' : 'rgba(33, 13, 53, 0.82)';
-        ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.85)' : 'rgba(56, 189, 248, 0.4)';
+        ctx.fillStyle = isCurrent ? '#0284c7' : 'rgba(255, 255, 255, 0.94)';
+        ctx.strokeStyle = isCurrent ? '#0369a1' : 'rgba(15, 23, 42, 0.15)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         if (ctx.roundRect) {
@@ -8616,7 +8648,7 @@ async function initWebXRSession(gl) {
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = isCurrent ? '#f4c66d' : '#d3cde8';
+        ctx.fillStyle = isCurrent ? '#ffffff' : '#0f172a';
         ctx.fillText(tagText, badgeX + padX, badgeY + 11);
       });
 
@@ -11318,7 +11350,7 @@ async function initWebXRSession(gl) {
             <td style="font-family:var(--font-mono); color:var(--text-2);">${r.area}</td>
             <td>
               <div style="font-weight:600; color:#fff;">${r.trails} 条 / ${r.length.toFixed(1)} km</div>
-              <div style="width:70px; height:4px; background:rgba(255,255,255,0.1); border-radius:4px; margin-top:4px; overflow:hidden;">
+              <div style="width:70px; height:4px; background:#e2e8f0; border-radius:4px; margin-top:4px; overflow:hidden;">
                 <div style="width:${Math.min(100, (r.length / 70) * 100)}%; height:100%; background:var(--mint);"></div>
               </div>
             </td>
@@ -11329,7 +11361,7 @@ async function initWebXRSession(gl) {
             <td style="font-family:var(--font-mono); color:var(--text-2);">${r.lifts} 条索道</td>
             <td>
               <div style="font-weight:600; color:var(--mint); font-family:var(--font-mono);">${r.capacity.toLocaleString()} 人/h</div>
-              <div style="width:70px; height:4px; background:rgba(255,255,255,0.1); border-radius:4px; margin-top:4px; overflow:hidden;">
+              <div style="width:70px; height:4px; background:#e2e8f0; border-radius:4px; margin-top:4px; overflow:hidden;">
                 <div style="width:${capPct}%; height:100%; background:var(--ice);"></div>
               </div>
             </td>
@@ -11648,12 +11680,12 @@ async function initWebXRSession(gl) {
             </div>
             <h4 style="color:#fff; margin:0 0 6px; font-size:15px; line-height:1.4;">${proj.name}</h4>
             <div style="font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:8px;">${proj.desc}</div>
-            <div style="background:rgba(10,16,28,0.6); padding:8px 10px; border-radius:4px; margin-bottom:8px; border:1px solid rgba(244,198,109,0.15);">
+            <div style="background:#f8fafc; padding:8px 10px; border-radius:4px; margin-bottom:8px; border:1px solid rgba(244,198,109,0.15);">
               <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--dim); margin-bottom:4px; font-family:var(--font-mono);">
                 <span>工期: ${proj.timeline}</span>
                 <span style="color:var(--mint); font-weight:bold;">已完成 ${proj.progress}%</span>
               </div>
-              <div style="width:100%; height:5px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+              <div style="width:100%; height:5px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
                 <div style="width:${proj.progress}%; height:100%; background:linear-gradient(90deg, var(--ice), var(--mint));"></div>
               </div>
               <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--dim); margin-top:5px;">
