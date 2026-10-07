@@ -3963,7 +3963,7 @@
             <div class="pipe-step">
               <div class="pipe-idx">STEP 06</div>
               <div class="pipe-name">检验与诊断</div>
-              <div class="pipe-desc">正态性、异方差、共线性、自相关、平稳性、结构突变六类检验，未通过项回退至 STEP 04 重构建。</div>
+              <div class="pipe-desc">正态性、异方差、共线性、自相关、模型显著性、拟合优度六类检验，未通过项回退至 STEP 04 重构建。</div>
             </div>
             <div class="pipe-step">
               <div class="pipe-idx">STEP 07</div>
@@ -4019,7 +4019,7 @@
           </div>
           <div style="margin-top:10px; padding:9px 14px; border-radius:6px; background:rgba(244,198,109,0.07); border-left:3px solid var(--gold); font-size:12px; line-height:1.65; color:#c8d8dc;">
             <b style="color:var(--gold);">口径与尺度声明（请评委与读者一并阅读）：</b>
-            本表为单一解释变量 <b>OLS 时间趋势模型</b>（ŷ = β₀ + β₁·年）的诊断清单，有效样本 <b>n = 6</b>（2018—2024 剔除 2020 疫情异常点），自由度 df = 4。因与网页既有说明保持可核验的一致性，各项统计量均如实列出、未作粉饰：<b>F = 4.22（p = 0.109）在 α=0.10 水平下显著、R² = 0.5137 属中等解释力</b>。其中「多重共线性」一项对本单变量模型<b>不适用</b>（VIF 仅对多解释变量模型有意义），故标注为不适用而非「通过」。<b>本系统不在小样本条件下宣称「高度显著」或「目标必然可达」</b>；相反，我们以区间估计如实呈现不确定性，这正是本作品数据严谨性的体现。
+            本表为单一解释变量 <b>OLS 时间趋势模型</b>（ŷ = β₀ + β₁·年）的诊断清单，有效样本 <b>n = 6</b>（2018—2024 剔除 2020 疫情异常点），自由度 df = 4。因与网页既有说明保持可核验的一致性，各项统计量均如实列出、未作粉饰：<b>F = 4.22（p = 0.109）在 α=0.10 水平下不显著（接近临界阈值）、R² = 0.5137 属中等解释力</b>。其中「多重共线性」一项对本单变量模型<b>不适用</b>（VIF 仅对多解释变量模型有意义），故标注为不适用而非「通过」。<b>本系统不在小样本条件下宣称「高度显著」或「目标必然可达」</b>；相反，我们以区间估计如实呈现不确定性，这正是本作品数据严谨性的体现。
           </div>
           <div class="diagnostic-table-wrapper" style="margin-top: 10px; background: rgba(5,16,22,0.85); border: 1px solid rgba(117,216,237,0.25); border-radius: 6px; padding: 12px 16px;">
             <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text-2); text-align:left;">
@@ -4621,7 +4621,7 @@
             </div>
           </div>
           <div style="font-size:12px; color:var(--mint); font-family:var(--font-mono); background:rgba(148,227,202,0.08); padding:3px 8px; border-radius:4px;">
-            &lt;/&gt; 主脚本约 5,200 行 · 单文件 400 KB
+            &lt;/&gt; 主脚本 5,672 行 · 全文件 11,827 行 · 600 KB
           </div>
         </div>
 
@@ -4805,7 +4805,7 @@ async function initWebXRSession(gl) {
           <div class="dq-grid grid-4">
             <div class="dq-card">
               <div class="dq-label">主脚本规模</div>
-              <div class="dq-value">~5,200 行</div>
+              <div class="dq-value">5,672 行</div>
               <div class="dq-note">全部由 3 人团队独立编写，无外部代码拷贝</div>
             </div>
             <div class="dq-card">
@@ -4841,7 +4841,7 @@ async function initWebXRSession(gl) {
             </div>
           </div>
           <div style="font-size:12px; color:var(--gold); font-family:var(--font-mono); background:rgba(244,198,109,0.08); padding:3px 8px; border-radius:4px;">
-            🚀 单文件交付 · 零服务器依赖 · 部署成本 ≈ 0
+            🚀 整包交付 · 零服务器依赖 · 部署成本 ≈ 0
           </div>
         </div>
 
@@ -4858,7 +4858,7 @@ async function initWebXRSession(gl) {
               <div class="team-role">场景 A · 政务决策支持</div>
               <div class="team-name">🏛️ 省/市文旅主管部门</div>
               <div class="team-duty">作为政策目标推演与阶段考核的辅助看板，供文旅厅（局）在年度冰雪季部署会上做目标拆解、市州对标与承载力预警，替代传统静态报表汇报。</div>
-              <div style="margin-top:8px; font-size:11px; color:var(--mint);">✓ 离线单文件可直接拷贝至政务内网，无需外网与服务器</div>
+              <div style="margin-top:8px; font-size:11px; color:var(--mint);">✓ 离线整包可直接拷贝至政务内网，无需外网与服务器</div>
             </div>
             <div class="team-card" style="border-color:rgba(244,198,109,0.35);">
               <div class="team-role">场景 B · 景区运营与招商</div>
@@ -4883,8 +4883,8 @@ async function initWebXRSession(gl) {
           <div class="dq-grid grid-4">
             <div class="dq-card">
               <div class="dq-label">零依赖单文件架构</div>
-              <div class="dq-value">1 个文件</div>
-              <div class="dq-note">全部 HTML/CSS/JS 内联为单文件，无 CDN、无构建、无后端，可直接邮件发送或 U 盘拷贝交付</div>
+              <div class="dq-value">1 个核心文件</div>
+              <div class="dq-note">全部 HTML/CSS/JS 内联为单文件，无 CDN、无构建、无后端；校徽/航拍/解说音频等媒体资源置于 assets 目录随包交付，整包可直接邮件发送或 U 盘拷贝，离线双击即开</div>
             </div>
             <div class="dq-card">
               <div class="dq-label">自研 3D 渲染内核</div>
@@ -5806,8 +5806,8 @@ async function initWebXRSession(gl) {
           <code style="background:#041018; padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:var(--gold);">ŷ = β₀ + β₁·x</code>
         </p>
         <ul style="font-size:13px; line-height:1.6; color:var(--text-2); padding-left:20px; margin-bottom:8px;">
-          <li><b>回归斜率 (β₁)：</b>计算得到 +119.5 万人次/年，表征吉林省冰雪旅游的自然增长动能。</li>
-          <li><b>置信区间 (Confidence Interval)：</b>利用公式 <code>ŷ ± t(α/2, n-2) * Sₑ * √(1 + 1/n + (x - x̄)²/Sxx)</code> 测算出 95% 置信带，用以展示预测的不确定性 (Uncertainty)。政策锚定值均落于此置信带内，证实其统计学可行性。</li>
+          <li><b>回归斜率 (β₁)：</b>计算得到 +578.26 万人次/年，表征吉林省冰雪旅游的自然增长动能。</li>
+          <li><b>置信区间 (Confidence Interval)：</b>利用公式 <code>ŷ ± t(α/2, n-2) * Sₑ * √(1 + 1/n + (x - x̄)²/Sxx)</code> 测算出 95% 置信带，用以展示预测的不确定性 (Uncertainty)。两个政策锚定点（2.3 亿 / 3.0 亿人次）均落在 95% 预测区间之外，量化了「规划目标 ≠ 趋势外推」这一核心命题——目标兑现取决于高铁时空压缩、品牌营销乘数与供给端外生变量的实际撬动效果。</li>
         </ul>
       </div>
 
@@ -5869,7 +5869,7 @@ async function initWebXRSession(gl) {
                 <td style="padding:6px 8px;">亿人次</td>
                 <td style="padding:6px 8px;">1.25</td>
                 <td style="padding:6px 8px;">3.00</td>
-                <td style="padding:6px 8px;">吉林省委办字〔2024〕48号文 第一部分第(一)条</td>
+                <td style="padding:6px 8px;">吉办发〔2024〕16号文 第一部分第(一)条</td>
               </tr>
               <tr style="border-bottom:1px solid #142833;">
                 <td style="padding:6px 8px; font-family:var(--font-mono); color:var(--gold);">Y_rev</td>
@@ -5899,8 +5899,8 @@ async function initWebXRSession(gl) {
                 <td style="padding:6px 8px; font-family:var(--font-mono); color:var(--gold);">β₁, R²</td>
                 <td style="padding:6px 8px;">OLS客流增长斜率 & 拟合优度</td>
                 <td style="padding:6px 8px;">万人/年, —</td>
-                <td style="padding:6px 8px;">+119.5</td>
-                <td style="padding:6px 8px;">0.9240</td>
+                <td style="padding:6px 8px;">+578.26</td>
+                <td style="padding:6px 8px;">0.5137</td>
                 <td style="padding:6px 8px;">应用统计课题组自主拟合 (剔除2020疫情点)</td>
               </tr>
             </tbody>
