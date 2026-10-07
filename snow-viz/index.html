@@ -505,13 +505,14 @@
       flex-direction: column;
     }
     .grid > .card > .vr-viewport-box {
-      background: #090e17;
-      border-radius: var(--r-md);
-      border: 1px solid var(--panel-border);
+      position: relative;
+      width: 100%;
+      height: 228px;
+      background: #090e17 !important;
+      border-radius: 12px;
       overflow: hidden;
-      flex: 1 1 auto;
-      height: auto;
-      min-height: 228px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
     }
     .grid > .card > .chart-container {
       flex: 1 1 auto;
@@ -520,11 +521,14 @@
       justify-content: center;
     }
     body.presenting .grid > .card > .vr-viewport-box {
-      background: #090e17;
-      border-radius: var(--r-md);
-      border: 1px solid var(--panel-border);
+      position: relative;
+      width: 100%;
+      height: 228px;
+      background: #090e17 !important;
+      border-radius: 12px;
       overflow: hidden;
-      min-height: 180px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
     }
     /* ===== 卡片网格列数统一：让末行铺满，消除右侧成片空白 =====
        4 项 → 4 列 | 6 项 → 3 列 | 8 项 → 4 列 | 3 项 → 3 列
@@ -763,7 +767,7 @@
       padding-right: 2px;
     }
     .policy-nodes-grid::-webkit-scrollbar { width: 4px; }
-    .policy-nodes-grid::-webkit-scrollbar-thumb { background: #392c54; border-radius: 4px; }
+    .policy-nodes-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     .node-item {
       display: flex;
       align-items: center;
@@ -803,7 +807,7 @@
     }
     .node-item.active .node-badge {
       background: var(--gold);
-      color: #25163e;
+      color: #ffffff;
     }
     .node-info b {
       font-size: 12px;
@@ -909,9 +913,9 @@
     }
     .layer-pill.active {
       background: var(--ice);
-      color: #0c1424;
-      font-weight: bold;
-      box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(2, 132, 199, 0.4);
     }
     .scenario-pill {
       flex: 1;
@@ -938,18 +942,14 @@
 
     /* VR / 3D Canvas Viewport Box */
     .vr-viewport-box {
-      background: #090e17;
-      border-radius: var(--r-md);
-      border: 1px solid var(--panel-border);
-      overflow: hidden;
       position: relative;
       width: 100%;
       height: 228px;
-      background: #eef4f9;
-      border-radius: 10px;
+      background: #090e17 !important;
+      border-radius: 12px;
       overflow: hidden;
       border: 1px solid #cbd5e1;
-      box-shadow: inset 0 0 16px rgba(15, 23, 42, 0.05);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
     }
     #vrCanvas {
       width: 100%;
@@ -962,14 +962,14 @@
     }
     .vr-overlay {
       position: static;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid #cbd5e1;
-      box-shadow: var(--shadow-sm);
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       border-radius: 6px;
       padding: 4px 8px;
       font-size: 11px;
-      color: var(--ice);
-      backdrop-filter: blur(4px);
+      color: #ffffff !important;
+      backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       gap: 5px;
@@ -978,6 +978,7 @@
       text-overflow: ellipsis;
       max-width: 48%;
     }
+    .vr-overlay span { color: #ffffff !important; }
     .vr-bottom-toolbar {
       position: absolute;
       bottom: 8px;
@@ -998,19 +999,19 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid #cbd5e1;
-      box-shadow: var(--shadow-sm);
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 6px;
       padding: 3px 6px;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       font-family: var(--font-mono);
       font-size: 10px;
-      color: var(--ice);
+      color: #ffffff !important;
       white-space: nowrap;
       flex-shrink: 0;
     }
+    .vr-hud-chip span { color: #ffffff !important; }
     .vr-hud-indicator {
       width: 5px;
       height: 5px;
@@ -1197,10 +1198,10 @@
     }
     .sim-preset-btn.active {
       background: var(--ice);
-      color: var(--text);
+      color: #ffffff !important;
       border-color: var(--ice);
       font-weight: 600;
-      box-shadow: 0 0 8px var(--ice-glow);
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
     }
     .sim-controls-grid {
       display: grid;
@@ -1605,7 +1606,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #200f34;
+      background: #f8fafc;
     }
     body.presenting .app {
       width: min(100vw, 177.78vh);
@@ -1621,10 +1622,15 @@
     body.presenting .grid { gap: 0.7vw; }
     body.presenting .card { padding: 1vh 1vw; }
     body.presenting .vr-viewport-box {
-      background: #090e17;
-      border-radius: var(--r-md);
-      border: 1px solid var(--panel-border);
-      overflow: hidden; height: 180px; }
+      position: relative;
+      width: 100%;
+      height: 228px;
+      background: #090e17 !important;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    }
 
     /* Photo Gallery Carousel */
     .gallery-overlay {
@@ -1784,11 +1790,12 @@
     .pipe-step {
       position: relative;
       min-width: 0;
-      background: linear-gradient(160deg, rgba(56, 189, 248, 0.09) 0%, rgba(10, 16, 28, 0.65) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.26);
-      border-radius: 8px;
-      padding: 10px 11px 12px;
-      transition: border-color 0.25s ease, transform 0.25s ease;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.25s ease;
     }
     .pipe-step:hover {
       border-color: rgba(56, 189, 248, 0.6);
@@ -1971,12 +1978,14 @@
       padding-top: 12px;
     }
     .da-kpi {
-      background: linear-gradient(160deg, rgba(56, 189, 248, 0.10) 0%, rgba(10, 16, 28, 0.72) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.26);
-      border-radius: 8px;
-      padding: 11px 13px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       position: relative;
       overflow: hidden;
+      transition: all 0.25s ease;
     }
     .da-kpi::before {
       content: '';
@@ -2090,7 +2099,7 @@
       border: 1px solid rgba(56, 189, 248, 0.14);
       padding: 6px 5px; text-align: center; color: var(--text-2);
     }
-    .da-heat th { background: rgba(51, 28, 88, 0.85); color: var(--ice); font-weight: 600; }
+    .da-heat th { background: #f8fafc; color: var(--text); font-weight: 600; border-bottom: 1px solid #e2e8f0; }
     .da-heat th.rowh { text-align: left; padding-left: 9px; }
 
     .da-loo-bar {
@@ -2483,15 +2492,33 @@
 
       /* VR Viewport */
       .vr-viewport-box {
-      background: #090e17;
-      border-radius: var(--r-md);
-      border: 1px solid var(--panel-border);
+      position: relative;
+      width: 100%;
+      height: 228px;
+      background: #090e17 !important;
+      border-radius: 12px;
       overflow: hidden;
-        height: 200px;
-      }
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    }
       .vr-hud-chip {
-        display: none;
-      }
+      position: static;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 3px 6px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #ffffff !important;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .vr-hud-chip span { color: #ffffff !important; }
       .vr-controls {
         bottom: 6px;
         right: 6px;
@@ -2957,7 +2984,25 @@
       flex-shrink: 1;
       border-radius: var(--r-pill);
     }
-    .vr-overlay { min-width: 0; flex-shrink: 1; }
+    .vr-overlay {
+      position: static;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #ffffff !important;
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 48%;
+    }
+    .vr-overlay span { color: #ffffff !important; }
     .vr-bottom-toolbar {
       flex-wrap: wrap;
       align-items: flex-end;
@@ -2972,7 +3017,24 @@
     }
     .vr-controls .vr-btn { padding: 2px 5px; }
     .vr-btn { flex: 0 0 auto; border-radius: var(--r-2xs); }
-    .vr-hud-chip { border-radius: var(--r-2xs); }
+    .vr-hud-chip {
+      position: static;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      padding: 3px 6px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #ffffff !important;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .vr-hud-chip span { color: #ffffff !important; }
 
     /* ---------- ⑨ 归位浏览器默认字号：消除 13.3333px / 16.38px 两档"野生"尺寸 ---------- */
     h1 { font-size: 26px; }
@@ -3044,8 +3106,8 @@
     ::selection { background: rgba(56, 189, 248, 0.30); color: var(--text); }
     ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(114, 90, 158, 0.38); border-radius: 6px; border: 2px solid rgba(36, 16, 59, 0.55); }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.5); }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; border: 2px solid #f8fafc; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
     }
@@ -3064,13 +3126,7 @@
     }
 
   
-    .vr-top-toolbar, .vr-bottom-toolbar, .vr-overlay, .vr-hud-chip { color: #ffffff !important; }
-    .vr-overlay span, .vr-hud-chip span { color: #ffffff !important; }
-    #vrTagText, #vrHudText { color: #ffffff !important; }
-    .btn-gold, .btn-primary, .btn-ice, .btn { color: var(--text); } 
-    /* Buttons in light theme usually have dark text unless they have a dark background */
-    .icon-box, .stat-card .icon-box, .stat-icon { color: #ffffff !important; } 
-    .badge { color: inherit; }
+
 
 </style>
 </head>
@@ -3125,13 +3181,7 @@
       50% { transform: scale(1.05); opacity: 0.8; }
     }
   
-    .vr-top-toolbar, .vr-bottom-toolbar, .vr-overlay, .vr-hud-chip { color: #ffffff !important; }
-    .vr-overlay span, .vr-hud-chip span { color: #ffffff !important; }
-    #vrTagText, #vrHudText { color: #ffffff !important; }
-    .btn-gold, .btn-primary, .btn-ice, .btn { color: var(--text); } 
-    /* Buttons in light theme usually have dark text unless they have a dark background */
-    .icon-box, .stat-card .icon-box, .stat-icon { color: #ffffff !important; } 
-    .badge { color: inherit; }
+
 
 </style>
   <div id="splashScreen">
@@ -3659,7 +3709,7 @@
         </div>
 
         <!-- Interactive Municipal Radar PK Comparator -->
-        <div class="muni-pk-panel" id="muniPkPanel" style="margin-top:16px;background: var(--bg);border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:14px 18px;">
+        <div class="muni-pk-panel" id="muniPkPanel" style="margin-top:16px;background: #ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;box-shadow:0 4px 20px -2px rgba(0,0,0,0.05);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span style="font-size:16px;">⚔️</span>
@@ -3669,12 +3719,12 @@
             <div style="display:flex;align-items:center;gap:10px;">
               <label style="font-size:12px;color:var(--ice);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                 <span>对比市州 A:</span>
-                <select id="selectMuniA" class="sim-preset-btn" style="background:#e0f2fe;color:var(--ice);border:1px solid var(--ice);border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;max-width:100%;"></select>
+                <select id="selectMuniA" class="sim-preset-btn" style="background:#ffffff;color:#0f172a;border:1px solid #cbd5e1;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;max-width:100%;box-shadow:0 1px 2px rgba(0,0,0,0.05);"></select>
               </label>
               <span style="color:var(--gold);font-weight:bold;font-size:13px;">VS</span>
               <label style="font-size:12px;color:var(--gold);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                 <span>对比市州 B:</span>
-                <select id="selectMuniB" class="sim-preset-btn" style="background:#e0f2fe;color:var(--gold);border:1px solid var(--gold);border-radius:4px;padding:3px 8px;font-size:12px;cursor:pointer;max-width:100%;"></select>
+                <select id="selectMuniB" class="sim-preset-btn" style="background:#ffffff;color:#0f172a;border:1px solid #cbd5e1;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;max-width:100%;box-shadow:0 1px 2px rgba(0,0,0,0.05);"></select>
               </label>
             </div>
           </div>
@@ -5631,13 +5681,7 @@ async function initWebXRSession(gl) {
       to { opacity: 1; transform: translateY(0); }
     }
   
-    .vr-top-toolbar, .vr-bottom-toolbar, .vr-overlay, .vr-hud-chip { color: #ffffff !important; }
-    .vr-overlay span, .vr-hud-chip span { color: #ffffff !important; }
-    #vrTagText, #vrHudText { color: #ffffff !important; }
-    .btn-gold, .btn-primary, .btn-ice, .btn { color: var(--text); } 
-    /* Buttons in light theme usually have dark text unless they have a dark background */
-    .icon-box, .stat-card .icon-box, .stat-icon { color: #ffffff !important; } 
-    .badge { color: inherit; }
+
 
 </style>
 
@@ -5701,12 +5745,12 @@ async function initWebXRSession(gl) {
         <table style="width:100%; border-collapse:collapse; font-size:13px; color:var(--text);">
           <thead>
             <tr style="background:#f1f5f9; color:var(--ice); text-align:left;">
-              <th style="padding:10px 12px; border-bottom: 1px solid #1e293b;">核心指标</th>
-              <th style="padding:10px 12px; border-bottom: 1px solid #1e293b;">单位</th>
-              <th style="padding:10px 12px; border-bottom: 1px solid #1e293b;">2024 (实际基线)</th>
-              <th style="padding:10px 12px; border-bottom: 1px solid #1e293b;">2028 (攻坚目标)</th>
-              <th style="padding:10px 12px; border-bottom: 1px solid #1e293b;">2030 (突破目标)</th>
-              <th style="padding:10px 12px; border-bottom: 1px solid #1e293b;">政策战略导向</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #e2e8f0;">核心指标</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #e2e8f0;">单位</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #e2e8f0;">2024 (实际基线)</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #e2e8f0;">2028 (攻坚目标)</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #e2e8f0;">2030 (突破目标)</th>
+              <th style="padding:10px 12px; border-bottom: 1px solid #e2e8f0;">政策战略导向</th>
             </tr>
           </thead>
           <tbody>
@@ -5795,7 +5839,7 @@ async function initWebXRSession(gl) {
       </div>
 
       <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-        <h4 style="color:var(--ice); margin-bottom:16px; font-size:14px; border-bottom:1px solid #1e293b; padding-bottom:8px;">自动参数化推演结果 (Projected ROI)</h4>
+        <h4 style="color:var(--ice); margin-bottom:16px; font-size:14px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">自动参数化推演结果 (Projected ROI)</h4>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div style="background:rgba(148,227,202,0.05); padding:12px; border-left:3px solid var(--mint); border-radius:4px;">
@@ -5956,10 +6000,10 @@ async function initWebXRSession(gl) {
       <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">展示本系统底层基于数学与统计学的核心推演逻辑与算法实现，确保数据分析科学性与模型严谨性。</p>
       
       <div style="background: rgba(56,189,248,0.05); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
-        <h4 style="color:var(--ice); margin-top:0; font-size:15px; border-bottom:1px solid #1e293b; padding-bottom:8px;">1. 最小二乘法 (OLS) 线性回归与 95% 置信区间</h4>
+        <h4 style="color:var(--ice); margin-top:0; font-size:15px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">1. 最小二乘法 (OLS) 线性回归与 95% 置信区间</h4>
         <p style="font-size:13px; line-height:1.6; color:var(--text-2); margin-bottom:8px;">
           本系统在“回归预测”图表中，采用基于历史数据（2018-2024，剔除2020疫情异常点）的普通最小二乘法 (Ordinary Least Squares) 来拟合冰雪旅游客流增长趋势：<br>
-          <code style="background:#0c1424; padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:var(--gold);">ŷ = β₀ + β₁·x</code>
+          <code style="background:#f1f5f9; padding:3px 8px; border-radius:6px; font-family:var(--font-mono); color:#b45309; border:1px solid #e2e8f0; font-weight:600;">ŷ = β₀ + β₁·x</code>
         </p>
         <ul style="font-size:13px; line-height:1.6; color:var(--text-2); padding-left:20px; margin-bottom:8px;">
           <li><b>回归斜率 (β₁)：</b>计算得到 +578.26 万人次/年，表征吉林省冰雪旅游的自然增长动能。</li>
@@ -5968,10 +6012,10 @@ async function initWebXRSession(gl) {
       </div>
 
       <div style="background: rgba(148,227,202,0.05); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
-        <h4 style="color:var(--mint); margin-top:0; font-size:15px; border-bottom:1px solid #1e293b; padding-bottom:8px;">2. 简化区域旅游消费乘数情景模型 (Simplified Tourism Multiplier Model)</h4>
+        <h4 style="color:var(--mint); margin-top:0; font-size:15px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">2. 简化区域旅游消费乘数情景模型 (Simplified Tourism Multiplier Model)</h4>
         <p style="font-size:13px; line-height:1.6; color:var(--text-2); margin-bottom:8px;">
           在“投资推演引擎”中，系统基于区域旅游经济学中的乘数效应（Multiplier Effect）构建情景推演模型：<br>
-          <code style="background:#0c1424; padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:var(--mint);">ΔY = k * ΔI</code> (其中 k 为区域旅游引致消费乘数，完整 Leontief 投入产出分析需全省 42 部门投入产出系数矩阵支持，此处为前端轻量推演简化算法)
+          <code style="background:#f1f5f9; padding:3px 8px; border-radius:6px; font-family:var(--font-mono); color:#047857; border:1px solid #e2e8f0; font-weight:600;">ΔY = k * ΔI</code> (其中 k 为区域旅游引致消费乘数，完整 Leontief 投入产出分析需全省 42 部门投入产出系数矩阵支持，此处为前端轻量推演简化算法)
         </p>
         <ul style="font-size:13px; line-height:1.6; color:var(--text-2); padding-left:20px; margin-bottom:8px;">
           <li><b>长春都市圈 (高客流周转)：</b> 设定高边际消费倾向，赋予极高的客流乘数 (k=15.0)。</li>
@@ -5981,10 +6025,10 @@ async function initWebXRSession(gl) {
       </div>
 
       <div style="background: rgba(244,198,109,0.05); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
-        <h4 style="color:var(--gold); margin-top:0; font-size:15px; border-bottom:1px solid #1e293b; padding-bottom:8px;">3. 原生三维地形的分形布朗运动 (Fractal Brownian Motion)</h4>
+        <h4 style="color:var(--gold); margin-top:0; font-size:15px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">3. 原生三维地形的分形布朗运动 (Fractal Brownian Motion)</h4>
         <p style="font-size:13px; line-height:1.6; color:var(--text-2); margin-bottom:8px;">
           3D 沙盘底层未使用 Three.js 等高层封装引擎，而是完全依靠原生 WebGL/Canvas 2D 纯数学推演渲染：<br>
-          <code style="background:#0c1424; padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:var(--gold);">fBm(x, z) = Σ (amplitude^i * PerlinNoise(x * frequency^i, z * frequency^i))</code>
+          <code style="background:#f1f5f9; padding:3px 8px; border-radius:6px; font-family:var(--font-mono); color:#b45309; border:1px solid #e2e8f0; font-weight:600;">fBm(x, z) = Σ (amplitude^i * PerlinNoise(x * frequency^i, z * frequency^i))</code>
         </p>
         <ul style="font-size:13px; line-height:1.6; color:var(--text-2); padding-left:20px; margin-bottom:0;">
           <li><b>地形合成：</b> 叠加 5 个八度 (Octaves) 的 2D 伪随机噪声信号，辅以高斯指数衰减与破火山口形态约束，程序化生成长白山主峰天池火山口地貌的示意地形起伏。</li>
@@ -5993,10 +6037,10 @@ async function initWebXRSession(gl) {
       </div>
 
       <div style="background: rgba(148,227,202,0.05); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
-        <h4 style="color:var(--mint); margin-top:0; font-size:15px; border-bottom:1px solid #1e293b; padding-bottom:8px;">4. Wilson 空间相互作用引力模型 (Wilson's Spatial Interaction Gravity Model)</h4>
+        <h4 style="color:var(--mint); margin-top:0; font-size:15px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">4. Wilson 空间相互作用引力模型 (Wilson's Spatial Interaction Gravity Model)</h4>
         <p style="font-size:13px; line-height:1.6; color:var(--text-2); margin-bottom:8px;">
           在“客源引力雷达”图表中，统一采用经典 Wilson 空间相互作用引力方程，量化吉林省冰雪旅游对不同地域客群的吸引力：<br>
-          <code style="background:#0c1424; padding:2px 6px; border-radius:4px; font-family:var(--font-mono); color:var(--mint);">T_ij = K · (P_i^α · A_j^β) / [D_ij^γ · exp(λ·c_ij)]</code>
+          <code style="background:#f1f5f9; padding:3px 8px; border-radius:6px; font-family:var(--font-mono); color:#047857; border:1px solid #e2e8f0; font-weight:600;">T_ij = K · (P_i^α · A_j^β) / [D_ij^γ · exp(λ·c_ij)]</code>
         </p>
         <ul style="font-size:13px; line-height:1.6; color:var(--text-2); padding-left:20px; margin-bottom:0;">
           <li><b>客源规模弹性 (α = 1.84)：</b> 基于省际高铁与民航高净值旅客规模弹性标定，高收入客源地具有超线性的冰雪度假消费倾向。</li>
@@ -6006,11 +6050,11 @@ async function initWebXRSession(gl) {
       </div>
 
       <div style="background: rgba(56,189,248,0.05); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
-        <h4 style="color:var(--ice); margin-top:0; font-size:15px; border-bottom:1px solid #1e293b; padding-bottom:8px;">5. 统计变量字典与政策数据可溯源性表 (Data Dictionary & Provenance)</h4>
+        <h4 style="color:var(--ice); margin-top:0; font-size:15px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">5. 统计变量字典与政策数据可溯源性表 (Data Dictionary & Provenance)</h4>
         <div style="overflow-x:auto;">
           <table style="width:100%; border-collapse:collapse; font-size:12px; color:var(--text-2);">
             <thead>
-              <tr style="background:#271343; color:var(--ice); text-align:left;">
+              <tr style="background:#f8fafc; color:var(--text); border-bottom:1px solid #e2e8f0; text-align:left;">
                 <th style="padding:6px 8px;">数学/统计符号</th>
                 <th style="padding:6px 8px;">指标全称</th>
                 <th style="padding:6px 8px;">单位</th>
@@ -6252,13 +6296,7 @@ async function initWebXRSession(gl) {
             100% { top: 100%; }
           }
         
-    .vr-top-toolbar, .vr-bottom-toolbar, .vr-overlay, .vr-hud-chip { color: #ffffff !important; }
-    .vr-overlay span, .vr-hud-chip span { color: #ffffff !important; }
-    #vrTagText, #vrHudText { color: #ffffff !important; }
-    .btn-gold, .btn-primary, .btn-ice, .btn { color: var(--text); } 
-    /* Buttons in light theme usually have dark text unless they have a dark background */
-    .icon-box, .stat-card .icon-box, .stat-icon { color: #ffffff !important; } 
-    .badge { color: inherit; }
+
 
 </style>
 
@@ -7023,7 +7061,7 @@ async function initWebXRSession(gl) {
 
       // Side stats panel
       const pL = 20, pT = 65;
-      h += `<rect x="${pL}" y="${pT}" width="160" height="110" rx="4" fill="rgba(10,16,28,0.6)" stroke="rgba(56,189,248,0.2)"/>`;
+      h += `<rect x="${pL}" y="${pT}" width="160" height="110" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="drop-shadow(0 2px 8px rgba(0,0,0,0.06))"/>`;
       h += `<text x="${pL+10}" y="${pT+20}" fill="var(--text)" font-size="11" font-weight="bold">引力法则重力常数分析</text>`;
       h += `<text x="${pL+10}" y="${pT+42}" fill="var(--muted)" font-size="9">长三角空间摩擦: <tspan fill="#f4c66d">G=0.74 (高潜力)</tspan></text>`;
       h += `<text x="${pL+10}" y="${pT+62}" fill="var(--muted)" font-size="9">京津冀高铁引力: <tspan fill="#94e3ca">G=0.91 (强虹吸)</tspan></text>`;
@@ -7355,7 +7393,7 @@ async function initWebXRSession(gl) {
       }
 
       // Model stats panel
-      h += `<rect x="${chartR - 175}" y="${chartT}" width="175" height="72" rx="4" fill="rgba(10,16,28,0.85)" stroke="rgba(56,189,248,0.3)"/>`;
+      h += `<rect x="${chartR - 175}" y="${chartT}" width="175" height="72" rx="4" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" filter="drop-shadow(0 2px 8px rgba(0,0,0,0.06))"/>`;
       h += `<text x="${chartR - 165}" y="${chartT + 16}" fill="#38bdf8" font-size="10" font-weight="bold">OLS 回归统计量 (${isBase ? 'n=6 基准' : 'n=8 拓展'})</text>`;
       h += `<text x="${chartR - 165}" y="${chartT + 30}" fill="var(--text-secondary)" font-size="9" font-family="monospace">ŷ = ${beta1.toFixed(1)}·x ${beta0 > 0 ? '+' : ''}${beta0.toFixed(0)}</text>`;
       h += `<text x="${chartR - 165}" y="${chartT + 43}" fill="var(--text-secondary)" font-size="9" font-family="monospace">R² = ${R2.toFixed(4)} | Sₑ = ${Se.toFixed(0)}</text>`;
@@ -7406,11 +7444,11 @@ async function initWebXRSession(gl) {
       ];
 
       rows.forEach(r => {
-        h += `<text x="4" y="${r.ys[0] - 14}" fill="#bcb5d0" font-size="11" font-weight="bold">${r.name}（${r.unit}）</text>`;
+        h += `<text x="4" y="${r.ys[0] - 14}" fill="var(--text)" font-size="11" font-weight="bold">${r.name}（${r.unit}）</text>`;
 
         [0, 50, 100].forEach(p => {
           const gx = L + iw * (p / 100);
-          h += `<line x1="${gx}" y1="${r.ys[0] - 8}" x2="${gx}" y2="${r.ys[2] + 12}" stroke="#34284b" stroke-dasharray="3,4" stroke-width="1"/>`;
+          h += `<line x1="${gx}" y1="${r.ys[0] - 8}" x2="${gx}" y2="${r.ys[2] + 12}" stroke="#e2e8f0" stroke-dasharray="3,4" stroke-width="1"/>`;
         });
 
         r.vals.forEach((v, i) => {
@@ -7423,16 +7461,16 @@ async function initWebXRSession(gl) {
           const stroke = isSelectedSeason ? `stroke="#fff" stroke-width="1.5"` : '';
 
           const pctVal = Math.round((v / r.max) * 100);
-          h += `<rect x="${L}" y="${y - 8}" width="${iw}" height="14" rx="4" fill="#341f59"/>`;
+          h += `<rect x="${L}" y="${y - 8}" width="${iw}" height="14" rx="4" fill="#f1f5f9"/>`;
           h += `<rect class="bar-rect" data-tip="<b>${r.name} · ${labelMap[i]}</b><br>规划目标值: <b>${v.toLocaleString()} ${r.unit}</b><small>终期目标相对进度: ${pctVal}%</small>" x="${L}" y="${y - 8}" width="${w}" height="14" fill="${r.color}" opacity="${opacity}" ${stroke} style="cursor:pointer;"/>`;
-          h += `<text x="4" y="${y + 3}" fill="${isSelectedSeason ? '#fff' : '#9188a8'}" font-size="10" font-weight="${isSelectedSeason ? 'bold' : 'normal'}">${labelMap[i]}</text>`;
-          h += `<text x="${Math.min(L + w + 8, 440)}" y="${y + 3}" fill="${isSelectedSeason ? '#fff' : '#cac3df'}" font-size="10" font-weight="bold">${v.toLocaleString()} ${r.unit}</text>`;
+          h += `<text x="4" y="${y + 3}" fill="${isSelectedSeason ? '#0284c7' : 'var(--text-secondary)'}" font-size="10" font-weight="${isSelectedSeason ? 'bold' : 'normal'}">${labelMap[i]}</text>`;
+          h += `<text x="${Math.min(L + w + 8, 440)}" y="${y + 3}" fill="${isSelectedSeason ? '#0284c7' : 'var(--text)'}" font-size="10" font-weight="bold">${v.toLocaleString()} ${r.unit}</text>`;
         });
       });
 
-      h += `<text x="${L}" y="202" fill="#7c7197" font-size="10">0%</text>`;
-      h += `<text x="${L + iw / 2}" y="202" fill="#7c7197" font-size="10" text-anchor="middle">50%</text>`;
-      h += `<text x="${L + iw}" y="202" fill="#7c7197" font-size="10" text-anchor="end">100% (2030目标归一)</text>`;
+      h += `<text x="${L}" y="202" fill="var(--muted)" font-size="10">0%</text>`;
+      h += `<text x="${L + iw / 2}" y="202" fill="var(--muted)" font-size="10" text-anchor="middle">50%</text>`;
+      h += `<text x="${L + iw}" y="202" fill="var(--muted)" font-size="10" text-anchor="end">100% (2030目标归一)</text>`;
 
       $('mainChartSvg').innerHTML = h;
 
@@ -7461,7 +7499,7 @@ async function initWebXRSession(gl) {
         const offset = circ * (1 - item.pct * 0.75);
 
         // Background track arc
-        h += `<circle cx="${item.cx}" cy="${item.cy}" r="${r}" fill="none" stroke="#332059" stroke-width="8" stroke-dasharray="${circ * 0.75} ${circ * 0.25}" stroke-linecap="round" transform="rotate(135 ${item.cx} ${item.cy})"/>`;
+        h += `<circle cx="${item.cx}" cy="${item.cy}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="8" stroke-dasharray="${circ * 0.75} ${circ * 0.25}" stroke-linecap="round" transform="rotate(135 ${item.cx} ${item.cy})"/>`;
         // Filled progress arc
         h += `<circle cx="${item.cx}" cy="${item.cy}" r="${r}" fill="none" stroke="${item.color}" stroke-width="8" stroke-dasharray="${circ * 0.75} ${circ * 0.25}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(135 ${item.cx} ${item.cy})" style="transition: stroke-dashoffset 0.8s ease;"/>`;
 
@@ -7469,7 +7507,7 @@ async function initWebXRSession(gl) {
         h += `<text x="${item.cx}" y="${item.cy - 2}" fill="var(--text)" font-size="13" font-weight="bold" text-anchor="middle">${item.val}</text>`;
         h += `<text x="${item.cx}" y="${item.cy + 16}" fill="${item.color}" font-size="10" text-anchor="middle">年度刚性下限</text>`;
         h += `<text x="${item.cx}" y="${item.cy + 75}" fill="var(--text)" font-size="12" font-weight="bold" text-anchor="middle">${item.label}</text>`;
-        h += `<text x="${item.cx}" y="${item.cy + 92}" fill="#8b81a2" font-size="10" text-anchor="middle">${item.desc}</text>`;
+        h += `<text x="${item.cx}" y="${item.cy + 92}" fill="var(--muted)" font-size="10" text-anchor="middle">${item.desc}</text>`;
       });
 
       $('mainChartSvg').innerHTML = h;
@@ -7688,7 +7726,7 @@ async function initWebXRSession(gl) {
           canvas.width = (svg.clientWidth || 540) * scale;
           canvas.height = (svg.clientHeight || 210) * scale;
           const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#24113d';
+          ctx.fillStyle = '#ffffff';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
           URL.revokeObjectURL(blobURL);
@@ -10918,7 +10956,7 @@ async function initWebXRSession(gl) {
 
         detailsEl.innerHTML = `
           <div class="pk-cmp-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-            <div style="background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.3);border-radius:6px;padding:8px 10px;">
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:3px solid var(--ice);border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <strong style="color:var(--ice);font-size:13px;">${rA.icon || '📍'} ${rA.name}</strong>
                 <span style="font-size:10px;color:var(--dim);">${rA.role}</span>
@@ -10934,7 +10972,7 @@ async function initWebXRSession(gl) {
               </div>
             </div>
 
-            <div style="background:rgba(244,198,109,0.06);border:1px solid rgba(244,198,109,0.3);border-radius:6px;padding:8px 10px;">
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:3px solid var(--gold);border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <strong style="color:var(--gold);font-size:13px;">${rB.icon || '📍'} ${rB.name}</strong>
                 <span style="font-size:10px;color:var(--dim);">${rB.role}</span>
@@ -12065,13 +12103,7 @@ async function initWebXRSession(gl) {
     html.sv-en td, html.sv-en th { white-space: normal; }
     html.sv-en .modal, html.sv-en .panel, html.sv-en .card { overflow-wrap: anywhere; }
   
-    .vr-top-toolbar, .vr-bottom-toolbar, .vr-overlay, .vr-hud-chip { color: #ffffff !important; }
-    .vr-overlay span, .vr-hud-chip span { color: #ffffff !important; }
-    #vrTagText, #vrHudText { color: #ffffff !important; }
-    .btn-gold, .btn-primary, .btn-ice, .btn { color: var(--text); } 
-    /* Buttons in light theme usually have dark text unless they have a dark background */
-    .icon-box, .stat-card .icon-box, .stat-icon { color: #ffffff !important; } 
-    .badge { color: inherit; }
+
 
 </style>
 <script id="svI18nDict">
