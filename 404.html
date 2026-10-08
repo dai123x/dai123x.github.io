@@ -18,6 +18,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
+    html { overflow-x: hidden; }
     body {
       display: flex;
       align-items: center;
@@ -26,7 +27,9 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
       padding: 24px;
+      /* 装饰光球负边距越界会被计入可滚动区域，必须同时裁剪横向滚动 */
       overflow: hidden;
+      overflow-x: hidden;
       position: relative;
     }
     .orb {

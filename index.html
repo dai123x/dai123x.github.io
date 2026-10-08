@@ -1435,22 +1435,22 @@
               </div>
 
               <!-- 赛博加密留言终端 (Geek Message Terminal with Stealth Mode) -->
-              <div class="matrix-terminal-card" style="margin-top: 32px; background: rgba(10, 14, 23, 0.75); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 1.8rem; padding: 28px;">
-                <div class="terminal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 14px; margin-bottom: 20px;">
-                  <div class="terminal-title" style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; color: #fff;">
+              <div class="matrix-terminal-card" style="margin-top: 32px;">
+                <div class="terminal-header">
+                  <div class="terminal-title">
                     <span class="signal-beacon"></span>
                     <span>直连热线 // ENCRYPTED_DISPATCH_TERMINAL</span>
                   </div>
-                  <span style="font-family: var(--font-mono); font-size: 0.78rem; color: #38bdf8;">STATUS: READY</span>
+                  <span class="terminal-status">STATUS: READY</span>
                 </div>
 
                 <!-- 实名通讯 / 匿名隐身模式双模切换开关 (参考 bobzhang.top) -->
                 <div class="stealth-toggle-row">
-                  <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; font-family: var(--font-mono);" id="label-realname">实名通讯</span>
+                  <span class="stealth-label is-active" id="label-realname">实名通讯</span>
                   <button type="button" class="stealth-toggle-btn" id="stealth-toggle-btn" aria-label="切换实名或匿名隐身模式">
                     <span class="stealth-toggle-knob"></span>
                   </button>
-                  <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono);" id="label-anonymous">匿名发送 (Stealth Mode)</span>
+                  <span class="stealth-label" id="label-anonymous">匿名发送 (Stealth Mode)</span>
                 </div>
 
                 <!-- 隐身模式警告栏 (默认隐藏) -->
@@ -1465,16 +1465,16 @@
                 <form id="terminal-msg-form" class="terminal-form">
                   <div id="real-fields-group" style="display: contents;">
                     <div>
-                      <label for="terminal-sender" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">收到代号 [姓名 / 称呼]</label>
+                      <label for="terminal-sender" class="terminal-label">收到代号 [姓名 / 称呼]</label>
                       <input id="terminal-sender" class="terminal-input" type="text" placeholder="输入您的身份代号">
                     </div>
                     <div>
-                      <label for="terminal-contact" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">通讯频段 [邮箱 / 微信]</label>
+                      <label for="terminal-contact" class="terminal-label">通讯频段 [邮箱 / 微信]</label>
                       <input id="terminal-contact" class="terminal-input" type="text" placeholder="加密频道@... (方便回复您)">
                     </div>
                   </div>
                   <div class="terminal-form-full">
-                    <label for="terminal-text" style="display:block; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 6px;">核心信息 [留言内容]</label>
+                    <label for="terminal-text" class="terminal-label">核心信息 [留言内容]</label>
                     <textarea id="terminal-text" class="terminal-textarea" placeholder="正在准备传输数据..." required></textarea>
                   </div>
                   <div class="terminal-form-full" style="display:flex; justify-content: flex-end;">

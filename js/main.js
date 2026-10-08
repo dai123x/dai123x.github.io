@@ -1478,13 +1478,13 @@
       if (isStealth) {
         if (realFields) realFields.style.display = 'none';
         if (alertBanner) alertBanner.style.display = 'flex';
-        if (labelReal) { labelReal.style.color = 'var(--text-muted)'; }
-        if (labelAnon) { labelAnon.style.color = '#e879f9'; }
+        if (labelReal) { labelReal.classList.remove('is-active'); }
+        if (labelAnon) { labelAnon.classList.add('is-active'); }
       } else {
         if (realFields) realFields.style.display = 'contents';
         if (alertBanner) alertBanner.style.display = 'none';
-        if (labelReal) { labelReal.style.color = '#38bdf8'; }
-        if (labelAnon) { labelAnon.style.color = 'var(--text-muted)'; }
+        if (labelReal) { labelReal.classList.add('is-active'); }
+        if (labelAnon) { labelAnon.classList.remove('is-active'); }
       }
     });
   }
