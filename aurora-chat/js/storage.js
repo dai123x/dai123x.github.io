@@ -47,6 +47,7 @@ AC.store = (() => {
     const presets = AC.PROVIDER_PRESETS.map((p) => ({
       id: p.id, name: p.name, baseURL: p.baseURL, apiKey: "",
       models: [...p.models], builtin: true, preset: true,
+      keyless: !!p.keyless, hint: p.hint || "",
     }));
     return { list: [demo, ...presets], demoSaved: true };
   }

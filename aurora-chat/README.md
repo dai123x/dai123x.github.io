@@ -37,8 +37,8 @@ python -m http.server 8642
 ```
 
 1. 点 **🚀 一键体验** 先看看界面；
-2. 点 **⚙️ 设置 → 服务商**，选择预设（如「智谱 GLM」），粘贴你的 API Key，保存；
-3. 顶部下拉框选模型，开聊。
+2. 点 **⚙️ 设置 → 服务商**，选择预设（如「智谱 GLM」），粘贴你的 API Key，先点 **🔌 测试连接** 确认能通，再保存；
+3. 保存后该服务商会自动成为默认服务商，顶部下拉框选模型，开聊。
 
 > 各服务商控制台：[智谱开放平台](https://open.bigmodel.cn) · [DeepSeek](https://platform.deepseek.com) · [OpenAI](https://platform.openai.com) · [Moonshot](https://platform.moonshot.cn) · [SiliconFlow](https://siliconflow.cn)
 
@@ -61,13 +61,16 @@ git push -u origin main
 | --- | --- | --- |
 | 智谱 GLM | `https://open.bigmodel.cn/api/paas/v4` | ✅ |
 | DeepSeek | `https://api.deepseek.com` | ✅ |
-| OpenAI | `https://api.openai.com/v1` | ✅ |
+| OpenAI | `https://api.openai.com/v1` | ⚠️ 需自建代理 |
 | Moonshot Kimi | `https://api.moonshot.cn/v1` | ✅ |
 | SiliconFlow | `https://api.siliconflow.cn/v1` | ✅ |
 | Ollama | `http://localhost:11434/v1` | ⚠️ 需设 `OLLAMA_ORIGINS=*` |
 | LM Studio | `http://localhost:1234/v1` | ⚠️ 需在其开发者设置开启 CORS |
 
 遇到不支持直连的服务商？部署仓库里的 [examples/cors-proxy-worker.js](examples/cors-proxy-worker.js)（Cloudflare Worker 免费额度即可），把 Base URL 指向你的 Worker 就行。
+
+> 不确定能不能通？在服务商编辑框里点 **🔌 测试连接**——它会用你填的 Base URL 与 Key 发一次真实请求，
+> 直接告诉你"连接正常"还是"被跨域拦截"，不用等到发消息才发现配置有问题。
 
 ## 🛡️ 隐私
 

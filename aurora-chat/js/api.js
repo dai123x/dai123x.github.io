@@ -40,9 +40,18 @@ AC.api = (() => {
     return new APIError(`HTTP ${status}${detail ? "：" + detail : ""}${statusHint ? "（" + statusHint + "）" : ""}`, status);
   }
 
-  function hintNetwork(err) {
-    return err.message +
-      "。若一直失败，常见原因：① Key 未保存或填错 ② 网络/代理不通 ③ 服务商不允许浏览器直连（可用仓库 examples/ 里的 Worker 代理）";
+  /* 把浏览器抛出的裸错误翻译成用户能照着做的诊断 */
+  function networkError(err) {
+    const raw = err.message || "无法连接";
+    const looksCors = /failed to fetch|load failed|networkerror|network request failed/i.test(raw);
+    const msg =
+      "网络请求失败（" + raw + "）。" +
+      (looksCors
+        ? "这几乎总是「服务商不允许浏览器直连」或「网络/代理不通」——不是 Key 的问题。" +
+          "请先在服务商编辑框里点「测试连接」确认；若确实被跨域拦截，" +
+          "部署仓库 examples/cors-proxy-worker.js 后把 Base URL 改成你的 Worker 地址即可。"
+        : "请检查 Base URL、网络与代理后重试。");
+    return new APIError(msg, 0);
   }
 
   /**
@@ -71,7 +80,7 @@ AC.api = (() => {
       });
     } catch (err) {
       if (err.name === "AbortError") throw err;
-      throw new APIError("网络请求失败：" + (err.message || "无法连接"), 0);
+      throw networkError(err);
     }
     if (!res.ok) throw await readError(res);
     if (!res.body) throw new APIError("当前环境不支持流式读取，请在设置中改用非流式输出", 0);
@@ -124,7 +133,7 @@ AC.api = (() => {
       });
     } catch (err) {
       if (err.name === "AbortError") throw err;
-      throw new APIError("网络请求失败：" + (err.message || "无法连接"), 0);
+      throw networkError(err);
     }
     if (!res.ok) throw await readError(res);
     const j = await res.json();
@@ -141,7 +150,7 @@ AC.api = (() => {
       res = await fetch(endpoint(provider, "/models"), { headers: headers(provider) });
     } catch (err) {
       if (err.name === "AbortError") throw err;
-      throw new APIError("网络请求失败：" + (err.message || "无法连接"), 0);
+      throw networkError(err);
     }
     if (!res.ok) throw await readError(res);
     const j = await res.json();
@@ -149,6 +158,33 @@ AC.api = (() => {
       .map((m) => m.id || m.name || m)
       .filter((x) => typeof x === "string");
     return [...new Set(ids)].sort();
+  }
+
+  /**
+   * 轻量连通性测试：先试 GET /models，不行就发一条 1 token 的对话。
+   * 用于在保存配置前就告诉用户"能不能用"。
+   */
+  async function testConnection(provider, model) {
+    const t0 = Date.now();
+    let modelsErr = null;
+    try {
+      const ids = await listModels(provider);
+      if (ids.length) return { via: "models", count: ids.length, ms: Date.now() - t0 };
+    } catch (err) {
+      // 网络类错误直接抛出；接口不存在则退化为对话测试
+      if (!err.status) throw err;
+      modelsErr = err;
+    }
+    if (!model) {
+      throw modelsErr ||
+        new APIError("该服务商未返回模型列表，请先手动填一个模型名再测试", 0);
+    }
+    await chatOnce({
+      provider, model,
+      messages: [{ role: "user", content: "ping" }],
+      temperature: 0, maxTokens: 1,
+    });
+    return { via: "chat", ms: Date.now() - t0 };
   }
 
   /* ---------- 演示模式：本地逐字输出，零配置可体验 ---------- */
@@ -199,5 +235,5 @@ AC.api = (() => {
     return { usage: null };
   }
 
-  return { streamChat, chatOnce, listModels, demoStream, APIError };
+  return { streamChat, chatOnce, listModels, testConnection, demoStream, APIError };
 })();

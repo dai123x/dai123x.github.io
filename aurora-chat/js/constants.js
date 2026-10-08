@@ -1,7 +1,7 @@
 /* Aurora Chat · 常量：服务商预设 / 提示词模板 / 其他静态配置 */
 window.AC = window.AC || {};
 
-AC.VERSION = "1.0.0";
+AC.VERSION = "1.1.0";
 
 AC.LOGO_SVG =
   '<svg viewBox="0 0 64 64" aria-hidden="true">' +
@@ -14,7 +14,7 @@ AC.LOGO_SVG =
   "</svg>";
 
 /* 服务商预设：均兼容 OpenAI /chat/completions 协议
-   cors 字段为 2026-10 实测预检结果，仅供参考 */
+   cors 为实测结果；keyless=true 表示本地服务，无需 API Key */
 AC.PROVIDER_PRESETS = [
   {
     id: "preset-glm", name: "智谱 GLM", baseURL: "https://open.bigmodel.cn/api/paas/v4",
@@ -30,8 +30,9 @@ AC.PROVIDER_PRESETS = [
   },
   {
     id: "preset-openai", name: "OpenAI", baseURL: "https://api.openai.com/v1",
-    cors: "✅ 浏览器直连",
+    cors: "⚠️ 需自建代理",
     models: ["gpt-4o", "gpt-4o-mini", "gpt-4.1", "o4-mini"],
+    hint: "OpenAI 官方接口不接受浏览器跨域直连，请先部署 examples/cors-proxy-worker.js，再把 Base URL 换成你的 Worker 地址（形如 https://xxx.workers.dev/openai）",
   },
   {
     id: "preset-kimi", name: "Moonshot Kimi", baseURL: "https://api.moonshot.cn/v1",
@@ -45,13 +46,13 @@ AC.PROVIDER_PRESETS = [
   },
   {
     id: "preset-ollama", name: "Ollama（本机）", baseURL: "http://localhost:11434/v1",
-    cors: "⚠️ 需设置 OLLAMA_ORIGINS=*",
+    cors: "⚠️ 需设置 OLLAMA_ORIGINS=*", keyless: true,
     models: [],
     hint: "先启动本地模型（如 ollama run qwen3），并设置环境变量 OLLAMA_ORIGINS=* 允许浏览器跨域",
   },
   {
     id: "preset-lmstudio", name: "LM Studio（本机）", baseURL: "http://localhost:1234/v1",
-    cors: "⚠️ 需在开发者设置中开启 CORS",
+    cors: "⚠️ 需在开发者设置中开启 CORS", keyless: true,
     models: [],
   },
 ];

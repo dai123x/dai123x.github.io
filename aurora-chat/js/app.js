@@ -18,6 +18,12 @@
   const curConv = () => state.conversations.find((c) => c.id === currentId) || null;
   const getProvider = (id) => state.providers.list.find((p) => p.id === id) || null;
 
+  /* 本地服务（Ollama / LM Studio 等）不需要 API Key */
+  const isLocalURL = (u) => /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/i.test(u || "");
+  const isKeyless = (p) => !!p && !p.demo && (!!p.keyless || isLocalURL(p.baseURL));
+  /* 该服务商是否还缺 API Key */
+  const needsKey = (p) => !!p && !p.demo && !isKeyless(p) && !p.apiKey;
+
   function persist() {
     AC.store.save("settings", state.settings);
     AC.store.save("providers", state.providers);
@@ -303,7 +309,7 @@
     if (msg.error && !msg.content) {
       html += `<div class="error-card"><div class="err-title">⚠️ 请求失败</div>
         <div>${esc(msg.error)}</div>
-        <div class="err-hint">浏览器直连失败时：检查 Key 与网络；或使用仓库 examples/ 里的 Cloudflare Worker 反代。</div>
+        <div class="err-hint">排障顺序：① 到 ⚙️ 设置 → 服务商 点「🔌 测试连接」定位问题；② 若提示跨域被拦，部署仓库 examples/cors-proxy-worker.js 后把 Base URL 换成你的 Worker 地址。</div>
         <button class="retry" data-act="retry" data-mid="${msg.id}">↻ 重试</button></div>`;
     } else {
       html += `<div class="md-body${msg.streaming ? " cursor" : ""}">${AC.md.render(msg.content)}</div>`;
@@ -584,6 +590,23 @@
     respondSingle(conv);
   }
 
+  /* 服务商缺 Key 时不静默失败：留一张可操作的错误卡片，并直接打开设置 */
+  function blockedByMissingKey(conv, provider) {
+    const msg = {
+      id: uid(), role: "assistant", content: "", reasoning: "",
+      model: conv.model, providerId: provider.id, createdAt: Date.now(), streaming: false,
+      error: `「${provider.name}」还没有填写 API Key，请求没有发出去。` +
+        `点左下角 ⚙️ 设置 → 服务商 → 编辑「${provider.name}」粘贴 Key，保存后回到这里点「↻ 重试」。`,
+    };
+    conv.messages.push(msg);
+    conv.updatedAt = Date.now();
+    persist();
+    if (curConv()?.id === conv.id) renderMessages();
+    renderConvList();
+    toast(`「${provider.name}」缺少 API Key`, "err");
+    openSettings("providers");
+  }
+
   async function respondSingle(conv) {
     const provider = getProvider(conv.providerId);
     if (!provider || (!provider.demo && !conv.model)) {
@@ -591,6 +614,7 @@
       renderHeader();
       return;
     }
+    if (needsKey(provider)) return blockedByMissingKey(conv, provider);
     if (provider.demo) conv.model = "aurora-demo";
 
     const variant = demoVariantSingle(conv);
@@ -682,6 +706,11 @@
     if (!provider || (!provider.demo && !model)) {
       round[key].streaming = false;
       round[key].error = "未选择模型，请点击顶部模型下拉框选择";
+      return;
+    }
+    if (needsKey(provider)) {
+      round[key].streaming = false;
+      round[key].error = `「${provider.name}」还没有填写 API Key。请到 ⚙️ 设置 → 服务商 配置后重试。`;
       return;
     }
     if (provider.demo) round[key].model = "aurora-demo";
@@ -848,23 +877,37 @@
   }
 
   function providersTabHTML() {
+    const presetById = Object.fromEntries(AC.PROVIDER_PRESETS.map((x) => [x.id, x]));
     return `
       <p style="margin:4px 0 12px;font-size:12.5px;color:var(--muted)">
-        所有服务商均走 OpenAI 兼容协议（/chat/completions）。API Key 只保存在本机浏览器，请求由你的浏览器直接发往对应服务商。
+        所有服务商均走 OpenAI 兼容协议（/chat/completions）。API Key 只保存在本机浏览器，请求由你的浏览器直接发往对应服务商。<br>
+        配置后建议先点「🔌 测试连接」确认真能通——被跨域拦截的服务商需自建代理（见 examples/cors-proxy-worker.js）。
       </p>
-      ${state.providers.list.map((p) => `
+      ${state.providers.list.map((p) => {
+        const cors = presetById[p.id]?.cors || "";
+        const warn = /^⚠️/.test(cors);
+        return `
         <div class="provider-card">
           <div class="p-info">
             <div class="p-name">${esc(p.name)}
-              ${p.demo ? '<span class="badge gray">内置演示</span>' : p.apiKey ? '<span class="badge">Key 已配置</span>' : '<span class="badge gray">未配 Key</span>'}
+              ${p.demo
+                ? '<span class="badge gray">内置演示</span>'
+                : isKeyless(p)
+                  ? '<span class="badge">无需 Key</span>'
+                  : p.apiKey
+                    ? '<span class="badge">Key 已配置</span>'
+                    : '<span class="badge gray">未配 Key</span>'}
             </div>
-            <div class="p-url">${esc(p.baseURL === "demo" ? "本地生成，无需网络" : p.baseURL)} · ${p.models.length} 个模型</div>
+            <div class="p-url">${esc(p.baseURL === "demo" ? "本地生成，无需网络" : p.baseURL)} · ${p.models.length} 个模型${
+              cors ? ` · <span style="color:${warn ? "#d9a03a" : "inherit"}">${esc(cors)}</span>` : ""
+            }</div>
           </div>
           <div class="p-acts">
             ${p.demo ? "" : `<button class="icon-btn" data-pedit="${p.id}" title="编辑">✎</button>
             <button class="icon-btn del" data-pdel="${p.id}" title="删除">🗑</button>`}
           </div>
-        </div>`).join("")}
+        </div>`;
+      }).join("")}
       <button class="btn" id="btn-add-provider" style="width:100%">＋ 添加服务商</button>`;
   }
 
@@ -885,6 +928,7 @@
           <div class="form-row"><label>名称 *</label><input type="text" id="pf-name" value="${esc(p.name)}" placeholder="如：我的 GLM"></div>
           <div class="form-row"><label>Base URL *</label><input type="text" id="pf-url" value="${esc(p.baseURL === "demo" ? "" : p.baseURL)}" placeholder="https://…/v1"></div>
         </div>
+        <div class="hint" id="pf-note" style="margin:-4px 0 10px"></div>
         <div class="form-row"><label>API Key</label>
           <div class="form-inline">
             <input type="password" id="pf-key" value="${esc(p.apiKey)}" placeholder="sk-…" autocomplete="off">
@@ -902,6 +946,7 @@
       </div>
       <div class="modal-foot">
         <button class="btn" data-close>取消</button>
+        <button class="btn" id="pf-test" type="button" title="用当前填写的 Base URL 与 Key 发一次真实请求，先确认能通再保存">🔌 测试连接</button>
         <button class="btn primary" id="pf-save">保存</button>
       </div>`;
 
@@ -917,6 +962,16 @@
     };
     renderChips();
 
+    const presetFor = (url) => AC.PROVIDER_PRESETS.find((x) => x.baseURL === url);
+    const showNote = (preset) => {
+      const note = $("#pf-note");
+      if (!preset) { note.textContent = ""; return; }
+      note.textContent = [preset.cors, preset.hint].filter(Boolean).join(" · ");
+      note.style.color = /^⚠️/.test(preset.cors || "") ? "#d9a03a" : "";
+    };
+    showNote(presetFor($("#pf-url").value.trim()));
+    $("#pf-url").addEventListener("blur", () => showNote(presetFor($("#pf-url").value.trim())));
+
     $$("[data-preset]").forEach((b) => b.addEventListener("click", () => {
       const preset = AC.PROVIDER_PRESETS.find((x) => x.id === b.dataset.preset);
       if (!preset) return;
@@ -924,6 +979,7 @@
       $("#pf-url").value = preset.baseURL;
       preset.models.forEach((m) => { if (!models.includes(m)) models.push(m); });
       renderChips();
+      showNote(preset);
     }));
 
     $("#pf-show").addEventListener("click", () => {
@@ -953,6 +1009,22 @@
       }
       $("#pf-fetch").textContent = "🔃 从 API 拉取";
     });
+    $("#pf-test").addEventListener("click", async () => {
+      const tmp = { baseURL: $("#pf-url").value.trim(), apiKey: $("#pf-key").value.trim() };
+      if (!tmp.baseURL) { toast("请先填写 Base URL", "err"); return; }
+      const btn = $("#pf-test");
+      btn.disabled = true;
+      btn.textContent = "测试中…";
+      try {
+        const r = await AC.api.testConnection(tmp, models[0] || "");
+        btn.textContent = "✅ 连接正常";
+        toast(r.via === "models" ? `连接正常，拿到 ${r.count} 个模型（${r.ms}ms）` : `连接正常（${r.ms}ms）`);
+      } catch (err) {
+        btn.textContent = "❌ 连接失败";
+        toast("测试失败：" + err.message, "err", 7000);
+      }
+      setTimeout(() => { btn.textContent = "🔌 测试连接"; btn.disabled = false; }, 2400);
+    });
     $("#pf-save").addEventListener("click", () => {
       const name = $("#pf-name").value.trim();
       const baseURL = $("#pf-url").value.trim();
@@ -963,9 +1035,23 @@
       target.apiKey = $("#pf-key").value.trim();
       target.models = models;
       if (!existing) state.providers.list.push(target);
+
+      /* 关键：让刚配置好的服务商立刻生效。
+         否则新建对话仍会沿用旧的服务商（且通常没有 Key），用户会以为"配置好了却不能用"。 */
+      state.settings.defaultProviderId = target.id;
+      const c = curConv();
+      if (c && !c.messages.length && !(c.arena?.rounds || []).length) {
+        c.providerId = target.id;
+        if (target.models.length) c.model = target.models[0];
+        if (c.arena) {
+          c.arena.providerIdB = target.id;
+          c.arena.modelB = target.models[1] || target.models[0] || "";
+        }
+      }
+
       persist();
       openSettings("providers"); renderHeader(); renderConvList();
-      toast("已保存");
+      toast(`已保存，并设为默认服务商${target.models.length ? "（" + target.models[0] + "）" : ""}`);
     });
   }
 
