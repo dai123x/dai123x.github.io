@@ -6830,6 +6830,7 @@ async function initWebXRSession(gl) {
     const PLACES = [
       {
         name: '长春',
+        nameEn: 'Changchun',
         category: '名城',
         type: '冰雪名城 · 节事夜游',
         tag: '冰雪名城',
@@ -6845,6 +6846,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '吉林市',
+        nameEn: 'Jilin City',
         category: '名城',
         type: '雾凇名城 · 滑雪度假',
         tag: '冰雪名城',
@@ -6860,6 +6862,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '长白山',
+        nameEn: 'Changbaishan',
         category: '度假',
         type: '世界级山地度假 · VR沉浸',
         tag: '世界级滑雪胜地',
@@ -6875,6 +6878,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '松原 · 查干湖',
+        nameEn: 'Chagan Lake',
         category: '景区',
         type: '冬捕文化 · 节事IP',
         tag: '主题景区',
@@ -6890,6 +6894,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '通化',
+        nameEn: 'Tonghua',
         category: '名城',
         type: '中国滑雪之乡 · 冰雪名城',
         tag: '冰雪名城',
@@ -6905,6 +6910,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '延边',
+        nameEn: 'Yanbian',
         category: '名城',
         type: '边境风情 · 民俗文旅',
         tag: '冰雪名城',
@@ -6920,6 +6926,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '白城 · 嫩江湾',
+        nameEn: 'Nenjiang Bay',
         category: '景区',
         type: '湿地生态 · 冬季景观',
         tag: '主题景区',
@@ -6935,6 +6942,7 @@ async function initWebXRSession(gl) {
       },
       {
         name: '长春 · 净月潭',
+        nameEn: 'Jingyuetan',
         category: '景区',
         type: '国家级森林 · 瓦萨越野',
         tag: '主题景区',
@@ -7121,21 +7129,23 @@ async function initWebXRSession(gl) {
         isAudioPlaying = true;
         gainNode.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.1);
         droneGain.gain.setTargetAtTime(1.0, audioCtx.currentTime, 3.0); // 3 sec slow fade in
-        $('btnAudio').textContent = '🔊 全景环境音: 开';
+        const isEnAud = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+        $('btnAudio').textContent = isEnAud ? '🔊 Ambient Sound: On' : '🔊 全景环境音: 开';
         $('btnAudio').classList.add('active');
       } else {
+        const isEnAud = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
         if (isAudioPlaying) {
           gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
           if (droneGain) droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 1.0);
           isAudioPlaying = false;
-          $('btnAudio').textContent = '🔈 全景环境音: 关';
+          $('btnAudio').textContent = isEnAud ? '🔈 Ambient Sound: Off' : '🔈 全景环境音: 关';
           $('btnAudio').classList.remove('active');
         } else {
           audioCtx.resume();
           gainNode.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.5);
           if (droneGain) droneGain.gain.setTargetAtTime(1.0, audioCtx.currentTime, 2.0);
           isAudioPlaying = true;
-          $('btnAudio').textContent = '🔊 全景环境音: 开';
+          $('btnAudio').textContent = isEnAud ? '🔊 Ambient Sound: On' : '🔊 全景环境音: 开';
           $('btnAudio').classList.add('active');
         }
       }
@@ -7370,8 +7380,8 @@ async function initWebXRSession(gl) {
 
       // Right Side Probability Density Function (KDE Bell Curve at 2030)
       const boxL = 366, boxT = 50, boxW = 168, boxH = 142;
-      h += `<rect x="${boxL}" y="${boxT}" width="${boxW}" height="${boxH}" rx="6" fill="rgba(35,17,56,0.88)" stroke="rgba(56,189,248,0.25)"/>`;
-      h += `<text x="${boxL + 8}" y="${boxT + 16}" fill="#38bdf8" font-size="10.5" font-weight="bold">🎯 2030 达标概率</text>`;
+      h += `<rect x="${boxL}" y="${boxT}" width="${boxW}" height="${boxH}" rx="6" fill="rgba(255,255,255,0.96)" stroke="var(--panel-border-bright)" stroke-width="1.2"/>`;
+      h += `<text x="${boxL + 8}" y="${boxT + 16}" fill="var(--ice)" font-size="10.5" font-weight="bold">🎯 2030 达标概率</text>`;
 
       // Gaussian Curve on right side (Base at x=465, peaking at x=518)
       const mu = 3.70, sigma = 0.60;
@@ -7406,17 +7416,17 @@ async function initWebXRSession(gl) {
       h += `<polygon points="${pdfPoly}" fill="rgba(56,189,248,0.08)"/>`;
       // Shaded target probability area (v >= 3.0)
       h += `<polygon points="${targetPoly}" fill="url(#targetProbGrad)"/>`;
-      h += `<path d="${pdfCurve}" fill="none" stroke="#38bdf8" stroke-width="1.8"/>`;
+      h += `<path d="${pdfCurve}" fill="none" stroke="var(--ice)" stroke-width="1.8"/>`;
       // Threshold dividing line on PDF
-      h += `<line x1="${pdfBaseX - 4}" y1="${targetY}" x2="${pdfBaseX + 58}" y2="${targetY}" stroke="#f4c66d" stroke-width="1.2" stroke-dasharray="3,3"/>`;
-      h += `<text x="${pdfBaseX + 58}" y="${targetY + 10}" fill="#f4c66d" font-size="7.5" font-weight="bold" text-anchor="end">3.0亿线</text>`;
+      h += `<line x1="${pdfBaseX - 4}" y1="${targetY}" x2="${pdfBaseX + 58}" y2="${targetY}" stroke="var(--gold)" stroke-width="1.2" stroke-dasharray="3,3"/>`;
+      h += `<text x="${pdfBaseX + 58}" y="${targetY + 10}" fill="var(--gold)" font-size="7.5" font-weight="bold" text-anchor="end">3.0亿线</text>`;
 
       // Left-side Stat badges inside panel
       h += `<text x="${boxL + 8}" y="${boxT + 34}" fill="var(--muted)" font-size="8.5">客流突破 3.0亿 概率:</text>`;
-      h += `<text x="${boxL + 8}" y="${boxT + 52}" fill="#f4c66d" font-size="16" font-weight="bold" font-family="monospace">P = 84.9%</text>`;
+      h += `<text x="${boxL + 8}" y="${boxT + 52}" fill="var(--gold)" font-size="16" font-weight="bold" font-family="monospace">P = 84.9%</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 69}" fill="var(--muted)" font-size="8.5">花费突破 5400亿 概率:</text>`;
-      h += `<text x="${boxL + 8}" y="${boxT + 86}" fill="#94e3ca" font-size="14" font-weight="bold" font-family="monospace">P = 91.8%</text>`;
-      h += `<text x="${boxL + 8}" y="${boxT + 104}" fill="var(--text-secondary)" font-size="9">中枢期望: <tspan fill="#38bdf8">3.70 亿</tspan></text>`;
+      h += `<text x="${boxL + 8}" y="${boxT + 86}" fill="var(--mint)" font-size="14" font-weight="bold" font-family="monospace">P = 91.8%</text>`;
+      h += `<text x="${boxL + 8}" y="${boxT + 104}" fill="var(--text-secondary)" font-size="9">中枢期望: <tspan fill="var(--ice)">3.70 亿</tspan></text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 120}" fill="var(--muted)" font-size="8">10,000 次随机游走模拟</text>`;
       h += `<text x="${boxL + 8}" y="${boxT + 132}" fill="var(--muted)" font-size="8">漂移 μ=18.4% 波动 σ=8.2%</text>`;
 
@@ -7542,12 +7552,12 @@ async function initWebXRSession(gl) {
 
       // Right decision panel
       const pL = 296, pT = 55, pW = 236, pH = 138;
-      h += `<rect x="${pL}" y="${pT}" width="${pW}" height="${pH}" rx="6" fill="rgba(35,17,56,0.85)" stroke="rgba(56,189,248,0.25)"/>`;
-      h += `<text x="${pL+10}" y="${pT+20}" fill="#38bdf8" font-size="11" font-weight="bold">🎯 政策灵敏度与风控阈值决策</text>`;
-      h += `<text x="${pL+10}" y="${pT+42}" fill="var(--muted)" font-size="9">收入弹性权重: <tspan fill="#f4c66d">1.84 (重点布局高品质度假)</tspan></text>`;
-      h += `<text x="${pL+10}" y="${pT+62}" fill="var(--muted)" font-size="9">高铁通车赋能: <tspan fill="#38bdf8">长白山承载力增量 +45%</tspan></text>`;
-      h += `<text x="${pL+10}" y="${pT+82}" fill="var(--muted)" font-size="9">财政杠杆效应: <tspan fill="#94e3ca">1:4.8 乘数拉动极佳</tspan></text>`;
-      h += `<text x="${pL+10}" y="${pT+102}" fill="var(--muted)" font-size="9">气候韧性防线: <tspan fill="#f28e70">造雪机储备度 ≥120台/万客</tspan></text>`;
+      h += `<rect x="${pL}" y="${pT}" width="${pW}" height="${pH}" rx="6" fill="rgba(255,255,255,0.96)" stroke="var(--panel-border-bright)" stroke-width="1.2"/>`;
+      h += `<text x="${pL+10}" y="${pT+20}" fill="var(--ice)" font-size="11" font-weight="bold">🎯 政策灵敏度与风控阈值决策</text>`;
+      h += `<text x="${pL+10}" y="${pT+42}" fill="var(--muted)" font-size="9">收入弹性权重: <tspan fill="var(--gold)">1.84 (重点布局高品质度假)</tspan></text>`;
+      h += `<text x="${pL+10}" y="${pT+62}" fill="var(--muted)" font-size="9">高铁通车赋能: <tspan fill="var(--ice)">长白山承载力增量 +45%</tspan></text>`;
+      h += `<text x="${pL+10}" y="${pT+82}" fill="var(--muted)" font-size="9">财政杠杆效应: <tspan fill="var(--mint)">1:4.8 乘数拉动极佳</tspan></text>`;
+      h += `<text x="${pL+10}" y="${pT+102}" fill="var(--muted)" font-size="9">气候韧性防线: <tspan fill="var(--coral)">造雪机储备度 ≥120台/万客</tspan></text>`;
       h += `<text x="${pL+10}" y="${pT+122}" fill="var(--muted)" font-size="8">模型自相关检验: DW = 1.242 (落入无结论区, 已如实披露)</text>`;
 
       $('mainChartSvg').innerHTML = h;
@@ -8669,11 +8679,11 @@ async function initWebXRSession(gl) {
 
     // Southern Inflow Flight & Rail Hubs (Hansen Spatial Gravity Model in 3D)
     const GRAVITY_HUBS = [
-      { city: '北京', label: '京津冀·客流首位 (高铁2.5h)', x: -160, y: 12, z: -110, targetX: 18, targetY: 16, targetZ: 14, color: '#f4c66d' },
-      { city: '上海', label: '长三角·高净值度假客群', x: -185, y: 10, z: -40,  targetX: 18, targetY: 16, targetZ: 14, color: '#38bdf8' },
-      { city: '广州', label: '大湾区·北上避寒首选客源', x: -210, y: 8,  z: 60,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
-      { city: '深圳', label: '大湾区·青年冰雪消费领跑', x: -220, y: 8,  z: 85,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
-      { city: '成都', label: '成渝·西客东引中转枢纽', x: -175, y: 12, z: 120,  targetX: 18, targetY: 16, targetZ: 14, color: '#ff9ff3' }
+      { city: '北京', cityEn: 'Beijing', label: '京津冀·客流首位 (高铁2.5h)', labelEn: 'Jing-Jin-Ji · Top Inflow (HSR 2.5h)', x: -160, y: 12, z: -110, targetX: 18, targetY: 16, targetZ: 14, color: '#f4c66d' },
+      { city: '上海', cityEn: 'Shanghai', label: '长三角·高净值度假客群', labelEn: 'Yangtze Delta · High-Net-Worth Vacationers', x: -185, y: 10, z: -40,  targetX: 18, targetY: 16, targetZ: 14, color: '#38bdf8' },
+      { city: '广州', cityEn: 'Guangzhou', label: '大湾区·北上避寒首选客源', labelEn: 'GBA · Winter Vacation Priority Source', x: -210, y: 8,  z: 60,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
+      { city: '深圳', cityEn: 'Shenzhen', label: '大湾区·青年冰雪消费领跑', labelEn: 'GBA · Youth Snow Sports Leaders', x: -220, y: 8,  z: 85,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
+      { city: '成都', cityEn: 'Chengdu', label: '成渝·西客东引中转枢纽', labelEn: 'Chengdu-Chongqing · Western Inflow Hub', x: -175, y: 12, z: 120,  targetX: 18, targetY: 16, targetZ: 14, color: '#ff9ff3' }
     ];
 
     function renderSingle3DView(ctx, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2, clipRect = null, eyeLabel = null) {
@@ -8974,11 +8984,12 @@ async function initWebXRSession(gl) {
 
       // 5.6 High-Speed Rail Corridor 3D Spine (沈白高铁时空压缩走廊)
       if (vrLayer === 'hsr') {
+        const isEnHsr = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
         const hsrStations = [
-          { name: '沈阳南 / 京津冀接入', x: -180, y: 35, z: -150 },
-          { name: '通化西站 (枢纽)', x: -60, y: 55, z: -40 },
-          { name: '白山站', x: 40, y: 75, z: 30 },
-          { name: '长白山站 (终点 2.5h)', x: 140, y: 110, z: 120 }
+          { name: '沈阳南 / 京津冀接入', nameEn: 'Shenyang S. (Jing-Jin-Ji Link)', x: -180, y: 35, z: -150 },
+          { name: '通化西站 (枢纽)', nameEn: 'Tonghua W. Hub', x: -60, y: 55, z: -40 },
+          { name: '白山站', nameEn: 'Baishan Station', x: 40, y: 75, z: 30 },
+          { name: '长白山站 (终点 2.5h)', nameEn: 'Changbaishan Terminus (2.5h)', x: 140, y: 110, z: 120 }
         ];
 
         const trackSteps = 60;
@@ -9054,24 +9065,26 @@ async function initWebXRSession(gl) {
             ctx.fill();
 
             ctx.font = 'bold 9px sans-serif';
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillText(st.name, ptSt.x + 8, ptSt.y + 3);
+            ctx.fillStyle = '#0284c7';
+            ctx.fillText(isEnHsr ? st.nameEn : st.name, ptSt.x + 8, ptSt.y + 3);
           }
         });
 
-        // Top-left on-canvas indicator
+        // Top-left on-canvas indicator (Polar White Glassmorphism)
         ctx.save();
-        ctx.fillStyle = 'rgba(36, 17, 61, 0.85)';
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-        ctx.lineWidth = 1;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+        ctx.strokeStyle = 'rgba(2, 132, 199, 0.45)';
+        ctx.lineWidth = 1.2;
+        const hsrText = isEnHsr ? '🚄 Shenbai HSR · 2.5h Corridor' : '🚄 沈白高铁 · 2.5h时空压缩走廊';
+        ctx.font = 'bold 10px sans-serif';
+        const hsrW = ctx.measureText(hsrText).width + 18;
         const boxX = clipRect ? clipRect.x + 10 : 10;
-        if (ctx.roundRect) ctx.roundRect(boxX, 40, 200, 24, 4);
-        else ctx.rect(boxX, 40, 200, 24);
+        if (ctx.roundRect) ctx.roundRect(boxX, 40, hsrW, 24, 4);
+        else ctx.rect(boxX, 40, hsrW, 24);
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = '#f4c66d';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.fillText('🚄 沈白高铁 · 2.5h时空压缩走廊', boxX + 8, 56);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillText(hsrText, boxX + 8, 56);
         ctx.restore();
       }
 
@@ -9138,7 +9151,8 @@ async function initWebXRSession(gl) {
         ctx.fill();
 
         // 3D Text Label with high-contrast cyber micro-badge
-        const shortName = p.name.includes(' · ') ? p.name.split(' · ')[1] : p.name;
+        const isEnScene = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+        const shortName = isEnScene ? (p.nameEn || p.name) : (p.name.includes(' · ') ? p.name.split(' · ')[1] : p.name);
         const tagText = `${shortName} (${p.elev})`;
         ctx.font = `${isCurrent ? 'bold 11px' : '10px'} sans-serif`;
         const textMetrics = ctx.measureText(tagText);
@@ -9185,10 +9199,10 @@ async function initWebXRSession(gl) {
             if (dist < 15 && idx !== currentPlaceIdx) {
               const tx = p.screenX + 12;
               const ty = p.screenY - 24;
-              const tw = 125;
+              const tw = 135;
               const th = 40;
               
-              ctx.fillStyle = 'rgba(10, 16, 28, 0.9)';
+              ctx.fillStyle = 'rgba(10, 16, 28, 0.92)';
               ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
               ctx.lineWidth = 1;
               ctx.beginPath();
@@ -9207,11 +9221,12 @@ async function initWebXRSession(gl) {
 
               ctx.fillStyle = '#38bdf8';
               ctx.font = 'bold 12px sans-serif';
-              ctx.fillText(p.name, tx + 12, ty + 16);
+              const isEnHover = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+              ctx.fillText(isEnHover ? (p.nameEn || p.name) : p.name, tx + 12, ty + 16);
               
               ctx.fillStyle = '#f4c66d';
               ctx.font = '10px ui-monospace, Consolas, monospace';
-              ctx.fillText('TARGET_LOCK_REQ [CLICK]', tx + 12, ty + 32);
+              ctx.fillText(isEnHover ? 'TARGET LOCK [CLICK]' : '锁定目标视角 [点击]', tx + 12, ty + 32);
             }
           }
         });
@@ -9251,17 +9266,18 @@ async function initWebXRSession(gl) {
         const pDest = project3D({ x: hub.targetX, y: hub.targetY, z: hub.targetZ }, w, h, yaw, pitch, dist, cx, cy);
 
         if (pOrig) {
-          ctx.fillStyle = 'rgba(36,17,63,0.75)';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
           ctx.strokeStyle = hub.color;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.arc(pOrig.x, pOrig.y, 4, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
 
-          ctx.fillStyle = '#fff';
+          ctx.fillStyle = '#0f172a';
           ctx.font = 'bold 9px sans-serif';
-          ctx.fillText(`✈️ ${hub.city}`, pOrig.x + 8, pOrig.y + 3);
+          const isEnHub = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+          ctx.fillText(`✈️ ${isEnHub ? (hub.cityEn || hub.city) : hub.city}`, pOrig.x + 8, pOrig.y + 3);
         }
 
         if (pOrig && pDest) {
@@ -9329,7 +9345,7 @@ async function initWebXRSession(gl) {
         ctx.rotate(bankRoll);
 
         // Left Carbon-Fiber Ski
-        ctx.fillStyle = '#2c143f';
+        ctx.fillStyle = '#1e293b';
         ctx.strokeStyle = 'var(--gold)';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -9360,8 +9376,8 @@ async function initWebXRSession(gl) {
         const altVal = (1850 - skiProgress * 980).toFixed(0);
         const curGate = Math.min(14, Math.floor(skiProgress * 15));
 
-        ctx.fillStyle = 'rgba(36, 17, 63, 0.9)';
-        ctx.strokeStyle = 'var(--gold)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.7)';
         ctx.lineWidth = 1.5;
         const hudW = Math.min(360, w * 0.85);
         const hudH = 50;
@@ -9374,14 +9390,15 @@ async function initWebXRSession(gl) {
 
         ctx.fillStyle = 'var(--gold)';
         ctx.font = 'bold 11px ui-monospace, Consolas, monospace';
-        ctx.fillText(`⛷️ 高山速降仿真 · FIS 黑色特级雪道`, hudX + 12, hudY + 18);
+        const isEnHud = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+        ctx.fillText(isEnHud ? '⛷️ Alpine Downhill Sim · FIS Black Diamond Slope' : '⛷️ 高山速降仿真 · FIS 黑色特级雪道', hudX + 12, hudY + 18);
 
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = 'var(--text)';
         ctx.font = 'bold 10px ui-monospace, Consolas, monospace';
         ctx.fillText(`SPEED ${speedVal}km/h | G-FORCE ${gForce}G | ALT ${altVal}m | GATES ${curGate}/14`, hudX + 12, hudY + 34);
 
         // Progress bar
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.1)';
         ctx.fillRect(hudX + 12, hudY + 40, hudW - 24, 3);
         ctx.fillStyle = 'var(--mint)';
         ctx.fillRect(hudX + 12, hudY + 40, (hudW - 24) * skiProgress, 3);
@@ -9397,17 +9414,19 @@ async function initWebXRSession(gl) {
         ctx.stroke();
 
         // Eye indicator tag
-        ctx.fillStyle = 'rgba(36, 17, 63, 0.75)';
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+        ctx.strokeStyle = 'rgba(2, 132, 199, 0.45)';
         ctx.lineWidth = 1;
-        if (ctx.roundRect) ctx.roundRect(cx - 36, 12, 72, 18, 3);
-        else ctx.rect(cx - 36, 12, 72, 18);
+        const eyeW = 84;
+        if (ctx.roundRect) ctx.roundRect(cx - eyeW / 2, 12, eyeW, 18, 3);
+        else ctx.rect(cx - eyeW / 2, 12, eyeW, 18);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = 'var(--mint)';
         ctx.font = 'bold 9px ui-monospace, Consolas, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(eyeLabel === 'L-EYE' ? '👁️ 左眼 L' : '👁️ 右眼 R', cx, 24);
+        const isEnEye = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+        ctx.fillText(isEnEye ? (eyeLabel === 'L-EYE' ? '👁️ Left Eye L' : '👁️ Right Eye R') : (eyeLabel === 'L-EYE' ? '👁️ 左眼 L' : '👁️ 右眼 R'), cx, 24);
         ctx.textAlign = 'left';
       }
 
@@ -9526,20 +9545,21 @@ async function initWebXRSession(gl) {
         ctx.lineTo(w / 2, h);
         ctx.stroke();
 
-        // High-tech Headset Calibration Overlay
-        ctx.fillStyle = 'rgba(36, 17, 63, 0.9)';
-        ctx.strokeStyle = 'rgba(244, 198, 109, 0.7)';
-        ctx.lineWidth = 1;
-        const bW = 220, bH = 22;
+        // High-tech Headset Calibration Overlay (Polar White)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.strokeStyle = 'rgba(217, 119, 6, 0.7)';
+        ctx.lineWidth = 1.2;
+        const isEnStereo = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+        const bW = isEnStereo ? 275 : 220, bH = 22;
         if (ctx.roundRect) ctx.roundRect(w / 2 - bW / 2, 12, bW, bH, 4);
         else ctx.rect(w / 2 - bW / 2, 12, bW, bH);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = '#f4c66d';
+        ctx.fillStyle = 'var(--gold)';
         ctx.font = 'bold 10px ui-monospace, Consolas, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('🥽 双目立体VR模式 · IPD 64mm PARALLAX', w / 2, 27);
+        ctx.fillText(isEnStereo ? '🥽 Stereoscopic VR Mode · IPD 64mm Parallax' : '🥽 双目立体VR模式 · IPD 64mm PARALLAX', w / 2, 27);
         ctx.textAlign = 'left';
         ctx.restore();
       }
@@ -9578,7 +9598,10 @@ async function initWebXRSession(gl) {
     let vrHoverX = -999;
     let vrHoverY = -999;
 
-    // VR Mouse & Touch Controls
+    let touchStartDist = 0;
+    let initialDist = 480;
+
+    // VR Mouse & Touch Controls (with 2-finger pinch-to-zoom)
     function setupVrControls(canvas) {
       canvas.onmousedown = e => {
         vrDragging = true;
@@ -9586,10 +9609,17 @@ async function initWebXRSession(gl) {
         vrStartY = e.clientY;
       };
       canvas.addEventListener('touchstart', e => {
-        if (e.touches.length > 0) {
+        if (e.touches.length === 1) {
           vrDragging = true;
           vrStartX = e.touches[0].clientX;
           vrStartY = e.touches[0].clientY;
+        } else if (e.touches.length >= 2) {
+          vrDragging = false;
+          touchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialDist = targetDist;
         }
       }, {passive: true});
       
@@ -9654,16 +9684,26 @@ async function initWebXRSession(gl) {
     window.addEventListener('mouseup', () => { vrDragging = false; });
 
     window.addEventListener('touchmove', e => {
-      if (vrDragging && e.touches.length > 0) {
+      if (vrDragging && e.touches.length === 1) {
         const dx = e.touches[0].clientX - vrStartX;
         const dy = e.touches[0].clientY - vrStartY;
         targetYaw -= dx * 0.008;
         targetPitch = Math.max(0.05, Math.min(1.48, targetPitch - dy * 0.009));
         vrStartX = e.touches[0].clientX;
         vrStartY = e.touches[0].clientY;
+      } else if (e.touches.length >= 2 && touchStartDist > 0) {
+        const curDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const factor = touchStartDist / Math.max(10, curDist);
+        targetDist = Math.max(220, Math.min(680, initialDist * factor));
       }
     }, {passive: true});
-    window.addEventListener('touchend', () => { vrDragging = false; });
+    window.addEventListener('touchend', e => {
+      if (!e.touches || e.touches.length < 2) touchStartDist = 0;
+      if (!e.touches || e.touches.length === 0) vrDragging = false;
+    });
 
     // Quick Pitch Angle Presets: 45° Natural -> 82° Top-down Satellite -> 12° Grand Horizon
     const PITCH_PRESETS = [
@@ -9769,7 +9809,8 @@ async function initWebXRSession(gl) {
       gyroBaseAlpha = null;
       window.addEventListener('deviceorientation', gyroHandler);
       if ($('btnVrGyro')) {
-        $('btnVrGyro').textContent = '📱 头控中';
+        const isEnGyro = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+        $('btnVrGyro').textContent = isEnGyro ? '📱 Gyro Active' : '📱 头控中';
         $('btnVrGyro').style.background = 'rgba(117,255,200,0.2)';
       }
       flashNotice('头控已开启：转动手机即可环视 3D 沙盘（配合双目VR模式效果更佳）');
@@ -9777,7 +9818,13 @@ async function initWebXRSession(gl) {
 
     if ($('btnVrGyro')) {
       $('btnVrGyro').onclick = () => {
-        if (gyroActive) { stopGyro(); flashNotice('已退出头控模式'); return; }
+        if (gyroActive) {
+          stopGyro();
+          const isEnG = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+          if ($('btnVrGyro')) $('btnVrGyro').textContent = isEnG ? '📱 Gyro' : '📱 头控';
+          flashNotice('已退出头控模式');
+          return;
+        }
         if (typeof DeviceOrientationEvent === 'undefined') {
           flashNotice('当前设备不支持陀螺仪，请在手机浏览器中打开本作品', true);
           return;
@@ -9797,13 +9844,14 @@ async function initWebXRSession(gl) {
     function toggleDroneOrbit() {
       playCrystalClick();
       isOrbitRunning = !isOrbitRunning;
-      const label = isOrbitRunning ? '🛸 停止巡航' : '🛸 无人机巡航';
+      const isEnOrb = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+      const label = isOrbitRunning ? (isEnOrb ? '🛸 Stop Orbit' : '🛸 停止巡航') : (isEnOrb ? '🛸 Drone Orbit' : '🛸 无人机巡航');
       if ($('btnVrOrbit')) {
         $('btnVrOrbit').textContent = label;
         $('btnVrOrbit').style.background = isOrbitRunning ? 'rgba(244,198,109,0.25)' : '';
       }
       if ($('btnExpandOrbit')) {
-        $('btnExpandOrbit').textContent = isOrbitRunning ? '🛸 停止无人机巡航' : '🛸 智能无人机环绕巡航';
+        $('btnExpandOrbit').textContent = isOrbitRunning ? (isEnOrb ? '🛸 Stop Drone Orbit' : '🛸 停止无人机巡航') : (isEnOrb ? '🛸 Smart Drone Orbit' : '🛸 智能无人机环绕巡航');
         $('btnExpandOrbit').style.background = isOrbitRunning ? 'rgba(244,198,109,0.25)' : '';
       }
     }
@@ -9813,24 +9861,25 @@ async function initWebXRSession(gl) {
     function toggleSkiingSimulation() {
       playCrystalClick();
       isSkiingRunning = !isSkiingRunning;
+      const isEnSki = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
       if (isSkiingRunning) {
         isOrbitRunning = false;
         if ($('btnVrOrbit')) {
-          $('btnVrOrbit').textContent = '🚁 航拍';
+          $('btnVrOrbit').textContent = isEnSki ? '🚁 Aerial View' : '🚁 航拍';
           $('btnVrOrbit').style.background = '';
         }
         if ($('btnExpandOrbit')) {
-          $('btnExpandOrbit').textContent = '🛸 智能无人机环绕巡航';
+          $('btnExpandOrbit').textContent = isEnSki ? '🛸 Smart Drone Orbit' : '🛸 智能无人机环绕巡航';
           $('btnExpandOrbit').style.background = '';
         }
       }
-      const label = isSkiingRunning ? '⛷️ 退出速降' : '⛷️ 速降滑雪';
+      const label = isSkiingRunning ? (isEnSki ? '⛷️ Exit Skiing' : '⛷️ 退出速降') : (isEnSki ? '⛷️ Downhill Skiing' : '⛷️ 速降滑雪');
       if ($('btnVrSki')) {
         $('btnVrSki').textContent = label;
         $('btnVrSki').style.background = isSkiingRunning ? 'rgba(244,198,109,0.3)' : '';
       }
       if ($('btnExpandSki')) {
-        $('btnExpandSki').textContent = isSkiingRunning ? '⛷️ 退出高山速降' : '⛷️ 第一人称滑雪速降';
+        $('btnExpandSki').textContent = isSkiingRunning ? (isEnSki ? '⛷️ Exit Downhill Ski' : '⛷️ 退出高山速降') : (isEnSki ? '⛷️ 1st-Person Downhill Ski' : '⛷️ 第一人称滑雪速降');
         $('btnExpandSki').style.background = isSkiingRunning ? 'rgba(244,198,109,0.3)' : '';
       }
     }
@@ -9856,8 +9905,11 @@ async function initWebXRSession(gl) {
     const TOUR_STOPS = [
       {
         title: '01 · 冰雪奇迹发源地',
+        titleEn: '01 · Cradle of Ice and Snow',
         desc: '长白山天池航拍，冰雪封湖，十六峰环绕。',
+        descEn: 'Changbai Tianchi aerial view, frozen caldera lake surrounded by 16 peaks.',
         subtitle: '吉林，冰雪的故乡。在雪线之上，我们见证着白山黑水间的冰雪奇迹。',
+        subtitleEn: 'Jilin, the home of ice and snow. Above the snowline, we witness the winter miracle of Northeast China.',
         action: () => {
           galleryIdx = 0;
           updateGallery();
@@ -9867,8 +9919,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '02 · 凝固时间的巨瀑',
+        titleEn: '02 · The Frozen Giant Waterfall',
         desc: '长白山巨型冰瀑布，火山岩与幽蓝冰柱交相辉映。',
+        descEn: 'Changbai Mountain frozen waterfall, volcanic basalt contrasting with luminous blue ice cascades.',
         subtitle: '从深邃纯净的长白山天池，到凝固时间的幽蓝冰瀑，自然造化赋予吉林无双冰雪资源。',
+        subtitleEn: 'From pure Changbaishan Tianchi to the frozen blue cascades, nature bestows unmatched winter resources.',
         action: () => {
           galleryIdx = 1;
           updateGallery();
@@ -9876,8 +9931,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '03 · 全息数字沙盘 · 宏观目标',
+        titleEn: '03 · Holographic Sandtable · Macro Goals',
         desc: '切换至 2029—2030 雪季目标，揭示全省 5400 亿冰雪宏伟蓝图。',
+        descEn: 'Switched to 2030 target, unveiling the province-wide 540B RMB blueprint.',
         subtitle: '欢迎来到吉林省冰雪经济目标可视化全息沙盘。这里，数据正在重塑未来。',
+        subtitleEn: 'Welcome to the Jilin Ice and Snow Economy Visualization sandbox, where data reshapes the future.',
         action: () => {
           $('galleryModal').classList.remove('show');
           currentYear = '2030';
@@ -9889,8 +9947,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '04 · 沈白高铁 350km/h 时空走廊',
+        titleEn: '04 · Shenbai HSR 350km/h Corridor',
         desc: '三维沙盘呈现沈白高铁走廊，光子列车脉冲直连京津冀2.5h度假圈。',
+        descEn: '3D sandbox highlights Shenbai High-Speed Rail, connecting Beijing-Tianjin-Hebei in 2.5 hours.',
         subtitle: '三维沙盘点亮沈白高铁极速走廊。时速350公里的钢铁巨龙，将北京至长白山压缩至两点五小时，引爆南客北游黄金通道。',
+        subtitleEn: 'The 350km/h bullet rail compresses travel time between Beijing and Changbaishan to 2.5 hours.',
         action: () => {
           setVrLayer('hsr');
           targetYaw = 0.55;
@@ -9900,8 +9961,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '05 · 政策敏感性沙盘动态推演',
+        titleEn: '05 · Policy Sensitivity Sandbox Simulation',
         desc: '激活高铁通车爆发情景，多变量弹性求解器实时重构推演产值。',
+        descEn: 'Triggering HSR surge scenario: multivariable elasticity solver dynamically projects revenue.',
         subtitle: '沙盘动态解算：高铁通车客流增益提升至35%，推演综合旅游收入跃升至7,768亿元，装备制造突破概率达94%。',
+        subtitleEn: 'Dynamic projection: HSR traveler gain +35%, pushing projected revenue to 776.8 billion RMB.',
         action: () => {
           const hsrPresetBtn = document.querySelector('.sim-preset-btn[data-preset="hsr_surge"]');
           if (hsrPresetBtn) hsrPresetBtn.click();
@@ -9909,8 +9973,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '06 · 蒙特卡洛 10,000 次置信扇形',
+        titleEn: '06 · 10,000-Run Monte Carlo Confidence Fan',
         desc: '几何布朗运动随机游走模拟，量化 2030 目标达成概率 (84.9%)。',
+        descEn: 'Geometric Brownian Motion random walk quantifies 2030 target achievement probability at 84.9%.',
         subtitle: '引入蒙特卡洛随机游走模型，自 2024 年 1.25 亿人次基线开展一万次模拟。在 μ=18.4%、σ=8.2% 情景下，2030 达标概率 84.9%；与 OLS 纯趋势外推结果共同界定了政策干预的必要性区间。',
+        subtitleEn: '10,000 Monte Carlo runs from 125M visitors baseline show 84.9% target achievement probability.',
         action: () => {
           currentChartTab = 'montecarlo';
           renderActiveChart();
@@ -9918,8 +9985,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '07 · OLS 计量回归模型与严谨推断',
+        titleEn: '07 · OLS Econometric Regression & Inference',
         desc: '展示冰雪客流时序拟合与 95% 预测区间验证，R² = 0.5137（n=6 小样本，受疫情断层制约）。',
+        descEn: 'Time series OLS fitting with 95% prediction intervals, revealing structural policy necessity.',
         subtitle: '引入普通最小二乘法回归与学术检验矩阵，年均客流斜率 β₁ = +578 万人次/年（接近α=0.10临界阈值(未达显著)）。关键结论：政策锚定点落在 95% 预测区间之外，说明目标兑现高度依赖供给端刚性投入。',
+        subtitleEn: 'Ordinary Least Squares regression indicates policy targets exceed pure historical trends, demanding rigid supply support.',
         action: () => {
           setVrLayer('terrain');
           currentChartTab = 'regression';
@@ -9928,8 +9998,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '08 · 资源配置推演桑基图 (Sankey)',
+        titleEn: '08 · Resource Allocation Sankey Flow',
         desc: '切换至极光夜景与三级流向图，展示资金流向产业端与空间端的全息路径。',
+        descEn: 'Aurora night view and 3-tier Sankey diagram showcasing capital allocation across regions and industries.',
         subtitle: '沙盘呈现极光雪夜。省级统筹资金与社会资本，正精准流向长白山核心区与各大冰雪名城。',
+        subtitleEn: 'Provincial and social capital flowing precisely into Changbai core area and key snow sports hubs.',
         action: () => {
           setVrLayer('aurora');
           currentChartTab = 'sankey';
@@ -9939,8 +10012,11 @@ async function initWebXRSession(gl) {
       },
       {
         title: '09 · 雪线之上，共赢未来',
+        titleEn: '09 · Above the Snowline, Shared Future',
         desc: '演示结束，自由探索。',
+        descEn: 'Demo completed. Free exploration enabled.',
         subtitle: '本作品以原生代码重构真实地理 3D 版图。雪线之上，共赢未来。吉林冰雪期待您的亲临探索！',
+        subtitleEn: 'Reconstructing 3D geospatial digital twins with zero dependencies. Welcome to explore Jilin!',
         action: () => {
           setVrLayer('terrain');
           selectPlace(0);
@@ -9955,7 +10031,8 @@ async function initWebXRSession(gl) {
       tourStep = 0;
       $('tourBanner').classList.add('show');
       $('cinematicSubtitles').style.opacity = '1';
-      $('btnPauseTour').textContent = '⏸ 暂停';
+      const isEnT = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+      $('btnPauseTour').textContent = isEnT ? '⏸ Pause' : '⏸ 暂停';
       
       // Attempt to load premium voices
       if (window.speechSynthesis) {
@@ -9995,24 +10072,26 @@ async function initWebXRSession(gl) {
       if (!isTourRunning) return;
       clearTimeout(tourTimer);
       const stop = TOUR_STOPS[step];
-      $('tourTitle').textContent = stop.title;
-      $('tourDesc').textContent = stop.desc;
+      const isEnStep = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+      $('tourTitle').textContent = isEnStep ? (stop.titleEn || stop.title) : stop.title;
+      $('tourDesc').textContent = isEnStep ? (stop.descEn || stop.desc) : stop.desc;
       
       $('cinematicSubtitles').style.opacity = '0';
       
       setTimeout(() => {
         $('cinematicSubtitles').style.opacity = '1';
-        typewriterEffect($('subText'), stop.subtitle, 40);
+        const sub = isEnStep ? (stop.subtitleEn || stop.subtitle) : stop.subtitle;
+        typewriterEffect($('subText'), sub, isEnStep ? 24 : 40);
 
         // TTS Voiceover with natural pacing and onend synchronization
         let speechTriggered = false;
         if (window.speechSynthesis && !isTourPaused) {
           window.speechSynthesis.cancel();
-          ttsUtterance = new SpeechSynthesisUtterance(stop.subtitle);
-          ttsUtterance.lang = 'zh-CN';
-          ttsUtterance.rate = 1.05; // Slightly cinematic pacing
+          ttsUtterance = new SpeechSynthesisUtterance(sub);
+          ttsUtterance.lang = isEnStep ? 'en-US' : 'zh-CN';
+          ttsUtterance.rate = isEnStep ? 1.0 : 1.05; // Slightly cinematic pacing
           ttsUtterance.pitch = 1.0;
-          if (preferredVoice) ttsUtterance.voice = preferredVoice;
+          if (!isEnStep && preferredVoice) ttsUtterance.voice = preferredVoice;
           ttsUtterance.onend = () => {
             if (!isTourPaused && isTourRunning) {
               clearTimeout(tourTimer);
@@ -10075,7 +10154,8 @@ async function initWebXRSession(gl) {
     };
     $('btnPauseTour').onclick = () => {
       isTourPaused = !isTourPaused;
-      $('btnPauseTour').textContent = isTourPaused ? '▶ 继续' : '⏸ 暂停';
+      const isEnP = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+      $('btnPauseTour').textContent = isTourPaused ? (isEnP ? '▶ Resume' : '▶ 继续') : (isEnP ? '⏸ Pause' : '⏸ 暂停');
       if (!isTourPaused) runTourStep(tourStep);
       else clearTimeout(tourTimer);
     };
@@ -10093,9 +10173,10 @@ async function initWebXRSession(gl) {
       playCrystalClick();
       isWeatherHeavy = !isWeatherHeavy;
       initBgParticles();
-      $('btnWeather').textContent = isWeatherHeavy ? '🌨️ 暴雪: 开' : '🌨️ 暴雪特效';
+      const isEnW = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+      $('btnWeather').textContent = isWeatherHeavy ? (isEnW ? '🌨️ Blizzard: On' : '🌨️ 暴雪: 开') : (isEnW ? '🌨️ Blizzard FX' : '🌨️ 暴雪特效');
       $('btnWeather').classList.toggle('active', isWeatherHeavy);
-      $('btnVrWeather').textContent = isWeatherHeavy ? '❄️ 微雪' : '❄️ 暴雪';
+      if ($('btnVrWeather')) $('btnVrWeather').textContent = isWeatherHeavy ? (isEnW ? '❄️ Light Snow' : '❄️ 微雪') : (isEnW ? '❄️ Blizzard' : '❄️ 暴雪');
     };
 
     // 9. Presentation Mode (F)
@@ -11513,14 +11594,15 @@ async function initWebXRSession(gl) {
 
         const loadRate = Math.min(115.0, Math.max(45.0, 78.5 * (predVisitors / 3.0)));
         $('simOutLoad').textContent = `${loadRate.toFixed(1)}%`;
+        const isEnLoad = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
         if (loadRate > 95) {
-          $('simOutLoadStatus').textContent = '⚠️ 承载预警 (建议削峰分流)';
+          $('simOutLoadStatus').textContent = isEnLoad ? '⚠️ Overload Alert (Peak-shaving advised)' : '⚠️ 承载预警 (建议削峰分流)';
           $('simOutLoadStatus').style.color = 'var(--coral)';
         } else if (loadRate > 80) {
-          $('simOutLoadStatus').textContent = '🟡 趋近设计峰值上限';
+          $('simOutLoadStatus').textContent = isEnLoad ? '🟡 Approaching Capacity Limit' : '🟡 趋近设计峰值上限';
           $('simOutLoadStatus').style.color = 'var(--gold)';
         } else {
-          $('simOutLoadStatus').textContent = '🟢 运力充裕绿色区间';
+          $('simOutLoadStatus').textContent = isEnLoad ? '🟢 Ample Capacity Green Zone' : '🟢 运力充裕绿色区间';
           $('simOutLoadStatus').style.color = 'var(--mint)';
         }
 
@@ -12736,6 +12818,37 @@ P.push(["· 模型拟合 69.3 / Observed 86（残差", "\u00b7 model fit 69.3 / 
 P.push(["90% 置信区间 [t=2.132]", "90% Confidence Interval [t=2.132]"]);
 P.push(["及 54 观测值平衡面板底表", " and a 54-observation balanced-panel base table"]);
 P.push(["(长春=68，附逐维真实计算得分)", "(Changchun=68, with true per-dimension computed scores)"]);
+P.push(["🔈 环境音", "🔈 Ambient Sound"]);
+P.push(["🔊 环境音", "🔊 Ambient Sound"]);
+P.push(["📑 决策简报", "📑 Policy Briefing"]);
+P.push(["🧮 投资推演", "🧮 Investment Sim"]);
+P.push(["📐 算法说明", "📐 Algorithm Docs"]);
+P.push(["🏛️ 文旅推荐", "🏛️ Culture & Tourism"]);
+P.push(["📥 导出数据", "📥 Export Data"]);
+P.push(["⌨️ 快捷键", "⌨️ Shortcuts"]);
+P.push(["🌨️ 暴雪特效", "🌨️ Blizzard FX"]);
+P.push(["🎙️ 官方解说", "🎙️ Narration"]);
+P.push(["📋 作品片头", "📋 Project Intro"]);
+P.push(["⚙️ 参赛信息", "⚙️ Team Info"]);
+P.push(["🏠 个人主页", "🏠 Homepage"]);
+P.push(["⚙️ 更多工具 ▾", "⚙️ More Tools ▾"]);
+P.push(["🚀 自动巡航演示", "🚀 Auto Tour"]);
+P.push(["📊 面板数据分析", "📊 Panel Analysis"]);
+P.push(["📖 作品说明书", "📖 Documentation"]);
+P.push(["🖥️ 演示模式", "🖥️ Presentation"]);
+P.push(["频谱能量", "Spectral Energy"]);
+P.push(["💡 行业大数据特征（情景假设参考，基于文旅公开数据与研报整合标定）：复购率达 48.6%，74% 游客选择“滑雪+长白山温泉”双重组合联程。", "💡 Industry Big Data Characteristics (Scenario Hypothesis Reference, calibrated from public tourism data and research reports): Repeat visit rate reaches 48.6%, and 74% of tourists choose the dual itinerary of 'Skiing + Changbai Mountain Hot Springs'."]);
+P.push(["💡 行业大数据特征（情景假设参考，基于文旅公开数据与研报整合标定）：", "💡 Industry Big Data Characteristics (Scenario Hypothesis Reference, calibrated from public tourism data and research reports): "]);
+P.push(["复购率达 48.6%，74% 游客选择", "Repeat visit rate reaches 48.6%, and 74% of tourists choose "]);
+P.push(["“滑雪+长白山温泉”双重组合联程。", "'Skiing + Changbai Mountain Hot Springs' dual itinerary."]);
+P.push(["系统数据推演决策简报（自动化生成）", "System Data Deduction Decision Briefing (Auto-Generated)"]);
+P.push(["在“客源引力雷达”图表中，统一采用经典 Wilson 空间相互作用引力方程，量化吉林省冰雪旅游对不同地域客群的吸引力：", "In the 'Origin Gravity Radar' chart, the classical Wilson spatial interaction gravity equation is uniformly adopted to quantify the attractiveness of Jilin ice-and-snow tourism to tourist segments from different regions:"]);
+P.push(["客源规模弹性 (α = 1.84)：", "Origin Scale Elasticity (α = 1.84): "]);
+P.push(["基于省际高铁与民航高净值旅客规模弹性标定，高收入客源地具有超线性的冰雪度假消费倾向。", "Calibrated against scale elasticity of high-net-worth passengers from inter-provincial HSR and civil aviation, high-income origins exhibit a super-linear propensity for ice-and-snow resort spending."]);
+P.push(["独占吸引度 (β = 1.25)：", "Monopoly Attractiveness (β = 1.25): "]);
+P.push(["表征吉林省北纬 41°~42° 黄金粉雪纬度的独占性高山生态吸引力。", "Characterizes the exclusive alpine ecological appeal of Jilin's golden powder snow latitude at 41°-42°N."]);
+P.push(["距离衰减与时空阻抗摩擦 (γ, exp(λ·c_ij))：", "Distance Decay & Spatial Impedance Friction (γ, exp(λ·c_ij)): "]);
+P.push(["尽管南方客源地地理距离 D 极大，但高端度假客群的消费引力与沈白高铁时空压缩有效对冲了空间阻尼，直观印证了“高摩擦+高消费”的南客北游置换逻辑。", "Although geographical distance D from southern origins is substantial, consumption gravity from high-end vacationers together with Shenbai HSR time-space compression effectively counters spatial friction, directly validating the 'high friction + high spending' substitution logic for southern travelers visiting the north."]);
 }})();</script>
 <script id="svI18nEngine">
 /* =========================================================================
