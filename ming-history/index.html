@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>明史资料平台 · 明代文献索引与研读工具 | Ming History Archive</title>
+<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》为索引对象的研读工具。含帝王世系时间轴（1368—1683）、大事年表、三书对照、真实章节索引、人物制度词条库，以及不上传文件的本地阅读器。本站不转载书籍正文。">
+<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,顾诚,帝王世系,明朝年表,明史索引,洪武,永乐,万历,崇祯,郑成功,永历">
+<link rel="canonical" href="https://daixuan.cloud/ming-history/">
+<meta name="theme-color" content="#0a0e17">
+<meta property="og:title" content="明史资料平台 · 明代文献索引与研读工具">
+<meta property="og:description" content="帝王世系时间轴、大事年表、三书对照、真实章节索引与词条库，附本地阅读器。不转载书籍正文。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
+<link rel="stylesheet" href="css/style.css?v=20261009_01">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('dx_theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="seal" aria-hidden="true">明</span>
+      <span class="brand-text">
+        <b>明史资料平台</b>
+        <span>Ming History Archive</span>
+      </span>
+    </div>
+    <nav class="tabs" aria-label="栏目">
+      <button class="tab active" data-view="overview" type="button">总览</button>
+      <button class="tab" data-view="lineage" type="button">帝王世系</button>
+      <button class="tab" data-view="chrono" type="button">大事年表</button>
+      <button class="tab" data-view="compare" type="button">三书对照</button>
+      <button class="tab" data-view="index" type="button">章节索引</button>
+      <button class="tab" data-view="glossary" type="button">词条库</button>
+      <button class="tab" data-view="themes" type="button">主题线索</button>
+      <button class="tab" data-view="reader" type="button">本地阅读</button>
+    </nav>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="切换主题">☀</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ 总览 ============ -->
+  <section class="view active" id="view-overview">
+    <div class="hero">
+      <div class="eyebrow">1368 — 1683</div>
+      <h1>把三百年，<em>拆成可以查的东西</em></h1>
+      <p class="lede">
+        这里不是一个电子书站，而是一层<b>索引与导航</b>。它以四部著作的目录为骨架——
+        《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》全九部——
+        配上帝王世系、大事年表、三书对照与人物制度词条，用来回答那些读书时真正会卡住的问题：
+        <b>这件事在哪本书里讲得最清楚？同一个事件，三种写法差在哪里？</b>
+      </p>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="sec-head">
+      <h2>四部著作</h2>
+      <p>同一段历史，三种知识传统。点开任意一张卡片可跳到它的完整章节索引。</p>
+      <hr class="rule">
+    </div>
+    <div class="book-grid" id="bookGrid"></div>
+
+    <div class="sec-head" style="margin-top:42px">
+      <h2>怎么用</h2>
+      <p>按目的选入口，不必按顺序读。</p>
+      <hr class="rule">
+    </div>
+    <div class="book-grid">
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想快速建立时间感</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">从「帝王世系」看十六帝与南明诸帝的在位曲线，再用「大事年表」按朝代筛选。年表里标红的条目是转折点。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想弄清一个具体问题</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">去「词条库」搜关键词，词条末尾会给出该去哪本书、哪一章。或者直接在「章节索引」里检索章节名。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想比较不同写法</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">看「三书对照」。同一个事件，剑桥看结构、顾诚看考据、当年明月看人，并读提示会点出差异在哪。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想读原文</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">用「本地阅读」。把你自己手上的 PDF 或 TXT 拖进页面，由浏览器在本机打开——文件不会离开你的设备。</p>
+      </div>
+    </div>
+
+    <div class="notice" style="margin-top:30px">
+      <b>关于版权。</b>本站是一个原创的索引与研读工具层：帝王世系、大事年表、对照分析与词条说明均为原创整理，
+      章节索引只收录书名、章节名、页码等事实性信息，<b>不收录、不转载任何受版权保护的书籍正文</b>。
+      所涉著作的著作权归原作者与出版机构所有，请在合法渠道获取与阅读。
+    </div>
+  </section>
+
+  <!-- ============ 帝王世系 ============ -->
+  <section class="view" id="view-lineage">
+    <div class="sec-head">
+      <h2>帝王世系 · 1368—1683</h2>
+      <p>横轴为年代，每个圆点是一位皇帝或监国。点击圆点定位到对应条目，展开可看该朝大事与对应章节。</p>
+      <hr class="rule">
+    </div>
+    <div class="house-switch" id="houseSwitch" role="group" aria-label="政权筛选">
+      <button class="pill active" data-house="all" type="button">全部</button>
+      <button class="pill" data-house="明朝" type="button">明朝（1368—1644）</button>
+      <button class="pill" data-house="南明" type="button">南明（1644—1662）</button>
+      <button class="pill" data-house="明郑" type="button">明郑（1661—1683）</button>
+    </div>
+    <div class="axis" id="axis" role="group" aria-label="年代轴"></div>
+    <div class="emp-list" id="empList"></div>
+  </section>
+
+  <!-- ============ 大事年表 ============ -->
+  <section class="view" id="view-chrono">
+    <div class="sec-head">
+      <h2>大事年表</h2>
+      <p>从元末乱世到明郑结束。标红并注有「节点」的条目，是改变走向的时刻。</p>
+      <hr class="rule">
+    </div>
+    <div class="filters" id="chronoFilters"></div>
+    <div class="chrono" id="chronoList"></div>
+  </section>
+
+  <!-- ============ 三书对照 ============ -->
+  <section class="view" id="view-compare">
+    <div class="sec-head">
+      <h2>三书对照</h2>
+      <p>同一件事，三种知识传统怎么讲。差异本身就是信息：它暴露了每种写法的假设与盲区。</p>
+      <hr class="rule">
+    </div>
+    <div class="cmp-list" id="cmpList"></div>
+  </section>
+
+  <!-- ============ 章节索引 ============ -->
+  <section class="view" id="view-index">
+    <div class="sec-head">
+      <h2>章节索引</h2>
+      <p>四部著作的真实目录，含页码。可检索章节名与小节名，用来定位「这件事在第几页」。</p>
+      <hr class="rule">
+    </div>
+    <div class="gloss-bar">
+      <label class="search" for="idxQuery">
+        <span class="ico" aria-hidden="true">⌕</span>
+        <input id="idxQuery" type="search" placeholder="在当前书中检索章节，例如：一条鞭法、郑成功、白银" autocomplete="off">
+      </label>
+    </div>
+    <div class="idx-layout">
+      <div class="idx-side" id="idxSide"></div>
+      <div class="idx-panel" id="idxPanel"></div>
+    </div>
+  </section>
+
+  <!-- ============ 词条库 ============ -->
+  <section class="view" id="view-glossary">
+    <div class="sec-head">
+      <h2>词条库</h2>
+      <p>人物、制度、事件、政权地名与文献。每条都给出「去哪本书、哪一章」，方便顺着查下去。</p>
+      <hr class="rule">
+    </div>
+    <div class="gloss-bar">
+      <label class="search" for="glossQuery">
+        <span class="ico" aria-hidden="true">⌕</span>
+        <input id="glossQuery" type="search" placeholder="搜索词条：于谦、一条鞭法、扬州、永历、卫所……" autocomplete="off">
+      </label>
+      <span class="chip" id="glossCount" style="align-self:center"></span>
+    </div>
+    <div class="filters" id="glossCats"></div>
+    <div class="gloss-grid" id="glossGrid"></div>
+  </section>
+
+  <!-- ============ 主题线索 ============ -->
+  <section class="view" id="view-themes">
+    <div class="sec-head">
+      <h2>主题线索</h2>
+      <p>如果不想按年代读，可以按问题读。每条线索给出跨越三本书的阅读顺序。</p>
+      <hr class="rule">
+    </div>
+    <div class="theme-grid" id="themeGrid"></div>
+  </section>
+
+  <!-- ============ 本地阅读 ============ -->
+  <section class="view" id="view-reader">
+    <div class="sec-head">
+      <h2>本地阅读</h2>
+      <p>把你手上的电子文件直接拖进来读。整个过程在浏览器里完成，不经过任何服务器。</p>
+      <hr class="rule">
+    </div>
+
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="选择或拖入文件">
+      <div class="big" aria-hidden="true">⇩</div>
+      <b>把 PDF 或 TXT 拖到这里</b>
+      <span>也可以点击选择文件　·　支持 PDF / TXT / MD / CSV</span>
+      <input type="file" id="fileInput" accept=".pdf,.txt,.md,.markdown,.csv,.log,.json,text/*,application/pdf" hidden>
+    </div>
+
+    <div class="reader-stage" id="readerStage">
+      <div class="reader-bar">
+        <span class="name" id="readerName"></span>
+        <button class="pill" id="readerClose" type="button">关闭并清除</button>
+      </div>
+      <iframe class="reader-frame" id="readerFrame" style="display:none" title="PDF 阅读区"></iframe>
+      <div class="reader-text" id="readerText" style="display:none"></div>
+    </div>
+
+    <div class="notice" style="margin-top:22px">
+      <b>为什么这样做。</b>你提供的四部著作均为扫描件（《剑桥中国明代史》上卷另有完整书签），
+      合计约 2950 页。本站不把它们转录后公开——那会侵犯著作权。所以这里换一种方式：
+      <b>你提供文件，我提供索引</b>。用上面的「章节索引」查到页码，再在这里打开你自己的那一册。
+      <br><br>
+      <b>技术说明。</b>PDF 通过浏览器原生的 <code>Blob URL</code> 在本机渲染，TXT 以 <code>FileReader</code> 读取，
+      两者都不会发起网络请求；关闭页面即释放内存，不写入任何存储。
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="inner">
+    <p><b>明史资料平台</b>　·　原创索引与研读工具，不收录受版权保护的书籍正文。</p>
+    <p>索引对象：《剑桥中国明代史（1368—1644年）》上下卷（牟复礼、崔瑞德编，中国社会科学出版社）、
+      《南明史》上下册（顾诚著，中国青年出版社）、《明朝那些事儿（图文增补版）》（当年明月著，北京联合出版公司）。
+      著作权归原作者与出版机构所有。</p>
+    <p>本站内容基于史实与公开出版物的目录信息整理，供学习与检索之用。
+      如权利人认为任何内容不妥，请联系以便及时处理。</p>
+    <p style="margin-top:12px"><a href="../index.html">← 返回 daixuan.cloud 主页</a></p>
+  </div>
+</footer>
+
+<script src="js/data-books.js?v=20261009_01"></script>
+<script src="js/data-core.js?v=20261009_01"></script>
+<script src="js/app.js?v=20261009_01"></script>
+</body>
+</html>

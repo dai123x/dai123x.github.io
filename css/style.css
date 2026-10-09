@@ -5207,3 +5207,18 @@ body:has(.twin-launcher) .back-to-top {
   outline: 2px solid var(--accent-primary);
   outline-offset: 3px;
 }
+
+/* ==========================================================================
+   V7 · 人文类项目徽章配色（明史资料平台）
+   仅新增一个 .violet 变体，不改动既有 green / amber / blue 的定义，便于回滚。
+   ========================================================================== */
+.project-metric-badge.violet {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+  border-color: rgba(168, 85, 247, 0.28);
+}
+[data-theme="light"] .project-metric-badge.violet {
+  background: rgba(124, 58, 237, 0.10);
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.26);
+}
