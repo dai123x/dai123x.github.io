@@ -55,6 +55,7 @@
     initSpotlightCards();
     initStealthToggle();
     initSidebarVisitorSync();
+    initKeyboardCards();
   });
 
   /* --------------------------------------------------------------------------
@@ -1206,6 +1207,11 @@
       });
     }
 
+    // 窄屏默认收起：展开态胶囊约 255×54，会盖住正文左上角
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      capsule.classList.add('is-minimized');
+    }
+
     audio.addEventListener('play', () => updateUI(true));
     audio.addEventListener('pause', () => updateUI(false));
     audio.addEventListener('ended', () => updateUI(false));
@@ -1392,50 +1398,154 @@
   }
 
   /* --------------------------------------------------------------------------
-     20. 赛博加密留言终端 (Message Dispatcher - 参考 bobzhang.top 直连热线)
+     20. 赛博加密留言终端 (Message Dispatcher)
+     投递路径：GitHub Issues 预填链接（先审后发）+ 一键复制兜底
+     说明：本站为纯静态站点，没有服务端；此前"仅写入 localStorage 却提示已送达"
+           属于误导，现改为诚实的双通道投递。
      -------------------------------------------------------------------------- */
   function initMessageTerminal() {
     const form = document.getElementById('terminal-msg-form');
     const btn = document.getElementById('btn-transmit');
+    const copyBtn = document.getElementById('btn-copy-msg');
+    const feedback = document.getElementById('terminal-feedback');
     if (!form || !btn) return;
+
+    const ISSUE_BASE = 'https://github.com/dai123x/dai123x.github.io/issues/new';
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const today = () => {
+      const d = new Date();
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    };
+
+    // 隐身模式下不携带任何身份信息
+    const isStealth = () => form.dataset.stealth === '1';
+
+    const readFields = () => ({
+      sender: (document.getElementById('terminal-sender')?.value || '').trim().slice(0, 20),
+      contact: (document.getElementById('terminal-contact')?.value || '').trim().slice(0, 60),
+      text: (document.getElementById('terminal-text')?.value || '').trim().slice(0, 500)
+    });
+
+    const buildPayload = () => {
+      const { sender, contact, text } = readFields();
+      const stealth = isStealth();
+      const who = stealth || !sender ? '匿名访客' : sender;
+      const lines = ['### 昵称', who, '', '### 留言', text];
+      if (!stealth && contact) lines.push('', '### 联系方式', contact);
+      lines.push('', '> 提交自 daixuan.cloud 首页留言终端 · ' + today());
+      return { who, text, title: '[留言墙] ' + who, body: lines.join('\n') };
+    };
+
+    // 复制到剪贴板：优先 Clipboard API，被拒或不可用时回退 execCommand
+    const copyText = (t) => {
+      const legacy = () => new Promise((resolve, reject) => {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = t;
+          ta.setAttribute('readonly', '');
+          ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          ok ? resolve() : reject(new Error('copy-failed'));
+        } catch (err) { reject(err); }
+      });
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(t).catch(legacy);
+      }
+      return legacy();
+    };
+
+    const toast = document.getElementById('toast');
+    let toastTimer = null;
+    const say = (msg, ms = 4600) => {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
+    };
+
+    const setFeedback = (msg, kind) => {
+      if (!feedback) return;
+      feedback.textContent = msg || '';
+      feedback.classList.toggle('is-error', kind === 'error');
+      feedback.classList.toggle('is-ok', kind === 'ok');
+    };
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const sender = document.getElementById('terminal-sender')?.value.trim();
-      const contact = document.getElementById('terminal-contact')?.value.trim();
-      const text = document.getElementById('terminal-text')?.value.trim();
+      const p = buildPayload();
+      if (!p.text) {
+        document.getElementById('terminal-text')?.focus();
+        return;
+      }
 
-      if (!sender || !text) return;
-
-      const origText = btn.innerHTML;
+      const orig = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<span>⚡ 正在建立加密信道并上传...</span>';
+      btn.innerHTML = '<span>⚡ 正在生成投递链接...</span>';
+
+      // 兜底：先把留言复制到剪贴板，方便没有 GitHub 账号的访客走任意渠道发送
+      copyText(p.text).catch(() => { /* 忽略：仍会打开 GitHub 提交页 */ });
+
+      // 本地留存草稿（只存在访客自己的浏览器里，便于误关页面后找回）
+      try {
+        const list = JSON.parse(localStorage.getItem('dx_msg_drafts') || '[]');
+        list.push({ who: p.who, text: p.text, time: new Date().toISOString() });
+        localStorage.setItem('dx_msg_drafts', JSON.stringify(list.slice(-20)));
+      } catch (err) { /* 隐私模式下忽略 */ }
+
+      const url = ISSUE_BASE +
+        '?title=' + encodeURIComponent(p.title) +
+        '&body=' + encodeURIComponent(p.body);
+
+      let win = null;
+      try { win = window.open(url, '_blank', 'noopener'); } catch (err) { win = null; }
+
+      btn.innerHTML = '<span>✨ 投递链接已生成</span>';
+
+      if (win) {
+        setFeedback('已在新标签打开 GitHub 提交页：登录 GitHub 后点击「Submit new issue」即可送达；留言内容也已复制到剪贴板。', 'ok');
+        say('🛰️ 已打开 GitHub 提交页（需登录 GitHub 账号）· 留言内容已复制备用');
+        form.reset();
+      } else {
+        setFeedback('浏览器拦截了新窗口：请点击「复制留言」，再通过微信或邮箱发送给戴璇。', 'error');
+        say('⚠️ 新窗口被拦截 · 留言已复制，请通过微信或邮箱发送给戴璇');
+      }
 
       setTimeout(() => {
-        // 保存至本地存储记录
-        try {
-          const list = JSON.parse(localStorage.getItem('dx_sent_msgs') || '[]');
-          list.push({ sender, contact, text, time: new Date().toISOString() });
-          localStorage.setItem('dx_sent_msgs', JSON.stringify(list));
-        } catch (err) { /* ignore */ }
-
-        btn.innerHTML = '<span>✨ 核心数据传输成功！</span>';
-
-        const toast = document.getElementById('toast');
-        if (toast) {
-          toast.textContent = `🛰️ 加密数据传输成功！戴璇已收到代号【${sender}】的联路提醒。`;
-          toast.classList.add('show');
-          setTimeout(() => toast.classList.remove('show'), 4200);
-        }
-
-        form.reset();
-
-        setTimeout(() => {
-          btn.disabled = false;
-          btn.innerHTML = origText;
-        }, 2500);
-      }, 900);
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }, 2200);
     });
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const p = buildPayload();
+        if (!p.text) {
+          document.getElementById('terminal-text')?.focus();
+          return;
+        }
+        const orig = copyBtn.innerHTML;
+        copyText(p.text).then(() => {
+          setFeedback('留言内容已复制，可粘贴到微信、邮箱等任意渠道发送给戴璇。', 'ok');
+          say('📋 留言内容已复制到剪贴板');
+          copyBtn.classList.add('is-done');
+          copyBtn.innerHTML = '<span>✓ 已复制</span>';
+          setTimeout(() => {
+            copyBtn.classList.remove('is-done');
+            copyBtn.innerHTML = orig;
+          }, 2200);
+        }).catch(() => {
+          const ta = document.getElementById('terminal-text');
+          if (ta) { ta.focus(); ta.select(); }
+          setFeedback('自动复制失败，已为你选中留言内容，请按 Ctrl/Cmd + C 复制。', 'error');
+          say('⚠️ 复制失败，请手动复制留言内容');
+        });
+      });
+    }
   }
 
 
@@ -1469,14 +1579,27 @@
 
     if (!toggleBtn) return;
 
+    const form = document.getElementById('terminal-msg-form');
     let isStealth = false;
+
+    // 把隐身状态同步到表单，供留言终端决定是否携带身份信息
+    const syncStealthState = () => {
+      if (form) form.dataset.stealth = isStealth ? '1' : '0';
+    };
+    syncStealthState();
 
     toggleBtn.addEventListener('click', () => {
       isStealth = !isStealth;
       toggleBtn.classList.toggle('is-active', isStealth);
+      syncStealthState();
 
       if (isStealth) {
         if (realFields) realFields.style.display = 'none';
+        // 兑现「所有身份特征已被抹除」：清空此前已填写的姓名与联系方式
+        const senderEl = document.getElementById('terminal-sender');
+        const contactEl = document.getElementById('terminal-contact');
+        if (senderEl) senderEl.value = '';
+        if (contactEl) contactEl.value = '';
         if (alertBanner) alertBanner.style.display = 'flex';
         if (labelReal) { labelReal.classList.remove('is-active'); }
         if (labelAnon) { labelAnon.classList.add('is-active'); }
@@ -1510,6 +1633,22 @@
     update();
     window.addEventListener('storage', update);
     document.addEventListener('dx:identity-updated', update);
+  }
+
+  /* --------------------------------------------------------------------------
+     24. 键盘可达性：让「整卡可点」的元素也能用 Enter / Space 触发
+     —— 首页 bento 媒体卡此前只有 onclick，键盘与读屏用户无法进入
+     -------------------------------------------------------------------------- */
+  function initKeyboardCards() {
+    const cards = document.querySelectorAll('.stage-bento-card[role="link"]');
+    cards.forEach((card) => {
+      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+        e.preventDefault();
+        card.click();
+      });
+    });
   }
 
 })();

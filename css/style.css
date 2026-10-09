@@ -5074,3 +5074,136 @@ body:has(.twin-launcher) .back-to-top {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 14px 36px -20px rgba(15, 23, 42, 0.18);
 }
 [data-theme="light"] .terminal-status { color: #0e7490; }
+
+/* ==========================================================================
+   V5 · 留言终端投递方式层（GitHub Issues 降门槛）
+   —— 明确登录门槛 + 复制兜底，避免"看似发送成功、实际未投递"
+   ========================================================================== */
+.terminal-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.terminal-hint strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.terminal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-copy-msg {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  font-size: 0.86rem;
+  padding: 12px 20px;
+}
+
+.btn-copy-msg:hover {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: none;
+}
+
+.btn-copy-msg.is-done {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.terminal-feedback {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.terminal-feedback.is-error { color: #f59e0b; }
+.terminal-feedback.is-ok { color: #10b981; }
+
+@media (max-width: 640px) {
+  .terminal-actions { justify-content: stretch; }
+  .terminal-actions .btn-transmit { flex: 1 1 100%; }
+}
+
+/* ==========================================================================
+   V6 · 项目封面比例修复 + 移动端悬浮件收敛 + 无障碍焦点
+   —— 本轮针对实测缺陷：精选项目封面被 object-fit:cover 横向裁切 15%~38%，
+      插画标题（如「雪线之上」）与角标被切掉，观感失真
+   ========================================================================== */
+
+/* --- V6-1 项目封面：还原插画原始 5:3 比例，从根上消除横向裁切 ------------
+   实测：精选卡封面容器约 515×500（近正方形），插画为 600×360（5:3），
+   cover 会左右各裁 65~160px。改为按插画比例定尺寸后，容器与插画同形，
+   cover 不再产生任何裁切。 */
+.project-cover {
+  aspect-ratio: 5 / 3;
+  height: auto;
+}
+
+@media (min-width: 900px) {
+  /* 封面列改为「整高媒体窗格」：窗格撑满卡片高度并带极淡底纹，
+     插画本身按 5:3 居中装裱 —— 既零裁切，也不会显得悬浮空荡 */
+  .project-card.featured .project-cover {
+    height: 100%;
+    min-height: 320px;
+    aspect-ratio: auto;
+    align-self: stretch;
+    margin: 0;
+    padding: 28px 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-right: 1px solid var(--border-color);
+    border-radius: 0;
+    box-shadow: none;
+    background:
+      radial-gradient(120% 100% at 18% 0%, rgba(129, 140, 248, 0.10), transparent 62%),
+      linear-gradient(165deg, rgba(15, 23, 42, 0.045), rgba(15, 23, 42, 0.015));
+  }
+  [data-theme="dark"] .project-card.featured .project-cover {
+    background:
+      radial-gradient(120% 100% at 18% 0%, rgba(129, 140, 248, 0.16), transparent 62%),
+      linear-gradient(165deg, rgba(148, 163, 184, 0.07), rgba(15, 23, 42, 0.02));
+  }
+  .project-card.featured .project-cover img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 5 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 18px 40px -26px rgba(15, 23, 42, 0.5);
+  }
+  [data-theme="dark"] .project-card.featured .project-cover img {
+    box-shadow: 0 18px 44px -26px rgba(0, 0, 0, 0.75);
+  }
+  /* 封面不再满高时，左侧留白由卡片自身承担，文字列补足左内边距 */
+  .project-card.featured .project-body {
+    padding: 40px 40px 40px 34px;
+  }
+}
+
+/* --- V6-2 移动端：悬浮音频胶囊默认收起，避免遮挡正文 ------------------
+   实测 390px 视口下胶囊展开态为 255×54，覆盖正文区域左上角。 */
+@media (max-width: 640px) {
+  .cyber-audio-capsule.is-minimized { padding: 6px; }
+  .cyber-audio-capsule { max-width: calc(100vw - 32px); }
+}
+
+/* --- V6-3 可点击卡片（bento media）键盘可达性 ------------------------- */
+.stage-bento-card[role="link"] { cursor: pointer; }
+.stage-bento-card[role="link"]:focus-visible,
+.project-card:focus-visible,
+.matrix-card:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}

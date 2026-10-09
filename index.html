@@ -270,7 +270,7 @@
                   <span>浏览精选作品</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
                 </a>
-                <a href="snow-viz/index.html" target="_blank" class="btn btn-secondary">
+                <a href="snow-viz/index.html" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
                   <span>❄️ 体验冰雪交互大屏</span>
                 </a>
                 <a href="galaxy/" class="btn btn-galaxy">
@@ -333,8 +333,8 @@
           </div>
 
           <!-- Card 4: 记忆链接卡片 (Core Memory Gallery) -->
-          <div class="stage-bento-card bento-card-media" onclick="window.location.href='campus-map/'">
-            <img src="assets/images/og-campus-map.jpg" alt="校园3D地图" class="media-bg">
+          <div class="stage-bento-card bento-card-media" role="link" tabindex="0" aria-label="打开长工大 3D 校园全景" onclick="window.location.href='campus-map/'">
+            <img src="assets/images/og-campus-map.jpg" alt="校园3D地图" class="media-bg" width="1200" height="630" loading="lazy" decoding="async">
             <span class="media-badge-tag media-badge-cyan">CORE_MEMORY // LINK</span>
             <div class="media-content">
               <h3 class="media-title">长工大 3D 校园全景</h3>
@@ -343,8 +343,8 @@
           </div>
 
           <!-- Card 5: 热爱与足迹卡片 (Life Matrix) -->
-          <div class="stage-bento-card bento-card-media" onclick="document.getElementById('star-footprint').scrollIntoView({behavior: 'smooth'})">
-            <img src="assets/images/og-snowviz.jpg" alt="雪线之上" class="media-bg">
+          <div class="stage-bento-card bento-card-media" role="link" tabindex="0" aria-label="跳转到星空足迹打卡区" onclick="document.getElementById('star-footprint').scrollIntoView({behavior: 'smooth'})">
+            <img src="assets/images/og-snowviz.jpg" alt="雪线之上" class="media-bg" width="1186" height="630" loading="lazy" decoding="async">
             <span class="media-badge-tag media-badge-purple">LIFE_MATRIX // SYNC</span>
             <div class="media-content">
               <h3 class="media-title">我的热爱 and 留下足迹</h3>
@@ -649,7 +649,7 @@
               </div>
               <div class="matrix-footer">
                 <span style="font-size:0.8rem; color:var(--text-muted);">落地于多篇实证分析报告</span>
-                <a href="case-studies/applied-statistics-credit-risk.html" target="_blank" class="matrix-link">研读案例分析 →</a>
+                <a href="case-studies/applied-statistics-credit-risk.html" target="_blank" rel="noopener noreferrer" class="matrix-link">研读案例分析 →</a>
               </div>
             </div>
 
@@ -695,7 +695,7 @@
               </div>
               <div class="matrix-footer">
                 <span style="font-size:0.8rem; color:var(--text-muted);">独立自研数字孪生系统</span>
-                <a href="campus-map/index.html" target="_blank" class="matrix-link">进入 3D 漫游 →</a>
+                <a href="campus-map/index.html" target="_blank" rel="noopener noreferrer" class="matrix-link">进入 3D 漫游 →</a>
               </div>
             </div>
 
@@ -718,7 +718,7 @@
               </div>
               <div class="matrix-footer">
                 <span style="font-size:0.8rem; color:var(--text-muted);">参赛级全景交互系统</span>
-                <a href="snow-viz/index.html" target="_blank" class="matrix-link">体验交互大屏 →</a>
+                <a href="snow-viz/index.html" target="_blank" rel="noopener noreferrer" class="matrix-link">体验交互大屏 →</a>
               </div>
             </div>
           </div>
@@ -1477,11 +1477,18 @@
                     <label for="terminal-text" class="terminal-label">核心信息 [留言内容]</label>
                     <textarea id="terminal-text" class="terminal-textarea" placeholder="正在准备传输数据..." required></textarea>
                   </div>
-                  <div class="terminal-form-full" style="display:flex; justify-content: flex-end;">
+                  <p class="terminal-hint terminal-form-full" id="terminal-hint">
+                    投递方式：点击「发送数据」会打开 GitHub 提交页（<strong>需登录 GitHub 账号</strong>）；没有账号可点「复制留言」，再通过微信或邮箱发我。
+                  </p>
+                  <div class="terminal-form-full terminal-actions">
+                    <button type="button" class="btn-transmit btn-copy-msg" id="btn-copy-msg">
+                      <span>⧉ 复制留言</span>
+                    </button>
                     <button type="submit" class="btn-transmit" id="btn-transmit">
                       <span>>_ 发送数据</span>
                     </button>
                   </div>
+                  <p class="terminal-feedback terminal-form-full" id="terminal-feedback" role="status" aria-live="polite"></p>
                 </form>
               </div>
             </div>
@@ -1495,7 +1502,7 @@
   <footer class="footer">
     <div class="container">
       <div>
-        <p>© <span class="footer-year">2026</span> <strong>戴璇 (Dai Xuan)</strong> · 保留所有权利</p>
+        <p>© <span class="footer-year">2026</span> <strong>戴璇 (Dai Xuan)</strong> · 版权所有</p>
         <p style="font-size: 0.8rem; margin-top: 4px; color: var(--text-muted);">
           GitHub 仓库：<a href="https://github.com/dai123x/dai123x.github.io" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline;">dai123x/dai123x.github.io</a> · 独立域名：<strong>daixuan.cloud</strong> · 最后更新 <span class="lastmod">2026-10-07</span>
         </p>

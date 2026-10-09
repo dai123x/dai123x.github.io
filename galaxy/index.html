@@ -447,7 +447,8 @@
     .wall-form-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .wall-submit {
@@ -465,6 +466,26 @@
 
     .wall-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
 
+    /* 无 GitHub 账号的兜底：复制留言内容 */
+    .wall-copy {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: rgba(148, 163, 184, 0.08);
+      color: var(--text-low);
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .wall-copy:hover {
+      color: var(--indigo);
+      border-color: var(--indigo);
+      transform: translateY(-1px);
+    }
+
     .wall-mail {
       margin-left: auto;
       font-size: 0.7rem;
@@ -473,6 +494,14 @@
     }
 
     .wall-mail:hover { color: var(--indigo); text-decoration: underline; }
+
+    /* 投递方式说明：明确 GitHub 登录门槛，避免访客误以为提交失败 */
+    .wall-hint {
+      margin: 0 0 8px;
+      font-size: 0.68rem;
+      line-height: 1.5;
+      color: var(--text-low);
+    }
 
     .wall-foot {
       padding: 8px 14px 10px;
@@ -789,8 +818,10 @@
     <form class="wall-form" id="wall-form">
       <input id="wall-name" class="wall-input" type="text" maxlength="20" autocomplete="off" data-i18n-ph="wallNamePh" placeholder="昵称（可匿名）" aria-label="昵称">
       <textarea id="wall-msg" class="wall-input wall-msg" maxlength="200" rows="2" data-i18n-ph="wallMsgPh" placeholder="写下你的印记…" aria-label="留言内容"></textarea>
+      <p class="wall-hint" data-i18n="wallHint">提交会打开 GitHub 提交页，需登录 GitHub 账号；没有账号可点「复制留言」后通过邮件或任意渠道发给站长。</p>
       <div class="wall-form-row">
         <button type="submit" class="wall-submit" data-i18n="wallSubmit">提交审核</button>
+        <button type="button" class="wall-copy" id="wall-copy" data-i18n="wallCopy">复制留言</button>
         <a class="wall-mail" id="wall-mail" href="mailto:daixuan26@outlook.com?subject=%E6%98%9F%E6%B5%B7%E7%95%99%E8%A8%80%E5%A2%99%E5%AE%A1%E6%A0%B8" data-i18n="wallMail">没有 GitHub？邮件提交</a>
       </div>
     </form>
@@ -927,9 +958,13 @@
           wall: '留言牆', wallTitle: '星海留言牆',
           wallNote: '所有留言經站長審核後才會展示', wallLoading: '正在載入留言…',
           wallNamePh: '暱稱（可匿名）', wallMsgPh: '寫下你的印記…',
-          wallSubmit: '提交審核', wallMail: '沒有 GitHub？郵件提交',
+          wallSubmit: '提交審核', wallCopy: '複製留言', wallMail: '沒有 GitHub？郵件提交',
+          wallHint: '提交會開啟 GitHub 提交頁，需登入 GitHub 帳號；沒有帳號可點「複製留言」後透過郵件或任意管道發給站長。',
           wallEmpty: '還沒有留言，來搶第一個沙發吧 ✦',
-          wallOpenToast: '已開啟 GitHub 提交頁，提交後等待站長審核 ✦',
+          wallOpenToast: '已複製留言並開啟 GitHub 提交頁（需登入 GitHub 帳號才能送出）✦',
+          wallPopupBlocked: '新視窗被瀏覽器攔截 · 留言已複製，請貼到郵件或任意管道發給站長',
+          wallCopied: '留言已複製 · 可貼到郵件或任意管道發給站長 ✦',
+          wallCopyFail: '複製失敗 · 請手動選取留言內容後複製',
           wallFoot: '留言審核通過後展示 · 數據存於本站 GitHub 倉庫'
         },
         cards: [
@@ -956,9 +991,13 @@
           wallNote: 'Every message is reviewed by the site owner before it appears',
           wallLoading: 'Loading comments…',
           wallNamePh: 'Name (optional)', wallMsgPh: 'Leave your imprint…',
-          wallSubmit: 'Submit for review', wallMail: 'No GitHub? Submit by email',
+          wallSubmit: 'Submit for review', wallCopy: 'Copy message', wallMail: 'No GitHub? Submit by email',
+          wallHint: 'Submitting opens the GitHub issue form — a GitHub account is required. No account? Hit “Copy message” and send it to me by email or any other channel.',
           wallEmpty: 'No comments yet — be the first ✦',
-          wallOpenToast: 'GitHub submission page opened — awaiting review ✦',
+          wallOpenToast: 'Message copied and GitHub form opened (sign in to GitHub to submit) ✦',
+          wallPopupBlocked: 'Popup blocked · your message was copied — paste it into an email or any channel',
+          wallCopied: 'Message copied — paste it into an email or any channel ✦',
+          wallCopyFail: 'Copy failed · please select the message text and copy manually',
           wallFoot: 'Comments appear after review · stored in this site’s GitHub repo'
         },
         cards: [
@@ -1064,9 +1103,13 @@
       wall: '留言墙', wallTitle: '星海留言墙',
       wallNote: '所有留言经站长审核后才会展示', wallLoading: '正在载入留言…',
       wallNamePh: '昵称（可匿名）', wallMsgPh: '写下你的印记…',
-      wallSubmit: '提交审核', wallMail: '没有 GitHub？邮件提交',
+      wallSubmit: '提交审核', wallCopy: '复制留言', wallMail: '没有 GitHub？邮件提交',
+      wallHint: '提交会打开 GitHub 提交页，需登录 GitHub 账号；没有账号可点「复制留言」后通过邮件或任意渠道发给站长。',
       wallEmpty: '还没有留言，来抢第一个沙发吧 ✦',
-      wallOpenToast: '已打开 GitHub 提交页，提交后等待站长审核 ✦',
+      wallOpenToast: '已复制留言并打开 GitHub 提交页（需登录 GitHub 账号才能送出）✦',
+      wallPopupBlocked: '新窗口被浏览器拦截 · 留言已复制，请粘贴到邮件或任意渠道发给站长',
+      wallCopied: '留言已复制 · 可粘贴到邮件或任意渠道发给站长 ✦',
+      wallCopyFail: '复制失败 · 请手动选中留言内容后复制',
       wallFoot: '留言审核通过后展示 · 数据存于本站 GitHub 仓库'
     };
     var BASE_CARDS = MILESTONES.map(function (m) {
@@ -1106,6 +1149,7 @@
     var wallList = document.getElementById('wall-list');
     var wallClose = document.getElementById('wall-close');
     var wallForm = document.getElementById('wall-form');
+    var wallCopy = document.getElementById('wall-copy');
     var wallName = document.getElementById('wall-name');
     var wallMsg = document.getElementById('wall-msg');
     var wallMail = document.getElementById('wall-mail');
@@ -1116,6 +1160,17 @@
     function chromeText() {
       var dict = I18N[getLang()];
       return dict ? dict.chrome : BASE_CHROME;
+    }
+
+    // 此前 toastWall() 依赖的 showToast 从未定义，ReferenceError 被 try/catch 吞掉，
+    // 导致留言墙提交后没有任何反馈。此处补齐实现。
+    function showToast(msg) {
+      var el = document.getElementById('toast');
+      if (!el || !msg) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(function () { el.classList.remove('show'); }, 4600);
     }
 
     function toastWall(key) {
@@ -1170,23 +1225,73 @@
         });
     }
 
-    function submitWall(e) {
-      e.preventDefault();
+    // ---- 通用：复制文本（Clipboard API 被拒时回退 execCommand，兼容非 HTTPS / 旧内核） ----
+    function copyText(t) {
+      function legacy() {
+        return new Promise(function (resolve, reject) {
+          try {
+            var ta = document.createElement('textarea');
+            ta.value = t;
+            ta.setAttribute('readonly', '');
+            ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            ok ? resolve() : reject(new Error('copy-failed'));
+          } catch (err) { reject(err); }
+        });
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(t).catch(legacy);
+      }
+      return legacy();
+    }
+
+    // ---- 把表单内容整理成「Issue 正文」与「可复制的纯文本」 ----
+    function wallPayload() {
       var name = (wallName && wallName.value || '').trim().slice(0, 20);
       var msg = (wallMsg && wallMsg.value || '').trim().slice(0, 200);
-      if (!msg) {
-        if (wallMsg) wallMsg.focus();
-        return;
-      }
-      var c = chromeText();
       var d = new Date();
       var pad = function (n) { return String(n).padStart(2, '0'); };
       var dateStr = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-      var title = '[留言墙] ' + (name || (getLang() === 'en' ? 'Anonymous' : '匿名访客'));
-      var body = '### 昵称\n' + (name || '匿名访客') + '\n\n### 留言\n' + msg + '\n\n> 提交自 daixuan.cloud/galaxy · ' + dateStr;
-      window.open(ISSUE_BASE + '?title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body), '_blank', 'noopener');
-      toastWall('wallOpenToast');
+      var display = name || (getLang() === 'en' ? 'Anonymous' : '匿名访客');
+      var title = '[留言墙] ' + display;
+      var body = '### 昵称\n' + display + '\n\n### 留言\n' + msg + '\n\n> 提交自 daixuan.cloud/galaxy · ' + dateStr;
+      var plain = '【星海留言墙】' + display + '：' + msg + '（' + dateStr + '）';
+      return { name: name, display: display, msg: msg, title: title, body: body, plain: plain };
+    }
+
+    // ---- 邮件兜底：把当前输入实时同步进 mailto，无 GitHub 账号也能一键发信 ----
+    function syncWallMail() {
+      if (!wallMail) return;
+      var p = wallPayload();
+      var sub = '星海留言墙审核';
+      var body = p.msg
+        ? ('昵称：' + p.display + '\n\n留言：' + p.msg + '\n\n—— 来自 daixuan.cloud/galaxy')
+        : '昵称：\n\n留言：\n\n—— 来自 daixuan.cloud/galaxy';
+      wallMail.href = 'mailto:daixuan26@outlook.com'
+        + '?subject=' + encodeURIComponent(sub)
+        + '&body=' + encodeURIComponent(body);
+    }
+
+    function submitWall(e) {
+      e.preventDefault();
+      var p = wallPayload();
+      if (!p.msg) {
+        if (wallMsg) wallMsg.focus();
+        return;
+      }
+      var url = ISSUE_BASE + '?title=' + encodeURIComponent(p.title) + '&body=' + encodeURIComponent(p.body);
+      var win = null;
+      try { win = window.open(url, '_blank', 'noopener'); } catch (err) { win = null; }
+
+      // 兜底：无论 GitHub 是否可用，先把留言复制到剪贴板
+      copyText(p.msg).catch(function () { /* 忽略：仍可通过邮件提交 */ });
+
+      toastWall(win ? 'wallOpenToast' : 'wallPopupBlocked');
       if (wallMsg) wallMsg.value = '';
+      syncWallMail();
     }
 
     if (wallBtn && wallDrawer) {
@@ -1216,6 +1321,22 @@
       });
     }
     if (wallForm) wallForm.addEventListener('submit', submitWall);
+    if (wallCopy) {
+      wallCopy.addEventListener('click', function () {
+        var p = wallPayload();
+        if (!p.msg) { if (wallMsg) wallMsg.focus(); return; }
+        copyText(p.plain).then(function () {
+          toastWall('wallCopied');
+        }).catch(function () {
+          if (wallMsg) { wallMsg.focus(); wallMsg.select(); }
+          toastWall('wallCopyFail');
+        });
+      });
+    }
+    // 输入时实时同步邮件兜底链接，让「没有 GitHub？邮件提交」带上当前内容
+    if (wallName) wallName.addEventListener('input', syncWallMail);
+    if (wallMsg) wallMsg.addEventListener('input', syncWallMail);
+    syncWallMail();
 
     /* ==================== 唤醒幕 ==================== */
     var bootEl = document.getElementById('gw-boot');

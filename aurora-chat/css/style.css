@@ -92,6 +92,8 @@ input, textarea, select { font: inherit; color: inherit; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
 .brand-name { font-weight: 700; font-size: 15px; letter-spacing: .2px;
   background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* 品牌名是页面唯一 h1：保留视觉不变，只抹平浏览器默认 h1 的边距与字号 */
+h1.brand-name { margin: 0; line-height: 1.2; }
 .brand-sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .btn-new {

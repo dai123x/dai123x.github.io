@@ -6061,7 +6061,7 @@ async function initWebXRSession(gl) {
       </div>
 
       <div class="cover-eyebrow" style="font-size:14px; letter-spacing:6px; color:#0284c7; font-weight:700; opacity:0; animation: fadeIn 2s forwards 0.6s;">JILIN · ICE & SNOW ECONOMY</div>
-      <h1 style="font-size: 56px; margin: 16px 0; color: #0f172a; font-weight:900; letter-spacing:0.02em; text-shadow: 0 4px 24px rgba(2,132,199,0.12); opacity:0; animation: fadeIn 2s forwards 1s;">雪线之上</h1>
+      <div class="cover-title" style="font-size: 56px; margin: 16px 0; color: #0f172a; font-weight:900; letter-spacing:0.02em; text-shadow: 0 4px 24px rgba(2,132,199,0.12); opacity:0; animation: fadeIn 2s forwards 1s;">雪线之上</div>
       <p style="font-size: 19px; color: #475569; margin-bottom: 32px; letter-spacing: 0.02em; font-weight:500; opacity:0; animation: fadeIn 2s forwards 1.5s;">吉林冰雪经济目标可视化交互系统</p>
       
       <div class="cover-meta" style="justify-content: center; opacity:0; animation: fadeIn 2s forwards 2s; border: 1px solid #e2e8f0; background: #f8fafc; padding: 18px 24px; border-radius: 12px; max-width: 520px; margin: 0 auto 36px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
@@ -12622,7 +12622,8 @@ async function initWebXRSession(gl) {
       --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, monospace;
     }
     html.sv-en body { letter-spacing: 0.004em; word-spacing: normal; }
-    html.sv-en h1, html.sv-en h2, html.sv-en h3, html.sv-en h4, html.sv-en h5 {
+    html.sv-en h1, html.sv-en h2, html.sv-en h3, html.sv-en h4, html.sv-en h5,
+    html.sv-en .cover-title {
       line-height: 1.22; overflow-wrap: break-word; hyphens: none;
     }
     html.sv-en p, html.sv-en li, html.sv-en td, html.sv-en th, html.sv-en dd, html.sv-en dt,
@@ -12728,6 +12729,7 @@ async function initWebXRSession(gl) {
        --------------------------------------------------------------------------- */
     #subText,
     .cover-card h1,
+    .cover-card .cover-title,
     .cover-card p,
     .splash-cn,
     .splash-sub {
