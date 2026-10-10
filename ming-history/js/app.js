@@ -2,14 +2,16 @@
    纯静态实现，无外部依赖、无网络请求。所有检索、换算与渲染均在本机浏览器内完成。
 
    架构：
-     1) 工具函数
-     2) 主题
-     3) 路由 + 按需渲染（首屏只渲染「总览」，其余栏目首次激活时才构建）
-     4) 各栏目渲染器（列表类筛选走 DOM 切换，不重建）
-     5) 全站检索（命令面板，Ctrl/⌘+K）
-     6) 阅读辅助（进度条 / 回到顶部 / 滚动位置记忆）
-     7) 本地阅读器
-     8) 启动
+     1) 数据
+     2) 工具函数
+     3) 主题
+     4) 路由 + 按需渲染（首屏只渲染「总览」，其余栏目首次激活时才构建）
+     5) 标签栏
+     6) 各栏目渲染器（列表类筛选走 DOM 切换，不重建）
+     7) 全站检索（命令面板，Ctrl/⌘+K）
+     8) 阅读辅助（进度条 / 回到顶部 / 滚动位置记忆）
+     9) 本地阅读器
+    10) 启动
 */
 (function () {
   "use strict";
@@ -35,6 +37,10 @@
   const LINEAGE = CORE.LINEAGE || { trees: [], notes: [] };
   const BIBLIOGRAPHY = CORE.BIBLIOGRAPHY || { groups: [], legend: [], intro: "", note: "", closing: "" };
   const BIB_COUNT = (BIBLIOGRAPHY.groups || []).reduce((n, g) => n + g.items.length, 0);
+  const BUREAUCRACY = CORE.BUREAUCRACY || { systems: [], ranks: [], routes: [], notes: [], legend: [], intro: "" };
+  const THINKERS = CORE.THINKERS || { schools: [], debates: [], notes: [], legend: [], intro: "" };
+  const BZ_OFFICE_COUNT = (BUREAUCRACY.systems || []).reduce((n, s) => n + (s.offices || []).length, 0);
+  const TK_COUNT = (THINKERS.schools || []).reduce((n, s) => n + (s.thinkers || []).length, 0);
 
   /* ==================== 2. 工具 ==================== */
   const $ = (s, r) => (r || document).querySelector(s);
@@ -94,7 +100,7 @@
   }
 
   /* ==================== 4. 路由 + 按需渲染 ==================== */
-  const VIEWS = ["overview", "lineage", "chrono", "eras", "compare", "index",
+  const VIEWS = ["overview", "lineage", "chrono", "eras", "bureaucracy", "thinkers", "compare", "index",
     "bibliography", "glossary", "geo", "numbers", "debates", "themes", "reader"];
 
   const rendered = Object.create(null);   // 栏目是否已构建
@@ -107,6 +113,8 @@
     lineage: function () { renderEmperors(); renderTrees(); renderLineageNotes(); },
     chrono: renderChrono,
     eras: renderEras,
+    bureaucracy: renderBureaucracy,
+    thinkers: renderThinkers,
     compare: renderCompare,
     index: renderIndex,
     bibliography: renderBibliography,
@@ -315,6 +323,8 @@
       [CHRONOLOGY.length, "条 大事年表"],
       [GLOSSARY.length, "条 词条"],
       [ERAS.length, "个 年号"],
+      [BZ_OFFICE_COUNT, "个 官职详解"],
+      [TK_COUNT, "位 思想家"],
       [DEBATES.length, "组 争议考辨"],
       [BIB_COUNT, "种 延伸书目"],
     ];
@@ -638,7 +648,191 @@
       <p class="gz-formula">换算：(公元年 − 4) mod 10 得天干，mod 12 得地支。本例 (${raw} − 4) = ${raw - 4}，${raw - 4} mod 10 = ${(((raw - 4) % 10) + 10) % 10} → ${GAN[(((raw - 4) % 10) + 10) % 10]}；${raw - 4} mod 12 = ${(((raw - 4) % 12) + 12) % 12} → ${ZHI[(((raw - 4) % 12) + 12) % 12]}。</p>`;
   }
 
-  /* ==================== 10. 多书对照 ==================== */
+  /* ==================== 10. 官僚体系 ==================== */
+  const BZ_LVL = { "品级": "ok", "职事官": "mid", "差遣": "low", "加官": "tool" };
+  let bzSystem = "全部";
+
+  function bzLadder(chain) {
+    return '<div class="bz-ladder">' + (chain || []).map((c, i) =>
+      (i ? '<span class="bz-arrow" aria-hidden="true">→</span>' : "") +
+      '<span class="bz-node">' + esc(c) + "</span>").join("") + "</div>";
+  }
+
+  function bzOfficeHtml(o) {
+    return `<article class="bz-office" id="${esc(o.id)}">
+      <div class="bz-off-head">
+        <b>${esc(o.name)}</b>
+        <span class="bz-rank">${esc(o.rank)}</span>
+      </div>
+      ${o.alias ? `<div class="bz-alias">${esc(o.alias)}</div>` : ""}
+      <div class="bz-field"><span class="bz-k">职掌</span><p>${esc(o.duty)}</p></div>
+      <div class="bz-field"><span class="bz-k">沿革</span><p>${esc(o.since)}</p></div>
+      ${o.holders && o.holders.length ? `<div class="bz-field"><span class="bz-k">代表人物</span><div class="bz-tags">${o.holders.map((h) => `<span class="chip">${esc(h)}</span>`).join("")}</div></div>` : ""}
+      ${o.note ? `<div class="bz-note"><b>读法提示 · </b>${esc(o.note)}</div>` : ""}
+      ${o.refs && o.refs.length ? `<div class="bz-refs">${o.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>` : ""}
+    </article>`;
+  }
+
+  function renderBureaucracy() {
+    const intro = $("#bzIntro");
+    if (intro) intro.textContent = BUREAUCRACY.intro || "";
+
+    $("#bzLegend").innerHTML = (BUREAUCRACY.legend || []).map((l) =>
+      `<div class="legend-item"><span class="conf ${BZ_LVL[l.k] || "mid"}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
+
+    const systems = BUREAUCRACY.systems || [];
+    $("#bzFilters").innerHTML = ["全部"].concat(systems.map((s) => s.name)).map((k) =>
+      `<button class="pill${bzSystem === k ? " active" : ""}" data-sys="${esc(k)}" type="button">${esc(k)}</button>`).join("");
+
+    $("#bzSystems").innerHTML = systems.map((s) => `
+      <section class="bz-sec" id="bzs-${esc(s.id)}" data-sys="${esc(s.name)}">
+        <div class="bz-sec-head">
+          <span class="bz-ico" aria-hidden="true">${esc(s.icon)}</span>
+          <h3>${esc(s.name)}</h3>
+          <span class="chip">${(s.offices || []).length} 个职位</span>
+        </div>
+        <p class="bz-sec-note">${esc(s.note)}</p>
+        ${bzLadder(s.chain)}
+        <div class="bz-offices">${(s.offices || []).map(bzOfficeHtml).join("")}</div>
+      </section>`).join("");
+
+    $("#bzRanks").innerHTML = `
+      <div class="bz-tablewrap">
+        <table class="bz-table">
+          <caption>明代文官品级总表（常见官职）</caption>
+          <thead><tr><th scope="col">品级</th><th scope="col">主要文职</th><th scope="col">备考</th></tr></thead>
+          <tbody>${(BUREAUCRACY.ranks || []).map((r, i) => `
+            <tr id="bz-rank-${i}">
+              <th scope="row" class="bz-rk">${esc(r.rank)}</th>
+              <td class="bz-cv">${esc(r.civil)}</td>
+              <td class="bz-nt">${esc(r.note)}</td>
+            </tr>`).join("")}</tbody>
+        </table>
+      </div>`;
+
+    $("#bzRoutes").innerHTML = (BUREAUCRACY.routes || []).map((r, i) =>
+      `<div class="rel" id="bz-route-${i}"><h4>${esc(r.t)}</h4><p>${esc(r.d)}</p></div>`).join("");
+
+    $("#bzNotes").innerHTML = (BUREAUCRACY.notes || []).map((n) =>
+      `<div class="rel"><h4>${esc(n.t)}</h4><p>${esc(n.d)}</p></div>`).join("");
+
+    applyBzFilter();
+  }
+
+  function applyBzFilter() {
+    let shown = 0;
+    $$("#bzSystems .bz-sec").forEach((el) => {
+      const ok = bzSystem === "全部" || el.dataset.sys === bzSystem;
+      el.hidden = !ok;
+      if (ok) shown++;
+    });
+    let empty = $("#bzEmpty");
+    if (!shown) {
+      if (!empty) {
+        empty = document.createElement("div");
+        empty.id = "bzEmpty"; empty.className = "empty"; empty.textContent = "该体系暂无数据";
+        $("#bzSystems").appendChild(empty);
+      }
+    } else if (empty) empty.remove();
+  }
+
+  function initBureaucracy() {
+    delegate($("#bzFilters"), "click", ".pill", (p) => {
+      bzSystem = p.dataset.sys;
+      $$("#bzFilters .pill").forEach((x) => x.classList.toggle("active", x === p));
+      applyBzFilter();
+    });
+  }
+
+  /* ==================== 11. 思想界 ==================== */
+  const TK_LVL = { "理学": "ok", "心学": "mid", "气学": "low", "实学": "tool" };
+  let tkSchool = "全部";
+
+  function thinkerHtml(k) {
+    return `<article class="tk" id="${esc(k.id)}">
+      <div class="tk-head">
+        <div class="tk-name"><b>${esc(k.name)}</b>${k.courtesy ? `<span class="tk-courtesy">${esc(k.courtesy)}</span>` : ""}</div>
+        <span class="tk-life">${esc(k.life)}</span>
+      </div>
+      <div class="tk-meta"><span class="chip accent">${esc(k.school)}</span><span class="tk-title">${esc(k.title)}</span></div>
+      <div class="tk-core">${esc(k.core)}</div>
+      <div class="tk-thoughts">
+        ${(k.thoughts || []).map((t) => `<div class="tk-th"><b>${esc(t.t)}</b><p>${esc(t.d)}</p></div>`).join("")}
+      </div>
+      ${k.works && k.works.length ? `<div class="tk-field"><span class="bz-k">代表著作</span><div class="bz-tags">${k.works.map((w) => `<span class="chip">${esc(w)}</span>`).join("")}</div></div>` : ""}
+      ${k.legacy ? `<div class="tk-legacy"><b>影响 · </b>${esc(k.legacy)}</div>` : ""}
+      ${k.refs && k.refs.length ? `<div class="bz-refs">${k.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>` : ""}
+    </article>`;
+  }
+
+  function renderThinkers() {
+    const intro = $("#tkIntro");
+    if (intro) intro.textContent = THINKERS.intro || "";
+
+    $("#tkLegend").innerHTML = (THINKERS.legend || []).map((l) =>
+      `<div class="legend-item"><span class="conf ${TK_LVL[l.k] || "mid"}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
+
+    const schools = THINKERS.schools || [];
+    $("#tkFilters").innerHTML = ["全部"].concat(schools.map((s) => s.name)).map((k) =>
+      `<button class="pill${tkSchool === k ? " active" : ""}" data-school="${esc(k)}" type="button">${esc(k)}</button>`).join("");
+
+    $("#tkSchools").innerHTML = schools.map((s) => `
+      <section class="tk-sec" id="tks-${esc(s.id)}" data-school="${esc(s.name)}">
+        <div class="tk-sec-head">
+          <span class="bz-ico" aria-hidden="true">${esc(s.icon)}</span>
+          <h3>${esc(s.name)}</h3>
+          <span class="chip">${esc(s.span)}</span>
+          <span class="chip">${(s.thinkers || []).length} 位</span>
+        </div>
+        <p class="bz-sec-note">${esc(s.note)}</p>
+        <div class="tk-list">${(s.thinkers || []).map(thinkerHtml).join("")}</div>
+      </section>`).join("");
+
+    $("#tkDebates").innerHTML = (THINKERS.debates || []).map((d) => `
+      <article class="deb" id="${esc(d.id)}">
+        <div class="deb-head-static">
+          <span class="deb-tag">${esc(d.tag)}</span>
+          <div class="deb-t"><h3>${esc(d.t)}</h3><p class="deb-q">${esc(d.q)}</p></div>
+        </div>
+        <div class="deb-body-open">
+          <div class="deb-sides">${(d.sides || []).map((x) => `<div class="deb-side"><div class="deb-side-name">${esc(x.name)}</div><p>${esc(x.view)}</p></div>`).join("")}</div>
+          <div class="deb-status"><b>学界倾向 · </b>${esc(d.status)}</div>
+          <div class="deb-refs">${(d.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>
+        </div>
+      </article>`).join("");
+
+    $("#tkNotes").innerHTML = (THINKERS.notes || []).map((n) =>
+      `<div class="rel"><h4>${esc(n.t)}</h4><p>${esc(n.d)}</p></div>`).join("");
+
+    applyTkFilter();
+  }
+
+  function applyTkFilter() {
+    let shown = 0;
+    $$("#tkSchools .tk-sec").forEach((el) => {
+      const ok = tkSchool === "全部" || el.dataset.school === tkSchool;
+      el.hidden = !ok;
+      if (ok) shown++;
+    });
+    let empty = $("#tkEmpty");
+    if (!shown) {
+      if (!empty) {
+        empty = document.createElement("div");
+        empty.id = "tkEmpty"; empty.className = "empty"; empty.textContent = "该学派暂无数据";
+        $("#tkSchools").appendChild(empty);
+      }
+    } else if (empty) empty.remove();
+  }
+
+  function initThinkers() {
+    delegate($("#tkFilters"), "click", ".pill", (p) => {
+      tkSchool = p.dataset.school;
+      $$("#tkFilters .pill").forEach((x) => x.classList.toggle("active", x === p));
+      applyTkFilter();
+    });
+  }
+
+  /* ==================== 12. 多书对照 ==================== */
   function renderCompare() {
     $("#cmpList").innerHTML = COMPARE.map((c, i) => `
       <article class="cmp${i === 0 ? " open" : ""}" id="cmp-${esc(c.id)}">
@@ -662,7 +856,7 @@
     });
   }
 
-  /* ==================== 11. 章节索引 ==================== */
+  /* ==================== 13. 章节索引 ==================== */
   let curBook = BOOKS.length ? BOOKS[0].id : null;
   let idxQuery = "";
 
@@ -738,7 +932,7 @@
     if (q) q.addEventListener("input", debounce(() => { idxQuery = q.value; renderIndex(); }, 120));
   }
 
-  /* ==================== 12. 延伸书目 ==================== */
+  /* ==================== 14. 延伸书目 ==================== */
   const LVL_CLASS = { "入门": "ok", "进阶": "mid", "专题": "low", "工具": "tool", "史料": "src" };
   const lvlClass = (k) => LVL_CLASS[k] || "mid";
   let bibLvl = "全部";
@@ -811,7 +1005,7 @@
     });
   }
 
-  /* ==================== 13. 词条库 ==================== */
+  /* ==================== 15. 词条库 ==================== */
   let glossCat = "全部", glossKw = "";
 
   function renderGlossary() {
@@ -852,7 +1046,7 @@
     if (q) q.addEventListener("input", debounce(() => { glossKw = q.value; renderGlossary(); }, 120));
   }
 
-  /* ==================== 14. 舆图政区 ==================== */
+  /* ==================== 16. 舆图政区 ==================== */
   let placeKind = "全部";
 
   function renderGeo() {
@@ -910,7 +1104,7 @@
     });
   }
 
-  /* ==================== 15. 数据一览 ==================== */
+  /* ==================== 17. 数据一览 ==================== */
   const confClass = (k) => (k === "册载" ? "ok" : k === "估算" ? "mid" : "low");
 
   function renderNumbers() {
@@ -935,7 +1129,7 @@
     if (cav) cav.innerHTML = `<b>使用提醒。</b>${esc(String(NUMBERS.caveat || "").replace(/^使用提醒：/, ""))}`;
   }
 
-  /* ==================== 16. 争议考辨 ==================== */
+  /* ==================== 18. 争议考辨 ==================== */
   function renderDebates() {
     $("#debList").innerHTML = DEBATES.map((d, i) => `
       <article class="deb${i === 0 ? " open" : ""}" id="deb-${i}">
@@ -962,7 +1156,7 @@
     });
   }
 
-  /* ==================== 17. 主题线索 ==================== */
+  /* ==================== 19. 主题线索 ==================== */
   const THEME_COLOR = { indigo: "var(--c-indigo)", teal: "var(--c-teal)", amber: "var(--c-amber)", violet: "var(--c-violet)", rose: "var(--c-rose)" };
 
   function renderThemes() {
@@ -975,7 +1169,7 @@
       </article>`).join("");
   }
 
-  /* ==================== 18. 全站检索（命令面板） ==================== */
+  /* ==================== 20. 全站检索（命令面板） ==================== */
   let SEARCH_IX = null;
   let palResults = [];
   let palActive = 0;
@@ -983,11 +1177,27 @@
   function buildSearchIndex() {
     const ix = [];
     const add = (o) => {
-      o.hay = (o.title + " " + (o.sub || "") + " " + (o.text || "")).toLowerCase();
-      o.tl = o.title.toLowerCase();
+      const aka = o.aka && o.aka.length ? " " + o.aka.filter(Boolean).join(" ") : "";
+      o.hay = (o.title + aka + " " + (o.sub || "") + " " + (o.text || "")).toLowerCase();
+      o.tl = (o.title + aka).toLowerCase();
       o.sl = (o.sub || "").toLowerCase();
       ix.push(o);
     };
+    // 由「字／号／世称」推出常用别称，让「王阳明」「李卓吾」「黄梨洲」这类称呼也能命中
+    const aliasesOf = (courtesy, name) => {
+      const c = courtesy || "", surname = String(name || "").charAt(0), out = [];
+      const pick = (re) => { const m = c.match(re); return m ? m[1] : ""; };
+      const zi = pick(/字([^，,、]+)/), hao = pick(/号([^，,、]+)/), shi = pick(/世称([^，,、]+?)先生/);
+      [[zi], [hao], [shi]].forEach(([v]) => {
+        if (!v) return;
+        out.push(v);
+        if (surname) out.push(surname + v);
+      });
+      return out;
+    };
+    // 别名拆分：过长整串无益，过短（单字）会误伤，故只取 2 字以上
+    const aliasParts = (o) => (o.aka || []).concat(String(o.alias || "").split(/[·\/、\s]+/))
+      .filter((t) => t && t.length >= 2);
     EMPERORS.forEach((e) => add({
       view: "lineage", anchor: "emp-" + e.no, type: "帝王", cat: e.house,
       title: (e.temple || "") + e.name, sub: e.era + " · " + e.span,
@@ -1040,6 +1250,46 @@
       view: "themes", anchor: "thm-" + t.id, type: "主题", cat: "线索",
       title: t.name, sub: t.q, text: t.path.map((p) => p.join(" ")).join(" ") + " " + t.note,
     }));
+    // 官僚体系：体系 → 职位 → 品级 → 入仕途径
+    (BUREAUCRACY.systems || []).forEach((s) => {
+      add({
+        view: "bureaucracy", anchor: "bzs-" + s.id, type: "官制", cat: s.name,
+        title: s.name, sub: (s.offices || []).length + " 个职位",
+        text: (s.note || "") + " " + (s.chain || []).join(" ") + " " +
+          (s.offices || []).map((o) => o.name + " " + (o.alias || "") + " " + o.duty + " " + o.since).join(" "),
+      });
+      (s.offices || []).forEach((o) => add({
+        view: "bureaucracy", anchor: o.id, type: "官职", cat: s.name,
+        title: o.name, sub: o.rank, aka: aliasParts(o),
+        text: (o.alias || "") + " " + o.duty + " " + o.since + " " + (o.holders || []).join(" ") + " " + (o.note || ""),
+      }));
+    });
+    (BUREAUCRACY.ranks || []).forEach((r, i) => add({
+      view: "bureaucracy", anchor: "bz-rank-" + i, type: "品级", cat: "文官品级",
+      title: r.rank, sub: "文官品级", text: r.civil + " " + r.note,
+    }));
+    (BUREAUCRACY.routes || []).forEach((r, i) => add({
+      view: "bureaucracy", anchor: "bz-route-" + i, type: "入仕", cat: "选官途径",
+      title: r.t, sub: "入仕途径", text: r.d,
+    }));
+    // 思想界：学派 → 思想家 → 思想史争议
+    (THINKERS.schools || []).forEach((s) => {
+      add({
+        view: "thinkers", anchor: "tks-" + s.id, type: "学派", cat: s.span,
+        title: s.name, sub: s.span + " · " + (s.thinkers || []).length + " 位",
+        text: (s.note || "") + " " + (s.thinkers || []).map((k) => k.name + " " + k.core + " " + k.title).join(" "),
+      });
+      (s.thinkers || []).forEach((k) => add({
+        view: "thinkers", anchor: k.id, type: "思想", cat: s.name,
+        title: k.name, sub: (k.courtesy || "") + " · " + k.life, aka: aliasesOf(k.courtesy, k.name),
+        text: k.title + " " + k.core + " " + (k.thoughts || []).map((t) => t.t + " " + t.d).join(" ") +
+          " " + (k.works || []).join(" ") + " " + (k.legacy || "") + " " + k.school,
+      }));
+    });
+    (THINKERS.debates || []).forEach((d) => add({
+      view: "thinkers", anchor: d.id, type: "思潮", cat: d.tag,
+      title: d.t, sub: d.q, text: (d.sides || []).map((x) => x.name + x.view).join(" ") + " " + d.status,
+    }));
     (BIBLIOGRAPHY.groups || []).forEach((g, gi) => (g.items || []).forEach((it, ii) => add({
       view: "bibliography", anchor: "bib-" + gi + "-" + ii, type: "书目", cat: g.name,
       title: it.t, sub: it.a + " · " + it.y, text: it.d + " " + it.use + " " + it.v + " " + it.lvl,
@@ -1079,7 +1329,7 @@
       }
       if (!ok) continue;
       // 词条/年号这类短条目在同等命中下更该靠前
-      if (e.type === "词条" || e.type === "年号") score += 4;
+      if (e.type === "词条" || e.type === "年号" || e.type === "官职" || e.type === "思想" || e.type === "品级") score += 4;
       if (e.type === "章节" || e.type === "小节") score += 1;
       out.push({ e, score, i });
     }
@@ -1121,7 +1371,8 @@
       const hints = [
         ["词条", "于谦", "glossary"], ["词条", "一条鞭法", "glossary"], ["年号", "崇祯", "eras"],
         ["大事", "土木之变", "chrono"], ["考辨", "建文", "debates"], ["地名", "山海关", "geo"],
-        ["主题", "白银", "themes"], ["书目", "晚明史", "bibliography"],
+        ["官职", "内阁大学士", "bureaucracy"], ["品级", "正二品", "bureaucracy"],
+        ["思想", "王阳明", "thinkers"], ["主题", "白银", "themes"], ["书目", "晚明史", "bibliography"],
       ];
       box.innerHTML = '<div class="pal-hint-t">试试这些</div><div class="pal-chips">' +
         hints.map(([t, k]) => `<button class="pal-chip" type="button" data-q="${esc(k)}"><span>${esc(t)}</span>${esc(k)}</button>`).join("") +
@@ -1149,7 +1400,7 @@
     $("#paletteCount").textContent = palResults.length + " 条结果";
   }
 
-  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx" })[t] || "glo";
+  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk" })[t] || "glo";
 
   function movePal(d) {
     if (!palResults.length) return;
@@ -1237,7 +1488,7 @@
     delegate(box, "click", "[data-pal-close]", closePalette);
   }
 
-  /* ==================== 19. 阅读辅助 ==================== */
+  /* ==================== 21. 阅读辅助 ==================== */
   function initReading() {
     const bar = $("#readbar"), top = $("#toTop");
     const sync = raf(() => {
@@ -1253,7 +1504,7 @@
     sync();
   }
 
-  /* ==================== 20. 本地阅读器 ==================== */
+  /* ==================== 22. 本地阅读器 ==================== */
   function initReader() {
     const drop = $("#drop"), input = $("#fileInput"), stage = $("#readerStage");
     const nameEl = $("#readerName"), frameEl = $("#readerFrame"), textEl = $("#readerText");
@@ -1311,8 +1562,8 @@
      注意：ensure 在调用构建函数前就置位 rendered，且构建是同步的，
      不会与用户点击产生交错。 */
   function prefetch() {
-    const order = ["lineage", "chrono", "glossary", "geo", "eras", "numbers",
-      "compare", "debates", "themes", "index", "bibliography", "reader"];
+    const order = ["lineage", "chrono", "glossary", "geo", "eras", "bureaucracy",
+      "thinkers", "numbers", "compare", "debates", "themes", "index", "bibliography", "reader"];
     let i = 0;
     const step = (deadline) => {
       const t0 = performance.now();
@@ -1341,7 +1592,7 @@
     nav.addEventListener("focusin", warm);
   }
 
-  /* ==================== 21. 启动 ==================== */
+  /* ==================== 23. 启动 ==================== */
   function boot() {
     initTheme();
     initTabs();
@@ -1350,6 +1601,8 @@
     initEmpList();
     initChronoFilters();
     initEras();
+    initBureaucracy();
+    initThinkers();
     initIndex();
     initGlossary();
     initGeo();

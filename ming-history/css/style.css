@@ -994,3 +994,199 @@ body.pal-open { overflow: hidden; }
 .num-group { contain-intrinsic-size: auto 333px; }
 .bib-group { contain-intrinsic-size: auto 658px; }
 .idx-ch    { contain-intrinsic-size: auto 27px; }
+
+/* ==========================================================================
+   V5 精修层 · 官僚体系 / 思想界
+   ========================================================================== */
+
+/* 1) 官僚体系 · 体系分组 */
+.bz-systems { display: grid; gap: 22px; }
+.bz-sec {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 22px 22px 8px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+.bz-sec-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.bz-sec-head h3 { font-family: var(--font-serif); font-size: 1.16rem; margin: 0; }
+.bz-ico {
+  width: 30px; height: 30px; flex: 0 0 30px;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  background: var(--accent-gradient);
+  color: #fff; font-size: .88rem; font-weight: 700;
+  font-family: var(--font-serif);
+}
+.bz-sec-note { margin: 0 0 14px; font-size: .88rem; color: var(--text-secondary); line-height: 1.85; }
+
+/* 2) 层级链 */
+.bz-ladder {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 12px 14px; margin-bottom: 18px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+.bz-node {
+  font-size: .78rem; color: var(--text-primary);
+  padding: 5px 11px; border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+.bz-arrow { color: var(--accent-primary); font-size: .8rem; opacity: .8; }
+
+/* 3) 职位卡 */
+.bz-offices { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.bz-office {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  padding: 16px 17px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 528px;
+  scroll-margin-top: 84px;
+}
+.bz-off-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.bz-off-head b { font-family: var(--font-serif); font-size: 1.02rem; }
+.bz-rank {
+  font-size: .72rem; color: var(--accent-primary);
+  border: 1px solid var(--border-hover);
+  background: var(--accent-glow);
+  padding: 2px 8px; border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+.bz-alias { font-size: .78rem; color: var(--text-muted); margin-bottom: 11px; }
+.bz-field { margin-bottom: 9px; }
+.bz-k {
+  display: inline-block; font-size: .7rem; letter-spacing: .08em;
+  color: var(--text-muted); margin-bottom: 3px;
+}
+.bz-field p { margin: 0; font-size: .86rem; color: var(--text-secondary); line-height: 1.8; }
+.bz-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.bz-note {
+  margin-top: 10px; padding: 11px 13px;
+  border-left: 2px solid var(--accent-primary);
+  background: var(--bg-tertiary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: .82rem; color: var(--text-secondary); line-height: 1.78;
+}
+.bz-note b { color: var(--accent-primary); }
+.bz-refs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 11px; }
+
+/* 4) 品级总表 */
+.bz-tablewrap { overflow-x: auto; border: 1px solid var(--border-color); border-radius: var(--radius-lg); background: var(--bg-card); }
+.bz-table { width: 100%; border-collapse: collapse; font-size: .85rem; min-width: 560px; }
+.bz-table caption { text-align: left; padding: 14px 16px 10px; font-size: .8rem; color: var(--text-muted); }
+.bz-table thead th {
+  text-align: left; padding: 10px 16px; font-size: .74rem; letter-spacing: .06em;
+  color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-weight: 600;
+}
+.bz-table td, .bz-table tbody th { padding: 11px 16px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+.bz-table tbody tr:last-child td, .bz-table tbody tr:last-child th { border-bottom: 0; }
+.bz-table tbody tr:hover { background: var(--bg-card-hover); }
+.bz-rk { white-space: nowrap; font-weight: 600; color: var(--accent-primary); font-family: var(--font-serif); }
+.bz-cv { color: var(--text-primary); line-height: 1.75; }
+.bz-nt { color: var(--text-secondary); line-height: 1.75; }
+.bz-table tbody tr { scroll-margin-top: 84px; }
+
+/* 5) 思想界 */
+.tk-schools { display: grid; gap: 22px; }
+.tk-sec {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 22px 22px 8px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+.tk-sec-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.tk-sec-head h3 { font-family: var(--font-serif); font-size: 1.16rem; margin: 0; }
+.tk-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.tk {
+  border: 1px solid var(--border-color); border-radius: var(--radius-md);
+  background: var(--bg-secondary); padding: 17px 18px;
+  content-visibility: auto; contain-intrinsic-size: auto 660px;
+  scroll-margin-top: 84px;
+}
+.tk-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 7px; }
+.tk-name { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.tk-name b { font-family: var(--font-serif); font-size: 1.16rem; }
+.tk-courtesy { font-size: .76rem; color: var(--text-muted); }
+.tk-life { font-size: .76rem; color: var(--text-muted); white-space: nowrap; }
+.tk-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 11px; }
+.tk-title { font-size: .78rem; color: var(--text-muted); }
+.tk-core {
+  padding: 11px 13px; margin-bottom: 13px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent-glow), transparent);
+  border: 1px solid var(--border-hover);
+  font-family: var(--font-serif); font-size: .93rem; line-height: 1.8;
+  color: var(--text-primary);
+}
+.tk-thoughts { display: grid; gap: 10px; margin-bottom: 13px; }
+.tk-th { border-left: 2px solid var(--border-hover); padding-left: 12px; }
+.tk-th b { display: block; font-size: .86rem; color: var(--accent-primary); margin-bottom: 3px; }
+.tk-th p { margin: 0; font-size: .84rem; color: var(--text-secondary); line-height: 1.8; }
+.tk-field { margin-bottom: 11px; }
+.tk-legacy { font-size: .83rem; color: var(--text-secondary); line-height: 1.8; padding-top: 11px; border-top: 1px dashed var(--border-color); }
+.tk-legacy b { color: var(--accent-primary); }
+
+/* 6) 思想界的常开式争议（复用 .deb 外观，但默认展开） */
+.deb-head-static { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px 6px; }
+.deb-body-open { padding: 6px 20px 20px; }
+
+/* 7) 检索面板新类型配色 */
+.pal-type.t-bz { color: var(--c-teal);   border-color: rgba(45, 212, 191, .4); }
+.pal-type.t-tk { color: var(--c-violet); border-color: rgba(167, 139, 250, .4); }
+
+/* 8) 窄屏 */
+@media (max-width: 760px) {
+  .bz-offices, .tk-list { grid-template-columns: 1fr; }
+  .bz-sec, .tk-sec { padding: 18px 15px 6px; }
+  .bz-ladder { padding: 10px 11px; }
+  .bz-node { font-size: .74rem; padding: 4px 9px; white-space: normal; }
+  /* 品级串较长（如「都指挥使正二品；都指挥同知从二品；都指挥佥事正三品」），
+     窄屏下必须允许折行，否则会把整张卡片顶宽 */
+  .bz-rank { white-space: normal; line-height: 1.6; }
+  .tk-life { white-space: normal; }
+  .deb-head-static { padding: 16px 15px 4px; }
+  .deb-body-open { padding: 4px 15px 16px; }
+}
+
+/* 9) 减少动效 */
+@media (prefers-reduced-motion: reduce) {
+  .bz-office, .tk { transition: none; }
+}
+
+/* 10) 打印：新栏目同样白底、不断页 */@media print {
+  .bz-sec, .tk-sec, .bz-office, .tk, .bz-ladder, .bz-note, .tk-core {
+    background: #fff !important; border-color: #ccc !important; box-shadow: none !important;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .bz-tablewrap { overflow: visible !important; border: 1px solid #ccc !important; background: #fff !important; }
+  .bz-table { min-width: 0 !important; }
+  .bz-table td, .bz-table tbody th, .bz-table thead th { border-color: #ccc !important; }
+  .bz-rk, .tk-th b, .bz-note b, .tk-legacy b { color: #1a1a1a !important; }
+  .bz-node, .bz-arrow { color: #333 !important; background: #f4f4f4 !important; border-color: #bbb !important; }
+  .tk-core { -webkit-text-fill-color: #1a1a1a !important; color: #1a1a1a !important; }
+}
+
+/* 11) 栏目增至 15 个：标签统一为双字，并收紧内边距，
+   使 1280px 以上的宽屏无需横向滚动即可看全（窄屏仍走原有的滚动 + 渐隐遮罩）。 */
+.tabs { gap: 1px; }
+.tab { font-size: 0.85rem; padding: 8px 9px; letter-spacing: 0.01em; }
+@media (max-width: 1279px) {
+  .tab { padding: 8px 11px; }
+}
+
+/* 12) contain-intrinsic-size 的单值写法会同时约束「宽」与「高」。
+   对单列纵向列表无碍，但会让被跳过元素的 min-content 被撑到该值，
+   在窄屏下把父容器顶宽（新栏目 390px 下实测溢出 31–132px）。
+   这里统一改为只约束高度：宽度交给容器决定。 */
+.gi, .ce, .bib, .place, .num-item, .era-row, .thm, .cmp, .deb, .prov, .garr,
+.terr-row, .rel, .num-group, .bib-group, .idx-ch, .bz-office, .tk {
+  contain-intrinsic-width: none;
+}

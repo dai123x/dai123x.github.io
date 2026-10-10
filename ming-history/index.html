@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>明史资料平台 · 明代文献索引与研读工具 | Ming History Archive</title>
-<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》为索引对象的研读工具。含全站检索（Ctrl/⌘+K，1,176 条可搜）、帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、33 种延伸书目，以及不上传文件的本地阅读器。每条都有可分享的稳定地址，栏目可直接打印。本站不转载书籍正文。">
-<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明史书目,明史索引,全站检索,洪武,永乐,万历,崇祯,郑成功,永历">
+<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》为索引对象的研读工具。含全站检索（Ctrl/⌘+K，1,260 条可搜）、帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、明代官僚体系（6 大体系 24 个职位 + 文官品级总表）、思想界（7 大学派 20 位思想家）、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、34 种延伸书目，以及不上传文件的本地阅读器。每条都有可分享的稳定地址，栏目可直接打印。本站不转载书籍正文。">
+<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明代官僚体系,明代官制,内阁,六部,都察院,科举,王阳明,心学,致良知,李贽,黄宗羲,顾炎武,王夫之,明史书目,明史索引,全站检索,洪武,永乐,万历,崇祯,郑成功,永历">
 <link rel="canonical" href="https://daixuan.cloud/ming-history/">
 <meta name="theme-color" content="#0a0e17">
 <meta property="og:title" content="明史资料平台 · 明代文献索引与研读工具">
-<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 33 种延伸书目与本地阅读器。不转载书籍正文。">
+<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、明代官僚体系与品级表、思想界二十家、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 34 种延伸书目与本地阅读器。不转载书籍正文。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=20261010_02">
+<link rel="stylesheet" href="css/style.css?v=20261010_05">
 <script>
   (function () {
     try {
@@ -40,19 +40,21 @@
       </span>
     </div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="栏目">
-      <button class="tab active" id="tab-overview" data-view="overview" type="button" role="tab" aria-selected="true" aria-controls="view-overview">总览</button>
-      <button class="tab" id="tab-lineage" data-view="lineage" type="button" role="tab" aria-selected="false" aria-controls="view-lineage" tabindex="-1">帝王世系</button>
-      <button class="tab" id="tab-chrono" data-view="chrono" type="button" role="tab" aria-selected="false" aria-controls="view-chrono" tabindex="-1">大事年表</button>
-      <button class="tab" id="tab-eras" data-view="eras" type="button" role="tab" aria-selected="false" aria-controls="view-eras" tabindex="-1">年号纪年</button>
-      <button class="tab" id="tab-compare" data-view="compare" type="button" role="tab" aria-selected="false" aria-controls="view-compare" tabindex="-1">多书对照</button>
-      <button class="tab" id="tab-index" data-view="index" type="button" role="tab" aria-selected="false" aria-controls="view-index" tabindex="-1">章节索引</button>
-      <button class="tab" id="tab-bibliography" data-view="bibliography" type="button" role="tab" aria-selected="false" aria-controls="view-bibliography" tabindex="-1">延伸书目</button>
-      <button class="tab" id="tab-glossary" data-view="glossary" type="button" role="tab" aria-selected="false" aria-controls="view-glossary" tabindex="-1">词条库</button>
-      <button class="tab" id="tab-geo" data-view="geo" type="button" role="tab" aria-selected="false" aria-controls="view-geo" tabindex="-1">舆图政区</button>
-      <button class="tab" id="tab-numbers" data-view="numbers" type="button" role="tab" aria-selected="false" aria-controls="view-numbers" tabindex="-1">数据一览</button>
-      <button class="tab" id="tab-debates" data-view="debates" type="button" role="tab" aria-selected="false" aria-controls="view-debates" tabindex="-1">争议考辨</button>
-      <button class="tab" id="tab-themes" data-view="themes" type="button" role="tab" aria-selected="false" aria-controls="view-themes" tabindex="-1">主题线索</button>
-      <button class="tab" id="tab-reader" data-view="reader" type="button" role="tab" aria-selected="false" aria-controls="view-reader" tabindex="-1">本地阅读</button>
+      <button class="tab active" id="tab-overview" data-view="overview" type="button" role="tab" aria-selected="true" aria-controls="view-overview" title="总览">总览</button>
+      <button class="tab" id="tab-lineage" data-view="lineage" type="button" role="tab" aria-selected="false" aria-controls="view-lineage" tabindex="-1" title="帝王世系">世系</button>
+      <button class="tab" id="tab-chrono" data-view="chrono" type="button" role="tab" aria-selected="false" aria-controls="view-chrono" tabindex="-1" title="大事年表">年表</button>
+      <button class="tab" id="tab-eras" data-view="eras" type="button" role="tab" aria-selected="false" aria-controls="view-eras" tabindex="-1" title="年号纪年">年号</button>
+      <button class="tab" id="tab-bureaucracy" data-view="bureaucracy" type="button" role="tab" aria-selected="false" aria-controls="view-bureaucracy" tabindex="-1" title="官僚体系">官制</button>
+      <button class="tab" id="tab-thinkers" data-view="thinkers" type="button" role="tab" aria-selected="false" aria-controls="view-thinkers" tabindex="-1" title="思想界">思想</button>
+      <button class="tab" id="tab-compare" data-view="compare" type="button" role="tab" aria-selected="false" aria-controls="view-compare" tabindex="-1" title="多书对照">对照</button>
+      <button class="tab" id="tab-index" data-view="index" type="button" role="tab" aria-selected="false" aria-controls="view-index" tabindex="-1" title="章节索引">索引</button>
+      <button class="tab" id="tab-bibliography" data-view="bibliography" type="button" role="tab" aria-selected="false" aria-controls="view-bibliography" tabindex="-1" title="延伸书目">书目</button>
+      <button class="tab" id="tab-glossary" data-view="glossary" type="button" role="tab" aria-selected="false" aria-controls="view-glossary" tabindex="-1" title="词条库">词条</button>
+      <button class="tab" id="tab-geo" data-view="geo" type="button" role="tab" aria-selected="false" aria-controls="view-geo" tabindex="-1" title="舆图政区">舆图</button>
+      <button class="tab" id="tab-numbers" data-view="numbers" type="button" role="tab" aria-selected="false" aria-controls="view-numbers" tabindex="-1" title="数据一览">数据</button>
+      <button class="tab" id="tab-debates" data-view="debates" type="button" role="tab" aria-selected="false" aria-controls="view-debates" tabindex="-1" title="争议考辨">考辨</button>
+      <button class="tab" id="tab-themes" data-view="themes" type="button" role="tab" aria-selected="false" aria-controls="view-themes" tabindex="-1" title="主题线索">主题</button>
+      <button class="tab" id="tab-reader" data-view="reader" type="button" role="tab" aria-selected="false" aria-controls="view-reader" tabindex="-1" title="本地阅读">阅读</button>
     </nav>
     <div class="topbar-act">
       <button class="icon-btn search-btn" id="searchBtn" type="button" aria-label="全站检索" aria-keyshortcuts="Control+K Meta+K">
@@ -73,7 +75,7 @@
       <p class="lede">
         这里不是一个电子书站，而是一层<b>索引与导航</b>。它以六部著作的目录为骨架——
         《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》全九部、《万历十五年》、《明史讲义》——
-        另附 33 种权威著作的延伸书目，再配上帝王世系、大事年表、年号纪年、舆图政区、数据一览与争议考辨，
+        另附 33 种权威著作的延伸书目，再配上帝王世系、大事年表、年号纪年、官僚体系、思想界、舆图政区、数据一览与争议考辨，
         用来回答那些读书时真正会卡住的问题：
         <b>这件事在哪本书里讲得最清楚？同一个事件，几种写法差在哪里？这个年号对应公元哪一年？</b>
       </p>
@@ -100,6 +102,14 @@
       <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想弄清一个具体问题</h3>
         <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">去「词条库」搜关键词，词条末尾会给出该去哪本书、哪一章。或者直接在「章节索引」里检索章节名。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想看懂官职与权力</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">看「官僚体系」。中枢、部院九卿、监察科道、军事、地方、内廷六大体系逐层拆开，每个职位都写了品级、职掌、沿革与代表人物，另附文官品级总表与入仕途径。关键在分清<b>品级、差遣、加官</b>这三层。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想理清明代思想脉络</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">读「思想界」。从明初官学理学，到白沙、阳明的心学，再到泰州学派、气学、东林蕺山与明末三大儒，二十位思想家的核心命题、思想要点与影响逐条列出。</p>
       </div>
       <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想换算一个年份</h3>
@@ -233,6 +243,65 @@
       <hr class="rule">
     </div>
     <div class="rel-notes" id="calendarNotes"></div>
+  </section>
+
+  <!-- ============ 官僚体系 ============ -->
+  <section class="view" id="view-bureaucracy" role="tabpanel" aria-labelledby="tab-bureaucracy" tabindex="0">
+    <div class="sec-head">
+      <h2>官僚体系</h2>
+      <p id="bzIntro"></p>
+      <hr class="rule">
+    </div>
+
+    <div class="legend" id="bzLegend"></div>
+    <div class="filters" id="bzFilters"></div>
+    <div class="bz-systems" id="bzSystems"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">文官品级总表</h2>
+      <p>正一品至未入流，共十八级。品级决定俸禄与仪制，但实权常系于差遣与兼衔，须与上面的职位详解并看。</p>
+      <hr class="rule">
+    </div>
+    <div id="bzRanks"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">入仕途径</h2>
+      <p>从科举到荫叙、吏员，明代选官有多条通道，但出身不同，地位与升迁空间相差极大。</p>
+      <hr class="rule">
+    </div>
+    <div class="rel-notes" id="bzRoutes"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">阅读须知</h2>
+      <hr class="rule">
+    </div>
+    <div class="rel-notes" id="bzNotes"></div>
+  </section>
+
+  <!-- ============ 思想界 ============ -->
+  <section class="view" id="view-thinkers" role="tabpanel" aria-labelledby="tab-thinkers" tabindex="0">
+    <div class="sec-head">
+      <h2>思想界</h2>
+      <p id="tkIntro"></p>
+      <hr class="rule">
+    </div>
+
+    <div class="legend" id="tkLegend"></div>
+    <div class="filters" id="tkFilters"></div>
+    <div class="tk-schools" id="tkSchools"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">思想史争议</h2>
+      <p>思想史上有些问题同样没有定论，把各家说法摆在一起，比记住一个结论更有用。</p>
+      <hr class="rule">
+    </div>
+    <div class="deb-list" id="tkDebates"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">阅读须知</h2>
+      <hr class="rule">
+    </div>
+    <div class="rel-notes" id="tkNotes"></div>
   </section>
 
   <!-- ============ 多书对照 ============ -->
@@ -428,18 +497,20 @@
   </div>
 </div>
 
-<script src="js/data-books.js?v=20261010_04"></script>
-<script src="js/data-books-more.js?v=20261010_04"></script>
-<script src="js/data-emperors.js?v=20261010_04"></script>
-<script src="js/data-chronology.js?v=20261010_04"></script>
-<script src="js/data-glossary.js?v=20261010_04"></script>
-<script src="js/data-reading.js?v=20261010_04"></script>
-<script src="js/data-eranames.js?v=20261010_04"></script>
-<script src="js/data-geo.js?v=20261010_04"></script>
-<script src="js/data-numbers.js?v=20261010_04"></script>
-<script src="js/data-debates.js?v=20261010_04"></script>
-<script src="js/data-lineage.js?v=20261010_04"></script>
-<script src="js/data-bibliography.js?v=20261010_04"></script>
-<script src="js/app.js?v=20261010_04"></script>
+<script src="js/data-books.js?v=20261010_05"></script>
+<script src="js/data-books-more.js?v=20261010_05"></script>
+<script src="js/data-emperors.js?v=20261010_05"></script>
+<script src="js/data-chronology.js?v=20261010_05"></script>
+<script src="js/data-glossary.js?v=20261010_05"></script>
+<script src="js/data-reading.js?v=20261010_05"></script>
+<script src="js/data-eranames.js?v=20261010_05"></script>
+<script src="js/data-bureaucracy.js?v=20261010_05"></script>
+<script src="js/data-thinkers.js?v=20261010_05"></script>
+<script src="js/data-geo.js?v=20261010_05"></script>
+<script src="js/data-numbers.js?v=20261010_05"></script>
+<script src="js/data-debates.js?v=20261010_05"></script>
+<script src="js/data-lineage.js?v=20261010_05"></script>
+<script src="js/data-bibliography.js?v=20261010_05"></script>
+<script src="js/app.js?v=20261010_05"></script>
 </body>
 </html>
