@@ -1423,8 +1423,9 @@ body.pal-open { overflow: hidden; }
    只剩 7px 余量，太紧；收到 7px 后为 41px×17=697px，余量 41px。 */
 .tab { padding: 8px 7px; }
 
-/* 2) 检索结果里的「图表」类型徽标 */
+/* 2) 检索结果里的「图表」与「数据」类型徽标 */
 .pal-type.t-ch { color: var(--c-teal); border-color: rgba(45, 212, 191, .4); }
+.pal-type.t-num { color: var(--c-amber); border-color: rgba(245, 158, 11, .4); }
 
 /* 3) 图表栏骨架 */
 .ch-group { margin-bottom: 36px; }
@@ -1522,10 +1523,72 @@ body.pal-open { overflow: hidden; }
   .ch-col-plot { height: 150px; }
 }
 
-/* 9) 打印：图表不跨页断开 */
+/* 9) 时间轴（甘特）：刻度行与条形行共用同一列网格，轴才不会和条错位。
+      刻度用 left 百分比绝对定位，所以轴那一行的轨道必须 overflow:visible，
+      而条形行的轨道要 overflow:hidden 才能把条裁进圆角。 */
+.ch-gantt { display: flex; flex-direction: column; gap: 3px; --ch-lab: 132px; }
+.ch-gantt.wide { --ch-lab: 250px; }
+.ch-g-row { display: grid; grid-template-columns: var(--ch-lab) 1fr auto; align-items: center; gap: 10px; }
+.ch-g-track {
+  position: relative; height: 11px; border-radius: var(--radius-full);
+  background: var(--bg-tertiary); overflow: hidden;
+}
+.ch-g-track i {
+  position: absolute; top: 0; height: 100%; border-radius: var(--radius-full);
+  transition: left .5s cubic-bezier(.16,1,.3,1), width .5s cubic-bezier(.16,1,.3,1);
+}
+.ch-g-row:hover .ch-g-track i { filter: brightness(1.18) saturate(1.1); }
+.ch-g-row .ch-val { min-width: 62px; }
+.ch-g-axis .ch-g-track { height: 17px; background: none; overflow: visible; }
+.ch-g-axis .ch-g-tick {
+  position: absolute; top: 0; transform: translateX(-50%);
+  font-size: .7rem; line-height: 16px; color: var(--text-muted);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.ch-g-axis .ch-g-tick::after {
+  content: ""; position: absolute; left: 50%; bottom: -2px; width: 1px; height: 5px;
+  background: var(--border-color);
+}
+
+/* 10) 热力图：行 × 列 的交叉表。格子底色是内联的 rgba，深浅随数值，
+       文字颜色也由脚本按深浅切换（深底白字 / 浅底正文色），明暗两套主题下都读得出来。 */
+.ch-heat { display: flex; flex-direction: column; gap: 4px; }
+.ch-hm-row {
+  display: grid; align-items: center; gap: 5px;
+  grid-template-columns: var(--ch-hm-lab, 104px) repeat(var(--ch-hm-n, 3), minmax(0, 1fr)) 44px;
+}
+.ch-hm-lab {
+  font-size: .78rem; color: var(--text-secondary); text-align: right;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ch-hm-col { font-size: .74rem; color: var(--text-muted); text-align: center; }
+.ch-hm-tot { font-size: .74rem; color: var(--text-muted); text-align: right; font-variant-numeric: tabular-nums; }
+.ch-hm-cell {
+  display: flex; align-items: center; justify-content: center;
+  height: 26px; border-radius: 6px; background: var(--bg-tertiary);
+  font-size: .76rem; font-variant-numeric: tabular-nums;
+}
+.ch-hm-cell.zero { color: var(--text-muted); }
+.ch-hm-note { margin-top: 8px; font-size: .72rem; color: var(--text-muted); line-height: 1.7; }
+
+/* 11) 两类新图的窄屏收缩（行标签让位给图形本身） */
+@media (max-width: 720px) {
+  .ch-gantt { --ch-lab: 96px; }
+  .ch-heat { --ch-hm-lab: 78px !important; }
+  .ch-hm-cell { height: 24px; font-size: .72rem; }
+  .ch-g-axis .ch-g-tick { font-size: .66rem; }
+}
+@media (max-width: 520px) {
+  .ch-gantt { --ch-lab: 74px; }
+  .ch-g-row .ch-val { min-width: 42px; }
+  .ch-hm-row { grid-template-columns: var(--ch-hm-lab, 78px) repeat(var(--ch-hm-n, 3), minmax(0, 1fr)) 34px; }
+}
+
+/* 12) 打印：图表不跨页断开 */
 @media print {
   .ch-card { break-inside: avoid; background: #fff !important; border-color: #bbb !important; backdrop-filter: none !important; }
   .ch-read, .ch-lab, .ch-lg { color: #333 !important; }
-  .ch-track, .ch-strack { background: #eee !important; }
+  .ch-track, .ch-strack, .ch-g-track, .ch-hm-cell { background: #eee !important; }
   .ch-h { color: #111 !important; }
+  .ch-hm-note { color: #444 !important; }
 }

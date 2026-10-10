@@ -1437,12 +1437,12 @@
   function renderNumbers() {
     $("#numLegend").innerHTML = (NUMBERS.legend || []).map((l) =>
       `<div class="legend-item"><span class="conf ${confClass(l.k)}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
-    $("#numGroups").innerHTML = (NUMBERS.groups || []).map((g) => `
+    $("#numGroups").innerHTML = (NUMBERS.groups || []).map((g, gi) => `
       <section class="num-group">
         <div class="num-group-head"><span class="num-ico">${esc(g.icon)}</span><h3>${esc(g.name)}</h3><span class="chip">${g.items.length} 项</span></div>
         <div class="num-list">
-          ${g.items.map((it) => `
-            <article class="num-item">
+          ${g.items.map((it, ii) => `
+            <article class="num-item" id="num-${gi}-${ii}">
               <div class="num-top">
                 <span class="num-label">${esc(it.label)}</span>
                 <span class="conf ${confClass(it.conf)}">${esc(it.conf)}</span>
@@ -1578,6 +1578,12 @@
       view: "themes", anchor: "thm-" + t.id, type: "主题", cat: "线索",
       title: t.name, sub: t.q, text: t.path.map((p) => p.join(" ")).join(" ") + " " + t.note,
     }));
+    // 数据一览：组 → 每一条数据。此前整栏漏收，导致「数据」在检索索引里是 0 条
+    (NUMBERS.groups || []).forEach((g, gi) => (g.items || []).forEach((it, ii) => add({
+      view: "numbers", anchor: "num-" + gi + "-" + ii, type: "数据", cat: g.name,
+      title: it.label, sub: g.name + " · " + it.conf,
+      text: it.value + " " + (it.unit || "") + " " + it.conf + " " + it.note,
+    })));
     // 官僚体系：体系 → 职位 → 品级 → 入仕途径
     (BUREAUCRACY.systems || []).forEach((s) => {
       add({
@@ -1754,7 +1760,7 @@
     $("#paletteCount").textContent = palResults.length + " 条结果";
   }
 
-  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk", "权力": "pw", "权力结构": "pw", "图表": "ch" })[t] || "glo";
+  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk", "权力": "pw", "权力结构": "pw", "图表": "ch", "数据": "num" })[t] || "glo";
 
   function movePal(d) {
     if (!palResults.length) return;
@@ -2040,13 +2046,68 @@
       + ` aria-label="${esc(o.aria || "构成占比图")}">${paths}</svg><div class="ch-legend">${legend}</div></div>`;
   }
 
+  /* 时间轴（甘特）：每行一个区间，横轴是年份（也可以是页码）。
+     区间用 left/width 百分比定位，因此横轴刻度必须与条形共用同一列网格，
+     否则轴和条对不齐——所以刻度行也走 .ch-g-row，只是轨道里放的是刻度而不是条。
+     items: [{l, from, to, c?, tip?}]；o.ticks: [{v, l}]；o.series: [{l, c}] 出图例。 */
+  function chGantt(items, opts) {
+    const o = opts || {};
+    const min = o.min != null ? o.min : Math.min(...items.map((x) => x.from));
+    const max = o.max != null ? o.max : Math.max(...items.map((x) => x.to));
+    const span = Math.max(1, max - min);
+    const pos = (v) => ((v - min) / span * 100).toFixed(2);
+    const axis = `<div class="ch-g-row ch-g-axis"><span class="ch-lab"></span>`
+      + `<span class="ch-g-track">`
+      + (o.ticks || []).map((t) => `<span class="ch-g-tick" style="left:${pos(t.v)}%">${esc(t.l)}</span>`).join("")
+      + `</span><span class="ch-val"></span></div>`;
+    const rows = items.map((x) => {
+      const a = (x.from - min) / span * 100;
+      const n = x.to - x.from + 1;
+      const w = Math.max(0.45, (x.to - min) / span * 100 - a);   // 极短的区间也要看得见
+      return `<div class="ch-g-row" title="${esc(x.tip || (x.l + "　" + x.from + "—" + x.to + "（" + n + (o.unit || "年") + "）"))}">`
+        + `<span class="ch-lab">${esc(x.l)}</span>`
+        + `<span class="ch-g-track"><i style="left:${a.toFixed(2)}%;width:${w.toFixed(2)}%;background:${x.c || chCol(0)}"></i></span>`
+        + `<span class="ch-val">${n}${o.unit ? `<em>${esc(o.unit)}</em>` : ""}</span></div>`;
+    }).join("");
+    const legend = (o.series || []).map((s) => `<span class="ch-lg"><i style="background:${s.c}"></i>${esc(s.l)}</span>`).join("");
+    return `<div class="ch-gantt${o.wide ? " wide" : ""}">${axis}${rows}</div>`
+      + (legend ? `<div class="ch-legend ch-legend-wrap">${legend}</div>` : "");
+  }
+
+  /* 热力图：行 × 列 的交叉表，颜色深浅表示数量。
+     刻意不用 color-mix()（老浏览器不认），改成固定 RGB 叠透明度；
+     格子里的数字按深浅换色——深底用白字、浅底用主题正文色，明暗两套主题下都读得出来。
+     rows: [{l, cells:{列名: 数}}]，cols: [列名]；o.lab 给行标签留多少像素。 */
+  const CH_RGB = ["99,102,241", "45,212,191", "245,158,11", "139,92,246", "244,63,94", "56,189,248"];
+  function chHeat(rows, cols, opts) {
+    const o = opts || {};
+    const rgb = CH_RGB[(o.hue || 0) % CH_RGB.length];
+    const max = Math.max(1, ...rows.map((r) => Math.max(...cols.map((c) => r.cells[c] || 0))));
+    const head = `<div class="ch-hm-row ch-hm-head"><span class="ch-hm-lab"></span>`
+      + cols.map((c) => `<span class="ch-hm-col">${esc(c)}</span>`).join("")
+      + `<span class="ch-hm-tot">合计</span></div>`;
+    const body = rows.map((r) => {
+      const tot = chSum(cols, (c) => r.cells[c] || 0);
+      return `<div class="ch-hm-row"><span class="ch-hm-lab" title="${esc(r.l)}">${esc(r.l)}</span>`
+        + cols.map((c) => {
+          const v = r.cells[c] || 0, t = v / max;
+          const st = v ? ` style="background:rgba(${rgb},${(0.10 + t * 0.82).toFixed(2)});color:${t > 0.55 ? "#fff" : "var(--text-primary)"}"` : "";
+          return `<span class="ch-hm-cell${v ? "" : " zero"}"${st}`
+            + ` title="${esc(r.l + " · " + c + "：" + v + (o.unit || ""))}">${v || ""}</span>`;
+        }).join("")
+        + `<span class="ch-hm-tot">${tot}</span></div>`;
+    }).join("");
+    return `<div class="ch-heat" style="--ch-hm-n:${cols.length};--ch-hm-lab:${o.lab || 104}px">${head}${body}`
+      + (o.note ? `<div class="ch-hm-note">${o.note}</div>` : "") + `</div>`;
+  }
+
   /* 图表清单：标题只在这里写一次，渲染与全站检索共用，免得两处各写一遍后走样 */
   const CH_GROUPS_META = [
-    ["本站收录了什么", [1, 2]],
-    ["时间轴上的明代", [3, 4, 5, 6]],
-    ["权力结构专题的密度", [7, 8, 9, 10]],
-    ["词条、数据与书目", [11, 12, 13]],
-    ["交叉覆盖", [14, 15]],
+    ["本站收录了什么", [1, 2, 16, 17]],
+    ["时间轴上的明代", [3, 4, 5, 6, 18, 19]],
+    ["权力结构专题的密度", [7, 8, 9, 10, 20]],
+    ["词条、数据与书目", [11, 12, 13, 21, 22, 23]],
+    ["交叉覆盖", [14, 15, 24]],
   ];
   const CH_TITLE = {
     1: "各栏目条目数", 2: "七部索引书：章数与叙述颗粒度",
@@ -2057,6 +2118,12 @@
     11: "词条库的类别构成", 12: "数据一览的可信度构成",
     13: "延伸书目按难度", 14: "三书对照：各书被引用的次数",
     15: "思想界的学派分布",
+    16: "检索索引：十七个栏目各贡献多少条", 17: "检索索引：二十七种条目类型的构成",
+    18: "帝王在位时间轴（1368—1683）", 19: "年号起止与「一帝一年号」的例外",
+    20: "语料页码覆盖：原书哪些页被引得最密",
+    21: "词条的出处覆盖：一条词条靠几本书撑着",
+    22: "数据一览：分类 × 可信度", 23: "延伸书目：分类 × 难度",
+    24: "思想人物生卒时间轴（1310—1695）",
   };
 
   function renderCharts() {
@@ -2095,6 +2162,20 @@
       return { l: b.short, v: n, tip: `${b.short}：${n} 章${sp ? "，覆盖 " + sp + " 年" : ""}${sp && n ? "（约 " + (sp / n).toFixed(1) + " 年/章）" : ""}`, note: sp && n ? (sp / n).toFixed(1) + " 年/章" : "" };
     }).sort((a, b) => b.v - a.v);
     const nanming = bookRows.find((r) => r.l === "南明史"), mcn = bookRows.find((r) => r.l === "明朝那些事儿");
+    const jy = bookRows.find((r) => r.l === "明史讲义"), wl = bookRows.find((r) => r.l === "万历十五年");
+    const wlScope = (BOOKS.find((b) => b.short === "万历十五年") || {}).scope || "";
+
+    /* 检索索引是另一套口径：栏目级条目之外，章节下的小节、官制下的官职等
+       「能直接跳过去」的落点也各算一条。两套口径的差，就是本站的索引深度。 */
+    if (!SEARCH_IX) SEARCH_IX = buildSearchIndex();
+    const ixByView = chCount(SEARCH_IX, (e) => e.view);
+    const ixViewRows = VIEWS.map((v) => ({ l: (($("#tab-" + v) || {}).textContent || v), v: ixByView[v] || 0 }))
+      .sort((a, b) => b.v - a.v);
+    const ixTypeRows = chRank(chCount(SEARCH_IX, (e) => e.type)).map(([k, v]) => ({ l: k, v: v }));
+    const ixTop = ixTypeRows[0], ixTop3 = ixTypeRows.slice(0, 3), ixBot = ixTypeRows[ixTypeRows.length - 1];
+    const ixTop3N = chSum(ixTop3, (r) => r.v);
+    const ixRatio = (SEARCH_IX.length / scaleTotal).toFixed(2);
+    const ixZero = ixViewRows.filter((r) => r.v === 0).map((r) => r.l);
 
     G.push(group("本站收录了什么",
       `先把家底盘清：下表每一格都是「本站自己写下的条目」，不是明代史的统计量。数字全部在打开本页时现算。`,
@@ -2102,14 +2183,33 @@
         card(1, chBarH(scale, { unit: " 条", pct: true }),
           `十五类合计 <b>${scaleTotal}</b> 条。最多的「${scale[0].l}」有 <b>${scale[0].v}</b> 条，占 ${chPct(scale[0].v, scaleTotal)}；`
           + `前四类（${top4.map((r) => r.l).join("、")}）合计 <b>${top4N}</b> 条，占 ${chPct(top4N, scaleTotal)}。`
-          + `这个排序说明了本站的定位：它是<b>可检索条目</b>驱动的——设计目标是「查得到」，不是「读得完」。`),
+          + `这个排序说明了本站的定位：它是<b>可检索条目</b>驱动的——设计目标是「查得到」，不是「读得完」。`
+          + `反过来看末三位：${scale.slice(-3).map((r) => r.l).join("、")}——这三类不是不重要，`
+          + `而是它们最容易写成「有观点没落点」的综述，本站刻意只收到能立条目的程度。`),
         card(2, chBarH(bookRows, { unit: " 章", wide: false }),
           `七部书共 <b>${chN}</b> 章。同样一章，分量差得很远：「${nanming.l}」用 ${nanming.v} 章讲 39 年（${nanming.note}），`
           + `「${mcn.l}」用 ${mcn.v} 章讲 300 年（${mcn.note}），<b>相差约 ${(parseFloat(mcn.note) / parseFloat(nanming.note)).toFixed(0)} 倍</b>。`
           + `这不是篇幅问题，是叙述颗粒度的选择——易代之际的一年，值得写的比承平之世的一年多得多。`
-          + `另外「明史讲义」的 ${bookRows.find((r) => r.l === "明史讲义").note} 是另一个方向的极端：`
-          + `它只有两编，按专题而不是按年叙述，这个比值对它没有意义——所以看这张图时，`
-          + `要区分「书本身短」和「书写得粗」。`),
+          + `另有两处不能按这个比值读：「${jy.l}」的 ${jy.note} 来自它只有两编、按专题而非按年叙述；`
+          + `「${wl.l}」的 scope 直接写成「${wlScope}」，本身就是切一个横断面的书。`
+          + `把这类书按「年/章」去比，等于问一本书它不想回答的问题——所以看这张图要区分「书本身短」和「书写得粗」。`),
+        card(16, chBarH(ixViewRows, { unit: " 条", pct: true }),
+          `同一批内容换一套口径数就变了样：顶栏检索框里是 <b>${SEARCH_IX.length}</b> 条，`
+          + `而上面第一张图只有 ${scaleTotal} 条，<b>相差 ${ixRatio} 倍</b>。`
+          + `多出来的全在细粒度落点上——「${ixViewRows[0].l}」一栏就有 ${ixViewRows[0].v} 条，`
+          + `因为它把每部书的每一章、每一节都算成能跳过去的落点。这不是重复计数，是刻意的：`
+          + `检索要能直接跳到<b>某一节</b>，而不是只跳到某个栏目。`
+          + `所以两个数字都对，只是回答的问题不同——一个是「站里有多少主题」，一个是「站里有多少落脚点」。`
+          + `还要老实交代一处：${ixZero.length ? "「" + ixZero.join("」「") + "」两栏是 0 条" : "每一栏都有条目"}。`
+          + `这不是遗漏——总览是入口页、阅读是本地文件阅读器，两者本来就没有可跳转的条目。`
+          + `但把这张图画出来确实揪出过一处真遗漏：「数据一览」原本整栏 0 条，61 项数据一条都搜不到，`
+          + `本轮已补上（现在 ${ixByView["numbers"]} 条）。这正是这张图的用法——它是一张<b>缺口清单</b>。`),
+        card(17, chBarH(ixTypeRows, { unit: " 条", tight: true, pct: true }),
+          `${SEARCH_IX.length} 条索引分成 <b>${ixTypeRows.length}</b> 种类型。最大的「${ixTop.l}」有 <b>${ixTop.v}</b> 条，`
+          + `占 ${chPct(ixTop.v, SEARCH_IX.length)}；前三类（${ixTop3.map((r) => r.l).join("、")}）合计占 ${chPct(ixTop3N, SEARCH_IX.length)}。`
+          + `「${ixTop.l}」压倒性地多，是因为本站把每部书的每一节都当成独立落点，粒度一路压到了「节」。`
+          + `另一端，「${ixBot.l}」只有 ${ixBot.v} 条，说明它在站里是「点到为止」的——有，但撑不起一个可以深挖的面。`
+          + `所以这张图同时也是<b>一张缺口清单</b>：条数越少的类型，越是下一轮该补的地方。`),
       ]));
 
     /* ================= 组 B · 时间轴上的明代 ================= */
@@ -2154,6 +2254,43 @@
     });
     const oneYear = ERAS.filter((e) => (e.n || chReign(e)) === 1);
 
+    /* ---- 时间轴：帝王在位与年号起止。两条轴共用同一套画法，但回答不同的问题 ---- */
+    const HOUSE_C = { "明朝": CH_COLORS[0], "南明": CH_COLORS[2], "明郑": CH_COLORS[4] };
+    const empLbl = (e) => (e.temple || "") + e.name;
+    const empGantt = EMPERORS.map((e) => ({
+      l: empLbl(e), from: e.from, to: e.to, c: HOUSE_C[e.house] || CH_COLORS[5],
+      tip: `${empLbl(e)}　${e.house}　${e.span}　在位 ${chReign(e)} 年　年号 ${e.era}`,
+    }));
+    const empTicks = [1368, 1420, 1470, 1520, 1570, 1620, 1683].map((y) => ({ v: y, l: String(y) }));
+    // 把 1368—1683 逐年扫一遍，看有没有哪一年「一位在位者都没有」
+    const empMin = Math.min(...EMPERORS.map((e) => e.from)), empMax = Math.max(...EMPERORS.map((e) => e.to));
+    const covY = new Set();
+    EMPERORS.forEach((e) => { for (let y = e.from; y <= e.to; y++) covY.add(y); });
+    let uncovered = 0;
+    for (let y = empMin; y <= empMax; y++) if (!covY.has(y)) uncovered++;
+    // 时间条重叠的组数（南明的并立会贡献很多）
+    const empByFrom = EMPERORS.slice().sort((a, b) => a.from - b.from);
+    let ovl = 0;
+    for (let i = 0; i < empByFrom.length; i++)
+      for (let j = i + 1; j < empByFrom.length; j++) if (empByFrom[j].from <= empByFrom[i].to) ovl++;
+    const mingSpanY = Math.max(...ming.map((e) => e.to)) - Math.min(...ming.map((e) => e.from)) + 1;
+    const nanSpanY = Math.max(...nan.map((e) => e.to)) - Math.min(...nan.map((e) => e.from)) + 1;
+    const mingzheng = EMPERORS.find((e) => e.house === "明郑") || EMPERORS[EMPERORS.length - 1];
+
+    const eraGantt = ERAS.map((e) => ({
+      l: e.era, from: e.from, to: e.to, c: e.house === "明朝" ? CH_COLORS[0] : CH_COLORS[2],
+      tip: `${e.era}（${e.from}—${e.to}，${e.n} 年）　${e.emp}　${e.house}`,
+    })).concat(RIVAL_ERAS.map((r) => ({
+      l: r.era.split(" →")[0], from: r.from, to: r.to, c: CH_COLORS[4],
+      tip: `${r.regime}　${r.era}（${r.from}—${r.to}）　${r.leader}`,
+    }))).sort((a, b) => a.from - b.from || b.to - a.to);
+    const eraTicks = [1351, 1400, 1450, 1500, 1550, 1600, 1644, 1683].map((y) => ({ v: y, l: String(y) }));
+    // 年号表 ↔ 帝王表的对不上的地方
+    const empEraSet = new Set(EMPERORS.flatMap((e) => String(e.era || "").split(/[\/、\s]+/).filter(Boolean)));
+    const eraNoEmp = ERAS.filter((e) => !empEraSet.has(e.era));
+    const empNoEra = EMPERORS.filter((e) => !ERAS.some((x) => x.era === e.era) && e.era && e.era !== "—");
+    const eraReign = EMPERORS.find((e) => String(e.era || "").indexOf("正统") >= 0) || EMPERORS[5];   // 英宗：唯一用过两个年号的人
+
     G.push(group("时间轴上的明代",
       `本站的大事年表收了 ${CHRONOLOGY.length} 条（${Math.min(...CHRONOLOGY.map((c) => c.y))}—${Math.max(...CHRONOLOGY.map((c) => c.y))}）。`
       + `下面看的是「本站选择记录了什么」，而不是明代真实发生过多少事。`,
@@ -2165,33 +2302,72 @@
           + `与开国六段（${decEarly.map((r) => r.l).join("、")}）的 ${decEarlyN} 条几乎持平。`
           + `差别在跨度——中段跨 ${decMid.length * 20} 年、开国段只跨 ${decEarly.length * 20} 年，`
           + `按年计开国段的密度仍是中段的 <b>${decRatio} 倍</b>。`
-          + `所以本站年表既不是「两头重、中间轻」，也不均匀：<b>开国密、中段匀、末段一个尖峰</b>。`),
+          + `所以本站年表既不是「两头重、中间轻」，也不均匀：<b>开国密、中段匀、末段一个尖峰</b>。`
+          + `这个形状是编选的结果，不是明代本身的样子——最容易讲清楚的年代，从来不是最热闹的年代。`),
         card(4, chStackRows(stackRows, CATS, { tight: true }),
           `政治与军事合计 <b>${catTot["政治"] + catTot["军事"]}</b> 条，占全部的 ${chPct(catTot["政治"] + catTot["军事"], CHRONOLOGY.length)}；`
           + `灾异只有 ${catTot["灾异"]} 条。而更重要的是构成会随时代翻转：`
           + `「洪武」${hwRow.total} 条里政治 ${hwRow.parts["政治"]} 条（${chPct(hwRow.parts["政治"], hwRow.total)}），是<b>政治年表</b>；`
           + `「南明」${nanRow.total} 条里军事 ${nanRow.parts["军事"]} 条（${chPct(nanRow.parts["军事"], nanRow.total)}），变成了<b>军事年表</b>。`
-          + `越接近易代，年表越只剩下打仗这一件事。`),
+          + `越接近易代，年表越只剩下打仗这一件事。`
+          + `另外「灾异」全站只有 ${catTot["灾异"]} 条，这是最该被点破的一处偏科：`
+          + `明代的水旱、蝗疫、地震记录其实极多（黄册与《明实录》里连篇累牍），本站一条都不多收，`
+          + `等于把「天」从年表里删掉了——而当时的人并不这么看世界。`),
         card(5, chBarH(empRows, { unit: " 年", tight: true }),
           `二十三位平均在位 <b>${(chSum(EMPERORS, chReign) / EMPERORS.length).toFixed(1)}</b> 年。`
-          + `明朝十六帝平均 ${mingAvg} 年，南明六帝平均只有 ${nanAvg} 年，<b>不到前者的三分之一</b>。`
+          + `明朝十六帝平均 ${mingAvg} 年、摊在 ${mingSpanY} 年里；南明六帝平均只有 ${nanAvg} 年，`
+          + `六个人挤在 ${nanSpanY} 年里，<b>不到前者的三分之一</b>。`
           + `最长与最短相差 ${Math.max(...EMPERORS.map(chReign))} 倍（${empRows[0].l} ${empRows[0].v} 年 vs ${empRows[empRows.length - 1].l} ${empRows[empRows.length - 1].v} 年）。`
+          + `还有一条两类都归不进去：明郑（郑成功 · 郑经 · 郑克塽，1661—1683，${chReign(mingzheng)} 年）——`
+          + `它奉永历正朔而不另立年号，所以列在这里、但不计入明朝或南明。`
           + `南明的短促不只是军事失败的结果，也是「谁有资格继统」始终无法解决的问题本身。`),
         card(6, chBarV(eraCols, { unit: " 个" }),
           `${ERAS.length} 个年号里，有 <b>${oneYear.length}</b> 个只用了一年（${oneYear.map((e) => e.era).join("、")}），`
           + `另有 ${eraCols[4].v} 个超过 30 年。这并不矛盾：明清行「一帝一年号」之制，年号短多半是<b>皇帝在位短</b>，`
-          + `而不是频繁改元——与唐宋动辄十余个年号的情形正好相反。`),
+          + `而不是频繁改元——与唐宋动辄十余个年号的情形正好相反。`
+          + `所以这张图的分布，本质上和上一张「帝王在位年数」是同一件事的两种画法：`
+          + `一个按人数，一个按年号数；两者只有一处不同，就是那位用过两个年号的皇帝。`),
+        card(18, chGantt(empGantt, {
+          ticks: empTicks, unit: " 年", series: [
+            { l: "明朝", c: CH_COLORS[0] }, { l: "南明", c: CH_COLORS[2] }, { l: "明郑", c: CH_COLORS[4] }],
+        }),
+          `把在位年数摊到时间轴上，三个之前看不出来的事实露了出来。`
+          + `① 帝王条<b>并不首尾相接</b>：${EMPERORS.length} 条里有 ${ovl} 组彼此重叠。最刺眼的是${empLbl(eraReign)}`
+          + `（${eraReign.span}）那一条把代宗（1450—1457）整段包在里面——中间隔着土木之变与夺门之变，`
+          + `一个人当了两次皇帝，中间那次「不在位」是本站唯一用两条年号来记的事。`
+          + `② 南明那 ${nan.length} 条几乎全部叠在一起：他们不是依次继位，而是<b>同时并立</b>，`
+          + `「南明」与其说是一个朝廷，不如说是几个都想代表明朝的政权在抢同一个名分。`
+          + `③ 从 ${empMin} 到 ${empMax} 逐一年查下来，<b>没有一年是空的</b>（断档 ${uncovered} 年）——`
+          + `南明的并立与明郑的奉朔把 1662 年之后也接上了，这条轴因此一直连到 1683。`),
+        card(19, chGantt(eraGantt, {
+          ticks: eraTicks, unit: " 年", series: [
+            { l: "明朝年号", c: CH_COLORS[0] }, { l: "南明年号", c: CH_COLORS[2] }, { l: "明初对手政权", c: CH_COLORS[4] }],
+        }),
+          `${ERAS.length} 个明朝年号，加上明初那 ${RIVAL_ERAS.length} 个对手政权的纪年，摊在同一条轴上。`
+          + `① <b>一帝一年号是常态</b>，真正的例外只有${empLbl(eraReign)}一个人：先「正统」后「天顺」，中间被代宗的「景泰」隔开。`
+          + `② 最短的年号只有一年（${oneYear.map((e) => e.era).join("、")}）——而最短的皇帝也是这两位，两件事本来就是同一件事。`
+          + `③ 左侧那几条短杠是朱元璋还没称帝时的对手（${RIVAL_ERAS.map((r) => r.regime).join("、")}）。`
+          + `本站把它们单列而不并进明朝年号，因为「奉谁的正朔」在当时是真问题，不是称呼问题。`
+          + `这张图还顺手照出两处表与表之间的对不上：年号「${eraNoEmp.map((e) => e.era).join("、")}」在帝王表里找不到对应条目；`
+          + `反过来帝王表的年号字段是自由文本（${empNoEra.map((e) => empLbl(e) + "「" + e.era + "」").join("、")}），`
+          + `一格可以写两个年号，而年号表是一年号一条——两边粒度不同。这不是错，但检索时靠字面匹配会漏，记在这里。`),
       ]));
 
     /* ================= 组 C · 权力结构专题的密度 ================= */
     const pwPartRows = chRank(chCount(POWER.themes, (t) => String(t.where || "").split("·")[0]))
-      .map(([k, v]) => ({ l: k, v: v }));
+      .map(([k, v]) => ({
+        l: k, v: v,
+        tip: ((POWER.parts.find((p) => String(p.name).indexOf(k) === 0) || {}).name || k) + "：" + v + " 个主题",
+      }));
+    const pwTop = pwPartRows[0], pwBot = pwPartRows[pwPartRows.length - 1];
+    const pwTopPart = POWER.parts.find((p) => String(p.name).indexOf(pwTop.l) === 0) || { chapters: [] };
     const chRows = [];
     (POWER.parts || []).forEach((p) => (p.chapters || []).forEach((c) => chRows.push({
       l: c.title, v: c.paras, c: p.name === "导论" ? CH_COLORS[3] : chCol(0),
       tip: `${p.name}　${c.title}（原书 p.${c.page} 起）　已索引 ${c.paras} 段`,
     })));
     const chSorted = chRows.slice().sort((a, b) => b.v - a.v);
+    const chTop = chSorted[0], chBot = chSorted[chSorted.length - 1];
     const claimCols = [2, 3, 4, 5].map((n) => ({
       l: n + " 条", v: POWER.themes.filter((t) => (t.claims || []).length === n).length,
     }));
@@ -2201,26 +2377,53 @@
     const linkItems = chRank(linkT).map(([k, v]) => ({ l: LINK_NAME[k] || k, v: v }));
     const linkTot = chSum(linkItems, (x) => x.v);
     const lk = (k) => linkT[k] || 0;
+    /* 语料页码覆盖：100 个主题的 400 处引用落在原书的哪些页上（20 页一桶） */
+    const refPages = POWER.themes.flatMap((t) => (t.refs || []).map((r) => r.page)).filter((p) => typeof p === "number");
+    const pgB = {};
+    refPages.forEach((p) => { const k = Math.floor((p - 1) / 20) * 20 + 1; pgB[k] = (pgB[k] || 0) + 1; });
+    const pgRows = Object.keys(pgB).map(Number).sort((a, b) => a - b)
+      .map((k) => ({ l: k + "—" + (k + 19) + " 页", v: pgB[k], tip: `原书 p.${k}—${k + 19}：被引 ${pgB[k]} 处` }));
+    const pgMax = pgRows.reduce((a, c) => (c.v > a.v ? c : a), pgRows[0]);
+    const pgMin = pgRows.reduce((a, c) => (c.v < a.v ? c : a), pgRows[0]);
+    const pgTail = pgRows[pgRows.length - 1];
 
     G.push(group("权力结构专题的密度",
       `「权力」栏是本站唯一做了段落级索引的专题：方志远《明代国家权力结构及运行机制》全书 ${POWER.stats.pages_ocr} 页经 OCR 入库，`
-      + `切出 ${POWER.stats.paras} 段（约 ${(POWER.stats.chars / 10000).toFixed(1)} 万字），再归纳成 ${POWER.themes.length} 个可检索主题。`,
+      + `切出 ${POWER.stats.paras} 段（约 ${(POWER.stats.chars / 10000).toFixed(1)} 万字），再归纳成 ${POWER.themes.length} 个可检索主题。`
+      + `这是全站唯一收原书正文的地方，所以下面的数字也比别处更接近「原书长什么样」。`,
       [
         card(7, chBarH(pwPartRows, { unit: " 个", pct: true }),
-          `主题重心落在「${pwPartRows[0].l}」（${pwPartRows[0].v} 个）。这与原书的篇幅分配一致：`
-          + `中央行政系统的制衡（外廷、内府、科道三方）是全书论证最密的部分，也是明代制度史最容易被讲乱的部分。`),
+          `主题重心落在「${pwTop.l}」（${pwTop.v} 个，占 ${chPct(pwTop.v, POWER.themes.length)}），`
+          + `最少的是「${pwBot.l}」（${pwBot.v} 个）。这与原书的篇幅分配一致：`
+          + `「${pwTop.l}」全篇 ${pwTopPart.chapters.length} 章、${chSum(pwTopPart.chapters, (c) => c.paras)} 段，`
+          + `讲的是外廷、内府与科道三方怎么互相咬住——这是全书论证最密的部分，也是明代制度史最容易被讲乱的部分。`
+          + `「${pwBot.l}」只有 ${pwBot.v} 个主题，是因为它本身是总纲，负责定框架而不是铺材料。`),
         card(8, chBarH(chSorted, { unit: " 段", wide: true, tight: true }),
-          `${POWER.stats.chapters} 章共 ${POWER.stats.paras} 段。最长的「${chSorted[0].l}」有 <b>${chSorted[0].v}</b> 段，`
-          + `最短的「${chSorted[chSorted.length - 1].l}」只有 ${chSorted[chSorted.length - 1].v} 段，相差 ${(chSorted[0].v / chSorted[chSorted.length - 1].v).toFixed(1)} 倍。`
-          + `这个分布是原书章节轻重与 OCR 段落切分共同作用的结果——段落数不等于篇幅，但它决定了本站能在这个专题上做多细的定位。`),
+          `${POWER.stats.chapters} 章共 ${POWER.stats.paras} 段，平均每章 ${(POWER.stats.paras / POWER.stats.chapters).toFixed(0)} 段。`
+          + `最长的「${chTop.l}」有 <b>${chTop.v}</b> 段，最短的「${chBot.l}」只有 ${chBot.v} 段，相差 ${(chTop.v / chBot.v).toFixed(1)} 倍。`
+          + `这个分布是原书章节轻重与 OCR 段落切分共同作用的结果——段落数不等于篇幅，`
+          + `但它决定了本站能在这个专题上做多细的定位：${chTop.v} 段的一章可以精确定位到某一段，`
+          + `${chBot.v} 段的一章则只能定位到章。`),
         card(9, chBarV(claimCols, { unit: " 个" }),
           `${POWER.themes.length} 个主题共转述 ${claimTot} 条书中论断，平均 <b>${(claimTot / POWER.themes.length).toFixed(2)}</b> 条。`
-          + `其中 ${claimCols[0].v} 个主题只有 2 条——多数主题是「一个界定 + 两条论断」的最小完整单元，`
-          + `而不是长篇综述。这是刻意的取舍：宁可多立主题、每条短，也不把检索单元做成摘要。`),
+          + `其中 <b>${claimCols[0].v}</b> 个主题只有 2 条，占 ${chPct(claimCols[0].v, POWER.themes.length)}——`
+          + `多数主题是「一个界定 + 两条论断」的最小完整单元，而不是长篇综述。`
+          + `这是刻意的取舍：宁可多立主题、每条短，也不把检索单元做成摘要。`
+          + `代价是深度：只有 ${claimCols[3].v} 个主题攒到了 5 条论断，`
+          + `想看一个问题的完整论证链，仍然得回原书。`),
         card(10, chDonut(linkItems, { aria: "权力结构主题交叉链接的栏目构成" }),
           `${linkTot} 条链接里，指向官制 ${lk("bz")} 条、词条 ${lk("gl")} 条，合计占 <b>${chPct(lk("bz") + lk("gl"), linkTot)}</b>；`
-          + `而指向「思想」的只有 <b>${lk("tk")}</b> 条。这暴露出一个真实的结构性缺口：`
-          + `在本书的视角下，制度史与思想史几乎是两条平行的线——这是下一步最该补的地方，而不是再加主题数量。`),
+          + `年号 ${lk("era")} 条，而指向「思想」的只有 <b>${lk("tk")}</b> 条。`
+          + `这暴露出一个真实的结构性缺口：在本书的视角下，制度史与思想史几乎是两条平行的线。`
+          + `但也不全是缺口——制度条目天然指向官制与词条，因为「内阁」「司礼监」这类词本来就既是制度概念又是检索词。`
+          + `真正该补的是那 ${lk("tk")} 条之外的部分：制度变动与当时人怎么想，本站还没有连起来。`),
+        card(20, chBarH(pgRows, { unit: " 处", tight: true }),
+          `${POWER.themes.length} 个主题共引用原书 ${refPages.length} 处，落在 p.${Math.min(...refPages)}—${Math.max(...refPages)} 之间。`
+          + `最密的是 <b>p.${pgMax.l}</b>（${pgMax.v} 处），最疏的是 p.${pgMin.l}（${pgMin.v} 处）。`
+          + `末桶 p.${pgTail.l} 只有 ${pgTail.v} 处：原书正文到 p.${POWER.stats.pages_ocr} 结束，`
+          + `最后那段是后记与附录，本站把后记也收进了语料，但没有为它立主题，所以它在这张图上是空的。`
+          + `换句话说，这张图量的不是「书里哪里重要」，而是<b>「本站替哪些页建了索引」</b>——`
+          + `空白处不代表原书没内容，只代表本站还没在那儿立主题。`),
       ]));
 
     /* ================= 组 D · 词条、数据与书目 ================= */
@@ -2230,24 +2433,77 @@
     const bibItems = BIBLIOGRAPHY.groups.flatMap((g) => g.items);
     const lvlRows = chRank(chCount(bibItems, (i) => i.lvl)).map(([k, v]) => ({ l: k, v: v }));
 
+    /* 词条的出处：每条词条背后引了哪几本书 */
+    const gloBook = chCount(GLOSSARY.flatMap((g) => g.r || []), (r) => String(r).split(/\s+/)[0]);
+    const gloBookRows = chRank(gloBook).map(([k, v]) => ({ l: k, v: v }));
+    const gloRefN = chSum(gloBookRows, (r) => r.v);
+    const gloPerN = chCount(GLOSSARY, (g) => (g.r || []).length);
+    const gloOne = gloPerN[1] || 0;
+    const gloBookSet = new Set(gloBookRows.map((r) => r.l));
+    const gloMissing = BOOKS.filter((b) => !gloBookSet.has(b.short)).map((b) => b.short);
+
+    /* 数据一览：分类 × 可信度；延伸书目：分类 × 难度。两张交叉表 */
+    const confCols = chRank(chCount(numItems, (i) => i.conf)).map(([k]) => k);
+    const heatNum = NUMBERS.groups.map((g) => {
+      const cells = {};
+      g.items.forEach((i) => { cells[i.conf] = (cells[i.conf] || 0) + 1; });
+      return { l: g.name, cells: cells };
+    });
+    const estTop = heatNum.reduce((a, c) => ((c.cells["估算"] || 0) > (a.cells["估算"] || 0) ? c : a), heatNum[0]);
+    const doubtRows = heatNum.filter((r) => r.cells["存疑"]);
+    const lvlCols = ["入门", "进阶", "专题", "工具", "史料"];
+    const heatBib = BIBLIOGRAPHY.groups.map((g) => {
+      const cells = {};
+      g.items.forEach((i) => { cells[i.lvl] = (cells[i.lvl] || 0) + 1; });
+      return { l: g.name, cells: cells };
+    });
+    const bibIntro = heatBib.filter((r) => r.cells["入门"]);
+    const bibNone = heatBib.filter((r) => !r.cells["入门"]);
+
     G.push(group("词条、数据与书目",
-      `这三栏是本站的「工具部分」：词条供查人查事，数据一览供查数，延伸书目供往下走。`,
+      `这三栏是本站的「工具部分」：词条供查人查事，数据一览供查数，延伸书目供往下走。`
+      + `三者的共同点是「都要交代出处」，所以下面六张图里有两张是交叉表——单看一栏看不出的问题，摊成表就露出来了。`,
       [
         card(11, chBarH(gloRows, { unit: " 条", pct: true }),
-          `${GLOSSARY.length} 条词条中人物占 <b>${chPct(gloRows[0].v, GLOSSARY.length)}</b>（${gloRows[0].v} 条），`
-          + `制度 ${gloRows[1].v} 条，最少的是「${gloRows[gloRows.length - 1].l}」（${gloRows[gloRows.length - 1].v} 条）。`
-          + `人物条目占比高，符合「读史先认人」的实际使用顺序；`
-          + `而${gloRows[gloRows.length - 1].l}少，是因为本站不做原文库——`
-          + `古籍与地名只在需要交代出处或确定方位时才立条，不追求收全。`),
-        card(12, chDonut(confItems, { aria: "数据一览 61 项的可信度构成" }),
+          `${GLOSSARY.length} 条词条中「${gloRows[0].l}」占 <b>${chPct(gloRows[0].v, GLOSSARY.length)}</b>（${gloRows[0].v} 条），`
+          + `「${gloRows[1].l}」${gloRows[1].v} 条，最少的「${gloRows[gloRows.length - 1].l}」只有 ${gloRows[gloRows.length - 1].v} 条。`
+          + `前两类合计 ${gloRows[0].v + gloRows[1].v} 条、占 ${chPct(gloRows[0].v + gloRows[1].v, GLOSSARY.length)}——`
+          + `人物条目占比高，符合「读史先认人」的实际使用顺序。`
+          + `而「${gloRows[gloRows.length - 1].l}」少，是因为本站不做原文库：古籍与地名只在需要交代出处或确定方位时才立条，不追求收全。`
+          + `这也解释了为什么「词条」在检索索引里是第二大类——它是全站唯一按<b>「一个词」</b>而不是「一件事」组织的栏目。`),
+        card(12, chDonut(confItems, { aria: "数据一览各条数据的可信度构成" }),
           `${numItems.length} 项数据里「册载」${confItems[0].v} 项（<b>${chPct(confItems[0].v, numItems.length)}</b>），`
           + `「估算」${(confItems.find((x) => x.l === "估算") || {}).v} 项，「存疑」${(confItems.find((x) => x.l === "存疑") || {}).v} 项。`
-          + `这个比例本身是本站的态度声明：近八成数字有册籍依据，但明代的「册载」恰恰是最容易失实的一类`
-          + `——黄册里的口数近两百年几乎不变，就是最好的反证。所以每一档都配了说明，而不是只给一个数。`),
+          + `这个比例本身是本站的态度声明：近八成数字有册籍依据。`
+          + `但明代的「册载」恰恰是最容易失实的一类——黄册里的口数近两百年几乎不变，就是最好的反证。`
+          + `所以每一档都配了说明，而不是只给一个数；这个环形图的比例好看，不等于这些数字好看。`),
         card(13, chBarH(lvlRows, { unit: " 种", pct: true }),
-          `${bibItems.length} 种书目里「${lvlRows[0].l}」类最多（${lvlRows[0].v} 种），而「入门」只有 ${(lvlRows.find((x) => x.l === "入门") || {}).v} 种。`
+          `${bibItems.length} 种书目里「${lvlRows[0].l}」类最多（${lvlRows[0].v} 种），`
+          + `而「入门」只有 ${(lvlRows.find((x) => x.l === "入门") || {}).v} 种。`
           + `这暴露了这份书目的定位：它是给<b>已经读完通史、想往下走</b>的人准备的，不是从零开始的清单。`
-          + `若要照顾初学者，缺的不是书，是「先读哪一本」的路径。`),
+          + `若要照顾初学者，缺的不是书，是「先读哪一本、再读哪一本」的路径。`
+          + `顺便说，「${lvlRows[lvlRows.length - 1].l}」只有 ${lvlRows[lvlRows.length - 1].v} 种也不是遗漏：`
+          + `本站把史料与工具书单独立了一类，不混进按难度分的梯度里。`),
+        card(21, chBarH(gloBookRows, { unit: " 次", pct: true }),
+          `${GLOSSARY.length} 条词条一共留下 ${gloRefN} 条出处，但只指向 <b>${gloBookRows.length} 部书</b>：`
+          + `${gloBookRows.map((r) => r.l + " " + r.v).join("、")}。`
+          + `更要紧的是分布——<b>${gloOne} 条</b>词条只引了一本书，平均每条 ${(gloRefN / GLOSSARY.length).toFixed(2)} 本，`
+          + `引到三本的只有 ${(gloPerN[3] || 0)} 条。这意味着多数词条是「单源」的：查到它，也只能顺着一条线往下走。`
+          + `另外七部书里有 ${gloMissing.length} 部一次都没被词条引用过（${gloMissing.join("、")}）——`
+          + `不是它们不重要，而是这几本书的写法（一人一时、按专题展开）不产出「某事见某书第几章」这种可以挂靠的出处。`),
+        card(22, chHeat(heatNum, confCols, { hue: 0, lab: 104, unit: " 项", note: "颜色越深＝该分类里这一类数据越多；空白＝该分类没有这一类数据。" }),
+          `把 ${numItems.length} 项数据摊成「分类 × 可信度」，整张表几乎被「册载」占满，这正是本站想让人看到的东西：`
+          + `<b>「册载」不等于「可信」</b>。明代最常被引用的那几个数字（户口、田土）恰恰出自黄册与鱼鳞图册，`
+          + `而这两套册籍本身是为赋役而设，越到后期越脱离实际——颜色深只说明「有册籍可查」，不说明这个数站得住。`
+          + `真正值得盯的是两处：「存疑」只在 ${doubtRows.map((r) => r.l).join("、")} 出现，`
+          + `而「估算」最集中的是「${estTop.l}」（${estTop.cells["估算"]} 项）——`
+          + `估算扎堆的地方，就是史料本身给不出确切数的地方，也是本站最该写明理由的地方。`),
+        card(23, chHeat(heatBib, lvlCols, { hue: 3, lab: 116, unit: " 种", note: "颜色越深＝该分类里这一难度的书越多；空白＝该分类没有这一难度的书。" }),
+          `${bibItems.length} 种书目摊成「分类 × 难度」，偏斜一眼可见：「入门」总共只有 ${chSum(heatBib, (r) => r.cells["入门"] || 0)} 种，`
+          + `而且全部集中在${bibIntro.map((r) => "「" + r.l + "」").join("、")}——`
+          + `反过来，${bibNone.map((r) => "「" + r.l + "」").join("、")}两栏<b>一本入门书都没有</b>。`
+          + `这不是漏收，是这份书目的定位本身：它是给已经读完通史、想往下走的人配的装备，不是从零开始的清单。`
+          + `右下角那一片深色（史料与工具书）是全表最厚的一格，也说明本站更愿意把力气花在「怎么查」而不是「怎么入门」上。`),
       ]));
 
     /* ================= 组 E · 交叉覆盖 ================= */
@@ -2255,6 +2511,8 @@
     const cmpRows = chRank(cmpB).map(([k, v]) => ({ l: k, v: v }));
     const cmpTot = chSum(cmpRows, (r) => r.v);
     const cam2 = (cmpB["剑桥上卷"] || 0) + (cmpB["剑桥下卷"] || 0);
+    const cmpEra = chRank(chCount(COMPARE, (c) => c.era));
+    const cmpEraTop = cmpEra[0], cmpEra2 = cmpEra[1];
     const tkRows = THINKERS.schools.map((s) => ({
       l: String(s.name).split("·")[0].trim(), v: s.thinkers.length,
       tip: `${s.name}（${s.span}）　${s.thinkers.length} 人：${s.thinkers.map((t) => t.name).join("、")}`,
@@ -2264,18 +2522,56 @@
       .filter((s) => String(s.name).split("·")[0].trim() === tkLast.l)
       .flatMap((s) => s.thinkers.map((t) => t.name)).join("、");
 
+    /* 思想人物的生卒时间轴：20 条命，看的是「谁和谁同时活着」 */
+    const TK_C = ["var(--c-indigo)", "var(--c-teal)", "var(--c-amber)", "var(--c-violet)",
+      "var(--c-rose)", "var(--accent-3)", "var(--accent-primary)"];
+    const tkGantt = THINKERS.schools.flatMap((s, si) => (s.thinkers || []).map((t) => {
+      const m = String(t.life || "").match(/(\d{3,4})\s*[—\-–~]\s*(\d{3,4})/);
+      if (!m) return null;
+      return {
+        l: t.name, from: +m[1], to: +m[2], c: TK_C[si % TK_C.length],
+        tip: `${t.name}（${t.life}）　${String(s.name).split("·")[0].trim()}　享年 ${+m[2] - +m[1] + 1} 岁　${t.title || ""}`,
+      };
+    })).filter(Boolean).sort((a, b) => a.from - b.from);
+    const tkTicks = [1310, 1360, 1410, 1460, 1510, 1560, 1610, 1660].map((y) => ({ v: y, l: String(y) }));
+    const tkSeries = THINKERS.schools.map((s, si) => ({ l: String(s.name).split("·")[0].trim(), c: TK_C[si % TK_C.length] }));
+    const tkBirths = tkGantt.map((x) => x.from);
+    let bgA = tkBirths[0], bgB = tkBirths[1];
+    for (let i = 1; i < tkBirths.length; i++) if (tkBirths[i] - tkBirths[i - 1] > bgB - bgA) { bgA = tkBirths[i - 1]; bgB = tkBirths[i]; }
+    const bgPrev = tkGantt.filter((x) => x.from === bgA).map((x) => x.l).join("、");
+    const bgNext = tkGantt.filter((x) => x.from === bgB).map((x) => x.l).join("、");
+    const tkMin = Math.min(...tkGantt.map((x) => x.from)), tkMax = Math.max(...tkGantt.map((x) => x.to));
+    const tkAt1644 = tkGantt.filter((x) => x.from <= 1644 && x.to >= 1644);
+    const tkLongest = tkGantt.reduce((a, c) => ((c.to - c.from) > (a.to - a.from) ? c : a), tkGantt[0]);
+
     G.push(group("交叉覆盖",
-      `最后看两条「横向」的线：同一个问题在不同书里怎么被讲，以及本站的思想栏覆盖到了哪些学派。`,
+      `最后看三条「横向」的线：同一个问题在不同书里怎么被讲、本站的思想栏覆盖到了哪些学派，`
+      + `以及这 ${TK_COUNT} 位思想家在时间上是怎么排布的。`,
       [
         card(14, chBarH(cmpRows, { unit: " 次", pct: true }),
           `${COMPARE.length} 组对照共收录 ${cmpTot} 条观点，剑桥上下两卷合计 <b>${cam2}</b> 条，占 ${chPct(cam2, cmpTot)}。`
           + `「万历十五年」与「南明史」各只有 ${cmpB["万历十五年"]} 次——不是因为它们不重要，`
-          + `而是它们的写法（一人一时、一朝之亡）不容易和通史放进同一个对照框里。`),
+          + `而是它们的写法（一人一时、一朝之亡）不容易和通史放进同一个对照框里。`
+          + `对照表的时期分布同样偏：${COMPARE.length} 组里「${cmpEraTop[0]}」${cmpEraTop[1]} 组、「${cmpEra2[0]}」${cmpEra2[1]} 组，`
+          + `两个时期就占了近三分之一。这说明对照表是<b>跟着争议走的</b>，不是按朝代平均分配的——`
+          + `有争论的地方才值得把几本书摆在一起看。`),
         card(15, chBarH(tkRows, { unit: " 人", pct: true }),
-          `${THINKERS.schools.length} 个学派共 ${TK_COUNT} 人。明初理学 ${tkRows[0].v} 人最多，`
+          `${THINKERS.schools.length} 个学派共 ${TK_COUNT} 人。「${tkRows[0].l}」${tkRows[0].v} 人最多，`
           + `而「${tkLast.l}」只有 <b>${tkLast.v}</b> 人（${tkLastNames}）。`
-          + `这一支在明代思想史上的分量与其在史料中的存在感并不匹配，`
-          + `也是本站思想栏目前最薄的一环——下一轮要补的是这里，而不是继续加心学人物。`),
+          + `这一支在明代思想史上的分量与其在史料中的存在感并不匹配，也是本站思想栏目前最薄的一环——`
+          + `下一轮要补的是这里，而不是继续加心学人物。`
+          + `还有一个数字值得留意：平均每个学派 ${(TK_COUNT / THINKERS.schools.length).toFixed(1)} 人，`
+          + `说明本站是按<b>学派</b>而不是按<b>人名</b>组织的——先有谱系，再往里填人。`),
+        card(24, chGantt(tkGantt, { ticks: tkTicks, unit: " 岁", series: tkSeries }),
+          `${tkGantt.length} 位思想人物的生卒跨 ${tkMin}—${tkMax}，共 ${tkMax - tkMin} 年。四点值得看：`
+          + `① 生年最早的是${tkGantt[0].l}（${tkGantt[0].from}），享年最长的是${tkLongest.l}（${tkLongest.to - tkLongest.from + 1} 岁，${tkLongest.from}—${tkLongest.to}）；`
+          + `② 生年之间最大的一段空档在 ${bgA}—${bgB} 之间：${bgPrev}（生于 ${bgA}）之后，`
+          + `直到 ${bgNext}（生于 ${bgB}）才有人接上，中间整整 <b>${bgB - bgA} 年</b>本站一个人都没收——`
+          + `这段空白正好卡在明初理学与心学之间，是本站思想栏最明显的断点；`
+          + `③ 1644 年明亡时，这些人里有 <b>${tkAt1644.length}</b> 位在世（${tkAt1644.map((x) => x.l).join("、")}），`
+          + `他们是把「明朝」当记忆而不是当现实来写的一代人——明末清初的总结性著作，正是这批人写的；`
+          + `④ 时间条彼此交叠得厉害：明初理学与心学有两代人是同时活着、互相批评的，`
+          + `所以「学派」在图上不是一个接一个的段落，而是一层层压着的。`),
       ]));
 
     host.innerHTML = G.join("");
