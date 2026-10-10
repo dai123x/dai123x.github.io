@@ -1483,7 +1483,15 @@ body.pal-open { overflow: hidden; }
 .ch-col:hover i { filter: brightness(1.18); }
 .ch-col.peak i { box-shadow: 0 0 14px -2px var(--accent-glow); }
 .ch-col-axis { display: flex; gap: 10px; margin-top: 8px; }
-.ch-col-axis span { flex: 1; text-align: center; font-size: .76rem; color: var(--text-muted); }
+/* 一柱一 span，但柱子多时 JS 会抽稀（部分 span 留空）。
+   留空的要能被压到 0（min-width:0），有字的要能借空位展开（overflow:visible）。
+   少了 min-width:0，flex 项就按文字宽度撑开整行 —— 19 柱图在窄屏撑宽页面就是这么来的。
+   首末标签贴边对齐，否则最外侧那个会溢出容器、把整页撑宽。 */
+.ch-col-axis span { flex: 1 1 0; min-width: 0; text-align: center; font-size: .76rem; color: var(--text-muted); white-space: nowrap; }
+.ch-col-axis span:empty { overflow: hidden; }
+.ch-col-axis span:not(:empty) { overflow: visible; }
+.ch-col-axis span.first { text-align: left; }
+.ch-col-axis span.last { text-align: right; }
 .ch-col-axis span.peak { color: var(--accent-primary); font-weight: 600; }
 
 /* 6) 堆积横条 */
@@ -1521,6 +1529,8 @@ body.pal-open { overflow: hidden; }
 @media (max-width: 520px) {
   .ch-val b { display: none; }
   .ch-col-plot { height: 150px; }
+  .ch-col-axis { gap: 4px; }
+  .ch-col-axis span { font-size: .68rem; }
 }
 
 /* 9) 时间轴（甘特）：刻度行与条形行共用同一列网格，轴才不会和条错位。
@@ -1591,4 +1601,129 @@ body.pal-open { overflow: hidden; }
   .ch-track, .ch-strack, .ch-g-track, .ch-hm-cell { background: #eee !important; }
   .ch-h { color: #111 !important; }
   .ch-hm-note { color: #444 !important; }
+}
+
+/* ==========================================================================
+   V8 精修层 · 统计（计量史学）
+   --------------------------------------------------------------------------
+   与图表栏的关系：图表栏的卡片是「一图一读」，这里是「一卡 = 方法 + 结果 + 局限」，
+   所以多了三样图表栏没有的东西：关键指标网格（.st-kv）、
+   「能说／不能说」判定（.st-verdict）、以及方法标签（.st-method）。
+   判定那一条是本层最重要的设计：它把「这个结论能用到什么程度」固定在每张卡里，
+   不靠读者自己把握分寸。
+   ========================================================================== */
+
+/* 1) 三条铁律：进栏目先讲清样本边界 */
+.st-rules { display: grid; gap: 10px; margin: 0 0 26px; }
+.st-rule {
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-left: 3px solid var(--c-rose); border-radius: var(--radius-sm);
+  padding: 12px 15px; font-size: .87rem; line-height: 1.85; color: var(--text-secondary);
+}
+.st-rule b { display: block; color: var(--text-primary); font-size: .9rem; margin-bottom: 3px; }
+
+/* 2) 分节：A 史料事实 / B 索引结构 —— 两者的统计对象不同，视觉上必须分开 */
+.st-body { display: block; }
+.st-sec { margin: 0 0 34px; }
+.st-sec-h {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px;
+  font-size: 1.02rem; margin: 0 0 16px; padding-bottom: 9px;
+  border-bottom: 1px solid var(--border-color);
+}
+.st-sec-h span { font-size: .8rem; font-weight: 400; color: var(--text-muted); }
+
+/* 3) 卡片网格 */
+.st-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 18px; align-items: start; }
+.st-card {
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); padding: 18px 18px 16px;
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  transition: var(--transition);
+}
+.st-card:hover { border-color: var(--border-hover); box-shadow: var(--card-shadow); }
+.st-card:target { border-color: var(--border-hover); box-shadow: 0 0 0 2px var(--accent-glow); }
+
+.st-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 14px; }
+.st-no {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-variant-numeric: tabular-nums;
+  background: var(--accent-glow); color: var(--accent-primary); border: 1px solid var(--border-hover);
+}
+.st-head h3 { font-size: .97rem; margin: 0; font-weight: 600; flex: 1 1 200px; line-height: 1.5; }
+.st-method {
+  flex: 0 0 auto; font-size: .68rem; letter-spacing: .04em;
+  color: var(--text-muted); border: 1px solid var(--border-color);
+  border-radius: var(--radius-full); padding: 2px 9px;
+}
+
+/* 4) 图形区：宽图占满整行，窄图并排 */
+.st-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.st-fig { margin: 0; min-width: 0; }
+.st-fig.wide { grid-column: 1 / -1; }
+.st-fig figcaption { margin-top: 7px; font-size: .73rem; color: var(--text-muted); line-height: 1.7; }
+.st-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* SVG 内部元素：颜色走变量，明暗两套主题都读得出来 */
+.st-axis { stroke: var(--border-color); stroke-width: 1; }
+.st-tick { font-size: 10px; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
+.st-lab { font-size: 10px; fill: var(--text-secondary); }
+.st-axlab { font-size: 10.5px; fill: var(--text-muted); }
+.st-ref { stroke: var(--text-muted); stroke-width: 1.4; stroke-dasharray: 6 4; }
+.st-fit { stroke: var(--c-rose); stroke-width: 2; opacity: .85; }
+.st-norm { stroke: var(--c-rose); stroke-width: 2; stroke-dasharray: 5 3; }
+.st-plotbg { fill: var(--bg-tertiary); opacity: .45; }
+
+/* 5) 关键指标网格 */
+.st-kv {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 1px; background: var(--border-color);
+  border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  overflow: hidden; margin-bottom: 14px;
+}
+.st-kv-i { background: var(--bg-secondary); padding: 8px 9px; display: flex; flex-direction: column; gap: 1px; }
+.st-kv-k { font-size: .68rem; color: var(--text-muted); letter-spacing: .03em; }
+.st-kv-v { font-size: .95rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.st-kv-i em { font-size: .66rem; color: var(--text-muted); font-style: normal; }
+
+/* 6) 解读正文 */
+.st-read { font-size: .85rem; line-height: 1.95; color: var(--text-secondary); }
+.st-read b { color: var(--text-primary); }
+
+/* 7) 能说 / 不能说 —— 每张卡都必须有，缺了就等于没给边界 */
+.st-verdict {
+  margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color);
+  display: grid; gap: 7px;
+}
+.st-verdict p { margin: 0; font-size: .82rem; line-height: 1.8; color: var(--text-secondary); }
+.st-verdict b {
+  display: inline-block; margin-right: 7px; padding: 1px 7px;
+  border-radius: var(--radius-full); font-size: .7rem; letter-spacing: .04em;
+}
+.st-can b { background: rgba(45, 212, 191, .14); color: var(--c-teal); border: 1px solid rgba(45, 212, 191, .35); }
+.st-cannot b { background: rgba(251, 113, 133, .14); color: var(--c-rose); border: 1px solid rgba(251, 113, 133, .35); }
+
+/* 8) 检索面板的类型徽标 */
+.pal-type.t-st { color: var(--c-violet); border-color: rgba(167, 139, 250, .4); }
+
+/* 9) 窄屏：网格降为单列，指标网格收紧 */
+@media (max-width: 900px) {
+  .st-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .st-card { padding: 15px 14px 13px; }
+  .st-kv { grid-template-columns: repeat(auto-fit, minmax(66px, 1fr)); }
+  .st-kv-v { font-size: .88rem; }
+  .st-read { font-size: .82rem; }
+  .st-method { font-size: .64rem; }
+  .st-sec-h { font-size: .95rem; }
+}
+
+/* 10) 打印：卡片不跨页断开，虚线框在纸上会糊，换成实线 */
+@media print {
+  .st-card, .st-rule { break-inside: avoid; background: #fff !important; border-color: #bbb !important; backdrop-filter: none !important; }
+  .st-head h3, .st-read b, .st-rule b { color: #111 !important; }
+  .st-read, .st-rule, .st-verdict p { color: #333 !important; }
+  .st-verdict { border-top-style: solid; }
+  .st-plotbg { fill: #f2f2f2 !important; }
 }

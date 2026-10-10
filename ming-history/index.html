@@ -12,7 +12,7 @@
 <meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、明代官僚体系与品级表、思想界二十家、权力结构（方志远全书骨架与段落级检索）、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 35 种延伸书目与本地阅读器。不转载书籍正文。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=20261011_06">
+<link rel="stylesheet" href="css/style.css?v=20261011_09">
 <script>
   (function () {
     try {
@@ -54,6 +54,7 @@
       <button class="tab" id="tab-geo" data-view="geo" type="button" role="tab" aria-selected="false" aria-controls="view-geo" tabindex="-1" title="舆图政区">舆图</button>
       <button class="tab" id="tab-numbers" data-view="numbers" type="button" role="tab" aria-selected="false" aria-controls="view-numbers" tabindex="-1" title="数据一览">数据</button>
       <button class="tab" id="tab-charts" data-view="charts" type="button" role="tab" aria-selected="false" aria-controls="view-charts" tabindex="-1" title="图表 · 本站内容统计">图表</button>
+      <button class="tab" id="tab-stats" data-view="stats" type="button" role="tab" aria-selected="false" aria-controls="view-stats" tabindex="-1" title="统计 · 计量史学">统计</button>
       <button class="tab" id="tab-debates" data-view="debates" type="button" role="tab" aria-selected="false" aria-controls="view-debates" tabindex="-1" title="争议考辨">考辨</button>
       <button class="tab" id="tab-themes" data-view="themes" type="button" role="tab" aria-selected="false" aria-controls="view-themes" tabindex="-1" title="主题线索">主题</button>
       <button class="tab" id="tab-reader" data-view="reader" type="button" role="tab" aria-selected="false" aria-controls="view-reader" tabindex="-1" title="本地阅读">阅读</button>
@@ -491,6 +492,39 @@
     </div>
   </section>
 
+  <!-- ============ 统计 · 计量史学 ============ -->
+  <section class="view" id="view-stats" role="tabpanel" aria-labelledby="tab-stats" tabindex="0">
+    <div class="sec-head">
+      <h2>统计 · 计量史学</h2>
+      <p>用统计方法读史料，第一步不是算，而是<b>说清样本是什么</b>。
+        这一栏把两类东西分开算：<b>A 节</b>统计的是明代本身的量（帝王在位年数、思想家死亡年龄、官制品级），
+        <b>B 节</b>统计的是本站这部索引的编纂结果（年表事件的密度与类别、章节篇幅、词条来源）。
+        分开的理由很简单——前者的分布是历史，后者的分布是<b>编者怎么选的</b>，混在一起算就会得出误导性的结论。</p>
+      <hr class="rule">
+    </div>
+    <div class="st-rules">
+      <div class="st-rule"><b>一 · 样本是索引，不是历史</b>
+        本站不收录原书正文，所有数字都来自已结构化的索引数据。它描述的是这七部书与这个网站，
+        <b>不是明代</b>。凡是靠索引才能得到的分布（年表密度、主题分布、来源构成），都只对本站成立。</div>
+      <div class="st-rule"><b>二 · 样本不是随机抽样，所以 p 值只是参考</b>
+        这里的检验回答的是「这批数据内部的差异有多大」，不是「明代总体上如何」。
+        本站把 p 值照实给出，但每张卡都必须同时写明「能说」与「不能说」——
+        后者往往比前者重要。</div>
+      <div class="st-rule"><b>三 · 相关不等于因果，更不等于历史</b>
+        两个量同步变化，既可能是因果，也可能共同受第三个因素影响，还可能
+        <b>只是测量方式造成的</b>。本站遇到的多是第三种（见第 5、7 张）。</div>
+    </div>
+    <div class="st-body" id="stBody"></div>
+    <div class="notice" style="margin-top:26px">
+      <b>方法是怎么实现的。</b>所有统计量都由本站自己算，没有引入任何统计库——均值、标准差、偏度、峰度、
+      基尼系数、香农熵、卡方检验、游程检验、相关与最小二乘回归、bootstrap 区间，全部是几十行的纯函数，
+      集中放在 <code>js/stats.js</code> 里。它不依赖页面、不读全局状态，因此可以脱离浏览器用命令行单独验算：
+      本站对这个文件有 <b>85 项数值断言</b>，拿教科书里的经典例子和闭式解（如 Q(1,x)=e⁻ˣ、Φ(0)=0.5）
+      逐一对过。之所以要这样做，是因为<b>统计算错了页面不会报错</b>——
+      图表会照着一张错的数字画得很好看。
+    </div>
+  </section>
+
   <!-- ============ 争议考辨 ============ -->
   <section class="view" id="view-debates" role="tabpanel" aria-labelledby="tab-debates" tabindex="0">
     <div class="sec-head">
@@ -585,22 +619,23 @@
   </div>
 </div>
 
-<script src="js/data-books.js?v=20261011_06"></script>
-<script src="js/data-books-more.js?v=20261011_06"></script>
-<script src="js/data-books-power.js?v=20261011_06"></script>
-<script src="js/data-emperors.js?v=20261011_06"></script>
-<script src="js/data-chronology.js?v=20261011_06"></script>
-<script src="js/data-glossary.js?v=20261011_06"></script>
-<script src="js/data-reading.js?v=20261011_06"></script>
-<script src="js/data-eranames.js?v=20261011_06"></script>
-<script src="js/data-bureaucracy.js?v=20261011_06"></script>
-<script src="js/data-thinkers.js?v=20261011_06"></script>
-<script src="js/data-power.js?v=20261011_06"></script>
-<script src="js/data-geo.js?v=20261011_06"></script>
-<script src="js/data-numbers.js?v=20261011_06"></script>
-<script src="js/data-debates.js?v=20261011_06"></script>
-<script src="js/data-lineage.js?v=20261011_06"></script>
-<script src="js/data-bibliography.js?v=20261011_06"></script>
-<script src="js/app.js?v=20261011_06"></script>
+<script src="js/data-books.js?v=20261011_09"></script>
+<script src="js/data-books-more.js?v=20261011_09"></script>
+<script src="js/data-books-power.js?v=20261011_09"></script>
+<script src="js/data-emperors.js?v=20261011_09"></script>
+<script src="js/data-chronology.js?v=20261011_09"></script>
+<script src="js/data-glossary.js?v=20261011_09"></script>
+<script src="js/data-reading.js?v=20261011_09"></script>
+<script src="js/data-eranames.js?v=20261011_09"></script>
+<script src="js/data-bureaucracy.js?v=20261011_09"></script>
+<script src="js/data-thinkers.js?v=20261011_09"></script>
+<script src="js/data-power.js?v=20261011_09"></script>
+<script src="js/data-geo.js?v=20261011_09"></script>
+<script src="js/data-numbers.js?v=20261011_09"></script>
+<script src="js/data-debates.js?v=20261011_09"></script>
+<script src="js/data-lineage.js?v=20261011_09"></script>
+<script src="js/data-bibliography.js?v=20261011_09"></script>
+<script src="js/stats.js?v=20261011_09"></script>
+<script src="js/app.js?v=20261011_09"></script>
 </body>
 </html>

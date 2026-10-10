@@ -103,7 +103,7 @@
 
   /* ==================== 4. 路由 + 按需渲染 ==================== */
   const VIEWS = ["overview", "lineage", "chrono", "eras", "bureaucracy", "thinkers", "power", "compare", "index",
-    "bibliography", "glossary", "geo", "numbers", "debates", "themes", "charts", "reader"];
+    "bibliography", "glossary", "geo", "numbers", "charts", "stats", "debates", "themes", "reader"];
 
   const rendered = Object.create(null);   // 栏目是否已构建
   const scrollMem = Object.create(null);  // 每栏的滚动位置
@@ -127,6 +127,7 @@
     debates: renderDebates,
     themes: renderThemes,
     charts: renderCharts,
+    stats: renderStats,
     reader: initReader,
   };
 
@@ -1671,6 +1672,13 @@
       view: "charts", anchor: "ch-" + n, type: "图表", cat: gname,
       title: CH_TITLE[n], sub: gname, text: "本站内容统计 数据图 图表 构成 分布 " + gname,
     })));
+    // 统计栏：标题与方法取自 ST_TITLE / ST_METHOD（与渲染同源），
+    // 检索词里补上方法名，这样搜「卡方」「基尼」「游程」也能直接跳到对应那张卡
+    ST_GROUPS_META.forEach(([gname, ids]) => ids.forEach((n) => add({
+      view: "stats", anchor: "st-" + n, type: "统计", cat: gname,
+      title: ST_TITLE[n], sub: gname + " · " + ST_METHOD[n],
+      text: "统计 计量 分布 相关 检验 推断 样本 " + ST_METHOD[n] + " " + gname,
+    })));
     return ix;
   }
 
@@ -1766,7 +1774,7 @@
     $("#paletteCount").textContent = palResults.length + " 条结果";
   }
 
-  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk", "权力": "pw", "权力结构": "pw", "图表": "ch", "数据": "num" })[t] || "glo";
+  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk", "权力": "pw", "权力结构": "pw", "图表": "ch", "数据": "num", "统计": "st" })[t] || "glo";
 
   function movePal(d) {
     if (!palResults.length) return;
@@ -1929,7 +1937,7 @@
      不会与用户点击产生交错。 */
   function prefetch() {
     const order = ["lineage", "chrono", "glossary", "geo", "eras", "bureaucracy",
-      "thinkers", "power", "numbers", "compare", "debates", "themes", "charts", "index", "bibliography", "reader"];
+      "thinkers", "power", "numbers", "compare", "debates", "themes", "charts", "stats", "index", "bibliography", "reader"];
     let i = 0;
     const step = (deadline) => {
       const t0 = performance.now();
@@ -2001,6 +2009,12 @@
     const max = Math.max(1, ...cols.map((c) => c.v));
     const peak = cols.reduce((a, c) => (c.v > a.v ? c : a), cols[0]);
     const mark = o.mark !== false;
+    /* 轴标签必须抽稀：一柱一标签在柱子多时（本站年表密度图有 19 柱）会互相挤压，
+       窄屏上更会把整页撑宽——flex 项的 min-width 默认按文字宽度算，压不下去。
+       抽稀后仍保持「一柱一 span」，只是部分 span 不写字：这样标签与柱子仍逐一对齐，
+       有字的 span 还能借空位展开。下标从末柱对齐，保证最后一根一定有标签。 */
+    const step = Math.max(1, Math.ceil(cols.length / 10));
+    const off = (cols.length - 1) % step;
     return `<div class="ch-cols"><div class="ch-col-plot">`
       + cols.map((c) => {
         const hi = mark && c.v === peak.v;
@@ -2009,7 +2023,12 @@
           + `<i style="height:calc(${(c.v / max).toFixed(4)} * (100% - 18px));background:${c.c || o.color || chCol(0)}"></i></div>`;
       }).join("")
       + `</div><div class="ch-col-axis">`
-      + cols.map((c) => `<span${mark && c.v === peak.v ? ' class="peak"' : ""}>${esc(c.l)}</span>`).join("")
+      + cols.map((c, i) => {
+        const show = i % step === off;
+        const cls = [mark && c.v === peak.v ? "peak" : "",
+          show && i === off ? "first" : "", i === cols.length - 1 ? "last" : ""].filter(Boolean).join(" ");
+        return `<span${cls ? ` class="${cls}"` : ""}>${show ? esc(c.l) : ""}</span>`;
+      }).join("")
       + `</div></div>`;
   }
 
@@ -2110,7 +2129,147 @@
       + (o.note ? `<div class="ch-hm-note">${o.note}</div>` : "") + `</div>`;
   }
 
-  /* 图表清单：标题只在这里写一次，渲染与全站检索共用，免得两处各写一遍后走样 */
+  /* ==================== 25. 统计图形原语 ====================
+     图表栏那六类原语回答的是「构成是什么样」；这里四类回答的是
+     「分布长什么样、两个量之间有没有关系」。两者都只用 SVG 与 div，不引任何库。 */
+  const ST = window.MING_STATS;
+
+  /** 线性映射，并把除零夹住（单点样本、全同值时区间宽度为 0） */
+  function stMap(d0, d1, p0, p1) {
+    const span = (d1 - d0) || 1;
+    return (v) => p0 + (v - d0) / span * (p1 - p0);
+  }
+  const stNum = (v, d) => ST.round(v, d == null ? 2 : d);
+
+  /* 直方图 + 正态叠加。柱高是频数，正态曲线要乘 N×箱宽折算成同一尺度，
+     而且 y 轴上限必须先看过曲线峰值再定 —— 否则曲线被柱子截顶，
+     看上去像「拟合很差」，那其实是画法造成的假象。 */
+  function stHist(values, opts) {
+    const o = opts || {};
+    const H = ST.hist(values, { bins: o.bins, maxBins: o.maxBins || 12 });
+    const d = ST.describe(values);
+    const W = 640, HT = 190, L = 42, R = 14, T = 16, B = 30;
+    const iw = W - L - R, ih = HT - T - B;
+    const xs = stMap(H.lo, H.hi, L, L + iw);
+    const bw = iw / H.bins.length;
+    const curve = [];
+    if (o.normal !== false && d.sd > 0) {
+      for (let i = 0; i <= 72; i++) {
+        const x = H.lo + (H.hi - H.lo) * i / 72;
+        curve.push({ x, v: ST.normPdf(x, d.mean, d.sd) * values.length * H.width });
+      }
+    }
+    const yMax = Math.max(1, ...H.bins.map((b) => b.n), ...curve.map((p) => p.v));
+    const ys = (v) => T + ih - (v / yMax) * ih;
+    const bars = H.bins.map((b, i) =>
+      `<rect x="${(L + i * bw + 1).toFixed(1)}" y="${ys(b.n).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}"`
+      + ` height="${Math.max(0, T + ih - ys(b.n)).toFixed(1)}" rx="2" fill="${o.color || chCol(0)}" opacity=".78">`
+      + `<title>${esc(b.lo.toFixed(1) + "—" + b.hi.toFixed(1) + "：" + b.n + " 个")}</title></rect>`).join("");
+    const path = curve.length
+      ? `<path class="st-norm" d="M${curve.map((p) => `${xs(p.x).toFixed(1)},${ys(p.v).toFixed(1)}`).join("L")}" fill="none">`
+        + `<title>若服从正态 N(${esc(stNum(d.mean, 1))}, ${esc(stNum(d.sd, 1))}²) 的形状</title></path>`
+      : "";
+    // x 轴刻度：最多 6 个，均匀取样，免得挤在一起
+    const step = Math.max(1, Math.ceil(H.bins.length / 6));
+    const xlab = H.bins.filter((_, i) => i % step === 0).map((b) =>
+      `<text class="st-tick" x="${xs(b.lo).toFixed(1)}" y="${HT - 10}" text-anchor="middle">${esc(stNum(b.lo, 0))}</text>`).join("");
+    return `<svg class="st-svg st-hist" viewBox="0 0 ${W} ${HT}" role="img"`
+      + ` aria-label="${esc(o.aria || "直方图")}">`
+      + `<line class="st-axis" x1="${L}" y1="${T + ih}" x2="${L + iw}" y2="${T + ih}"></line>`
+      + `<text class="st-tick" x="${L - 6}" y="${T + 8}" text-anchor="end">${yMax}</text>`
+      + `<text class="st-tick" x="${L - 6}" y="${T + ih}" text-anchor="end">0</text>`
+      + bars + path + xlab + `</svg>`;
+  }
+
+  /* 散点 + 最小二乘直线。点的坐标由调用方给出，图里只画；
+     回归线两端各延伸一点，避免视觉上「线比点短」。 */
+  function stScatter(pts, opts) {
+    const o = opts || {};
+    const W = 640, HT = 300, L = 48, R = 16, T = 18, B = 40;
+    const iw = W - L - R, ih = HT - T - B;
+    const xv = pts.map((p) => p.x), yv = pts.map((p) => p.y);
+    const x0 = o.x0 != null ? o.x0 : Math.min(...xv), x1 = o.x1 != null ? o.x1 : Math.max(...xv);
+    const y0 = o.y0 != null ? o.y0 : Math.min(...yv), y1 = o.y1 != null ? o.y1 : Math.max(...yv);
+    const xs = stMap(x0, x1, L, L + iw), ys = stMap(y0, y1, T + ih, T);
+    const fit = ST.ols(xv, yv);
+    let line = "";
+    if (o.fit !== false && fit.n > 2) {
+      line = `<line class="st-fit" x1="${xs(x0).toFixed(1)}" y1="${ys(fit.intercept + fit.slope * x0).toFixed(1)}"`
+        + ` x2="${xs(x1).toFixed(1)}" y2="${ys(fit.intercept + fit.slope * x1).toFixed(1)}">`
+        + `<title>最小二乘拟合：y = ${esc(stNum(fit.intercept))} + ${esc(stNum(fit.slope, 3))}x，R² = ${esc(stNum(fit.r2, 3))}</title></line>`;
+    }
+    const dots = pts.map((p) =>
+      `<circle cx="${xs(p.x).toFixed(1)}" cy="${ys(p.y).toFixed(1)}" r="${p.r || 3.6}"`
+      + ` fill="${p.c || chCol(0)}" opacity=".8">`
+      + `<title>${esc(p.tip || (p.l ? p.l + "：" : "") + "x=" + p.x + "，y=" + p.y)}</title></circle>`).join("");
+    // 只标出调用方点名的点（通常是极端值），全标会糊成一片
+    const labels = pts.filter((p) => p.l && o.label !== false).map((p) =>
+      `<text class="st-lab" x="${(xs(p.x) + 6).toFixed(1)}" y="${(ys(p.y) - 5).toFixed(1)}">${esc(p.l)}</text>`).join("");
+    const xt = [x0, x0 + (x1 - x0) / 2, x1].map((v) =>
+      `<text class="st-tick" x="${xs(v).toFixed(1)}" y="${HT - 16}" text-anchor="middle">${esc(stNum(v, o.xd == null ? 0 : o.xd))}</text>`).join("");
+    const yt = [y0, y0 + (y1 - y0) / 2, y1].map((v) =>
+      `<text class="st-tick" x="${L - 7}" y="${(ys(v) + 4).toFixed(1)}" text-anchor="end">${esc(stNum(v, o.yd == null ? 0 : o.yd))}</text>`).join("");
+    return `<svg class="st-svg st-scatter" viewBox="0 0 ${W} ${HT}" role="img" aria-label="${esc(o.aria || "散点图")}">`
+      + `<line class="st-axis" x1="${L}" y1="${T + ih}" x2="${L + iw}" y2="${T + ih}"></line>`
+      + `<line class="st-axis" x1="${L}" y1="${T}" x2="${L}" y2="${T + ih}"></line>`
+      + yt + xt + line + dots + labels
+      + (o.xlab ? `<text class="st-axlab" x="${L + iw / 2}" y="${HT - 3}" text-anchor="middle">${esc(o.xlab)}</text>` : "")
+      + (o.ylab ? `<text class="st-axlab" transform="translate(12 ${T + ih / 2}) rotate(-90)" text-anchor="middle">${esc(o.ylab)}</text>` : "")
+      + `</svg>`;
+  }
+
+  /* QQ 图：样本顺序统计量 vs 正态理论分位数。
+     若点近似落在参考线上，说明「与正态的偏离不大」；
+     两端翘起是厚尾，呈弧形是偏态。注意这是**看图**的判断，
+     不是检验统计量——真正的正态性检验（Shapiro–Wilk）这里没有做。 */
+  function stQQ(values, opts) {
+    const o = opts || {};
+    const q = ST.qqNorm(values);
+    const W = 320, HT = 260, L = 40, R = 14, T = 16, B = 34;
+    const iw = W - L - R, ih = HT - T - B;
+    const zs = q.pts.map((p) => p.z), xv = q.pts.map((p) => p.x);
+    const z0 = Math.min(...zs), z1 = Math.max(...zs);
+    const x0 = Math.min(...xv), x1 = Math.max(...xv);
+    const pad = (x1 - x0) * 0.08;
+    const xs = stMap(z0, z1, L, L + iw), ys = stMap(x0 - pad, x1 + pad, T + ih, T);
+    const ref = `<line class="st-ref" x1="${xs(z0).toFixed(1)}" y1="${ys(q.intercept + q.slope * z0).toFixed(1)}"`
+      + ` x2="${xs(z1).toFixed(1)}" y2="${ys(q.intercept + q.slope * z1).toFixed(1)}">`
+      + `<title>参考线：均值 ${esc(stNum(q.mean, 1))}，标准差 ${esc(stNum(q.sd, 1))}</title></line>`;
+    const dots = q.pts.map((p, i) =>
+      `<circle cx="${xs(p.z).toFixed(1)}" cy="${ys(p.x).toFixed(1)}" r="2.8" fill="${o.color || chCol(2)}" opacity=".85">`
+      + `<title>第 ${i + 1} 个：理论 z=${esc(stNum(p.z, 2))}，实际 ${esc(p.x)}</title></circle>`).join("");
+    return `<svg class="st-svg st-qq" viewBox="0 0 ${W} ${HT}" role="img" aria-label="${esc(o.aria || "正态 QQ 图")}">`
+      + `<line class="st-axis" x1="${L}" y1="${T + ih}" x2="${L + iw}" y2="${T + ih}"></line>`
+      + `<line class="st-axis" x1="${L}" y1="${T}" x2="${L}" y2="${T + ih}"></line>`
+      + ref + dots
+      + `<text class="st-axlab" x="${L + iw / 2}" y="${HT - 4}" text-anchor="middle">正态理论分位数 z</text>`
+      + `</svg>`;
+  }
+
+  /* 洛伦兹曲线 + 对角线。对角线 = 完全平均；曲线离对角线越远越集中。
+     曲线与对角线之间夹的面积 × 2 就是基尼系数（这里直接把数值写在标题里）。 */
+  function stLorenz(values, opts) {
+    const o = opts || {};
+    const Lp = ST.lorenz(values);
+    const W = 320, HT = 280, P = 34;
+    const iw = W - P * 2, ih = HT - P - 26;
+    const xs = (v) => P + v * iw, ys = (v) => P + ih - v * ih;
+    const curve = `M${Lp.map((p) => `${xs(p.p).toFixed(1)},${ys(p.L).toFixed(1)}`).join("L")}`;
+    const area = `${curve}L${xs(1).toFixed(1)},${ys(1).toFixed(1)}L${xs(0).toFixed(1)},${ys(0).toFixed(1)}Z`;
+    const g = ST.gini(values);
+    return `<svg class="st-svg st-lorenz" viewBox="0 0 ${W} ${HT}" role="img" aria-label="${esc(o.aria || "洛伦兹曲线")}">`
+      + `<rect x="${P}" y="${P}" width="${iw}" height="${ih}" class="st-plotbg"></rect>`
+      + `<path d="${area}" fill="${o.color || chCol(0)}" opacity=".16"></path>`
+      + `<line class="st-ref" x1="${xs(0)}" y1="${ys(0)}" x2="${xs(1)}" y2="${ys(1)}"><title>完全平均：每个单位占一样多</title></line>`
+      + `<path d="${curve}" fill="none" stroke="${o.color || chCol(0)}" stroke-width="2.2"><title>基尼系数 ${esc(stNum(g, 3))}</title></path>`
+      + `<text class="st-tick" x="${P}" y="${HT - 8}" text-anchor="start">0%</text>`
+      + `<text class="st-tick" x="${P + iw}" y="${HT - 8}" text-anchor="end">100%</text>`
+      + `<text class="st-axlab" x="${P + iw / 2}" y="${HT - 8}" text-anchor="middle">累计项数占比</text>`
+      + `<text class="st-axlab" transform="translate(11 ${P + ih / 2}) rotate(-90)" text-anchor="middle">累计数量占比</text>`
+      + `</svg>`;
+  }
+
+
   const CH_GROUPS_META = [
     ["本站收录了什么", [1, 2, 16, 17]],
     ["时间轴上的明代", [3, 4, 5, 6, 18, 19]],
@@ -2127,12 +2286,40 @@
     11: "词条库的类别构成", 12: "数据一览的可信度构成",
     13: "延伸书目按难度", 14: "三书对照：各书被引用的次数",
     15: "思想界的学派分布",
-    16: "检索索引：十七个栏目各贡献多少条", 17: "检索索引：二十七种条目类型的构成",
+    16: "检索索引：十八个栏目各贡献多少条", 17: "检索索引：二十八种条目类型的构成",
     18: "帝王在位时间轴（1368—1683）", 19: "年号起止与「一帝一年号」的例外",
     20: "语料页码覆盖：原书哪些页被引得最密",
     21: "词条的出处覆盖：一条词条靠几本书撑着",
     22: "数据一览：分类 × 可信度", 23: "延伸书目：分类 × 难度",
     24: "思想人物生卒时间轴（1310—1695）",
+  };
+
+  /* 统计栏的卡片标题与「这一卡在讲什么」，同样只写一次，渲染与全站检索共用。
+     stText 会进检索正文，所以把「分布 / 相关 / 检验」这类词写进去，方便直接搜到。 */
+  const ST_GROUPS_META = [["史料事实", [1, 2, 3, 4, 5]], ["索引结构", [6, 7, 8, 9, 10]]];
+  const ST_TITLE = {
+    1: "二十三位帝王的在位年数：右偏，而且均值不可信",
+    2: "「23 与 23」是个巧合：两张表不能按行对齐",
+    3: "二十位思想家的死亡年龄：离散程度只有帝王在位的六分之一",
+    4: "官制品级：一个用现有数据做不了的检验",
+    5: "在位越久，记的政令越多——但这多半是编纂行为",
+    6: "年表的时间密度：卡方说「不均匀」，游程说「不成簇」",
+    7: "年表类别分布：灾异只有 1 条，而这不是明代的样子",
+    8: "类别 × 世纪：结论是「判断不了」，而这本身就是结论",
+    9: "权力结构十八章：篇幅很均匀，但主题数几乎与篇幅无关",
+    10: "词条库：八成只有单一来源，所以它不能当共识依据",
+  };
+  const ST_METHOD = {
+    1: "描述统计 · 分布形态 · bootstrap 区间",
+    2: "数据对齐 · 一个假相关的现场",
+    3: "描述统计 · 分布形态 · 与上一组对照",
+    4: "相关分析 · 以及「认出问题不可答」",
+    5: "相关与回归 · 相关≠因果的典型",
+    6: "卡方拟合优度 · 游程检验（两个检验为什么看起来矛盾）",
+    7: "多样性（香农熵）· 拟合优度 · 史料的分布 ≠ 历史的分布",
+    8: "列联表卡方检验 · Cramér's V · Cochran 期望频数规则",
+    9: "洛伦兹曲线 · 基尼系数 · 相关分析",
+    10: "集中度 · 洛伦兹曲线 · 香农熵",
   };
 
   function renderCharts() {
@@ -2586,7 +2773,427 @@
     host.innerHTML = G.join("");
   }
 
-  /* ==================== 25. 启动 ==================== */
+  /* ==================== 26. 统计（计量史学） ====================
+     与「图表」栏的分工：图表栏统计**本站内容的构成**（谁多谁少），
+     这一栏做**分布与推断**（形状什么样、两个量有没有关系、样本够不够下结论）。
+     计算全在 js/stats.js —— 那个文件是纯函数，可以脱离页面用 node 单独验算；
+     这也正是它必须独立成文件的原因：统计算错了页面不会报错，
+     图表会照着一张错的数字画得很好看。 */
+  const ST_CN = { 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+
+  /* 统计栏用到的数字只在这里算一次，渲染与全站检索共用 —— 与 CH_TITLE 同一个道理：
+     两处各算一遍，早晚会走样。 */
+  let ST_FACTS = null;
+  function statsFacts() {
+    if (ST_FACTS) return ST_FACTS;
+
+    /* ---- 史料事实类 ---- */
+    const emp = EMPERORS.map((e) => ({ ...e, reign: e.to - e.from + 1 }));
+    const reigns = emp.map((e) => e.reign);
+    /* 口径敏感性：英宗那一行的 29 年是「首尾跨度」，不是实际在位 ——
+       他中间那 8 年（景泰）是代宗的。所以再算三个变体，看结论稳不稳：
+         v1 只修正英宗为 22 年
+         v2 再剔掉明郑（那是政权，不是皇帝）
+         v3 只算明朝 16 位
+       三个变体一起看，才知道哪些结论是「数据本身给的」、哪些是「口径给的」。 */
+    const fixYing = emp.map((e) => (e.temple === "英宗" ? 22 : e.reign));
+    const strict = emp.filter((e) => e.house !== "明郑").map((e) => (e.temple === "英宗" ? 22 : e.reign));
+    const mingOnly = emp.filter((e) => e.house === "明朝").map((e) => e.reign);
+    const nanmingOnly = emp.filter((e) => e.house === "南明").map((e) => e.reign);
+    const eraN = ERAS.map((e) => e.n);
+    /* 故意按**行号**把帝王表和年号表配对。这不是为了算关系，
+       而是为了演示「两张行数相同的表并不等于能按行对齐」——见卡片 2。 */
+    const misPair = reigns.map((v, i) => ({ x: v, y: eraN[i] == null ? NaN : eraN[i] }))
+      .filter((p) => !isNaN(p.y))
+      .map((p, i) => ({ x: p.x, y: p.y, l: i === 5 || i === 7 ? EMPERORS[i].temple : "", tip: `第 ${i + 1} 行：在位 ${p.x} 年 × 年号 ${p.y} 年` }));
+    const tkAges = [];
+    (THINKERS.schools || []).forEach((s) => (s.thinkers || []).forEach((t) => {
+      const m = String(t.life || "").match(/^(\d{4})—(\d{4})$/);
+      if (m) tkAges.push({ name: t.name, school: s.name, birth: +m[1], age: +m[2] - +m[1] });
+    }));
+    const ages = tkAges.map((t) => t.age);
+    /* 品级数值化：「未入流」映射不到 1—18，grade 记 NaN，算相关时必须显式剔除 */
+    const ranks = (BUREAUCRACY.ranks || []).map((r) => {
+      const m = String(r.rank || "").match(/^(正|从)([一二三四五六七八九])品/);
+      return {
+        rank: r.rank,
+        grade: m ? ST_CN[m[2]] * 2 - (m[1] === "正" ? 1 : 0) : NaN,
+        n: String(r.civil || "").split("、").map((x) => x.trim()).filter(Boolean).length,
+      };
+    });
+    const graded = ranks.filter((r) => isFinite(r.grade));
+    const pol = emp.map((e) => (e.policy || []).length);
+
+    /* ---- 索引结构类 ---- */
+    const ev = Object.keys(CHRONOLOGY).map((k) => CHRONOLOGY[k]);
+    const years = ev.map((e) => e.y);
+    const uniqY = [...new Set(years)].sort((a, b) => a - b);
+    const yLo = uniqY[0], yHi = uniqY[uniqY.length - 1], ySpan = yHi - yLo + 1;
+    let maxGap = 0, maxGapAt = 0, cur = 0;
+    for (let y = yLo; y <= yHi; y++) {
+      if (!years.includes(y)) { cur++; if (cur > maxGap) { maxGap = cur; maxGapAt = y; } } else cur = 0;
+    }
+    const bins20 = ST.binBy(ev, (e) => e.y, 20);
+    const bucket = bins20.map((b) => b.n);
+    const catCount = {};
+    ev.forEach((e) => { catCount[e.cat] = (catCount[e.cat] || 0) + 1; });
+    const catRows = CAT_ORDER.filter((c) => catCount[c]).map((c) => ({ l: c, v: catCount[c] }));
+    const cents = [...new Set(ev.map((e) => Math.floor(e.y / 100) * 100))].sort((a, b) => a - b);
+    const heatTable = catRows.map((r) => cents.map((cc) => ev.filter((e) => e.cat === r.l && Math.floor(e.y / 100) * 100 === cc).length));
+    const chs = [];
+    (POWER.parts || []).forEach((p) => (p.chapters || []).forEach((c) => chs.push(c)));
+    const paras = chs.map((c) => c.paras || 0);
+    const byCh = {};
+    (POWER.themes || []).forEach((t) => { new Set((t.refs || []).map((r) => r.ch)).forEach((c) => { byCh[c] = (byCh[c] || 0) + 1; }); });
+    const thPerCh = chs.map((c) => byCh[c.title] || 0);
+    const gl = Object.keys(GLOSSARY).map((k) => GLOSSARY[k]);
+    const srcCount = {};
+    gl.forEach((g) => String(g.r || "").split(/[、,，/]/).map((s) => s.trim()).filter(Boolean)
+      .forEach((s) => { srcCount[s] = (srcCount[s] || 0) + 1; }));
+    const srcVals = Object.values(srcCount);
+    const srcTop = Object.entries(srcCount).sort((a, b) => b[1] - a[1]);
+    const multiSrc = gl.filter((g) => String(g.r || "").split(/[、,，/]/).filter((s) => s.trim()).length > 1).length;
+
+    const F = {
+      emp, reigns, fixYing, strict, mingOnly, nanmingOnly, eraN, misPair, tkAges, ages, ranks, graded, pol,
+      ev, uniqY, yLo, yHi, ySpan, maxGap, maxGapAt, bins20, bucket,
+      catCount, catRows, cents, heatTable, chs, paras, thPerCh,
+      gl, srcCount, srcVals, srcTop, multiSrc,
+      dReign: ST.describe(reigns), ciReign: ST.bootstrapCI(reigns, ST.mean), qReign: ST.qqNorm(reigns),
+      dFixYing: ST.describe(fixYing), dStrict: ST.describe(strict),
+      dMing: ST.describe(mingOnly), dNanming: ST.describe(nanmingOnly),
+      dEra: ST.describe(eraN),
+      dAge: ST.describe(ages), ciAge: ST.bootstrapCI(ages, ST.mean), qAge: ST.qqNorm(ages),
+      dBucket: ST.describe(bucket), gofBucket: ST.chi2Gof(bucket), runBucket: ST.runsTest(bucket),
+      catVals: catRows.map((r) => r.v), shCat: ST.shannon(catRows.map((r) => r.v)),
+      gofCat: ST.chi2Gof(catRows.map((r) => r.v)),
+      indCent: ST.chi2Indep(heatTable),
+      dParas: ST.describe(paras), dThPerCh: ST.describe(thPerCh),
+      giniParas: ST.gini(paras), giniSrc: ST.gini(srcVals), shSrc: ST.shannon(srcVals),
+      srcTopShare: ST.topShare(srcVals, 1),
+      giniRanks: ST.gini(ranks.map((r) => r.n)),
+    };
+    F.misCorr = ST.pearson(F.misPair.map((p) => p.x), F.misPair.map((p) => p.y));
+    F.corrPol = ST.pearson(reigns, pol);
+    F.rhoPol = ST.spearman(reigns, pol);
+    F.fitPol = ST.ols(reigns, pol);
+    F.corrParasTheme = ST.pearson(paras, thPerCh);
+    F.corrGraded = ST.pearson(F.graded.map((r) => r.grade), F.graded.map((r) => r.n));
+    F.rhoGraded = ST.spearman(F.graded.map((r) => r.grade), F.graded.map((r) => r.n));
+    /* 合并成三个世纪再检验一次 —— 原表 24 格里有 16 格期望频数 <5，卡方近似已失效 */
+    const cs3 = [1400, 1500, 1600];
+    F.ind3 = ST.chi2Indep(F.catRows.map((r) => cs3.map((cc) => F.ev.filter((e) => e.cat === r.l && e.y >= cc && e.y < cc + 100).length)));
+    F.giniBucket = ST.gini(bucket);
+    F.shBucket = ST.shannon(bucket);
+    ST_FACTS = F;
+    return F;
+  }
+
+  function renderStats() {
+    const host = $("#stBody");
+    if (!host) return;
+    const F = statsFacts();
+    const num = (v, d) => ST.round(v, d == null ? 2 : d);
+    /* p 值一律这样显示：小于 0.001 就写 <0.001。
+       直接四舍五入成 0 会让人以为「概率是零」——那是算不出来的数。 */
+    const pTxt = (p) => (p == null || isNaN(p) ? "—" : p < 0.001 ? "<0.001" : String(ST.round(p, 3)));
+    const pct = (v, d) => ST.round(v * 100, d == null ? 1 : d) + "%";
+
+    /** 关键指标网格 */
+    const kv = (rows) => `<div class="st-kv">` + rows.map(([k, v, note]) =>
+      `<div class="st-kv-i"><span class="st-kv-k">${k}</span><b class="st-kv-v">${v}</b>`
+      + (note ? `<em>${note}</em>` : "") + `</div>`).join("") + `</div>`;
+
+    /** 「能说 / 不能说」——本栏目每张卡都必须把这一条写出来 */
+    const verdict = (can, cannot) => `<div class="st-verdict">`
+      + `<p class="st-can"><b>能说</b>${can}</p>`
+      + `<p class="st-cannot"><b>不能说</b>${cannot}</p></div>`;
+
+    /* 每张卡的顺序是固定的：标题 → 关键指标 → 图 → 解读 → 能说/不能说。
+       关键指标放在最前面，是为了让读者**先看到数字再看论证** —— 正文长，
+       如果只有长段落，读者没法快速判断这张卡在讲什么量。 */
+    const card = (id, title, method, keys, figs, read, can, cannot) => `<article class="st-card" id="st-${id}">`
+      + `<div class="st-head"><span class="st-no">${id}</span><h3>${title}</h3>`
+      + `<span class="st-method">${method}</span></div>`
+      + keys
+      + `<div class="st-figs">${figs}</div>`
+      + `<div class="st-read">${read}</div>` + verdict(can, cannot) + `</article>`;
+
+    /* ============ A 节：史料事实 ============ */
+
+    const A1 = card(1, ST_TITLE[1],
+      ST_METHOD[1],
+      kv([["样本", `${F.dReign.n} 位`, "明朝 16 / 南明 6 / 明郑 1"],
+        ["均值", `${num(F.dReign.mean)} 年`, `中位数只有 ${F.dReign.median} 年`],
+        ["变异系数", pct(F.dReign.cv), "标准差几乎等于均值"],
+        ["bootstrap 95%", `${num(F.ciReign.lo, 1)}—${num(F.ciReign.hi, 1)} 年`, "宽到没有用"]]),
+      `<figure class="st-fig wide">${stHist(F.reigns, { aria: "帝王在位年数分布" })}
+        <figcaption>柱为实际分布，红色虚线是若服从同一均值与标准差的正态分布该有的形状</figcaption></figure>
+       <figure class="st-fig">${stQQ(F.reigns, { aria: "在位年数的正态 QQ 图" })}
+        <figcaption>QQ 图：点越贴近参考线越像正态</figcaption></figure>`,
+      `先看两个数为什么差这么多：均值 <b>${num(F.dReign.mean)}</b> 年，中位数只有 <b>${F.dReign.median}</b> 年。`
+      + `差距来自两位长在位的皇帝——神宗 ${F.emp.find((e) => e.temple === "神宗").reign} 年、`
+      + `世宗 ${F.emp.find((e) => e.temple === "世宗").reign} 年，两人就把均值抬高了 2 年多。`
+      + `变异系数 <b>${pct(F.dReign.cv)}</b> 意味着标准差几乎等于均值，这在一组「任期」里是极高的：`
+      + `说明这 ${F.dReign.n} 条彼此之间几乎没有共同的尺度。`
+      + `偏度 ${num(F.dReign.skew)}，而它的大致显著阈值（2 倍标准误）是 ${num(2 * ST.skewSE(F.dReign.n))} —— 刚过线，`
+      + `所以右偏不是噪声；QQ 图右端明显上翘，正是长尾的样子。`
+      + `<br><br>再看均值的可信程度：bootstrap 95% 区间是 <b>${num(F.ciReign.lo, 1)}—${num(F.ciReign.hi, 1)} 年</b>。`
+      + `这个区间宽到几乎没有用——它既不能排除「平均 10 年」，也不能排除「平均 20 年」。`
+      + `所以「明代皇帝平均在位 15 年」这种话本站不写。`
+      + `<br><br>口径敏感性值得单独说。同一份数据换三种口径：`
+      + `只把英宗按实际在位 22 年算（他那 29 年是首尾跨度，中间 8 年是代宗的景泰），均值 ${num(F.dFixYing.mean)}；`
+      + `再剔掉明郑（那是政权不是皇帝），${num(F.dStrict.mean)}；只算明朝 16 位，${num(F.dMing.mean)}。`
+      + `均值在 <b>${num(F.dStrict.mean, 1)}—${num(F.dMing.mean, 1)}</b> 之间摆动，`
+      + `但<b>偏度在所有口径下都大于 1</b>（${num(F.dReign.skew)} / ${num(F.dFixYing.skew)} / ${num(F.dStrict.skew)} / ${num(F.dMing.skew)}）——`
+      + `右偏这个结论是稳的，均值这个数字是不稳的。这就是「结论对口径敏感的部分不可信」。`,
+      `这 ${F.dReign.n} 条在位年数的分布是右偏的、长尾在右；明朝 16 位平均比南明 6 位长得多`
+      + `（${num(F.dMing.mean)} 对 ${num(F.dNanming.mean)} 年）。`,
+      `不能说「明代皇帝平均在位 15 年」——均值的 95% 区间宽到 9.6—20.7；`
+      + `也不能把这 ${F.dReign.n} 条当成「明代皇帝」的随机样本，它是本站收录的 ${F.dReign.n} 条，末尾还混进了明郑政权。`);
+
+    const A2 = card(2, ST_TITLE[2],
+      ST_METHOD[2],
+      kv([["帝王表", `${F.emp.length} 行`, "按人：英宗合成一行"],
+        ["年号表", `${F.eraN.length} 行`, "按年号：英宗拆成正统／天顺"],
+        ["按行配对的 r", num(F.misCorr.r), "错位造出来的假结果"],
+        ["两表错开起点", "第 6 行", "之后全部对不上"]]),
+      `<figure class="st-fig wide">${stScatter(F.misPair, {
+        aria: "按行号错位配对得到的散点图", xlab: "帝王在位年数", ylab: "同行的年号时长（年）",
+        xd: 0, yd: 0,
+      })}<figcaption>把帝王表与年号表<b>按行号</b>配对算相关，得到 r = ${num(F.misCorr.r)} —— 这是错位造出来的假结果</figcaption></figure>`,
+      `帝王表 ${F.emp.length} 行、年号表 ${F.eraN.length} 行，行数一样。`
+      + `把它们按行配对算相关，得到 <b>r = ${num(F.misCorr.r)}</b>，几乎无关。但这<b>不是发现，是错误</b>。`
+      + `<br><br>从第 6 行开始两表就错开了：帝王表把英宗两次在位合成一行（正统／天顺，1436—1464），`
+      + `年号表却按年号拆成两行（正统 14 年、天顺 8 年）。于是一张表往后挪了一格，后面全部对不上。`
+      + `正确的做法是<b>按年号名 join</b>，而不是按行号。`
+      + `<br><br>还有两处口径差异：年号表里有「定武」（韩王朱本铉）与「监国鲁王」，帝王表里没有对应行；`
+      + `帝王表里的「明郑」（1661—1683，23 年）是个政权、不是一个人，它没有年号。`
+      + `所以「23 与 23」纯属巧合。`,
+      `能说这两张表的组织单位不同（一张按人、一张按年号），行数相同只是巧合。`,
+      `不能按行号把两张表配对做任何统计——那会得到 r = ${num(F.misCorr.r)} 这种完全虚假的结论。`
+      + `这类错误在史料数据库里极其常见，而且**不会报错**：程序照跑，数字照出。`);
+
+    const A3 = card(3, ST_TITLE[3],
+      ST_METHOD[3],
+      kv([["样本", `${F.dAge.n} 位`, "按学派挑出的精英"],
+        ["均值", `${num(F.dAge.mean)} 岁`, `中位数 ${F.dAge.median} 岁`],
+        ["标准差", `${num(F.dAge.sd, 1)} 岁`, "高度集中"],
+        ["变异系数", pct(F.dAge.cv), `只有帝王在位的 ${num(F.dReign.cv / F.dAge.cv, 1)} 分之一`]]),
+      `<figure class="st-fig wide">${stHist(F.ages, { aria: "思想家死亡年龄分布", color: "var(--c-teal)" })}
+        <figcaption>死亡年龄分布，红虚线为同参数正态曲线</figcaption></figure>
+       <figure class="st-fig">${stQQ(F.ages, { aria: "思想家死亡年龄的 QQ 图", color: "var(--c-violet)" })}
+        <figcaption>QQ 图（R² = ${num(F.qAge.r2, 3)}）</figcaption></figure>`,
+      `这一组要和上一组放在一起看：帝王在位时长的变异系数是 <b>${pct(F.dReign.cv)}</b>，`
+      + `思想家死亡年龄只有 <b>${pct(F.dAge.cv)}</b>，<b>相差 ${num(F.dReign.cv / F.dAge.cv, 1)} 倍</b>。`
+      + `<br><br>「在位多久」由政治事件决定（政变、早逝、被废），所以离散得厉害；`
+      + `「活多久」受生理与生活条件约束，所以聚在 ${F.dAge.median} 岁附近。`
+      + `这是两类性质完全不同的量，用同一套描述统计去讲，数字会告诉你它们不是一回事。`
+      + `偏度 ${num(F.dAge.skew)}，远小于阈值 ${num(2 * ST.skewSE(F.dAge.n))}，可以认为基本对称；`
+      + `QQ 图也大致贴着参考线（R² = ${num(F.qAge.r2, 3)}）。`
+      + `20 人里最长寿的是${F.tkAges.slice().sort((a, b) => b.age - a.age)[0].name}（${F.tkAges.slice().sort((a, b) => b.age - a.age)[0].age} 岁）。`
+      + `<br><br>但有一个坑必须说：方孝孺 45 岁是<b>被杀的</b>（靖难之后拒草诏，被诛十族），不是自然寿命。`
+      + `把他和自然死亡的人放在一起算「平均寿命」，会把均值往下拉。本站只有他一个明确非正常死亡，影响有限，`
+      + `但这类问题在史料统计里非常常见——<b>「卒年」不等于「寿命」</b>。`,
+      `能说这 ${F.dAge.n} 位思想家的死亡年龄高度集中（标准差 ${num(F.dAge.sd, 1)} 年，`
+      + `bootstrap 区间 ${num(F.ciAge.lo, 1)}—${num(F.ciAge.hi, 1)}），且离散程度与帝王在位时长相差 ${num(F.dReign.cv / F.dAge.cv, 1)} 倍。`,
+      `不能把这当成「明代人的平均寿命」——这 ${F.dAge.n} 人是按学派挑出来的思想家，是精英样本，`
+      + `而且混入了非正常死亡（方孝孺）。`);
+
+    const A4 = card(4, ST_TITLE[4],
+      ST_METHOD[4],
+      kv([["可数值化品级", `${F.graded.length}/${F.ranks.length}`, "「未入流」映射不到 1—18 品"],
+        ["品级 × 官职数 r", num(F.corrGraded.r), `Spearman ρ = ${num(F.rhoGraded.r)}`],
+        ["p 值", pTxt(F.corrGraded.p), "未达显著"],
+        ["结论", "做不了", "官职数是选材，不是实有职位数"]]),
+      `<figure class="st-fig wide">${chBarH(F.ranks.map((r) => ({ l: r.rank, v: r.n, tip: `${r.rank}：本站列 ${r.n} 个官职` })), { unit: " 个", color: "var(--c-amber)" })}
+        <figcaption>每一品级下本站列名的官职数量</figcaption></figure>`,
+      `本来想检验一个很自然的假设：品级越高、官职越少，所以「品级」与「官职数」应当负相关。`
+      + `算出来 r = ${num(F.corrGraded.r)}、ρ = ${num(F.rhoGraded.r)}，方向对，但 p = ${pTxt(F.corrGraded.p)}，<b>不显著</b>。`
+      + `<br><br>问题不在统计方法，在数据：「每级官职数」是本站<b>列名</b>的数量，不是明代实有职位的数量。`
+      + `正一品只有三公且多为加官，本站列了 ${F.ranks[0].n} 个；正三品列了 ${F.ranks.find((r) => r.rank === "正三品").n} 个。`
+      + `这个数字反映的是编者的选材习惯，不是官制的实际规模。`
+      + `所以这张卡的价值不是结论，而是<b>认出「这个问题用现有数据回答不了」</b>——`
+      + `要真做这个检验，需要的是《明会典》系统的实设职位数，那是另一个数据源。`
+      + `<br><br>另有一个技术细节：${F.ranks.length} 级里「未入流」映射不到 1—18 品，`
+      + `算相关时必须显式剔除（本站剔了 ${F.ranks.length - F.graded.length} 条）。`
+      + `直接把它塞进去，<b>整个相关系数会静默变成 NaN</b>——不报错，就是在页面上显示一个 NaN。`,
+      `能说本站列名的官职在各品级间分布相当均匀（基尼 ${num(ST.gini(F.ranks.map((r) => r.n)))}），`
+      + `三品及以上占 ${pct(ST.sum(F.graded.filter((r) => r.grade <= 6).map((r) => r.n)) / ST.sum(F.graded.map((r) => r.n)))}。`,
+      `不能说「品级越高官职越少」——本站的官职数是选材，不是实有职位数；这个检验用现有数据做不了。`);
+
+    const A5 = card(5, ST_TITLE[5],
+      ST_METHOD[5],
+      kv([["样本", `${F.emp.length} 位`, "一帝一行"],
+        ["在位 × 政令 r", num(F.corrPol.r), `R² = ${num(F.corrPol.r2)}`],
+        ["Spearman ρ", num(F.rhoPol.r), "秩相关，抗极端值"],
+        ["p 值", pTxt(F.corrPol.p), "显著，但方向可能是编纂造成的"]]),
+      `<figure class="st-fig wide">${stScatter(F.emp.map((e) => ({
+        x: e.reign, y: (e.policy || []).length, c: "var(--c-indigo)",
+        l: ["神宗", "太祖", "世宗", "光宗", "仁宗"].indexOf(e.temple) >= 0 ? e.temple : "",
+        tip: `${e.era}：在位 ${e.reign} 年，本站记政令 ${(e.policy || []).length} 条`,
+      })), { aria: "在位时长与政令条数的散点图", xlab: "在位年数", ylab: "本站记政令条数", yd: 0 })}
+        <figcaption>蓝点为各朝，虚线为最小二乘拟合</figcaption></figure>`,
+      `在位越久，本站为他记的政令越多：r = <b>${num(F.corrPol.r)}</b>，R² = ${num(F.corrPol.r * F.corrPol.r)}，`
+      + `也就是在位时长能解释政令条数约 ${pct(F.corrPol.r * F.corrPol.r, 0)} 的变异。`
+      + `斯皮尔曼 ρ = ${num(F.rhoPol.r)} 比皮尔逊更高，说明这个关系更接近单调而不是线性。`
+      + `回归式：政令条数 ≈ ${num(F.fitPol.intercept)} + ${num(F.fitPol.slope, 3)} × 在位年数——`
+      + `多当 10 年皇帝，多记约 ${num(F.fitPol.slope * 10, 1)} 条。`
+      + `<br><br><b>但这个相关最可能反映的是编纂行为，不是历史事实。</b>`
+      + `「政令条数」是本站编者按重要性选的（每朝 1—${Math.max(...F.pol)} 条），不是史料里的政令总数。`
+      + `所以 r = ${num(F.corrPol.r)} 可能只说明「在位久的皇帝，编者愿意多写几条」。`
+      + `<br><br>这是相关分析最经典的陷阱：两个量同步变化，既可能是因果关系，`
+      + `也可能共同受第三个因素影响，还可能<b>只是测量方式造成的</b>。这里就是第三种。`,
+      `能说在本站的数据里，在位时长与政令条数同步变化（ρ = ${num(F.rhoPol.r)}，p = ${pTxt(F.corrPol.p)}）。`,
+      `不能说「在位久所以政令多」——政令条数是编者选的，这个相关很可能是编纂口径的产物，不是历史事实。`);
+
+    /* ============ B 节：索引结构 ============ */
+
+    const B1 = card(6, ST_TITLE[6],
+      ST_METHOD[6],
+      kv([["事件 / 跨度", `${F.ev.length} 条 / ${F.ySpan} 年`, `平均 ${num(F.ev.length / F.ySpan * 100, 2)} 条每百年`],
+        ["卡方拟合优度", `χ² = ${num(F.gofBucket.chi2)}`, `df = ${F.gofBucket.df}，p ${pTxt(F.gofBucket.p) === "<0.001" ? "< 0.001" : "= " + pTxt(F.gofBucket.p)}`],
+        ["游程检验", `${F.runBucket.runs} 段`, `期望 ${num(F.runBucket.exp)} 段，p = ${pTxt(F.runBucket.p)}`],
+        ["最长空白", `${F.maxGap} 年`, `有事件的年份仅 ${F.uniqY.length}/${F.ySpan}`]]),
+      `<figure class="st-fig wide">${chBarV(F.bins20.map((b) => ({ l: String(b.from), v: b.n, tip: `${b.from}—${b.to}：${b.n} 条` })), { unit: " 条" })}
+        <figcaption>每 20 年一桶的事件条数，峰值已标出</figcaption></figure>`,
+      `两个检验给出<b>看起来矛盾</b>的结果，这是本栏目最值得看的一张卡。`
+      + `<br><br>卡方拟合优度：χ² = <b>${num(F.gofBucket.chi2)}</b>，df = ${F.gofBucket.df}，p = ${pTxt(F.gofBucket.p)} ——`
+      + `各桶条数<b>显著偏离均匀</b>。最多的桶（${F.bins20.reduce((a, b) => (b.n > a.n ? b : a)).from}—${F.bins20.reduce((a, b) => (b.n > a.n ? b : a)).to}）`
+      + `有 ${Math.max(...F.bucket)} 条，最少的只有 ${Math.min(...F.bucket)} 条，差 ${Math.max(...F.bucket)} 倍。`
+      + `<br><br>游程检验：把 ${F.bucket.length} 个桶按中位数二分，数「连续同侧」的段数，`
+      + `得到 <b>${F.runBucket.runs} 段</b>，期望 ${num(F.runBucket.exp)} 段，z = ${num(F.runBucket.z)}，p = ${pTxt(F.runBucket.p)} —— <b>不显著</b>。`
+      + `也就是说，这个序列的起伏排列并没有超出随机波动。`
+      + `<br><br>两者不矛盾，因为它们测的是不同的东西：卡方测<b>幅度</b>（有没有特别高的桶），`
+      + `游程测<b>排列</b>（高的桶是不是挤在一起）。${Math.max(...F.bucket)} 条那个桶确实显眼，`
+      + `但它周围的序列并没有形成「一段高、一段低」的格局。`
+      + `<br><br>这正是本栏目要提醒的第一件事：<b>图上看起来「明显聚集」，不等于统计上聚集</b>。`
+      + `${F.bins20.reduce((a, b) => (b.n > a.n ? b : a)).from}—${F.bins20.reduce((a, b) => (b.n > a.n ? b : a)).to} 那 ${Math.max(...F.bucket)} 条是明清易代，`
+      + `直觉上当然「密集」，但把它放回 ${F.ySpan} 年的序列里，这个峰值还不足以让整个序列显得成簇。`
+      + `<br><br>还有一个数字：${F.ySpan} 年里只有 ${F.uniqY.length} 年有事件，${F.ySpan - F.uniqY.length} 年没有；`
+      + `最长的一段连续空白是 <b>${F.maxGap} 年</b>（截至 ${F.maxGapAt}）。`,
+      `能说各时段的条数显著不均匀（p ${pTxt(F.gofBucket.p) === "<0.001" ? "< 0.001" : "= " + pTxt(F.gofBucket.p)}），`
+      + `${F.bins20.reduce((a, b) => (b.n > a.n ? b : a)).from}—${F.bins20.reduce((a, b) => (b.n > a.n ? b : a)).to} 是峰值。`,
+      `不能说这些事件在时间上「成簇」——游程检验不显著（p = ${pTxt(F.runBucket.p)}）；`
+      + `也不能说「某年事件多说明那年历史更活跃」，因为条数是编者按重要性选的。`);
+
+    const B2 = card(7, ST_TITLE[7],
+      ST_METHOD[7],
+      kv([["类别数", `${F.catRows.length} 类`, `${F.ev.length} 条事件的归类`],
+        ["香农熵 / 最大熵", `${num(F.shCat.h)} / ${num(F.shCat.hmax)}`, `均匀度 ${num(F.shCat.evenness)}`],
+        ["政治 + 军事", pct(ST.topShare(F.catVals, 2)), "两类吃掉八成"],
+        ["灾异", `${F.catCount["灾异"]} 条`, "这不是明代的样子"]]),
+      `<figure class="st-fig wide">${chBarH(F.catRows, { unit: " 条", pct: true })}
+        <figcaption>六类事件各占多少</figcaption></figure>`,
+      `六类事件的分布极不均衡：香农熵 ${num(F.shCat.h)}，最大熵 ln${F.catRows.length} = ${num(F.shCat.hmax)}，`
+      + `均匀度 <b>${num(F.shCat.evenness)}</b>。政治与军事两类占了 <b>${pct(ST.topShare(F.catVals, 2))}</b>，`
+      + `卡方 χ² = ${num(F.gofCat.chi2)}（df = ${F.gofCat.df}，p ${pTxt(F.gofCat.p) === "<0.001" ? "< 0.001" : "= " + pTxt(F.gofCat.p)}）。`
+      + `<br><br>但真正要看的不是「政治军事多」——这在意料之中。要看的是<b>灾异只有 1 条</b>。`
+      + `明代的灾异记载极其丰富：《明实录》里水旱蝗疫、地震、彗星几乎年年都有，`
+      + `明代君臣还把灾异当成政治语言（「天谴」用来劝谏或攻击政敌）。`
+      + `所以一个「收录明代大事」的年表里灾异只有 1 条（${F.ev.filter((e) => e.cat === "灾异").map((e) => e.y + " 年" + e.t).join("、")}），`
+      + `这显然不是历史的样子。`
+      + `<br><br>它反映的是<b>编者的选材</b>：本站年表以政治军事为主线。`
+      + `这是「<b>史料的分布 ≠ 历史的分布</b>」最清楚的一个例子——`
+      + `图上的分布描述的是这部索引怎么编的，不是明代发生了什么。`
+      + `<br><br>经济类只有 ${F.catCount["经济"]} 条（${F.ev.filter((e) => e.cat === "经济").map((e) => e.y).join("、")}），`
+      + `也都集中在制度变革（黄册、一条鞭、开关）上，日常经济生活基本没有。`,
+      `能说本站年表的类别分布极不均衡，均匀度只有 ${num(F.shCat.evenness)}，政治军事占 ${pct(ST.topShare(F.catVals, 2))}。`,
+      `不能说「明代灾异很少」或「明代经济事件少」——这是选材造成的。`
+      + `要谈明代的灾异频率，必须换一个数据源（实录、地方志），不能用本站年表。`);
+
+    const B3 = card(8, ST_TITLE[8],
+      ST_METHOD[8],
+      kv([["列联表", `${F.catRows.length} 类 × ${F.cents.length} 世纪`, `χ² = ${num(F.indCent.chi2)}，p = ${pTxt(F.indCent.p)}`],
+        ["Cramér's V", num(F.indCent.cramersV), "弱关联"],
+        ["期望频数 < 5 的格", `${F.indCent.lowCells}/${F.indCent.cells}`, `最小期望仅 ${num(F.indCent.minExpected, 1)}`],
+        ["合并世纪后", `χ² = ${num(F.ind3.chi2)}`, `p = ${pTxt(F.ind3.p)}，仍不显著`]]),
+      `<figure class="st-fig wide">${chHeat(F.catRows.map((r, i) => ({
+        l: r.l, cells: F.cents.reduce((m, c, j) => { m[String(c) + "s"] = F.heatTable[i][j]; return m; }, {}),
+      })), F.cents.map((c) => String(c) + "s"), {
+        hue: 2, lab: 92, unit: " 条",
+        note: `列标签 ${F.cents.map((c) => c + "s").join(" / ")} = ${F.cents.map((c) => c + "—" + (c + 99)).join(" / ")}`,
+      })}<figcaption>行 = 事件类别，列 = 世纪，格内数字为条数</figcaption></figure>`,
+      `问一个具体的问题：事件类别与时代有没有关系？比如军事事件是不是集中在 17 世纪（明清易代）？`
+      + `<br><br>第一次检验（${F.catRows.length} 类 × ${F.cents.length} 世纪）：χ² = ${num(F.indCent.chi2)}，`
+      + `df = ${F.indCent.df}，p = ${pTxt(F.indCent.p)}，Cramér's V = ${num(F.indCent.cramersV)}。`
+      + `<br><br>但<b>这个 p 值不能用</b>：${F.indCent.cells} 个格子里有 <b>${F.indCent.lowCells}</b> 个的期望频数小于 5，`
+      + `最小的只有 ${num(F.indCent.minExpected, 1)}（灾异在 14—16 世纪都是 0）。`
+      + `Cochran 的经验规则是期望频数小于 5 的格子不应超过 20%，这里 ${pct(F.indCent.lowCells / F.indCent.cells, 0)} 不合格，卡方近似已经失效。`
+      + `<br><br>把世纪合并成 3 段再试一次：χ² = ${num(F.ind3.chi2)}，df = ${F.ind3.df}，`
+      + `p = ${pTxt(F.ind3.p)}，V = ${num(F.ind3.cramersV)} —— 仍然不显著。`
+      + `<br><br>所以诚实的结论是<b>判断不了</b>。军事在 17 世纪有 `
+      + `${F.heatTable[F.catRows.findIndex((r) => r.l === "军事")][F.cents.indexOf(1600)]} 条`
+      + `（对比 15 世纪的 ${F.heatTable[F.catRows.findIndex((r) => r.l === "军事")][F.cents.indexOf(1500)]} 条），看上去像趋势，`
+      + `但在 ${F.ev.length} 条这个样本量下，这个差异完全可能来自随机波动。`
+      + `要真判断，每个类别每格至少要有 5 条，也就是需要几百条事件。`,
+      `能说在这个样本量下，类别与世纪的关系没有达到显著（p = ${pTxt(F.indCent.p)} / ${pTxt(F.ind3.p)}），`
+      + `且卡方近似的条件不满足（${F.indCent.lowCells}/${F.indCent.cells} 格期望频数 < 5）。`,
+      `不能说「军事事件集中在 17 世纪」——Cramér's V 只有 ${num(F.indCent.cramersV)}，`
+      + `且大部分格子期望频数过小，这个检验没有足够功效。**样本不够时，「不显著」不等于「没关系」。**`);
+
+    const B4 = card(9, ST_TITLE[9],
+      ST_METHOD[9],
+      kv([["章节", `${F.chs.length} 章`, `${F.dParas.min}—${F.dParas.max} 段，差 ${num(F.dParas.max / F.dParas.min, 1)} 倍`],
+        ["篇幅基尼", num(F.giniParas), "相当贴近对角线"],
+        ["每章主题数", `${F.dThPerCh.min}—${F.dThPerCh.max}`, `基尼仅 ${num(ST.gini(F.thPerCh))}`],
+        ["篇幅 × 主题数 r", num(F.corrParasTheme.r), "几乎完全无关"]]),
+      `<figure class="st-fig">${stLorenz(F.paras, { aria: "章节篇幅的洛伦兹曲线" })}
+        <figcaption>章节篇幅的洛伦兹曲线（基尼 ${num(F.giniParas)}）</figcaption></figure>
+       <figure class="st-fig wide">${stScatter(F.chs.map((c, i) => ({
+        x: c.paras || 0, y: F.thPerCh[i], c: "var(--c-teal)",
+        l: i === 0 || i === 12 || i === 4 ? (c.title || "").slice(0, 6) : "",
+        tip: `${(c.title || "").slice(0, 16)}：${c.paras} 段，收录 ${F.thPerCh[i]} 个主题`,
+      })), { aria: "章节篇幅与主题数的散点图", xlab: "该章段落数", ylab: "该章收录主题数", yd: 0 })}
+        <figcaption>章节篇幅 vs 收录主题数（r = ${num(F.corrParasTheme.r)}）</figcaption></figure>`,
+      `${F.chs.length} 章的段落数从 ${F.dParas.min} 到 ${F.dParas.max}，差 <b>${num(F.dParas.max / F.dParas.min, 1)} 倍</b>。`
+      + `基尼系数 ${num(F.giniParas)}、均匀度 ${num(ST.shannon(F.paras).evenness)} ——`
+      + `用洛伦兹曲线看，它相当贴近对角线，说明<b>篇幅分配并不失衡</b>：`
+      + `没有出现「少数几章吃掉大半篇幅」的情况，前三长的章合计只占 ${pct(ST.topShare(F.paras, 3))}。`
+      + `<br><br>但把「每章段落数」和「每章收录的主题数」放在一起，得到一个反直觉的结果：`
+      + `r = <b>${num(F.corrParasTheme.r)}</b>，<b>几乎完全无关</b>。`
+      + `<br><br>也就是说，${F.dParas.max} 段的那一章并不比 ${F.dParas.min} 段的那一章收录更多主题。`
+      + `每章的主题数都在 ${F.dThPerCh.min}—${F.dThPerCh.max} 之间，基尼只有 ${num(ST.gini(F.thPerCh))}。`
+      + `<br><br>这说明主题是按「这个概念在权力结构里重不重要」选的，不是按篇幅摊的。`
+      + `<b>编者没有把主题数当成篇幅的配额</b>——这是一个关于编纂方法的事实，`
+      + `也是一个正面的信号：主题分布没有被篇幅结构绑架。`,
+      `能说篇幅分配相当均衡（基尼 ${num(F.giniParas)}），且主题数与章节篇幅几乎无关（r = ${num(F.corrParasTheme.r)}）。`,
+      `不能说「长的章内容更重要」——篇幅与主题数无关；`
+      + `也不能把这个 r 当成明代权力结构的性质，它描述的是这本书的写法。`);
+
+    const B5 = card(10, ST_TITLE[10],
+      ST_METHOD[10],
+      kv([["词条 / 来源", `${F.gl.length} 条 / ${F.srcVals.length} 种`, "来源按「书·章」计"],
+        ["来源基尼", num(F.giniSrc), `是章节篇幅（${num(F.giniParas)}）的两倍多`],
+        ["被引最多", `${F.srcTop[0][0]}`, `${F.srcTop[0][1]} 条，占 ${pct(F.srcTopShare)}`],
+        ["单一来源词条", `${F.gl.length - F.multiSrc} 条`, pct((F.gl.length - F.multiSrc) / F.gl.length)]]),
+      `<figure class="st-fig">${stLorenz(F.srcVals, { aria: "词条来源的洛伦兹曲线", color: "var(--c-amber)" })}
+        <figcaption>来源引用次数的洛伦兹曲线（基尼 ${num(F.giniSrc)}）</figcaption></figure>
+       <figure class="st-fig wide">${chBarH(F.srcTop.slice(0, 8).map(([l, v]) => ({ l, v })), { unit: " 条", color: "var(--c-amber)" })}
+        <figcaption>被引最多的 8 个来源</figcaption></figure>`,
+      `${F.gl.length} 条词条一共引到 <b>${F.srcVals.length}</b> 种来源（书·章）。`
+      + `基尼系数 <b>${num(F.giniSrc)}</b>，是章节篇幅（${num(F.giniParas)}）的两倍多，`
+      + `说明<b>来源引用明显不均</b>：最常被引的「${F.srcTop[0][0]}」贡献了 ${F.srcTop[0][1]} 条，占 ${pct(F.srcTopShare)}。`
+      + `<br><br>但比集中度更值得看的是<b>交叉验证的程度</b>：`
+      + `${F.gl.length} 条里有 <b>${F.gl.length - F.multiSrc}</b> 条（${pct((F.gl.length - F.multiSrc) / F.gl.length)}）只有<b>一个</b>来源，`
+      + `只有 ${F.multiSrc} 条有两个及以上来源。`
+      + `<br><br>这意味着本站词条的「多书印证」程度很低——八成词条的说法只在一本书里出现过。`
+      + `这不是数据错误，是词条库的定位决定的（它按「一个概念一条」组织，而不是按「一处记载一条」），`
+      + `但它决定了你能拿它做什么：<b>可以当查词工具，不能当共识判断依据</b>。`
+      + `要判断某个说法是不是学界定论，得看它被几本书独立提到过。`,
+      `能说本站 ${pct((F.gl.length - F.multiSrc) / F.gl.length)} 的词条只有单一来源，来源分布基尼 ${num(F.giniSrc)}。`,
+      `不能说「这些词条的说法已被多书印证」——八成只有一个来源；`
+      + `单一来源也不等于不可靠，只是<b>本站无法用它来判断可靠性</b>。`);
+
+    host.innerHTML = `<section class="st-sec">
+      <h3 class="st-sec-h">A · 史料事实<span>统计对象是明代本身的量：在位年数、死亡年龄、品级</span></h3>
+      <div class="st-grid">${[A1, A2, A3, A4, A5].join("")}</div></section>
+      <section class="st-sec">
+      <h3 class="st-sec-h">B · 索引结构<span>统计对象是本站这部索引的编纂结果，不是明代</span></h3>
+      <div class="st-grid">${[B1, B2, B3, B4, B5].join("")}</div></section>`;
+  }
+
+  /* ==================== 27. 启动 ==================== */
   function boot() {
     initTheme();
     initTabs();
