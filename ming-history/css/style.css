@@ -725,3 +725,272 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
 .stats { grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
 @media (max-width: 620px) { .stats { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 420px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+/* ==========================================================================
+   V4 精修层 · 按需渲染配套 / 全站检索 / 路由高亮 / 阅读辅助 / 打印
+   同样以追加方式引入，不改动上方既有层，便于回滚。
+   ========================================================================== */
+
+/* 1) [hidden] 必须压过任何 display 声明（.bib 等用了 flex） */
+[hidden] { display: none !important; }
+
+/* 2) 帝王条目改为真正折叠：正文默认不占位，展开才显示 */
+.emp-body { display: none; }
+.emp.open .emp-body { display: block; }
+.emp-row { position: relative; }
+.emp-row::after {
+  content: "▾"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  font-size: 0.72rem; color: var(--text-muted); transition: var(--transition); pointer-events: none;
+}
+.emp.open .emp-row::after { transform: translateY(-50%) rotate(180deg); }
+@media (max-width: 560px) { .emp-row::after { display: none; } }
+
+/* 3) 定位锚点：给 sticky 顶栏留出空间 */
+.emp, .ce, .cmp, .gi, .deb, .thm, .prov, .garr, .place, .terr-row,
+.era-row, .bib, .rel, .idx-ch, .idx-sub { scroll-margin-top: 84px; }
+
+/* 4) 检索跳转后的闪烁高亮 */
+@keyframes flashRing {
+  0%   { box-shadow: 0 0 0 0 rgba(129,140,248,0); background: var(--bg-card); }
+  18%  { box-shadow: 0 0 0 4px var(--accent-glow); background: var(--bg-card-hover); }
+  100% { box-shadow: 0 0 0 0 rgba(129,140,248,0); background: var(--bg-card); }
+}
+.flash { animation: flashRing 2.2s cubic-bezier(.16,1,.3,1); border-color: var(--border-hover) !important; }
+
+/* 5) 无障碍：屏幕阅读器专用文本 + 跳转链接 */
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 300;
+  transform: translateY(-160%); transition: transform .2s ease;
+  background: var(--accent-gradient); color: #fff; font-size: 0.86rem; font-weight: 600;
+  padding: 10px 18px; border-radius: var(--radius-full); box-shadow: var(--card-shadow);
+}
+.skip-link:focus { transform: translateY(0); outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+/* 6) 焦点可见性（键盘用户） */
+.tab:focus-visible, .pill:focus-visible, .icon-btn:focus-visible, .emp-row:focus-visible,
+.cmp-head:focus-visible, .deb-head:focus-visible, .idx-ch-head:focus-visible,
+.pal-item:focus-visible, .drop:focus-visible, #toTop:focus-visible, .book-card:focus-visible,
+.idx-book:focus-visible, .pal-chip:focus-visible {
+  outline: 2px solid var(--accent-primary); outline-offset: 2px;
+}
+main:focus { outline: none; }
+
+/* 7) 阅读进度条 */
+.readbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 120;
+  background: var(--accent-gradient); transform: scaleX(0); transform-origin: 0 50%;
+  will-change: transform; pointer-events: none;
+}
+
+/* 8) 回到顶部 */
+.totop {
+  position: fixed; right: 22px; bottom: 24px; z-index: 90;
+  width: 42px; height: 42px; border-radius: var(--radius-full);
+  border: 1px solid var(--border-hover); background: var(--bg-card);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-primary); font-size: 16px; cursor: pointer;
+  display: grid; place-items: center; box-shadow: var(--card-shadow); transition: var(--transition);
+}
+.totop:hover { transform: translateY(-3px); border-color: var(--accent-primary); }
+
+/* 9) 顶栏：检索按钮 + 右侧操作区 */
+.topbar-act { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.search-btn { width: auto; padding: 0 12px; gap: 7px; grid-auto-flow: column; font-size: 0.82rem; }
+.search-btn .sb-txt { letter-spacing: 0.02em; }
+.sb-kbd {
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em;
+  border: 1px solid var(--border-color); border-radius: 5px; padding: 1px 5px;
+  color: var(--text-muted); background: var(--bg-secondary);
+}
+@media (max-width: 900px) { .search-btn .sb-kbd { display: none; } }
+@media (max-width: 700px) { .search-btn { width: 36px; padding: 0; } .search-btn .sb-txt { display: none; } }
+
+/* 10) 全站检索（命令面板） */
+body.pal-open { overflow: hidden; }
+.palette { position: fixed; inset: 0; z-index: 200; display: flex; justify-content: center; align-items: flex-start; }
+.palette-mask {
+  position: absolute; inset: 0; background: rgba(2, 6, 16, 0.62);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+[data-theme="light"] .palette-mask { background: rgba(15, 23, 42, 0.34); }
+.palette-box {
+  position: relative; z-index: 1; width: min(680px, calc(100vw - 32px));
+  margin-top: 9vh; border: 1px solid var(--border-hover); border-radius: var(--radius-lg);
+  background: var(--bg-secondary); box-shadow: 0 40px 90px -30px rgba(0,0,0,.7);
+  overflow: hidden; display: flex; flex-direction: column;
+  animation: palIn .26s cubic-bezier(.16,1,.3,1);
+}
+@keyframes palIn { from { opacity: 0; transform: translateY(-12px) scale(.985); } to { opacity: 1; transform: none; } }
+.palette-in {
+  display: flex; align-items: center; gap: 11px; padding: 15px 18px;
+  border-bottom: 1px solid var(--border-color);
+}
+.palette-in .ico { color: var(--accent-primary); font-size: 1.05rem; }
+.palette-in input {
+  flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
+  color: var(--text-primary); font: inherit; font-size: 1rem; padding: 2px 0;
+}
+.palette-in input::placeholder { color: var(--text-muted); }
+.pal-kbd, .palette-foot kbd {
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.04em;
+  border: 1px solid var(--border-color); border-radius: 5px; padding: 2px 6px;
+  color: var(--text-muted); background: var(--bg-tertiary);
+}
+.palette-body { max-height: min(54vh, 460px); overflow-y: auto; padding: 8px; overscroll-behavior: contain; }
+.pal-hint-t { font-size: 0.72rem; letter-spacing: 0.12em; color: var(--text-muted); padding: 10px 12px 8px; text-transform: uppercase; }
+.pal-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 14px; }
+.pal-chip {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-secondary);
+  font: inherit; font-size: 0.83rem; padding: 7px 13px; border-radius: var(--radius-full); transition: var(--transition);
+}
+.pal-chip span { font-size: 0.68rem; color: var(--accent-primary); letter-spacing: 0.06em; }
+.pal-chip:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.pal-empty { padding: 34px 18px; text-align: center; color: var(--text-muted); font-size: 0.87rem; line-height: 1.8; }
+
+.pal-item {
+  display: grid; grid-template-columns: 46px 1fr 20px; gap: 12px; align-items: start;
+  width: 100%; text-align: left; cursor: pointer; border: 0; font: inherit;
+  background: transparent; color: inherit; padding: 11px 13px; border-radius: var(--radius-md);
+  transition: background .16s ease;
+}
+.pal-item.on { background: var(--bg-tertiary); }
+.pal-type {
+  font-size: 0.68rem; letter-spacing: 0.06em; text-align: center; line-height: 1.5;
+  border-radius: var(--radius-full); padding: 2px 0; border: 1px solid var(--border-color);
+  color: var(--text-muted); margin-top: 1px;
+}
+.pal-type.t-emp { color: var(--c-indigo); border-color: rgba(129,140,248,.4); }
+.pal-type.t-chr { color: var(--c-rose);   border-color: rgba(251,113,133,.4); }
+.pal-type.t-glo { color: var(--c-amber);  border-color: rgba(251,191,36,.4); }
+.pal-type.t-cmp { color: var(--c-teal);   border-color: rgba(45,212,191,.4); }
+.pal-type.t-deb { color: var(--c-rose);   border-color: rgba(251,113,133,.4); }
+.pal-type.t-era { color: var(--c-violet); border-color: rgba(167,139,250,.4); }
+.pal-type.t-geo { color: var(--c-teal);   border-color: rgba(45,212,191,.4); }
+.pal-type.t-thm { color: var(--c-violet); border-color: rgba(167,139,250,.4); }
+.pal-type.t-bib { color: var(--c-indigo); border-color: rgba(129,140,248,.4); }
+.pal-type.t-idx { color: var(--text-secondary); }
+.pal-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pal-title { font-family: var(--font-serif); font-size: 0.97rem; font-weight: 700; }
+.pal-sub { font-size: 0.75rem; color: var(--accent-primary); }
+.pal-snip {
+  font-size: 0.79rem; color: var(--text-muted); line-height: 1.6;
+  overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.pal-item mark { background: rgba(129,140,248,.24); color: var(--text-primary); border-radius: 3px; padding: 0 1px; }
+[data-theme="light"] .pal-item mark { background: rgba(79,70,229,.16); }
+.pal-go { color: var(--text-muted); font-size: 0.78rem; opacity: 0; transition: var(--transition); margin-top: 3px; }
+.pal-item.on .pal-go { opacity: 1; }
+.palette-foot {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 10px 18px; border-top: 1px solid var(--border-color);
+  font-size: 0.74rem; color: var(--text-muted);
+}
+.palette-foot span { display: inline-flex; align-items: center; gap: 4px; }
+.palette-count { margin-left: auto; }
+
+@media (max-width: 620px) {
+  .palette-box { margin-top: 0; width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; border: 0; }
+  .palette-body { max-height: none; flex: 1; }
+  .pal-item { grid-template-columns: 42px 1fr; }
+  .pal-go { display: none; }
+}
+
+/* 11) 打印：把当前栏目导出成一份可读讲义 */
+@media print {
+  .topbar, .readbar, .totop, .skip-link, .palette, .reader-stage,
+  .filters, .house-switch, .gz-quick, #searchBtn, #themeBtn, .caret, .pal-go { display: none !important; }
+  .view { display: block !important; padding: 0 !important; animation: none !important; }
+  .view:not(.active) { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  body::before { display: none !important; }
+  .wrap { max-width: none; padding: 0; }
+  .emp-body, .cmp-body, .deb-body, .idx-subs { display: block !important; }
+  .card, .stat, .emp, .ce, .cmp, .gi, .deb, .thm, .prov, .garr, .place,
+  .num-item, .bib, .rel, .era-row, .idx-panel, .idx-side, .terr-row {
+    background: #fff !important; border-color: #ccc !important; box-shadow: none !important;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .stat .n, .num-value, .gz-gz { -webkit-text-fill-color: #1a1a1a !important; color: #1a1a1a !important; }
+  .sec-head h2, h1, h2, h3, h4 { color: #111 !important; }
+  p, li, .pal-snip, .era-emp { color: #333 !important; }
+  .chip, .conf, .cat-tag, .pill { border-color: #bbb !important; color: #444 !important; background: #f4f4f4 !important; }
+  a { color: #1a1a1a !important; text-decoration: underline; }
+  .foot { border-top: 1px solid #ccc; color: #444 !important; }
+}
+
+/* 12) 尊重「减少动态效果」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+  }
+  .view.active { animation: none !important; }
+}
+
+/* 13) 长列表跳屏外渲染：让浏览器跳过视口外的卡片，显著降低整页重排成本。
+   .gi / .bib / .place / .num-item 都是自包含卡片，无向外溢出的伪元素，可安全启用。
+   .ce 不启用：时间轴圆点靠 ::before 定位在左边界外，paint containment 会把它裁掉。 */
+.gi, .bib, .place, .num-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 150px;
+}
+
+/* 14) 年表也启用跳屏外渲染。
+   原结构里圆点用 .ce::before{left:-30px} 画在 .ce 盒子之外，paint containment 会裁掉它。
+   这里把 30px 缩进从 .chrono 挪到 .ce 自身，圆点改为 left:0，视觉不变但落在盒内，可安全启用。 */
+.chrono { padding-left: 0; }
+.ce { padding: 0 0 22px 30px; content-visibility: auto; contain-intrinsic-size: auto 112px; }
+.ce::before { left: 0; }
+
+/* 15) 把跳屏外渲染推广到其余自包含卡片（经验：启用后该栏切换耗时降一个量级）。
+   .ce / .gi / .bib / .place / .num-item 已在上面启用。 */
+.era-row, .thm, .cmp, .deb, .prov, .garr, .terr-row, .rel, .num-group, .bib-group, .idx-ch {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
+}
+.thm, .prov, .garr { contain-intrinsic-size: auto 190px; }
+
+/* 16) 校准 contain-intrinsic-size：按实测平均高度设定，减少滚动时的高度漂移。
+   测量方式见 outputs/ming-heights.mjs（临时关闭 CV 后逐栏量 border-box 高度；
+   全局 box-sizing: border-box，故实测值可直接用作 intrinsic size）。 */
+.gi        { contain-intrinsic-size: auto 149px; }
+.ce        { contain-intrinsic-size: auto 125px; }
+.bib       { contain-intrinsic-size: auto 231px; }
+.place     { contain-intrinsic-size: auto 134px; }
+.num-item  { contain-intrinsic-size: auto 149px; }
+.era-row   { contain-intrinsic-size: auto 116px; }
+.thm       { contain-intrinsic-size: auto 300px; }
+.cmp       { contain-intrinsic-size: auto 78px; }
+.deb       { contain-intrinsic-size: auto 115px; }
+.prov      { contain-intrinsic-size: auto 202px; }
+.garr      { contain-intrinsic-size: auto 112px; }
+.terr-row  { contain-intrinsic-size: auto 58px; }
+.rel       { contain-intrinsic-size: auto 114px; }
+.num-group { contain-intrinsic-size: auto 333px; }
+.bib-group { contain-intrinsic-size: auto 658px; }
+.idx-ch    { contain-intrinsic-size: auto 52px; }
+
+/* 17) 终值校准：Chrome 把 contain-intrinsic-size 当内容盒高度，内边距与边框会另加，
+   故取值 = 实测 border-box 高度 − 内边距 − 边框（见 outputs/ming-heights.mjs 的「建议值」列）。 */
+.gi        { contain-intrinsic-size: auto 117px; }
+.ce        { contain-intrinsic-size: auto 103px; }
+.bib       { contain-intrinsic-size: auto 197px; }
+.place     { contain-intrinsic-size: auto 104px; }
+.num-item  { contain-intrinsic-size: auto 117px; }
+.era-row   { contain-intrinsic-size: auto 87px; }
+.thm       { contain-intrinsic-size: auto 256px; }
+.cmp       { contain-intrinsic-size: auto 68px; }
+.deb       { contain-intrinsic-size: auto 113px; }
+.prov      { contain-intrinsic-size: auto 170px; }
+.garr      { contain-intrinsic-size: auto 82px; }
+.terr-row  { contain-intrinsic-size: auto 29px; }
+.rel       { contain-intrinsic-size: auto 81px; }
+.num-group { contain-intrinsic-size: auto 333px; }
+.bib-group { contain-intrinsic-size: auto 658px; }
+.idx-ch    { contain-intrinsic-size: auto 27px; }

@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>明史资料平台 · 明代文献索引与研读工具 | Ming History Archive</title>
-<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》为索引对象的研读工具。含帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、33 种延伸书目，以及不上传文件的本地阅读器。本站不转载书籍正文。">
-<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明史书目,明史索引,洪武,永乐,万历,崇祯,郑成功,永历">
+<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》为索引对象的研读工具。含全站检索（Ctrl/⌘+K，1,176 条可搜）、帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、33 种延伸书目，以及不上传文件的本地阅读器。每条都有可分享的稳定地址，栏目可直接打印。本站不转载书籍正文。">
+<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明史书目,明史索引,全站检索,洪武,永乐,万历,崇祯,郑成功,永历">
 <link rel="canonical" href="https://daixuan.cloud/ming-history/">
 <meta name="theme-color" content="#0a0e17">
 <meta property="og:title" content="明史资料平台 · 明代文献索引与研读工具">
@@ -27,6 +27,9 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">跳到主要内容</a>
+<div class="readbar" id="readbar" aria-hidden="true"></div>
+
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
@@ -36,29 +39,34 @@
         <span>Ming History Archive</span>
       </span>
     </div>
-    <nav class="tabs" aria-label="栏目">
-      <button class="tab active" data-view="overview" type="button">总览</button>
-      <button class="tab" data-view="lineage" type="button">帝王世系</button>
-      <button class="tab" data-view="chrono" type="button">大事年表</button>
-      <button class="tab" data-view="eras" type="button">年号纪年</button>
-      <button class="tab" data-view="compare" type="button">多书对照</button>
-      <button class="tab" data-view="index" type="button">章节索引</button>
-      <button class="tab" data-view="bibliography" type="button">延伸书目</button>
-      <button class="tab" data-view="glossary" type="button">词条库</button>
-      <button class="tab" data-view="geo" type="button">舆图政区</button>
-      <button class="tab" data-view="numbers" type="button">数据一览</button>
-      <button class="tab" data-view="debates" type="button">争议考辨</button>
-      <button class="tab" data-view="themes" type="button">主题线索</button>
-      <button class="tab" data-view="reader" type="button">本地阅读</button>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="栏目">
+      <button class="tab active" id="tab-overview" data-view="overview" type="button" role="tab" aria-selected="true" aria-controls="view-overview">总览</button>
+      <button class="tab" id="tab-lineage" data-view="lineage" type="button" role="tab" aria-selected="false" aria-controls="view-lineage" tabindex="-1">帝王世系</button>
+      <button class="tab" id="tab-chrono" data-view="chrono" type="button" role="tab" aria-selected="false" aria-controls="view-chrono" tabindex="-1">大事年表</button>
+      <button class="tab" id="tab-eras" data-view="eras" type="button" role="tab" aria-selected="false" aria-controls="view-eras" tabindex="-1">年号纪年</button>
+      <button class="tab" id="tab-compare" data-view="compare" type="button" role="tab" aria-selected="false" aria-controls="view-compare" tabindex="-1">多书对照</button>
+      <button class="tab" id="tab-index" data-view="index" type="button" role="tab" aria-selected="false" aria-controls="view-index" tabindex="-1">章节索引</button>
+      <button class="tab" id="tab-bibliography" data-view="bibliography" type="button" role="tab" aria-selected="false" aria-controls="view-bibliography" tabindex="-1">延伸书目</button>
+      <button class="tab" id="tab-glossary" data-view="glossary" type="button" role="tab" aria-selected="false" aria-controls="view-glossary" tabindex="-1">词条库</button>
+      <button class="tab" id="tab-geo" data-view="geo" type="button" role="tab" aria-selected="false" aria-controls="view-geo" tabindex="-1">舆图政区</button>
+      <button class="tab" id="tab-numbers" data-view="numbers" type="button" role="tab" aria-selected="false" aria-controls="view-numbers" tabindex="-1">数据一览</button>
+      <button class="tab" id="tab-debates" data-view="debates" type="button" role="tab" aria-selected="false" aria-controls="view-debates" tabindex="-1">争议考辨</button>
+      <button class="tab" id="tab-themes" data-view="themes" type="button" role="tab" aria-selected="false" aria-controls="view-themes" tabindex="-1">主题线索</button>
+      <button class="tab" id="tab-reader" data-view="reader" type="button" role="tab" aria-selected="false" aria-controls="view-reader" tabindex="-1">本地阅读</button>
     </nav>
-    <button class="icon-btn" id="themeBtn" type="button" aria-label="切换主题">☀</button>
+    <div class="topbar-act">
+      <button class="icon-btn search-btn" id="searchBtn" type="button" aria-label="全站检索" aria-keyshortcuts="Control+K Meta+K">
+        <span aria-hidden="true">⌕</span><span class="sb-txt">检索</span><kbd class="sb-kbd">Ctrl K</kbd>
+      </button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="切换主题">☀</button>
+    </div>
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="main" tabindex="-1">
 
   <!-- ============ 总览 ============ -->
-  <section class="view active" id="view-overview">
+  <section class="view active" id="view-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
     <div class="hero">
       <div class="eyebrow">1368 — 1683</div>
       <h1>把三百年，<em>拆成可以查的东西</em></h1>
@@ -127,7 +135,7 @@
   </section>
 
   <!-- ============ 帝王世系 ============ -->
-  <section class="view" id="view-lineage">
+  <section class="view" id="view-lineage" role="tabpanel" aria-labelledby="tab-lineage" tabindex="0">
     <div class="sec-head">
       <h2>帝王世系 · 1368—1683</h2>
       <p>两种看法：横向看时间，纵向看血缘。在位时间轴显示每位皇帝与监国的在位曲线；皇族世系图显示继承关系与支系分合。</p>
@@ -167,7 +175,7 @@
   </section>
 
   <!-- ============ 大事年表 ============ -->
-  <section class="view" id="view-chrono">
+  <section class="view" id="view-chrono" role="tabpanel" aria-labelledby="tab-chrono" tabindex="0">
     <div class="sec-head">
       <h2>大事年表</h2>
       <p>从元末乱世到明郑结束。可按分期或按事件类型筛选；标红并注有「节点」的条目，是改变走向的时刻。</p>
@@ -179,7 +187,7 @@
   </section>
 
   <!-- ============ 年号纪年 ============ -->
-  <section class="view" id="view-eras">
+  <section class="view" id="view-eras" role="tabpanel" aria-labelledby="tab-eras" tabindex="0">
     <div class="sec-head">
       <h2>年号纪年</h2>
       <p>明代行「一帝一年号」之制，故年号常被直接用来指代皇帝。这里收录明朝十七个年号、南明诸政权年号，以及元末并世政权的年号。</p>
@@ -228,7 +236,7 @@
   </section>
 
   <!-- ============ 多书对照 ============ -->
-  <section class="view" id="view-compare">
+  <section class="view" id="view-compare" role="tabpanel" aria-labelledby="tab-compare" tabindex="0">
     <div class="sec-head">
       <h2>多书对照</h2>
       <p>同一件事，几种知识传统怎么讲。差异本身就是信息：它暴露了每种写法的假设与盲区。加入《万历十五年》后有了四种角度——剑桥看结构，顾诚看考据，当年明月看人，黄仁宇看技术。</p>
@@ -238,7 +246,7 @@
   </section>
 
   <!-- ============ 章节索引 ============ -->
-  <section class="view" id="view-index">
+  <section class="view" id="view-index" role="tabpanel" aria-labelledby="tab-index" tabindex="0">
     <div class="sec-head">
       <h2>章节索引</h2>
       <p>六部著作的真实目录。前四部随站提供扫描件，标有页码；后两部只列目录结构，不标页码。可检索章节名与小节名。</p>
@@ -257,7 +265,7 @@
   </section>
 
   <!-- ============ 延伸书目 ============ -->
-  <section class="view" id="view-bibliography">
+  <section class="view" id="view-bibliography" role="tabpanel" aria-labelledby="tab-bibliography" tabindex="0">
     <div class="sec-head">
       <h2>延伸书目</h2>
       <p id="bibIntro"></p>
@@ -270,7 +278,7 @@
   </section>
 
   <!-- ============ 词条库 ============ -->
-  <section class="view" id="view-glossary">
+  <section class="view" id="view-glossary" role="tabpanel" aria-labelledby="tab-glossary" tabindex="0">
     <div class="sec-head">
       <h2>词条库</h2>
       <p>人物、制度、事件、政权地名与文献。每条都给出「去哪本书、哪一章」，方便顺着查下去。</p>
@@ -288,7 +296,7 @@
   </section>
 
   <!-- ============ 舆图政区 ============ -->
-  <section class="view" id="view-geo">
+  <section class="view" id="view-geo" role="tabpanel" aria-labelledby="tab-geo" tabindex="0">
     <div class="sec-head">
       <h2>舆图政区</h2>
       <p>明代的行政版图：两京十三布政使司、九边重镇、都司卫所，以及反复出现在史书里的城市与关隘。</p>
@@ -316,7 +324,7 @@
   </section>
 
   <!-- ============ 数据一览 ============ -->
-  <section class="view" id="view-numbers">
+  <section class="view" id="view-numbers" role="tabpanel" aria-labelledby="tab-numbers" tabindex="0">
     <div class="sec-head">
       <h2>数据一览</h2>
       <p>明代的数字是最容易误用的史料。每条都标注可信度，请把区间当作量级、把单点当作参考。</p>
@@ -328,7 +336,7 @@
   </section>
 
   <!-- ============ 争议考辨 ============ -->
-  <section class="view" id="view-debates">
+  <section class="view" id="view-debates" role="tabpanel" aria-labelledby="tab-debates" tabindex="0">
     <div class="sec-head">
       <h2>争议考辨</h2>
       <p>有些问题没有定论，而有定论的往往也有前提。这里把十二组史学争议拆成「问题—各家观点—学界倾向—出处」四段来看。</p>
@@ -338,7 +346,7 @@
   </section>
 
   <!-- ============ 主题线索 ============ -->
-  <section class="view" id="view-themes">
+  <section class="view" id="view-themes" role="tabpanel" aria-labelledby="tab-themes" tabindex="0">
     <div class="sec-head">
       <h2>主题线索</h2>
       <p>如果不想按年代读，可以按问题读。每条线索给出跨越三本书的阅读顺序。</p>
@@ -348,7 +356,7 @@
   </section>
 
   <!-- ============ 本地阅读 ============ -->
-  <section class="view" id="view-reader">
+  <section class="view" id="view-reader" role="tabpanel" aria-labelledby="tab-reader" tabindex="0">
     <div class="sec-head">
       <h2>本地阅读</h2>
       <p>把你手上的电子文件直接拖进来读。整个过程在浏览器里完成，不经过任何服务器。</p>
@@ -397,18 +405,41 @@
   </div>
 </footer>
 
-<script src="js/data-books.js?v=20261010_03"></script>
-<script src="js/data-books-more.js?v=20261010_03"></script>
-<script src="js/data-emperors.js?v=20261010_03"></script>
-<script src="js/data-chronology.js?v=20261010_03"></script>
-<script src="js/data-glossary.js?v=20261010_03"></script>
-<script src="js/data-reading.js?v=20261010_03"></script>
-<script src="js/data-eranames.js?v=20261010_03"></script>
-<script src="js/data-geo.js?v=20261010_03"></script>
-<script src="js/data-numbers.js?v=20261010_03"></script>
-<script src="js/data-debates.js?v=20261010_03"></script>
-<script src="js/data-lineage.js?v=20261010_03"></script>
-<script src="js/data-bibliography.js?v=20261010_03"></script>
-<script src="js/app.js?v=20261010_03"></script>
+<button class="totop" id="toTop" type="button" aria-label="回到顶部" hidden><span aria-hidden="true">↑</span></button>
+
+<p class="sr-only" id="live" role="status" aria-live="polite"></p>
+
+<!-- ============ 全站检索（命令面板） ============ -->
+<div class="palette" id="palette" hidden>
+  <div class="palette-mask" data-pal-close></div>
+  <div class="palette-box" role="dialog" aria-modal="true" aria-label="全站检索">
+    <div class="palette-in">
+      <span class="ico" aria-hidden="true">⌕</span>
+      <input id="paletteInput" type="search" placeholder="检索全站：人物、制度、事件、年号、地名、书目……" autocomplete="off" spellcheck="false" aria-controls="paletteResults" aria-describedby="paletteCount">
+      <kbd class="pal-kbd">Esc</kbd>
+    </div>
+    <div class="palette-body" id="paletteResults" role="listbox" aria-label="检索结果"></div>
+    <div class="palette-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span><kbd>↵</kbd> 跳转</span>
+      <span><kbd>Esc</kbd> 关闭</span>
+      <span class="palette-count" id="paletteCount"></span>
+    </div>
+  </div>
+</div>
+
+<script src="js/data-books.js?v=20261010_04"></script>
+<script src="js/data-books-more.js?v=20261010_04"></script>
+<script src="js/data-emperors.js?v=20261010_04"></script>
+<script src="js/data-chronology.js?v=20261010_04"></script>
+<script src="js/data-glossary.js?v=20261010_04"></script>
+<script src="js/data-reading.js?v=20261010_04"></script>
+<script src="js/data-eranames.js?v=20261010_04"></script>
+<script src="js/data-geo.js?v=20261010_04"></script>
+<script src="js/data-numbers.js?v=20261010_04"></script>
+<script src="js/data-debates.js?v=20261010_04"></script>
+<script src="js/data-lineage.js?v=20261010_04"></script>
+<script src="js/data-bibliography.js?v=20261010_04"></script>
+<script src="js/app.js?v=20261010_04"></script>
 </body>
 </html>
