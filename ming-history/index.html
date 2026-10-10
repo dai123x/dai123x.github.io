@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>明史资料平台 · 明代文献索引与研读工具 | Ming History Archive</title>
-<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》为索引对象的研读工具。含全站检索（Ctrl/⌘+K，1,260 条可搜）、帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、明代官僚体系（6 大体系 24 个职位 + 文官品级总表）、思想界（7 大学派 20 位思想家）、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、34 种延伸书目，以及不上传文件的本地阅读器。每条都有可分享的稳定地址，栏目可直接打印。本站不转载书籍正文。">
-<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明代官僚体系,明代官制,内阁,六部,都察院,科举,王阳明,心学,致良知,李贽,黄宗羲,顾炎武,王夫之,明史书目,明史索引,全站检索,洪武,永乐,万历,崇祯,郑成功,永历">
+<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》、方志远《明代国家权力结构及运行机制》七部著作为索引对象的研读工具。含全站检索（Ctrl/⌘+K，1,537 条可搜）、帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、明代官僚体系（6 大体系 24 个职位 + 文官品级总表）、思想界（7 大学派 20 位思想家）、权力结构（方志远全书骨架 + 65 个主题 + 全书段落级检索）、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、35 种延伸书目，以及不上传文件的本地阅读器。每条都有可分享的稳定地址，栏目可直接打印。本站不转载书籍正文。">
+<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,方志远,明代国家权力结构及运行机制,权力结构,票拟,以内制外,内阁与司礼监,巡抚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明代官僚体系,明代官制,内阁,六部,都察院,科举,王阳明,心学,致良知,李贽,黄宗羲,顾炎武,王夫之,明史书目,明史索引,全站检索,洪武,永乐,万历,崇祯,郑成功,永历">
 <link rel="canonical" href="https://daixuan.cloud/ming-history/">
 <meta name="theme-color" content="#0a0e17">
 <meta property="og:title" content="明史资料平台 · 明代文献索引与研读工具">
-<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、明代官僚体系与品级表、思想界二十家、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 34 种延伸书目与本地阅读器。不转载书籍正文。">
+<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、明代官僚体系与品级表、思想界二十家、权力结构（方志远全书骨架与段落级检索）、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 35 种延伸书目与本地阅读器。不转载书籍正文。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=20261010_05">
+<link rel="stylesheet" href="css/style.css?v=20261011_01">
 <script>
   (function () {
     try {
@@ -46,6 +46,7 @@
       <button class="tab" id="tab-eras" data-view="eras" type="button" role="tab" aria-selected="false" aria-controls="view-eras" tabindex="-1" title="年号纪年">年号</button>
       <button class="tab" id="tab-bureaucracy" data-view="bureaucracy" type="button" role="tab" aria-selected="false" aria-controls="view-bureaucracy" tabindex="-1" title="官僚体系">官制</button>
       <button class="tab" id="tab-thinkers" data-view="thinkers" type="button" role="tab" aria-selected="false" aria-controls="view-thinkers" tabindex="-1" title="思想界">思想</button>
+      <button class="tab" id="tab-power" data-view="power" type="button" role="tab" aria-selected="false" aria-controls="view-power" tabindex="-1" title="权力结构">权力</button>
       <button class="tab" id="tab-compare" data-view="compare" type="button" role="tab" aria-selected="false" aria-controls="view-compare" tabindex="-1" title="多书对照">对照</button>
       <button class="tab" id="tab-index" data-view="index" type="button" role="tab" aria-selected="false" aria-controls="view-index" tabindex="-1" title="章节索引">索引</button>
       <button class="tab" id="tab-bibliography" data-view="bibliography" type="button" role="tab" aria-selected="false" aria-controls="view-bibliography" tabindex="-1" title="延伸书目">书目</button>
@@ -112,6 +113,10 @@
         <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">读「思想界」。从明初官学理学，到白沙、阳明的心学，再到泰州学派、气学、东林蕺山与明末三大儒，二十位思想家的核心命题、思想要点与影响逐条列出。</p>
       </div>
       <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想知道权力怎么运转</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">读「权力结构」。以方志远《明代国家权力结构及运行机制》为底本：皇权与相权怎么分、内阁票拟与司礼监批红如何「对柄机要」、为什么要「以内制外」、军事上的三权分立、监察如何「以下制上」、地方怎么从三司走到巡抚。每个主题都能跳到书中段落（页码 + 第几段），也能横跳「官制」「词条」「思想」。这一栏还支持<b>全书段落级检索</b>。</p>
+      </div>
+      <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想换算一个年份</h3>
         <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">用「年号纪年」。里面收录明代与南明全部年号，并附一个公元年 ⇄ 干支的换算器，以及庙号、谥号、年号的区别说明。</p>
       </div>
@@ -133,14 +138,17 @@
       </div>
       <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想继续往下读</h3>
-        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">翻「延伸书目」。33 种权威著作按通论、制度财政、政治易代、社会文化、史料工具五类编排，每种都标了难度和「适合解决什么问题」。</p>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">翻「延伸书目」。35 种权威著作按通论、制度财政、政治易代、社会文化、史料工具五类编排，每种都标了难度和「适合解决什么问题」。</p>
       </div>
     </div>
 
     <div class="notice" style="margin-top:30px">
-      <b>关于版权。</b>本站是一个原创的索引与研读工具层：帝王世系、大事年表、年号政区、数据整理、对照分析与争议梳理均为原创整理，
+      <b>关于版权。</b>本站是一个原创的索引与研读工具层：帝王世系、大事年表、年号政区、数据整理、对照分析、主题界定、论断转述与交叉链接均为原创整理，
       章节索引只收录书名、章节名、页码等事实性信息，<b>不收录、不转载任何受版权保护的书籍正文</b>。
-      所涉著作的著作权归原作者与出版机构所有，请在合法渠道获取与阅读。
+      <br><br>
+      「权力结构」栏的<b>段落级检索</b>是唯一例外：为了让定位可用，该栏附带一份由扫描件机器识别的 OCR 文本（<code>js/data-power-text.js</code>）。
+      它<b>未经逐字校对，存在识别错字</b>，只用于回答「这段话在原书哪一页哪一段」，<b>不能替代原书，也不应用作引用依据</b>。
+      所有引用请以纸质原书为准。所涉著作的著作权归原作者与出版机构所有，请在合法渠道获取与阅读。
     </div>
   </section>
 
@@ -302,6 +310,56 @@
       <hr class="rule">
     </div>
     <div class="rel-notes" id="tkNotes"></div>
+  </section>
+
+  <!-- ============ 权力结构 ============ -->
+  <section class="view" id="view-power" role="tabpanel" aria-labelledby="tab-power" tabindex="0">
+    <div class="sec-head">
+      <h2>权力结构</h2>
+      <p id="pwIntro"></p>
+      <hr class="rule">
+    </div>
+
+    <div class="legend" id="pwLegend"></div>
+    <div id="pwBook"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">全书骨架</h2>
+      <p>导论与三篇 17 章（计 18 个章节单元）、48 节、121 目，按原书顺序展开。点章名可展开节与目，页码为原书页码，据此可直接翻到纸质书对应位置。</p>
+      <hr class="rule">
+    </div>
+    <div class="pw-parts" id="pwParts"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">主题索引</h2>
+      <p>把全书拆成可检索的主题单元。每个主题给出界定、方志远的论断（本站转述），以及这些论断在书中的段落位置；右侧的交叉链接可直接跳到本站的官职、词条与思想界条目。</p>
+      <hr class="rule">
+    </div>
+    <div class="filters" id="pwFilters"></div>
+    <div class="pw-themes" id="pwThemes"></div>
+
+    <div class="sec-head" style="margin-top:38px" id="pwSearch">
+      <h2 style="font-size:1.2rem">全书段落检索</h2>
+      <p>在这一栏里直接检索全书段落。语料由扫描件 OCR 得到，未逐字校对，命中结果只给出定位摘句，供你回到原书核对。</p>
+      <hr class="rule">
+    </div>
+    <div class="pw-searchbox">
+      <label class="pw-slabel" for="pwSearchInput">检索词</label>
+      <input id="pwSearchInput" type="search" autocomplete="off" placeholder="例如：票拟 / 以内制外 / 镇守中官 / 三权分立">
+      <div class="pw-smeta" id="pwSearchMeta" aria-live="polite"></div>
+    </div>
+    <div class="pw-hits" id="pwSearchResults"></div>
+
+    <div class="sec-head" style="margin-top:38px">
+      <h2 style="font-size:1.2rem">阅读须知</h2>
+      <hr class="rule">
+    </div>
+    <div class="rel-notes" id="pwNotes">
+      <div class="rel"><h4>这一栏是什么</h4><p>它是《明代国家权力结构及运行机制》的研读索引，不是原书的电子版。全站不收录该书正文，段落检索也只返回定位摘句。要通读请用你手上的纸本或原扫描件。</p></div>
+      <div class="rel"><h4>为什么值得和「官制」对照看</h4><p>「官制」栏回答的是「有哪些职位、几品、管什么」，属于制度的构成层面；这一栏回答的是「权力怎么流动、谁受谁制约」，属于制度的运行层面。方志远反复强调的一点是：只看职官表会看不出明代政治的实况，因为票拟、批红、巡按、镇守中官这些关键环节，很多并不写在品级表里。</p></div>
+      <div class="rel"><h4>OCR 的局限</h4><p>原书是扫描件，没有文字层，本栏的段落语料由 OCR 生成，存在识别误差（如形近字、标点）。因此检索只适合用来「找位置」，不宜直接引用；凡引必核原书。少数页（版权页、空白页、插图页）本身没有可识别文本。</p></div>
+      <div class="rel"><h4>论断与原文的界限</h4><p>每个主题下的「方志远的论断」是本站依据原书章节结构与论述所作的转述，不是原文照录。转述难免有取舍，遇到关键处请回到标注的页码自行判断。</p></div>
+    </div>
   </section>
 
   <!-- ============ 多书对照 ============ -->
@@ -497,20 +555,22 @@
   </div>
 </div>
 
-<script src="js/data-books.js?v=20261010_05"></script>
-<script src="js/data-books-more.js?v=20261010_05"></script>
-<script src="js/data-emperors.js?v=20261010_05"></script>
-<script src="js/data-chronology.js?v=20261010_05"></script>
-<script src="js/data-glossary.js?v=20261010_05"></script>
-<script src="js/data-reading.js?v=20261010_05"></script>
-<script src="js/data-eranames.js?v=20261010_05"></script>
-<script src="js/data-bureaucracy.js?v=20261010_05"></script>
-<script src="js/data-thinkers.js?v=20261010_05"></script>
-<script src="js/data-geo.js?v=20261010_05"></script>
-<script src="js/data-numbers.js?v=20261010_05"></script>
-<script src="js/data-debates.js?v=20261010_05"></script>
-<script src="js/data-lineage.js?v=20261010_05"></script>
-<script src="js/data-bibliography.js?v=20261010_05"></script>
-<script src="js/app.js?v=20261010_05"></script>
+<script src="js/data-books.js?v=20261011_01"></script>
+<script src="js/data-books-more.js?v=20261011_01"></script>
+<script src="js/data-books-power.js?v=20261011_01"></script>
+<script src="js/data-emperors.js?v=20261011_01"></script>
+<script src="js/data-chronology.js?v=20261011_01"></script>
+<script src="js/data-glossary.js?v=20261011_01"></script>
+<script src="js/data-reading.js?v=20261011_01"></script>
+<script src="js/data-eranames.js?v=20261011_01"></script>
+<script src="js/data-bureaucracy.js?v=20261011_01"></script>
+<script src="js/data-thinkers.js?v=20261011_01"></script>
+<script src="js/data-power.js?v=20261011_01"></script>
+<script src="js/data-geo.js?v=20261011_01"></script>
+<script src="js/data-numbers.js?v=20261011_01"></script>
+<script src="js/data-debates.js?v=20261011_01"></script>
+<script src="js/data-lineage.js?v=20261011_01"></script>
+<script src="js/data-bibliography.js?v=20261011_01"></script>
+<script src="js/app.js?v=20261011_01"></script>
 </body>
 </html>

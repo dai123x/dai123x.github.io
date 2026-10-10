@@ -12,7 +12,9 @@
      8) 阅读辅助（进度条 / 回到顶部 / 滚动位置记忆）
      9) 本地阅读器
     10) 启动
-*/
+
+   附：栏目「权力结构」另有一份体积较大的 OCR 段落语料（js/data-power-text.js），
+   不进首屏，仅在进入该栏目后按需注入 <script>，用于段落级检索。 */
 (function () {
   "use strict";
 
@@ -100,7 +102,7 @@
   }
 
   /* ==================== 4. 路由 + 按需渲染 ==================== */
-  const VIEWS = ["overview", "lineage", "chrono", "eras", "bureaucracy", "thinkers", "compare", "index",
+  const VIEWS = ["overview", "lineage", "chrono", "eras", "bureaucracy", "thinkers", "power", "compare", "index",
     "bibliography", "glossary", "geo", "numbers", "debates", "themes", "reader"];
 
   const rendered = Object.create(null);   // 栏目是否已构建
@@ -115,6 +117,7 @@
     eras: renderEras,
     bureaucracy: renderBureaucracy,
     thinkers: renderThinkers,
+    power: renderPower,
     compare: renderCompare,
     index: renderIndex,
     bibliography: renderBibliography,
@@ -325,6 +328,7 @@
       [ERAS.length, "个 年号"],
       [BZ_OFFICE_COUNT, "个 官职详解"],
       [TK_COUNT, "位 思想家"],
+      [((CORE.POWER || {}).themes || []).length, "个 权力结构主题"],
       [DEBATES.length, "组 争议考辨"],
       [BIB_COUNT, "种 延伸书目"],
     ];
@@ -832,7 +836,311 @@
     });
   }
 
-  /* ==================== 12. 多书对照 ==================== */
+  /* ==================== 12. 权力结构（方志远） ==================== */
+  const POWER = CORE.POWER || { book: {}, parts: [], themes: [], tail: [], legend: [], stats: {} };
+  const PW_LVL = { "篇": "ok", "章": "mid", "主题": "low", "段落定位": "tool", "摘句": "mid", "交叉链接": "ok" };
+  const PW_TEXT_VER = "20261011_01";
+  const PW_SNIP = 56;                 // 检索结果里围绕命中词的摘句窗口
+  let pwGroup = "全部";
+  let pwText = null, pwTextState = "idle";
+  let pwHits = [];
+
+  function pwPartOf(where) {
+    const w = String(where || "");
+    if (w.indexOf("上篇") === 0) return "上篇";
+    if (w.indexOf("中篇") === 0) return "中篇";
+    if (w.indexOf("下篇") === 0) return "下篇";
+    return "导论";
+  }
+
+  /* 交叉链接：类型 → 本站条目 id。延后构建，避免依赖数据加载顺序 */
+  const PW_KIND = { bz: ["bureaucracy", "官职"], gl: ["glossary", "词条"], tk: ["thinkers", "思想"], era: ["eras", "年号"] };
+  let pwIx = null;
+
+  function pwIndex() {
+    if (pwIx) return pwIx;
+    const m = { bz: {}, gl: {}, tk: {}, era: {} };
+    (BUREAUCRACY.systems || []).forEach((s) => (s.offices || []).forEach((o) => {
+      [o.name].concat(o.aka || []).forEach((n) => { if (n && !m.bz[n]) m.bz[n] = o.id; });
+    }));
+    GLOSSARY.forEach((g, i) => { if (g.t && !m.gl[g.t]) m.gl[g.t] = "gl-" + i; });
+    (THINKERS.schools || []).forEach((s) => (s.thinkers || []).forEach((k) => {
+      if (k.name && !m.tk[k.name]) m.tk[k.name] = k.id;
+    }));
+    ERAS.forEach((e) => { if (e.era && !m.era[e.era]) m.era[e.era] = "era-" + e.era; });
+    pwIx = m;
+    return m;
+  }
+
+  function pwLinkHtml(pair) {
+    const kind = pair[0], name = pair[1], conf = PW_KIND[kind];
+    if (!conf) return "";
+    const anchor = (pwIndex()[kind] || {})[name];
+    const label = conf[1] + " · " + name;
+    if (!anchor) return '<span class="chip pw-chip pw-off" title="本站暂无对应条目">' + esc(label) + "</span>";
+    return '<button class="chip pw-chip" type="button" data-jump="' + conf[0] + "|" + esc(anchor) + '">' + esc(label) + "</button>";
+  }
+
+  function pwBookHtml() {
+    const b = POWER.book || {}, st = POWER.stats || {};
+    return `<div class="pw-book">
+      <div class="pw-book-main">
+        <h3>${esc(b.title)}</h3>
+        <p class="pw-book-meta">${esc(b.author)} 著　${esc(b.press)}　${esc(b.year)}　${esc(b.series || "")}</p>
+        <p class="pw-book-meta">ISBN ${esc(b.isbn)}　全书 ${b.pages} 页　${esc(b.words || "")}　${esc(b.price || "")}</p>
+      </div>
+      <div class="pw-book-stats">
+        <div><b>${st.chapters || 0}</b><span>章</span></div>
+        <div><b>${st.sections || 0}</b><span>节</span></div>
+        <div><b>${st.subs || 0}</b><span>目</span></div>
+        <div><b>${st.themes || 0}</b><span>主题</span></div>
+        <div><b>${st.paras || 0}</b><span>段落</span></div>
+      </div>
+    </div>`;
+  }
+
+  function pwChapterHtml(c) {
+    const secs = (c.sections || []).map((s) => `
+      <li><span class="pw-sec-no">${esc(s.no)}</span><span class="pw-sec-t">${esc(s.title)}</span><span class="pw-pg">p.${s.page}</span>
+        ${(s.subs || []).length ? `<ul class="pw-subs">${s.subs.map((x) => `<li><span>${esc(x.no)}、${esc(x.title)}</span><span class="pw-pg">p.${x.page}</span></li>`).join("")}</ul>` : ""}
+      </li>`).join("");
+    return `<details class="pw-ch" id="pwc-${esc(c.id)}">
+      <summary>
+        <span class="pw-ch-no">${esc(c.no || "导论")}</span>
+        <span class="pw-ch-t">${esc(c.title)}</span>
+        <span class="pw-pg">p.${c.page}</span>
+      </summary>
+      <p class="pw-ch-gist">${esc(c.gist)}</p>
+      ${secs ? `<ul class="pw-secs">${secs}</ul>` : ""}
+      <div class="pw-ch-meta">本章已索引 ${c.paras || 0} 段</div>
+    </details>`;
+  }
+
+  function pwPartHtml(p) {
+    return `<section class="pw-part" id="pwp-${esc(p.id)}">
+      <div class="pw-part-head">
+        <h3>${esc(p.name)}</h3>
+        <span class="chip">原书 ${esc(p.span)} 页</span>
+      </div>
+      <p class="pw-part-note">${esc(p.note)}</p>
+      <div class="pw-chapters">${(p.chapters || []).map(pwChapterHtml).join("")}</div>
+    </section>`;
+  }
+
+  function pwRefHtml(r) {
+    return `<li><button class="pw-ref" type="button" data-page="${r.page}" data-para="${r.para}">
+      <span class="pw-ref-pg">p.${r.page}<i>·${r.para}</i></span>
+      <span class="pw-ref-body">
+        <span class="pw-ref-ch">${esc(r.ch)}${r.sec ? "　" + esc(r.sec) : ""}</span>
+        <span class="pw-ref-snip">${esc(r.snip)}…</span>
+      </span>
+    </button></li>`;
+  }
+
+  function pwThemeHtml(t) {
+    const refs = (t.refs || []).map(pwRefHtml).join("");
+    const links = (t.links || []).map(pwLinkHtml).join("");
+    return `<article class="pw-theme" id="pwt-${esc(t.id)}" data-g="${esc(pwPartOf(t.where))}">
+      <div class="pw-th-head">
+        <h3>${esc(t.name)}</h3>
+        <span class="chip">${esc(t.where)}</span>
+      </div>
+      <p class="pw-gist">${esc(t.gist)}</p>
+      <div class="pw-block">
+        <div class="pw-k">方志远的论断<span class="pw-hint">本站转述</span></div>
+        <ol class="pw-claims">${(t.claims || []).map((c) => `<li>${esc(c)}</li>`).join("")}</ol>
+      </div>
+      <div class="pw-block">
+        <div class="pw-k">书中位置<span class="pw-hint">点段落定位到全书检索</span></div>
+        <ul class="pw-refs">${refs || '<li class="pw-none">未在语料中定位到对应段落</li>'}</ul>
+      </div>
+      ${links ? `<div class="pw-block"><div class="pw-k">本站相关条目</div><div class="pw-linkrow">${links}</div></div>` : ""}
+    </article>`;
+  }
+
+  function pwApplyFilter() {
+    let shown = 0;
+    $$("#pwThemes .pw-theme").forEach((el) => {
+      const ok = pwGroup === "全部" || el.dataset.g === pwGroup;
+      el.hidden = !ok;
+      if (ok) shown++;
+    });
+    let empty = $("#pwEmpty");
+    if (!shown) {
+      if (!empty) {
+        empty = document.createElement("div");
+        empty.id = "pwEmpty"; empty.className = "empty"; empty.textContent = "该篇暂无主题";
+        $("#pwThemes").appendChild(empty);
+      }
+    } else if (empty) empty.remove();
+    const cnt = $("#pwCount");
+    if (cnt) cnt.textContent = shown + " 个主题";
+  }
+
+  function setPwMeta(msg) {
+    const el = $("#pwSearchMeta");
+    if (el) el.textContent = msg || "";
+  }
+
+  /* 段落语料体积较大，进栏目后空闲时才拉取 */
+  function loadPwText(cb) {
+    if (pwTextState === "ready") { if (cb) cb(); return; }
+    if (pwTextState === "loading") return;
+    pwTextState = "loading";
+    setPwMeta("正在载入全书段落语料…");
+    const s = document.createElement("script");
+    s.src = "js/data-power-text.js?v=" + PW_TEXT_VER;
+    s.onload = () => {
+      pwText = (window.MING_CORE && window.MING_CORE.POWER_TEXT) || {};
+      pwTextState = "ready";
+      const n = Object.keys(pwText).length;
+      setPwMeta("语料已就绪：共 " + n + " 页可检索。输入关键词，例如「票拟」「以内制外」「镇守中官」。");
+      if (cb) cb();
+    };
+    s.onerror = () => { pwTextState = "fail"; setPwMeta("段落语料载入失败，请刷新后重试。"); };
+    document.head.appendChild(s);
+  }
+
+  function pwSearch(q) {
+    const toks = q.trim().split(/\s+/).filter(Boolean);
+    if (!toks.length) return [];
+    if (!pwText) { loadPwText(() => { if (q === $("#pwSearchInput").value) pwRenderHits(q); }); return null; }
+    const out = [];
+    const pages = Object.keys(pwText);
+    for (let k = 0; k < pages.length; k++) {
+      const pg = pages[k], rows = pwText[pg];
+      for (let j = 0; j < rows.length; j++) {
+        const text = rows[j][2];
+        let ok = true, sc = 0, first = -1;
+        for (let t = 0; t < toks.length; t++) {
+          const at = text.indexOf(toks[t]);
+          if (at < 0) { ok = false; break; }
+          if (first < 0 || at < first) first = at;
+          sc += 10 + toks[t].length * 3;
+        }
+        if (!ok) continue;
+        out.push({ page: +pg, para: rows[j][0], head: rows[j][1] === 1, text: text, at: first, sc: sc });
+      }
+    }
+    out.sort((a, b) => (b.sc - a.sc) || (a.page - b.page) || (a.para - b.para));
+    return out.slice(0, 60);
+  }
+
+  function pwSnippet(text, q) {
+    const toks = q.trim().split(/\s+/).filter(Boolean);
+    let at = -1;
+    for (const t of toks) { const i = text.indexOf(t); if (i >= 0 && (at < 0 || i < at)) at = i; }
+    if (at < 0) at = 0;
+    const from = Math.max(0, at - Math.floor(PW_SNIP / 3));
+    let s = text.slice(from, from + PW_SNIP);
+    if (from > 0) s = "…" + s;
+    if (from + PW_SNIP < text.length) s += "…";
+    return hlText(s, q);
+  }
+
+  function pwRenderHits(q) {
+    const box = $("#pwSearchResults");
+    if (!box) return;
+    if (!q.trim()) {
+      box.innerHTML = "";
+      setPwMeta(pwTextState === "ready" ? "语料已就绪，输入关键词开始检索。" : "输入关键词，检索全书段落。");
+      return;
+    }
+    const hits = pwSearch(q);
+    if (hits === null) return;             // 语料尚未就绪，回调里会重跑
+    pwHits = hits;
+    if (!hits.length) {
+      box.innerHTML = '<div class="empty">没有命中。OCR 文本可能存在识别误差，可试试更短的词或换一个说法。</div>';
+      setPwMeta("0 条");
+      return;
+    }
+    setPwMeta("命中 " + hits.length + " 段（按相关度排序，最多显示 60 条）");
+    box.innerHTML = hits.map((h, i) => `
+      <article class="pw-hit" id="pwh-${i}">
+        <div class="pw-hit-head">
+          <button class="pw-hit-pg" type="button" data-page="${h.page}" data-para="${h.para}">p.${h.page} · 第 ${h.para + 1} 段</button>
+          ${h.head ? '<span class="chip pw-hit-h">标题行</span>' : ""}
+        </div>
+        <p class="pw-hit-text">${pwSnippet(h.text, q)}</p>
+      </article>`).join("");
+  }
+
+  function renderPower() {
+    const intro = $("#pwIntro");
+    if (intro) intro.textContent = POWER.intro || "";
+    $("#pwLegend").innerHTML = (POWER.legend || []).map((l) =>
+      `<div class="legend-item"><span class="conf ${PW_LVL[l.k] || "mid"}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
+    $("#pwBook").innerHTML = pwBookHtml();
+
+    const parts = POWER.parts || [];
+    $("#pwParts").innerHTML = parts.map(pwPartHtml).join("") +
+      (POWER.tail || []).map((t) => `<div class="pw-tail" id="pwtl-${esc(t.id)}"><span>${esc(t.name)}</span><span class="pw-pg">p.${t.page}</span></div>`).join("");
+
+    const groups = ["全部", "导论", "上篇", "中篇", "下篇"];
+    $("#pwFilters").innerHTML = groups.map((g) =>
+      `<button class="pill${pwGroup === g ? " active" : ""}" data-g="${esc(g)}" type="button">${esc(g)}</button>`).join("") +
+      '<span class="pw-count" id="pwCount"></span>';
+
+    $("#pwThemes").innerHTML = (POWER.themes || []).map(pwThemeHtml).join("");
+    pwApplyFilter();
+    setPwMeta("输入关键词，检索全书段落。");
+    loadPwText();
+  }
+
+  function initPower() {
+    delegate($("#pwFilters"), "click", ".pill", (p) => {
+      pwGroup = p.dataset.g;
+      $$("#pwFilters .pill").forEach((x) => x.classList.toggle("active", x === p));
+      pwApplyFilter();
+    });
+
+    // 主题里的「书中位置」→ 填进检索框并跑一次，等于把该段所在的页找出来
+    delegate($("#pwThemes"), "click", ".pw-ref", (b) => {
+      const inp = $("#pwSearchInput");
+      if (!inp) return;
+      const box = $("#pwSearch");
+      if (box && box.scrollIntoView) box.scrollIntoView({ block: "start" });
+      inp.value = "p" + b.dataset.page;      // 页码检索占位，实际按页定位
+      pwGotoPage(+b.dataset.page, +b.dataset.para);
+    });
+
+    delegate($("#pwThemes"), "click", ".pw-chip[data-jump]", (b) => {
+      const parts = b.dataset.jump.split("|");
+      go(parts[0], { source: "link", anchor: parts[1] });
+    });
+
+    delegate($("#pwSearchResults"), "click", ".pw-hit-pg", (b) => {
+      pwGotoPage(+b.dataset.page, +b.dataset.para);
+    });
+
+    const inp = $("#pwSearchInput");
+    if (inp) {
+      const run = debounce(() => pwRenderHits(inp.value), 140);
+      inp.addEventListener("input", run);
+      inp.addEventListener("focus", () => loadPwText());
+    }
+  }
+
+  /* 按「原书页码 + 段序」定位：语料里的键是 PDF 页序，需加偏移 */
+  function pwGotoPage(bookPage, para) {
+    if (!pwText) { loadPwText(() => pwGotoPage(bookPage, para)); return; }
+    const off = (POWER.book && POWER.book.pdf_offset) || 0;
+    const pdfPage = bookPage + off;
+    const rows = pwText[String(pdfPage)] || [];
+    const i = rows.findIndex((r) => r[0] === para);
+    const idx = i < 0 ? 0 : i;
+    $("#pwSearchResults").innerHTML = `
+      <article class="pw-hit pw-hit-one">
+        <div class="pw-hit-head">
+          <span class="chip">原书 p.${bookPage}　第 ${para + 1} 段</span>
+          <span class="pw-hint">OCR 文本，未逐字校对</span>
+        </div>
+        <p class="pw-hit-text">${esc((rows[idx] || [null, 0, "（该段未识别到文本）"])[2])}</p>
+      </article>`;
+    setPwMeta("已定位到原书 p." + bookPage + " 第 " + (para + 1) + " 段。");
+  }
+
+  /* ==================== 13. 多书对照 ==================== */
   function renderCompare() {
     $("#cmpList").innerHTML = COMPARE.map((c, i) => `
       <article class="cmp${i === 0 ? " open" : ""}" id="cmp-${esc(c.id)}">
@@ -856,7 +1164,7 @@
     });
   }
 
-  /* ==================== 13. 章节索引 ==================== */
+  /* ==================== 14. 章节索引 ==================== */
   let curBook = BOOKS.length ? BOOKS[0].id : null;
   let idxQuery = "";
 
@@ -932,7 +1240,7 @@
     if (q) q.addEventListener("input", debounce(() => { idxQuery = q.value; renderIndex(); }, 120));
   }
 
-  /* ==================== 14. 延伸书目 ==================== */
+  /* ==================== 15. 延伸书目 ==================== */
   const LVL_CLASS = { "入门": "ok", "进阶": "mid", "专题": "low", "工具": "tool", "史料": "src" };
   const lvlClass = (k) => LVL_CLASS[k] || "mid";
   let bibLvl = "全部";
@@ -1005,7 +1313,7 @@
     });
   }
 
-  /* ==================== 15. 词条库 ==================== */
+  /* ==================== 16. 词条库 ==================== */
   let glossCat = "全部", glossKw = "";
 
   function renderGlossary() {
@@ -1046,7 +1354,7 @@
     if (q) q.addEventListener("input", debounce(() => { glossKw = q.value; renderGlossary(); }, 120));
   }
 
-  /* ==================== 16. 舆图政区 ==================== */
+  /* ==================== 17. 舆图政区 ==================== */
   let placeKind = "全部";
 
   function renderGeo() {
@@ -1104,7 +1412,7 @@
     });
   }
 
-  /* ==================== 17. 数据一览 ==================== */
+  /* ==================== 18. 数据一览 ==================== */
   const confClass = (k) => (k === "册载" ? "ok" : k === "估算" ? "mid" : "low");
 
   function renderNumbers() {
@@ -1129,7 +1437,7 @@
     if (cav) cav.innerHTML = `<b>使用提醒。</b>${esc(String(NUMBERS.caveat || "").replace(/^使用提醒：/, ""))}`;
   }
 
-  /* ==================== 18. 争议考辨 ==================== */
+  /* ==================== 19. 争议考辨 ==================== */
   function renderDebates() {
     $("#debList").innerHTML = DEBATES.map((d, i) => `
       <article class="deb${i === 0 ? " open" : ""}" id="deb-${i}">
@@ -1156,7 +1464,7 @@
     });
   }
 
-  /* ==================== 19. 主题线索 ==================== */
+  /* ==================== 20. 主题线索 ==================== */
   const THEME_COLOR = { indigo: "var(--c-indigo)", teal: "var(--c-teal)", amber: "var(--c-amber)", violet: "var(--c-violet)", rose: "var(--c-rose)" };
 
   function renderThemes() {
@@ -1169,7 +1477,7 @@
       </article>`).join("");
   }
 
-  /* ==================== 20. 全站检索（命令面板） ==================== */
+  /* ==================== 21. 全站检索（命令面板） ==================== */
   let SEARCH_IX = null;
   let palResults = [];
   let palActive = 0;
@@ -1180,6 +1488,7 @@
       const aka = o.aka && o.aka.length ? " " + o.aka.filter(Boolean).join(" ") : "";
       o.hay = (o.title + aka + " " + (o.sub || "") + " " + (o.text || "")).toLowerCase();
       o.tl = (o.title + aka).toLowerCase();
+      o.tt = String(o.title || "").toLowerCase();   // 纯标题，用于「标题完全相等」加权
       o.sl = (o.sub || "").toLowerCase();
       ix.push(o);
     };
@@ -1290,6 +1599,25 @@
       view: "thinkers", anchor: d.id, type: "思潮", cat: d.tag,
       title: d.t, sub: d.q, text: (d.sides || []).map((x) => x.name + x.view).join(" ") + " " + d.status,
     }));
+    // 权力结构：篇 → 章 → 主题（方志远《明代国家权力结构及运行机制》研读索引）
+    (POWER.parts || []).forEach((p) => {
+      add({
+        view: "power", anchor: "pwp-" + p.id, type: "权力", cat: "篇",
+        title: p.name, sub: "原书 " + p.span + " 页",
+        text: p.note + " " + (p.chapters || []).map((c) => c.no + c.title + c.gist).join(" "),
+      });
+      (p.chapters || []).forEach((c) => add({
+        view: "power", anchor: "pwc-" + c.id, type: "权力", cat: p.name,
+        title: (c.no ? c.no + "　" : "") + c.title, sub: p.name + " · p." + c.page,
+        text: c.gist + " " + (c.sections || []).map((s) => s.no + s.title + " " + (s.subs || []).map((x) => x.title).join(" ")).join(" "),
+      }));
+    });
+    (POWER.themes || []).forEach((t) => add({
+      view: "power", anchor: "pwt-" + t.id, type: "权力结构", cat: t.where, aka: t.aka || [],
+      title: t.name, sub: t.where,
+      text: t.gist + " " + (t.claims || []).join(" ") + " " +
+        (t.refs || []).map((r) => r.ch + " " + r.sec + " " + r.snip).join(" "),
+    }));
     (BIBLIOGRAPHY.groups || []).forEach((g, gi) => (g.items || []).forEach((it, ii) => add({
       view: "bibliography", anchor: "bib-" + gi + "-" + ii, type: "书目", cat: g.name,
       title: it.t, sub: it.a + " · " + it.y, text: it.d + " " + it.use + " " + it.v + " " + it.lvl,
@@ -1320,7 +1648,8 @@
       let ok = true, score = 0;
       for (let t = 0; t < toks.length; t++) {
         const k = toks[t];
-        if (e.tl === k) score += 120;
+        if (e.tt === k) score += 150;          // 标题与检索词完全相等，优先级最高
+        else if (e.tl === k) score += 120;
         else if (e.tl.indexOf(k) === 0) score += 70;
         else if (e.tl.indexOf(k) > 0) score += 42;
         else if (e.sl.indexOf(k) >= 0) score += 16;
@@ -1329,7 +1658,7 @@
       }
       if (!ok) continue;
       // 词条/年号这类短条目在同等命中下更该靠前
-      if (e.type === "词条" || e.type === "年号" || e.type === "官职" || e.type === "思想" || e.type === "品级") score += 4;
+      if (e.type === "词条" || e.type === "年号" || e.type === "官职" || e.type === "思想" || e.type === "品级" || e.type === "权力结构") score += 4;
       if (e.type === "章节" || e.type === "小节") score += 1;
       out.push({ e, score, i });
     }
@@ -1372,7 +1701,8 @@
         ["词条", "于谦", "glossary"], ["词条", "一条鞭法", "glossary"], ["年号", "崇祯", "eras"],
         ["大事", "土木之变", "chrono"], ["考辨", "建文", "debates"], ["地名", "山海关", "geo"],
         ["官职", "内阁大学士", "bureaucracy"], ["品级", "正二品", "bureaucracy"],
-        ["思想", "王阳明", "thinkers"], ["主题", "白银", "themes"], ["书目", "晚明史", "bibliography"],
+        ["思想", "王阳明", "thinkers"], ["权力结构", "票拟", "power"], ["权力结构", "以内制外", "power"],
+        ["主题", "白银", "themes"], ["书目", "晚明史", "bibliography"],
       ];
       box.innerHTML = '<div class="pal-hint-t">试试这些</div><div class="pal-chips">' +
         hints.map(([t, k]) => `<button class="pal-chip" type="button" data-q="${esc(k)}"><span>${esc(t)}</span>${esc(k)}</button>`).join("") +
@@ -1400,7 +1730,7 @@
     $("#paletteCount").textContent = palResults.length + " 条结果";
   }
 
-  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk" })[t] || "glo";
+  const typeKey = (t) => ({ "帝王": "emp", "大事": "chr", "词条": "glo", "对照": "cmp", "考辨": "deb", "年号": "era", "纪年": "era", "政区": "geo", "九边": "geo", "地名": "geo", "疆域": "geo", "制度": "geo", "主题": "thm", "书目": "bib", "章节": "idx", "小节": "idx", "官制": "bz", "官职": "bz", "品级": "bz", "入仕": "bz", "学派": "tk", "思想": "tk", "思潮": "tk", "权力": "pw", "权力结构": "pw" })[t] || "glo";
 
   function movePal(d) {
     if (!palResults.length) return;
@@ -1488,7 +1818,7 @@
     delegate(box, "click", "[data-pal-close]", closePalette);
   }
 
-  /* ==================== 21. 阅读辅助 ==================== */
+  /* ==================== 22. 阅读辅助 ==================== */
   function initReading() {
     const bar = $("#readbar"), top = $("#toTop");
     const sync = raf(() => {
@@ -1504,7 +1834,7 @@
     sync();
   }
 
-  /* ==================== 22. 本地阅读器 ==================== */
+  /* ==================== 23. 本地阅读器 ==================== */
   function initReader() {
     const drop = $("#drop"), input = $("#fileInput"), stage = $("#readerStage");
     const nameEl = $("#readerName"), frameEl = $("#readerFrame"), textEl = $("#readerText");
@@ -1563,7 +1893,7 @@
      不会与用户点击产生交错。 */
   function prefetch() {
     const order = ["lineage", "chrono", "glossary", "geo", "eras", "bureaucracy",
-      "thinkers", "numbers", "compare", "debates", "themes", "index", "bibliography", "reader"];
+      "thinkers", "power", "numbers", "compare", "debates", "themes", "index", "bibliography", "reader"];
     let i = 0;
     const step = (deadline) => {
       const t0 = performance.now();
@@ -1592,7 +1922,7 @@
     nav.addEventListener("focusin", warm);
   }
 
-  /* ==================== 23. 启动 ==================== */
+  /* ==================== 24. 启动 ==================== */
   function boot() {
     initTheme();
     initTabs();
@@ -1603,6 +1933,7 @@
     initEras();
     initBureaucracy();
     initThinkers();
+    initPower();
     initIndex();
     initGlossary();
     initGeo();
