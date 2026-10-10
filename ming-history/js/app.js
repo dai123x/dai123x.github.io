@@ -1,6 +1,6 @@
 /* 明史资料平台 · 交互逻辑
    纯静态实现，无外部依赖、无网络请求。
-   所有检索与渲染均在本机浏览器内完成。 */
+   所有检索、换算与渲染均在本机浏览器内完成。 */
 (function () {
   "use strict";
 
@@ -11,6 +11,17 @@
   const COMPARE = CORE.COMPARE || [];
   const THEMES = CORE.THEMES || [];
   const GLOSSARY = CORE.GLOSSARY || [];
+  const ERAS = CORE.ERAS || [];
+  const RIVAL_ERAS = CORE.RIVAL_ERAS || [];
+  const CALENDAR = CORE.CALENDAR || { items: [] };
+  const PROVINCES = CORE.PROVINCES || [];
+  const NINE_GARRISONS = CORE.NINE_GARRISONS || [];
+  const MILITARY_GEO = CORE.MILITARY_GEO || [];
+  const PLACES = CORE.PLACES || [];
+  const TERRITORY = CORE.TERRITORY || [];
+  const NUMBERS = CORE.NUMBERS || { groups: [], legend: [], intro: "", caveat: "" };
+  const DEBATES = CORE.DEBATES || [];
+  const LINEAGE = CORE.LINEAGE || { trees: [], notes: [] };
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
@@ -51,6 +62,18 @@
     const hash = (location.hash || "").replace("#", "");
     if (hash && $("#view-" + hash)) go(hash, false);
     window.__mingGo = go;
+
+    // 窄屏时标签栏横向可滚动，用渐隐遮罩提示「还有更多」
+    const nav = $(".tabs");
+    if (nav) {
+      const sync = () => {
+        nav.classList.toggle("more-right", nav.scrollWidth - nav.clientWidth - nav.scrollLeft > 2);
+        nav.classList.toggle("more-left", nav.scrollLeft > 2);
+      };
+      nav.addEventListener("scroll", sync, { passive: true });
+      window.addEventListener("resize", sync);
+      sync(); setTimeout(sync, 500);
+    }
   }
 
   /* ---------------- 总览 ---------------- */
@@ -65,6 +88,8 @@
       [EMPERORS.length, "帝 与监国"],
       [CHRONOLOGY.length, "条 大事年表"],
       [GLOSSARY.length, "条 词条"],
+      [ERAS.length, "个 年号"],
+      [DEBATES.length, "组 争议考辨"],
     ];
     statBox.innerHTML = stats.map(([n, k]) => `<div class="stat"><div class="n">${esc(n)}</div><div class="k">${esc(k)}</div></div>`).join("");
 
@@ -86,7 +111,7 @@
 
   /* ---------------- 帝王世系 ---------------- */
   const AXIS_FROM = 1368, AXIS_TO = 1683;
-  let houseFilter = "all", openEmp = null;
+  let houseFilter = "all", openEmp = null, lineageMode = "axis", treeFilter = "all";
 
   function renderEmperors() {
     const list = EMPERORS.filter((e) => houseFilter === "all" || e.house === houseFilter);
@@ -118,10 +143,14 @@
         </button>
         <div class="emp-body">
           <p class="one">${esc(e.one)}</p>
+          ${e.court && e.court.length ? `<h4>朝廷要人</h4><ul class="compact">${e.court.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+          ${e.figures && e.figures.length ? `<h4>名臣名将</h4><div class="emp-tags">${e.figures.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div>` : ""}
           <h4>在位大事</h4>
-          <ul>${e.events.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+          <ul>${(e.events || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+          ${e.policy && e.policy.length ? `<h4>制度与政策</h4><ul class="compact">${e.policy.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+          ${e.reading ? `<div class="emp-reading"><b>读法提示 · </b>${esc(e.reading)}</div>` : ""}
           <h4>对应章节</h4>
-          <div class="emp-refs">${e.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>
+          <div class="emp-refs">${(e.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>
         </div>
       </article>`).join("");
 
@@ -141,6 +170,65 @@
       const el = $(`#empList .emp[data-no="${no}"]`);
       if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
     }));
+  }
+
+  /* ---------------- 皇族世系图 ---------------- */
+  function treeNodeHtml(node, depth) {
+    const kids = node.children && node.children.length
+      ? `<div class="tn-kids">${node.children.map((c) => treeNodeHtml(c, depth + 1)).join("")}</div>` : "";
+    return `<div class="tnode${node.reign ? " reign" : " nonreign"}">
+      <div class="tn-box">
+        <div class="tn-head">
+          ${node.title ? `<span class="tn-title">${esc(node.title)}</span>` : ""}
+          <b class="tn-name">${esc(node.name)}</b>
+          ${node.era ? `<span class="tn-era">${esc(node.era)}</span>` : ""}
+          ${node.span ? `<span class="tn-span">${esc(node.span)}</span>` : ""}
+        </div>
+        ${node.note ? `<p class="tn-note">${esc(node.note)}</p>` : ""}
+      </div>
+      ${kids}
+    </div>`;
+  }
+
+  function renderTrees() {
+    const trees = (LINEAGE.trees || []).filter((t) => treeFilter === "all" || t.id === treeFilter);
+    $("#treeWrap").innerHTML = trees.map((t) => `
+      <section class="tree-sec">
+        <div class="tree-head">
+          <h3>${esc(t.title)}</h3>
+          <span class="chip accent">${esc(t.span)}</span>
+        </div>
+        ${t.note ? `<p class="tree-note">${esc(t.note)}</p>` : ""}
+        <div class="tree">${t.roots.map((r) => treeNodeHtml(r, 0)).join("")}</div>
+      </section>`).join("") || '<div class="empty">该支系暂无数据</div>';
+  }
+
+  function renderLineageNotes() {
+    $("#lineageNotes").innerHTML = (LINEAGE.notes || []).map((n) => `
+      <div class="rel">
+        <h4>${esc(n.t)}</h4>
+        <p>${esc(n.d)}</p>
+      </div>`).join("");
+  }
+
+  function initLineageMode() {
+    const box = $("#lineageMode");
+    if (box) {
+      $$("#lineageMode .pill").forEach((p) => p.addEventListener("click", () => {
+        lineageMode = p.dataset.mode;
+        $$("#lineageMode .pill").forEach((x) => x.classList.toggle("active", x === p));
+        $("#lineageAxisView").style.display = lineageMode === "axis" ? "" : "none";
+        $("#lineageTreeView").style.display = lineageMode === "tree" ? "" : "none";
+      }));
+    }
+    const tb = $("#treeSwitch");
+    if (tb) {
+      $$("#treeSwitch .pill").forEach((p) => p.addEventListener("click", () => {
+        treeFilter = p.dataset.tree;
+        $$("#treeSwitch .pill").forEach((x) => x.classList.toggle("active", x === p));
+        renderTrees();
+      }));
+    }
   }
 
   function initHouseSwitch() {
@@ -169,7 +257,9 @@
   ];
   const periodOf = (y) => (PERIODS.find((p) => y >= p.from && y <= p.to) || {}).id || "其他";
 
-  let chronoEra = "全部";
+  const CAT_ORDER = ["政治", "军事", "经济", "文化", "对外", "灾异"];
+  let chronoEra = "全部", chronoCat = "全部";
+
   function renderChrono() {
     const used = PERIODS.filter((p) => CHRONOLOGY.some((c) => periodOf(c.y) === p.id)).map((p) => p.id);
     const eras = ["全部"].concat(used);
@@ -179,13 +269,99 @@
       chronoEra = p.dataset.era; renderChrono();
     }));
 
-    const list = CHRONOLOGY.filter((c) => chronoEra === "全部" || periodOf(c.y) === chronoEra);
+    const catsUsed = CAT_ORDER.filter((c) => CHRONOLOGY.some((x) => x.cat === c));
+    const cats = ["全部"].concat(catsUsed);
+    $("#chronoCatFilters").innerHTML = cats.map((c) =>
+      `<button class="pill cat${chronoCat === c ? " active" : ""}" data-cat="${esc(c)}" type="button">${esc(c)}</button>`).join("");
+    $$("#chronoCatFilters .pill").forEach((p) => p.addEventListener("click", () => {
+      chronoCat = p.dataset.cat; renderChrono();
+    }));
+
+    const list = CHRONOLOGY.filter((c) =>
+      (chronoEra === "全部" || periodOf(c.y) === chronoEra) &&
+      (chronoCat === "全部" || c.cat === chronoCat));
+
     $("#chronoList").innerHTML = list.map((c) => `
       <div class="ce${c.key ? " key" : ""}">
-        <div class="y">${c.y}<span class="era">${esc(c.era)}</span></div>
+        <div class="y">${c.y}<span class="era">${esc(c.era)}</span>${c.cat ? `<span class="cat-tag" data-cat="${esc(c.cat)}">${esc(c.cat)}</span>` : ""}</div>
         <h3>${esc(c.t)}${c.key ? ' <span class="chip key">节点</span>' : ""}</h3>
         <p>${esc(c.d)}</p>
-      </div>`).join("") || '<div class="empty">该时段暂无条目</div>';
+        ${c.refs && c.refs.length ? `<div class="ce-refs">${c.refs.map((r) => `<span>${esc(r)}</span>`).join("")}</div>` : ""}
+      </div>`).join("") || '<div class="empty">该筛选下暂无条目</div>';
+  }
+
+  /* ---------------- 年号纪年 ---------------- */
+  const GAN = "甲乙丙丁戊己庚辛壬癸";
+  const ZHI = "子丑寅卯辰巳午未申酉戌亥";
+  const CN = "〇一二三四五六七八九";
+  const ganzhiOf = (y) => GAN[(((y - 4) % 10) + 10) % 10] + ZHI[(((y - 4) % 12) + 12) % 12];
+  function cnNum(n) {
+    if (n <= 0) return String(n);
+    if (n < 10) return CN[n];
+    if (n === 10) return "十";
+    if (n < 20) return "十" + CN[n % 10];
+    if (n < 100) { const t = Math.floor(n / 10), o = n % 10; return CN[t] + "十" + (o ? CN[o] : ""); }
+    return String(n);
+  }
+  const yearLabel = (n) => (n === 1 ? "元" : cnNum(n)) + "年";
+
+  function eraRow(e, withHouse) {
+    return `<article class="era-row">
+      <div class="era-name">
+        <b>${esc(e.era)}</b>
+        ${withHouse ? `<span class="era-house">${esc(e.house)}</span>` : ""}
+      </div>
+      <div class="era-emp">${esc(e.emp)}</div>
+      <div class="era-span">${e.from}${e.to !== e.from ? "—" + e.to : ""}<br><span class="era-n">${e.n > 1 ? e.n + " 年" : "不足一年"}</span></div>
+      <p class="era-note">${esc(e.note)}</p>
+    </article>`;
+  }
+
+  function renderEras() {
+    const ming = ERAS.filter((e) => e.house === "明朝");
+    const nan = ERAS.filter((e) => e.house !== "明朝");
+    $("#eraTableMing").innerHTML = ming.map((e) => eraRow(e, false)).join("");
+    $("#eraTableNan").innerHTML = nan.map((e) => eraRow(e, true)).join("");
+    $("#eraTableRival").innerHTML = RIVAL_ERAS.map((r) => `
+      <article class="era-row rival">
+        <div class="era-name"><b>${esc(r.regime)}</b></div>
+        <div class="era-emp">${esc(r.leader)}<br><span class="era-n">年号：${esc(r.era)}</span></div>
+        <div class="era-span">${r.from}—${r.to}</div>
+        <p class="era-note">${esc(r.note)}</p>
+      </article>`).join("");
+
+    $("#calendarNotes").innerHTML = `<div class="notice" style="margin-bottom:16px">${esc(CALENDAR.intro || "")}</div>` +
+      (CALENDAR.items || []).map((n) => `
+        <div class="rel">
+          <h4>${esc(n.t)}</h4>
+          <p>${esc(n.d)}</p>
+        </div>`).join("");
+
+    const quick = [1368, 1402, 1421, 1449, 1521, 1567, 1581, 1619, 1644, 1662, 1683];
+    $("#gzQuick").innerHTML = quick.map((y) => `<button class="pill tiny" data-y="${y}" type="button">${y}</button>`).join("");
+    $$("#gzQuick .pill").forEach((p) => p.addEventListener("click", () => {
+      $("#gzYear").value = p.dataset.y; updateGz();
+    }));
+
+    const input = $("#gzYear");
+    input.addEventListener("input", updateGz);
+    updateGz();
+  }
+
+  function updateGz() {
+    const raw = parseInt($("#gzYear").value, 10);
+    const out = $("#gzOut");
+    if (!raw || raw < 1 || raw > 9999) { out.innerHTML = '<span class="gz-hint">请输入 1—9999 之间的公元年份。</span>'; return; }
+    const hits = ERAS.filter((e) => raw >= e.from && raw <= e.to);
+    out.innerHTML = `
+      <div class="gz-main">
+        <div class="gz-big"><span class="gz-y">${raw}</span><span class="gz-gz">${ganzhiOf(raw)}</span></div>
+        <div class="gz-era">
+          ${hits.length ? hits.map((e) => `<div class="gz-hit"><b>${esc(e.era)}${yearLabel(raw - e.from + 1)}</b><span>${esc(e.emp)}</span></div>`).join("")
+            : '<div class="gz-hit muted"><b>不在明代年号范围内</b><span>该年无明代年号与之对应</span></div>'}
+        </div>
+      </div>
+      <p class="gz-formula">换算：(公元年 − 4) mod 10 得天干，mod 12 得地支。本例 (${raw} − 4) = ${raw - 4}，${raw - 4} mod 10 = ${(((raw - 4) % 10) + 10) % 10} → ${GAN[(((raw - 4) % 10) + 10) % 10]}；${raw - 4} mod 12 = ${(((raw - 4) % 12) + 12) % 12} → ${ZHI[(((raw - 4) % 12) + 12) % 12]}。</p>`;
   }
 
   /* ---------------- 三书对照 ---------------- */
@@ -200,7 +376,7 @@
         </button>
         <div class="cmp-body">
           <div class="cmp-views">
-            ${c.views.map((v) => `<div class="cmp-view"><div class="src">${esc(v.book)}</div><p>${esc(v.text)}</p></div>`).join("")}
+            ${c.views.map((v) => `<div class="cmp-view"><div class="src">${esc(v.book)}${v.loc ? " · " + esc(v.loc) : ""}</div><p>${esc(v.text)}</p></div>`).join("")}
           </div>
           <div class="cmp-take"><b>并读提示 · </b>${esc(c.take)}</div>
         </div>
@@ -320,6 +496,102 @@
     });
   }
 
+  /* ---------------- 舆图政区 ---------------- */
+  let placeKind = "全部";
+  function renderGeo() {
+    $("#provGrid").innerHTML = PROVINCES.map((p) => `
+      <article class="prov">
+        <div class="prov-head"><b>${esc(p.name)}</b><span class="chip">${esc(p.seat)}</span></div>
+        <p class="prov-area">今地：${esc(p.area)}</p>
+        <p class="prov-since">${esc(p.since)}</p>
+        <p class="prov-note">${esc(p.note)}</p>
+      </article>`).join("");
+
+    $("#garrList").innerHTML = NINE_GARRISONS.map((g, i) => `
+      <article class="garr">
+        <div class="garr-no">${i + 1}</div>
+        <div class="garr-body">
+          <div class="garr-head"><b>${esc(g.name)}</b><span class="garr-seat">${esc(g.seat)}</span></div>
+          <div class="garr-span">${esc(g.span)}</div>
+          <p>${esc(g.note)}</p>
+        </div>
+      </article>`).join("");
+
+    $("#milGeo").innerHTML = MILITARY_GEO.map((m) => `
+      <div class="rel"><h4>${esc(m.t)}</h4><p>${esc(m.d)}</p></div>`).join("");
+
+    const kinds = ["全部"].concat(PLACES.map((p) => p.kind).filter((v, i, a) => a.indexOf(v) === i));
+    $("#placeFilters").innerHTML = kinds.map((k) =>
+      `<button class="pill${placeKind === k ? " active" : ""}" data-kind="${esc(k)}" type="button">${esc(k)}</button>`).join("");
+    $$("#placeFilters .pill").forEach((b) => b.addEventListener("click", () => {
+      placeKind = b.dataset.kind; renderGeo();
+    }));
+
+    const list = PLACES.filter((p) => placeKind === "全部" || p.kind === placeKind);
+    $("#placeGrid").innerHTML = list.map((p) => `
+      <article class="place">
+        <div class="place-head"><b>${esc(p.name)}</b><span class="chip">${esc(p.kind)}</span></div>
+        <p>${esc(p.note)}</p>
+      </article>`).join("");
+
+    $("#terrList").innerHTML = TERRITORY.map((t) => `
+      <div class="terr-row">
+        <div class="terr-stage">${esc(t.stage)}</div>
+        <p>${esc(t.d)}</p>
+      </div>`).join("");
+  }
+
+  /* ---------------- 数据一览 ---------------- */
+  function renderNumbers() {
+    $("#numLegend").innerHTML = (NUMBERS.legend || []).map((l) => `
+      <div class="legend-item"><span class="conf ${confClass(l.k)}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
+    $("#numGroups").innerHTML = (NUMBERS.groups || []).map((g) => `
+      <section class="num-group">
+        <div class="num-group-head"><span class="num-ico">${esc(g.icon)}</span><h3>${esc(g.name)}</h3><span class="chip">${g.items.length} 项</span></div>
+        <div class="num-list">
+          ${g.items.map((it) => `
+            <article class="num-item">
+              <div class="num-top">
+                <span class="num-label">${esc(it.label)}</span>
+                <span class="conf ${confClass(it.conf)}">${esc(it.conf)}</span>
+              </div>
+              <div class="num-value">${esc(it.value)}${it.unit && it.unit !== "—" ? `<span class="num-unit">${esc(it.unit)}</span>` : ""}</div>
+              <p class="num-note">${esc(it.note)}</p>
+            </article>`).join("")}
+        </div>
+      </section>`).join("");
+    const cav = $("#numCaveat");
+    if (cav) cav.innerHTML = `<b>使用提醒。</b>${esc(String(NUMBERS.caveat || "").replace(/^使用提醒：/, ""))}`;
+  }
+  const confClass = (k) => (k === "册载" ? "ok" : k === "估算" ? "mid" : "low");
+
+  /* ---------------- 争议考辨 ---------------- */
+  function renderDebates() {
+    $("#debList").innerHTML = DEBATES.map((d, i) => `
+      <article class="deb${i === 0 ? " open" : ""}">
+        <button class="deb-head" type="button" aria-expanded="${i === 0}">
+          <span class="deb-tag">${esc(d.tag)}</span>
+          <div class="deb-t">
+            <h3>${esc(d.t)}</h3>
+            <p class="deb-q">${esc(d.q)}</p>
+          </div>
+          <span class="caret">▾</span>
+        </button>
+        <div class="deb-body">
+          <div class="deb-sides">
+            ${d.sides.map((s) => `<div class="deb-side"><div class="deb-side-name">${esc(s.name)}</div><p>${esc(s.view)}</p></div>`).join("")}
+          </div>
+          <div class="deb-status"><b>学界倾向 · </b>${esc(d.status)}</div>
+          <div class="deb-refs">${(d.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>
+        </div>
+      </article>`).join("");
+    $$("#debList .deb-head").forEach((h) => h.addEventListener("click", () => {
+      const art = h.closest(".deb");
+      const open = art.classList.toggle("open");
+      h.setAttribute("aria-expanded", String(open));
+    }));
+  }
+
   /* ---------------- 主题线索 ---------------- */
   const THEME_COLOR = { indigo: "var(--c-indigo)", teal: "var(--c-teal)", amber: "var(--c-amber)", violet: "var(--c-violet)", rose: "var(--c-rose)" };
   function renderThemes() {
@@ -388,14 +660,21 @@
     initTheme();
     initTabs();
     renderOverview();
+    initLineageMode();
     initHouseSwitch();
     renderEmperors();
+    renderTrees();
+    renderLineageNotes();
     renderChrono();
+    renderEras();
     renderCompare();
     renderIndex();
     initIndexSearch();
     renderGlossary();
     initGlossSearch();
+    renderGeo();
+    renderNumbers();
+    renderDebates();
     renderThemes();
     initReader();
   }

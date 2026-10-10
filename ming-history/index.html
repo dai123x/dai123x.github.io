@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>明史资料平台 · 明代文献索引与研读工具 | Ming History Archive</title>
-<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》为索引对象的研读工具。含帝王世系时间轴（1368—1683）、大事年表、三书对照、真实章节索引、人物制度词条库，以及不上传文件的本地阅读器。本站不转载书籍正文。">
-<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,顾诚,帝王世系,明朝年表,明史索引,洪武,永乐,万历,崇祯,郑成功,永历">
+<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》为索引对象的研读工具。含帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、三书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条，以及不上传文件的本地阅读器。本站不转载书籍正文。">
+<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明史索引,洪武,永乐,万历,崇祯,郑成功,永历">
 <link rel="canonical" href="https://daixuan.cloud/ming-history/">
 <meta name="theme-color" content="#0a0e17">
 <meta property="og:title" content="明史资料平台 · 明代文献索引与研读工具">
-<meta property="og:description" content="帝王世系时间轴、大事年表、三书对照、真实章节索引与词条库，附本地阅读器。不转载书籍正文。">
+<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、舆图政区、数据一览、争议考辨、三书对照与真实章节索引，附本地阅读器。不转载书籍正文。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=20261009_01">
+<link rel="stylesheet" href="css/style.css?v=20261010_02">
 <script>
   (function () {
     try {
@@ -40,9 +40,13 @@
       <button class="tab active" data-view="overview" type="button">总览</button>
       <button class="tab" data-view="lineage" type="button">帝王世系</button>
       <button class="tab" data-view="chrono" type="button">大事年表</button>
+      <button class="tab" data-view="eras" type="button">年号纪年</button>
       <button class="tab" data-view="compare" type="button">三书对照</button>
       <button class="tab" data-view="index" type="button">章节索引</button>
       <button class="tab" data-view="glossary" type="button">词条库</button>
+      <button class="tab" data-view="geo" type="button">舆图政区</button>
+      <button class="tab" data-view="numbers" type="button">数据一览</button>
+      <button class="tab" data-view="debates" type="button">争议考辨</button>
       <button class="tab" data-view="themes" type="button">主题线索</button>
       <button class="tab" data-view="reader" type="button">本地阅读</button>
     </nav>
@@ -60,8 +64,8 @@
       <p class="lede">
         这里不是一个电子书站，而是一层<b>索引与导航</b>。它以四部著作的目录为骨架——
         《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》全九部——
-        配上帝王世系、大事年表、三书对照与人物制度词条，用来回答那些读书时真正会卡住的问题：
-        <b>这件事在哪本书里讲得最清楚？同一个事件，三种写法差在哪里？</b>
+        配上帝王世系、大事年表、年号纪年、舆图政区、数据一览与争议考辨，用来回答那些读书时真正会卡住的问题：
+        <b>这件事在哪本书里讲得最清楚？同一个事件，三种写法差在哪里？这个年号对应公元哪一年？</b>
       </p>
       <div class="stats" id="stats"></div>
     </div>
@@ -81,24 +85,32 @@
     <div class="book-grid">
       <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想快速建立时间感</h3>
-        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">从「帝王世系」看十六帝与南明诸帝的在位曲线，再用「大事年表」按朝代筛选。年表里标红的条目是转折点。</p>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">从「帝王世系」看十六帝与南明诸帝的在位曲线，或切到「皇族世系图」理清继承关系；再用「大事年表」按分期或分类筛选。标红的条目是转折点。</p>
       </div>
       <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想弄清一个具体问题</h3>
         <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">去「词条库」搜关键词，词条末尾会给出该去哪本书、哪一章。或者直接在「章节索引」里检索章节名。</p>
       </div>
       <div class="card">
-        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想比较不同写法</h3>
-        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">看「三书对照」。同一个事件，剑桥看结构、顾诚看考据、当年明月看人，并读提示会点出差异在哪。</p>
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想换算一个年份</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">用「年号纪年」。里面收录明代与南明全部年号，并附一个公元年 ⇄ 干支的换算器，以及庙号、谥号、年号的区别说明。</p>
       </div>
       <div class="card">
-        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想读原文</h3>
-        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">用「本地阅读」。把你自己手上的 PDF 或 TXT 拖进页面，由浏览器在本机打开——文件不会离开你的设备。</p>
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想看清地理格局</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">看「舆图政区」：两京十三布政使司、九边重镇、都司卫所，以及山海关、月港、安平这些反复出现的地名。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想要量级感</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">翻「数据一览」。人口、田土、赋税、白银、军额、科举、物价分七组列出，每条都标注了可信度——册载、估算还是存疑。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想知道「有没有定论」</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">读「争议考辨」。建文下落、下西洋目的、明亡原因、南明速亡……十二组问题，把各家观点和学界倾向摆在一起。</p>
       </div>
     </div>
 
     <div class="notice" style="margin-top:30px">
-      <b>关于版权。</b>本站是一个原创的索引与研读工具层：帝王世系、大事年表、对照分析与词条说明均为原创整理，
+      <b>关于版权。</b>本站是一个原创的索引与研读工具层：帝王世系、大事年表、年号政区、数据整理、对照分析与争议梳理均为原创整理，
       章节索引只收录书名、章节名、页码等事实性信息，<b>不收录、不转载任何受版权保护的书籍正文</b>。
       所涉著作的著作权归原作者与出版机构所有，请在合法渠道获取与阅读。
     </div>
@@ -108,28 +120,101 @@
   <section class="view" id="view-lineage">
     <div class="sec-head">
       <h2>帝王世系 · 1368—1683</h2>
-      <p>横轴为年代，每个圆点是一位皇帝或监国。点击圆点定位到对应条目，展开可看该朝大事与对应章节。</p>
+      <p>两种看法：横向看时间，纵向看血缘。在位时间轴显示每位皇帝与监国的在位曲线；皇族世系图显示继承关系与支系分合。</p>
       <hr class="rule">
     </div>
-    <div class="house-switch" id="houseSwitch" role="group" aria-label="政权筛选">
-      <button class="pill active" data-house="all" type="button">全部</button>
-      <button class="pill" data-house="明朝" type="button">明朝（1368—1644）</button>
-      <button class="pill" data-house="南明" type="button">南明（1644—1662）</button>
-      <button class="pill" data-house="明郑" type="button">明郑（1661—1683）</button>
+
+    <div class="house-switch" id="lineageMode" role="group" aria-label="视图切换">
+      <button class="pill active" data-mode="axis" type="button">在位时间轴</button>
+      <button class="pill" data-mode="tree" type="button">皇族世系图</button>
     </div>
-    <div class="axis" id="axis" role="group" aria-label="年代轴"></div>
-    <div class="emp-list" id="empList"></div>
+
+    <div id="lineageAxisView">
+      <div class="house-switch" id="houseSwitch" role="group" aria-label="政权筛选">
+        <button class="pill active" data-house="all" type="button">全部</button>
+        <button class="pill" data-house="明朝" type="button">明朝（1368—1644）</button>
+        <button class="pill" data-house="南明" type="button">南明（1644—1662）</button>
+        <button class="pill" data-house="明郑" type="button">明郑（1661—1683）</button>
+      </div>
+      <div class="axis" id="axis" role="group" aria-label="年代轴"></div>
+      <div class="emp-list" id="empList"></div>
+    </div>
+
+    <div id="lineageTreeView" style="display:none">
+      <div class="house-switch" id="treeSwitch" role="group" aria-label="支系筛选">
+        <button class="pill active" data-tree="all" type="button">全部支系</button>
+        <button class="pill" data-tree="ming" type="button">明朝帝系</button>
+        <button class="pill" data-tree="nanming" type="button">南明帝系与监国</button>
+        <button class="pill" data-tree="zheng" type="button">明郑世系</button>
+      </div>
+      <div id="treeWrap"></div>
+      <div class="sec-head" style="margin-top:34px">
+        <h2 style="font-size:1.15rem">几点说明</h2>
+        <hr class="rule">
+      </div>
+      <div class="rel-notes" id="lineageNotes"></div>
+    </div>
   </section>
 
   <!-- ============ 大事年表 ============ -->
   <section class="view" id="view-chrono">
     <div class="sec-head">
       <h2>大事年表</h2>
-      <p>从元末乱世到明郑结束。标红并注有「节点」的条目，是改变走向的时刻。</p>
+      <p>从元末乱世到明郑结束。可按分期或按事件类型筛选；标红并注有「节点」的条目，是改变走向的时刻。</p>
       <hr class="rule">
     </div>
     <div class="filters" id="chronoFilters"></div>
+    <div class="filters" id="chronoCatFilters"></div>
     <div class="chrono" id="chronoList"></div>
+  </section>
+
+  <!-- ============ 年号纪年 ============ -->
+  <section class="view" id="view-eras">
+    <div class="sec-head">
+      <h2>年号纪年</h2>
+      <p>明代行「一帝一年号」之制，故年号常被直接用来指代皇帝。这里收录明朝十七个年号、南明诸政权年号，以及元末并世政权的年号。</p>
+      <hr class="rule">
+    </div>
+
+    <div class="card converter">
+      <h3>公元年 ⇄ 干支 换算</h3>
+      <p class="hint">输入公元年份，得到该年的干支；若落在明代范围内，同时给出对应的年号与皇帝。</p>
+      <div class="gz-row">
+        <label class="search gz-input" for="gzYear">
+          <span class="ico" aria-hidden="true">年</span>
+          <input id="gzYear" type="number" inputmode="numeric" value="1644" min="1" max="9999" step="1" autocomplete="off">
+        </label>
+        <div class="gz-quick" id="gzQuick"></div>
+      </div>
+      <div class="gz-out" id="gzOut" aria-live="polite"></div>
+    </div>
+
+    <div class="sec-head" style="margin-top:36px">
+      <h2 style="font-size:1.2rem">明朝年号 · 1368—1644</h2>
+      <hr class="rule">
+    </div>
+    <div class="era-table" id="eraTableMing"></div>
+
+    <div class="sec-head" style="margin-top:36px">
+      <h2 style="font-size:1.2rem">南明年号与纪年 · 1644—1683</h2>
+      <p>南明诸政权并立互争，年号也因此重叠。另有奉永历正朔的明郑，把这一年号一直用到 1683 年。</p>
+      <hr class="rule">
+    </div>
+    <div class="era-table" id="eraTableNan"></div>
+
+    <div class="sec-head" style="margin-top:36px">
+      <h2 style="font-size:1.2rem">并世政权年号 · 元末群雄</h2>
+      <p>明朝建立前后，各地割据政权各有年号。朱元璋本人长期奉「龙凤」正朔，这一点常被忽略。</p>
+      <hr class="rule">
+    </div>
+    <div class="era-table" id="eraTableRival"></div>
+
+    <div class="sec-head" style="margin-top:36px">
+      <h2 style="font-size:1.2rem">纪年常识</h2>
+      <p>读明代史料前，先弄清这几件事。</p>
+      <hr class="rule">
+    </div>
+    <div class="rel-notes" id="calendarNotes"></div>
   </section>
 
   <!-- ============ 三书对照 ============ -->
@@ -177,6 +262,56 @@
     </div>
     <div class="filters" id="glossCats"></div>
     <div class="gloss-grid" id="glossGrid"></div>
+  </section>
+
+  <!-- ============ 舆图政区 ============ -->
+  <section class="view" id="view-geo">
+    <div class="sec-head">
+      <h2>舆图政区</h2>
+      <p>明代的行政版图：两京十三布政使司、九边重镇、都司卫所，以及反复出现在史书里的城市与关隘。</p>
+      <hr class="rule">
+    </div>
+
+    <h3 class="sub-h">两京十三布政使司</h3>
+    <p class="sub-p">明代的最高一级地方行政区。两处「直隶」由中央直辖，其余十三处设布政使司。合计十五个省级政区。</p>
+    <div class="prov-grid" id="provGrid"></div>
+
+    <h3 class="sub-h">九边重镇</h3>
+    <p class="sub-p">自辽东至甘肃，明代在长城沿线设置九个军镇。它们的建置、粮饷与战事，几乎串起了明代北方的全部历史。</p>
+    <div class="garr-list" id="garrList"></div>
+
+    <h3 class="sub-h">制度：都司卫所与边镇体系</h3>
+    <div class="rel-notes" id="milGeo"></div>
+
+    <h3 class="sub-h">重要城市与关隘</h3>
+    <p class="sub-p">按性质分为都城、口岸、关隘、边镇、战场与政权据点。这些地名在四部著作中反复出现，先认位置再读事件，会顺畅很多。</p>
+    <div class="filters" id="placeFilters"></div>
+    <div class="place-grid" id="placeGrid"></div>
+
+    <h3 class="sub-h">疆域变迁</h3>
+    <div class="terr" id="terrList"></div>
+  </section>
+
+  <!-- ============ 数据一览 ============ -->
+  <section class="view" id="view-numbers">
+    <div class="sec-head">
+      <h2>数据一览</h2>
+      <p>明代的数字是最容易误用的史料。每条都标注可信度，请把区间当作量级、把单点当作参考。</p>
+      <hr class="rule">
+    </div>
+    <div class="legend" id="numLegend"></div>
+    <div class="num-groups" id="numGroups"></div>
+    <div class="notice" id="numCaveat" style="margin-top:26px"></div>
+  </section>
+
+  <!-- ============ 争议考辨 ============ -->
+  <section class="view" id="view-debates">
+    <div class="sec-head">
+      <h2>争议考辨</h2>
+      <p>有些问题没有定论，而有定论的往往也有前提。这里把十二组史学争议拆成「问题—各家观点—学界倾向—出处」四段来看。</p>
+      <hr class="rule">
+    </div>
+    <div class="deb-list" id="debList"></div>
   </section>
 
   <!-- ============ 主题线索 ============ -->
@@ -237,8 +372,16 @@
   </div>
 </footer>
 
-<script src="js/data-books.js?v=20261009_01"></script>
-<script src="js/data-core.js?v=20261009_01"></script>
-<script src="js/app.js?v=20261009_01"></script>
+<script src="js/data-books.js?v=20261010_02"></script>
+<script src="js/data-emperors.js?v=20261010_02"></script>
+<script src="js/data-chronology.js?v=20261010_02"></script>
+<script src="js/data-glossary.js?v=20261010_02"></script>
+<script src="js/data-reading.js?v=20261010_02"></script>
+<script src="js/data-eranames.js?v=20261010_02"></script>
+<script src="js/data-geo.js?v=20261010_02"></script>
+<script src="js/data-numbers.js?v=20261010_02"></script>
+<script src="js/data-debates.js?v=20261010_02"></script>
+<script src="js/data-lineage.js?v=20261010_02"></script>
+<script src="js/app.js?v=20261010_02"></script>
 </body>
 </html>

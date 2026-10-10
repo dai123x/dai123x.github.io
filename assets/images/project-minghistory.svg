@@ -73,13 +73,13 @@
   <!-- 底部信息 -->
   <g transform="translate(58,276)">
     <g font-family="-apple-system, Segoe UI, PingFang SC, Microsoft YaHei, sans-serif" font-size="12" fill="#94a3b8">
-      <text x="0" y="0">帝王世系 · 大事年表 · 三书对照 · 章节索引 · 词条库</text>
+      <text x="0" y="0">帝王世系 · 大事年表 · 年号纪年 · 舆图政区 · 三书对照 · 词条库</text>
     </g>
     <g transform="translate(0,18)">
       <rect x="0" y="0" width="112" height="21" rx="10.5" fill="rgba(129,140,248,0.14)" stroke="rgba(129,140,248,0.4)" stroke-width="1"/>
       <text x="56" y="14.5" text-anchor="middle" font-family="-apple-system, Segoe UI, PingFang SC, sans-serif" font-size="11" fill="#a5b4fc">2,953 页索引</text>
       <rect x="122" y="0" width="112" height="21" rx="10.5" fill="rgba(236,72,153,0.12)" stroke="rgba(236,72,153,0.36)" stroke-width="1"/>
-      <text x="178" y="14.5" text-anchor="middle" font-family="-apple-system, Segoe UI, PingFang SC, sans-serif" font-size="11" fill="#f9a8d4">114 条词条</text>
+      <text x="178" y="14.5" text-anchor="middle" font-family="-apple-system, Segoe UI, PingFang SC, sans-serif" font-size="11" fill="#f9a8d4">272 条词条</text>
       <rect x="244" y="0" width="150" height="21" rx="10.5" fill="rgba(34,211,238,0.11)" stroke="rgba(34,211,238,0.34)" stroke-width="1"/>
       <text x="319" y="14.5" text-anchor="middle" font-family="-apple-system, Segoe UI, PingFang SC, sans-serif" font-size="11" fill="#67e8f9">本地阅读 · 文件不上传</text>
     </g>
