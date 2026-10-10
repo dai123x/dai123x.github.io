@@ -190,19 +190,37 @@
 
     if (opts.push !== false) setHash(view, anchor, opts.replace === true);
 
+    // 标签滚到可见区域（窄屏）。这一步本身也是一次滚动写入，必须排在锚点定位
+    // 之前：排在后面会把刚算好的锚点位置覆盖掉，表现为深链有时停在页首。
+    const tab = $('#tabs .tab[data-view="' + view + '"]');
+    if (tab && tab.scrollIntoView) withInstantScroll(() => tab.scrollIntoView({ block: "nearest", inline: "nearest" }));
+
     if (anchor) {
       resolveAnchor(view, anchor);
     } else if (opts.source === "pop") {
-      const y = scrollMem[view] || 0;
-      window.scrollTo({ top: y, behavior: "auto" });
+      jumpTo(scrollMem[view] || 0);   // 返回上一栏要瞬移回原位，不能演动画
     } else {
-      window.scrollTo({ top: 0, behavior: "auto" });
+      jumpTo(0);
     }
 
-    // 标签滚到可见区域（窄屏）
-    const tab = $('#tabs .tab[data-view="' + view + '"]');
-    if (tab && tab.scrollIntoView) tab.scrollIntoView({ block: "nearest", inline: "nearest" });
     live(($("#tab-" + view) || {}).textContent ? "已切换到" + $("#tab-" + view).textContent + "栏目" : "");
+  }
+
+  /* 定位/导航一律「瞬移」，不要动画。
+     坑：css 里有 `html{scroll-behavior:smooth}`，而 scrollTo({behavior:"auto"})
+     的 auto 是「沿用 CSS 值」而非「瞬间」，所以原来的写法实际会走一段 1—2 秒的
+     平滑动画。后果有二：① 深链要等动画跑完才到位；② 动画途中若有第二次滚动
+     写入（如 go() 里的标签 scrollIntoView），动画会被中断，页面停在页首。
+     这里临时把根元素的 scroll-behavior 压成 auto，做完立刻还原。 */
+  function withInstantScroll(fn) {
+    const de = document.documentElement;
+    const prev = de.style.scrollBehavior;
+    de.style.scrollBehavior = "auto";
+    try { fn(); } finally { de.style.scrollBehavior = prev; }
+  }
+
+  function jumpTo(y) {
+    withInstantScroll(() => window.scrollTo({ top: Math.max(0, y), behavior: "auto" }));
   }
 
   /* 定位到某个条目：滚动 + 闪烁高亮 */
@@ -218,8 +236,8 @@
   function reveal(el) {
     if (!el) return;
     unskip(el);
-    const y = el.getBoundingClientRect().top + window.scrollY - 84;
-    window.scrollTo({ top: Math.max(0, y), behavior: "auto" });
+    // 必须瞬移：闪烁环只挂 2400ms，若边走动画边闪，人还在路上高亮就放完了
+    jumpTo(el.getBoundingClientRect().top + window.scrollY - 84);
     el.classList.remove("flash");
     void el.offsetWidth;            // 强制重排，让动画可重放
     el.classList.add("flash");
@@ -839,7 +857,7 @@
   /* ==================== 12. 权力结构（方志远） ==================== */
   const POWER = CORE.POWER || { book: {}, parts: [], themes: [], tail: [], legend: [], stats: {} };
   const PW_LVL = { "篇": "ok", "章": "mid", "主题": "low", "段落定位": "tool", "摘句": "mid", "交叉链接": "ok" };
-  const PW_TEXT_VER = "20261011_02";
+  const PW_TEXT_VER = "20261011_03";
   const PW_SNIP = 56;                 // 检索结果里围绕命中词的摘句窗口
   let pwGroup = "全部";
   let pwText = null, pwTextState = "idle";
