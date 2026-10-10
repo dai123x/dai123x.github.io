@@ -839,7 +839,7 @@
   /* ==================== 12. 权力结构（方志远） ==================== */
   const POWER = CORE.POWER || { book: {}, parts: [], themes: [], tail: [], legend: [], stats: {} };
   const PW_LVL = { "篇": "ok", "章": "mid", "主题": "low", "段落定位": "tool", "摘句": "mid", "交叉链接": "ok" };
-  const PW_TEXT_VER = "20261011_01";
+  const PW_TEXT_VER = "20261011_02";
   const PW_SNIP = 56;                 // 检索结果里围绕命中词的摘句窗口
   let pwGroup = "全部";
   let pwText = null, pwTextState = "idle";
