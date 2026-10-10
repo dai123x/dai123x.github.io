@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>明史资料平台 · 明代文献索引与研读工具 | Ming History Archive</title>
-<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》为索引对象的研读工具。含帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、三书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条，以及不上传文件的本地阅读器。本站不转载书籍正文。">
-<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明史索引,洪武,永乐,万历,崇祯,郑成功,永历">
+<meta name="description" content="明史资料平台：以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》、《万历十五年》、《明史讲义》为索引对象的研读工具。含帝王世系与皇族世系图（1368—1683）、大事年表 149 条、年号纪年速查与干支换算、多书对照、舆图政区与九边、数据一览、争议考辨、真实章节索引、272 条人物制度词条、33 种延伸书目，以及不上传文件的本地阅读器。本站不转载书籍正文。">
+<meta name="keywords" content="明史,明代,南明史,剑桥中国明代史,明朝那些事儿,万历十五年,黄仁宇,明史讲义,孟森,顾诚,帝王世系,皇族世系图,明朝年表,明朝年号,干支换算,九边,两京十三布政使司,明史书目,明史索引,洪武,永乐,万历,崇祯,郑成功,永历">
 <link rel="canonical" href="https://daixuan.cloud/ming-history/">
 <meta name="theme-color" content="#0a0e17">
 <meta property="og:title" content="明史资料平台 · 明代文献索引与研读工具">
-<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、舆图政区、数据一览、争议考辨、三书对照与真实章节索引，附本地阅读器。不转载书籍正文。">
+<meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 33 种延伸书目与本地阅读器。不转载书籍正文。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
 <link rel="stylesheet" href="css/style.css?v=20261010_02">
@@ -41,8 +41,9 @@
       <button class="tab" data-view="lineage" type="button">帝王世系</button>
       <button class="tab" data-view="chrono" type="button">大事年表</button>
       <button class="tab" data-view="eras" type="button">年号纪年</button>
-      <button class="tab" data-view="compare" type="button">三书对照</button>
+      <button class="tab" data-view="compare" type="button">多书对照</button>
       <button class="tab" data-view="index" type="button">章节索引</button>
+      <button class="tab" data-view="bibliography" type="button">延伸书目</button>
       <button class="tab" data-view="glossary" type="button">词条库</button>
       <button class="tab" data-view="geo" type="button">舆图政区</button>
       <button class="tab" data-view="numbers" type="button">数据一览</button>
@@ -62,17 +63,18 @@
       <div class="eyebrow">1368 — 1683</div>
       <h1>把三百年，<em>拆成可以查的东西</em></h1>
       <p class="lede">
-        这里不是一个电子书站，而是一层<b>索引与导航</b>。它以四部著作的目录为骨架——
-        《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》全九部——
-        配上帝王世系、大事年表、年号纪年、舆图政区、数据一览与争议考辨，用来回答那些读书时真正会卡住的问题：
-        <b>这件事在哪本书里讲得最清楚？同一个事件，三种写法差在哪里？这个年号对应公元哪一年？</b>
+        这里不是一个电子书站，而是一层<b>索引与导航</b>。它以六部著作的目录为骨架——
+        《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》全九部、《万历十五年》、《明史讲义》——
+        另附 33 种权威著作的延伸书目，再配上帝王世系、大事年表、年号纪年、舆图政区、数据一览与争议考辨，
+        用来回答那些读书时真正会卡住的问题：
+        <b>这件事在哪本书里讲得最清楚？同一个事件，几种写法差在哪里？这个年号对应公元哪一年？</b>
       </p>
       <div class="stats" id="stats"></div>
     </div>
 
     <div class="sec-head">
-      <h2>四部著作</h2>
-      <p>同一段历史，三种知识传统。点开任意一张卡片可跳到它的完整章节索引。</p>
+      <h2>六部著作 · 已收索引</h2>
+      <p>前四部随站提供扫描件对照（可查页码），后两部只列目录结构。点开任意一张卡片可跳到它的完整章节索引。</p>
       <hr class="rule">
     </div>
     <div class="book-grid" id="bookGrid"></div>
@@ -106,6 +108,14 @@
       <div class="card">
         <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想知道「有没有定论」</h3>
         <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">读「争议考辨」。建文下落、下西洋目的、明亡原因、南明速亡……十二组问题，把各家观点和学界倾向摆在一起。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想比较不同写法</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">看「多书对照」。同一个事件，剑桥看结构、顾诚看考据、当年明月看人、黄仁宇看技术，并读提示会点出差异在哪。</p>
+      </div>
+      <div class="card">
+        <h3 style="font-family:var(--font-serif);margin:0 0 8px;font-size:1.05rem">想继续往下读</h3>
+        <p style="margin:0;font-size:.88rem;color:var(--text-secondary)">翻「延伸书目」。33 种权威著作按通论、制度财政、政治易代、社会文化、史料工具五类编排，每种都标了难度和「适合解决什么问题」。</p>
       </div>
     </div>
 
@@ -217,11 +227,11 @@
     <div class="rel-notes" id="calendarNotes"></div>
   </section>
 
-  <!-- ============ 三书对照 ============ -->
+  <!-- ============ 多书对照 ============ -->
   <section class="view" id="view-compare">
     <div class="sec-head">
-      <h2>三书对照</h2>
-      <p>同一件事，三种知识传统怎么讲。差异本身就是信息：它暴露了每种写法的假设与盲区。</p>
+      <h2>多书对照</h2>
+      <p>同一件事，几种知识传统怎么讲。差异本身就是信息：它暴露了每种写法的假设与盲区。加入《万历十五年》后有了四种角度——剑桥看结构，顾诚看考据，当年明月看人，黄仁宇看技术。</p>
       <hr class="rule">
     </div>
     <div class="cmp-list" id="cmpList"></div>
@@ -231,19 +241,32 @@
   <section class="view" id="view-index">
     <div class="sec-head">
       <h2>章节索引</h2>
-      <p>四部著作的真实目录，含页码。可检索章节名与小节名，用来定位「这件事在第几页」。</p>
+      <p>六部著作的真实目录。前四部随站提供扫描件，标有页码；后两部只列目录结构，不标页码。可检索章节名与小节名。</p>
       <hr class="rule">
     </div>
     <div class="gloss-bar">
       <label class="search" for="idxQuery">
         <span class="ico" aria-hidden="true">⌕</span>
-        <input id="idxQuery" type="search" placeholder="在当前书中检索章节，例如：一条鞭法、郑成功、白银" autocomplete="off">
+        <input id="idxQuery" type="search" placeholder="在当前书中检索章节，例如：一条鞭法、郑成功、白银、戚继光" autocomplete="off">
       </label>
     </div>
     <div class="idx-layout">
       <div class="idx-side" id="idxSide"></div>
       <div class="idx-panel" id="idxPanel"></div>
     </div>
+  </section>
+
+  <!-- ============ 延伸书目 ============ -->
+  <section class="view" id="view-bibliography">
+    <div class="sec-head">
+      <h2>延伸书目</h2>
+      <p id="bibIntro"></p>
+      <hr class="rule">
+    </div>
+    <div class="legend" id="bibLegend"></div>
+    <div class="filters" id="bibFilters"></div>
+    <div class="bib-groups" id="bibGroups"></div>
+    <div class="notice" id="bibClosing" style="margin-top:26px"></div>
   </section>
 
   <!-- ============ 词条库 ============ -->
@@ -349,8 +372,8 @@
     </div>
 
     <div class="notice" style="margin-top:22px">
-      <b>为什么这样做。</b>你提供的四部著作均为扫描件（《剑桥中国明代史》上卷另有完整书签），
-      合计约 2950 页。本站不把它们转录后公开——那会侵犯著作权。所以这里换一种方式：
+      <b>为什么这样做。</b>索引对象中的四部著作均为扫描件（《剑桥中国明代史》上卷另有完整书签），
+      合计约 2950 页；另有《万历十五年》《明史讲义》两部只列目录、不标页码。本站不把任何书籍转录后公开——那会侵犯著作权。所以这里换一种方式：
       <b>你提供文件，我提供索引</b>。用上面的「章节索引」查到页码，再在这里打开你自己的那一册。
       <br><br>
       <b>技术说明。</b>PDF 通过浏览器原生的 <code>Blob URL</code> 在本机渲染，TXT 以 <code>FileReader</code> 读取，
@@ -363,25 +386,29 @@
 <footer class="foot">
   <div class="inner">
     <p><b>明史资料平台</b>　·　原创索引与研读工具，不收录受版权保护的书籍正文。</p>
-    <p>索引对象：《剑桥中国明代史（1368—1644年）》上下卷（牟复礼、崔瑞德编，中国社会科学出版社）、
-      《南明史》上下册（顾诚著，中国青年出版社）、《明朝那些事儿（图文增补版）》（当年明月著，北京联合出版公司）。
-      著作权归原作者与出版机构所有。</p>
+    <p>已收索引的六部著作：《剑桥中国明代史（1368—1644年）》上下卷（牟复礼、崔瑞德编，中国社会科学出版社）、
+      《南明史》上下册（顾诚著，中国青年出版社）、《明朝那些事儿（图文增补版）》（当年明月著，北京联合出版公司）、
+      《万历十五年》（黄仁宇著，中华书局／三联书店）、《明史讲义》（孟森著，中华书局）。
+      另有「延伸书目」列出的三十余种著作，仅提供作者、常见版本与原创导读。
+      全部著作权归原作者与出版机构所有。</p>
     <p>本站内容基于史实与公开出版物的目录信息整理，供学习与检索之用。
       如权利人认为任何内容不妥，请联系以便及时处理。</p>
     <p style="margin-top:12px"><a href="../index.html">← 返回 daixuan.cloud 主页</a></p>
   </div>
 </footer>
 
-<script src="js/data-books.js?v=20261010_02"></script>
-<script src="js/data-emperors.js?v=20261010_02"></script>
-<script src="js/data-chronology.js?v=20261010_02"></script>
-<script src="js/data-glossary.js?v=20261010_02"></script>
-<script src="js/data-reading.js?v=20261010_02"></script>
-<script src="js/data-eranames.js?v=20261010_02"></script>
-<script src="js/data-geo.js?v=20261010_02"></script>
-<script src="js/data-numbers.js?v=20261010_02"></script>
-<script src="js/data-debates.js?v=20261010_02"></script>
-<script src="js/data-lineage.js?v=20261010_02"></script>
-<script src="js/app.js?v=20261010_02"></script>
+<script src="js/data-books.js?v=20261010_03"></script>
+<script src="js/data-books-more.js?v=20261010_03"></script>
+<script src="js/data-emperors.js?v=20261010_03"></script>
+<script src="js/data-chronology.js?v=20261010_03"></script>
+<script src="js/data-glossary.js?v=20261010_03"></script>
+<script src="js/data-reading.js?v=20261010_03"></script>
+<script src="js/data-eranames.js?v=20261010_03"></script>
+<script src="js/data-geo.js?v=20261010_03"></script>
+<script src="js/data-numbers.js?v=20261010_03"></script>
+<script src="js/data-debates.js?v=20261010_03"></script>
+<script src="js/data-lineage.js?v=20261010_03"></script>
+<script src="js/data-bibliography.js?v=20261010_03"></script>
+<script src="js/app.js?v=20261010_03"></script>
 </body>
 </html>

@@ -22,6 +22,8 @@
   const NUMBERS = CORE.NUMBERS || { groups: [], legend: [], intro: "", caveat: "" };
   const DEBATES = CORE.DEBATES || [];
   const LINEAGE = CORE.LINEAGE || { trees: [], notes: [] };
+  const BIBLIOGRAPHY = CORE.BIBLIOGRAPHY || { groups: [], legend: [], intro: "", note: "", closing: "" };
+  const BIB_COUNT = (BIBLIOGRAPHY.groups || []).reduce((n, g) => n + g.items.length, 0);
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
@@ -82,7 +84,7 @@
     const totalCh = BOOKS.reduce((n, b) => n + b.chapters.length, 0);
     const totalPages = BOOKS.reduce((n, b) => n + (b.pages || 0), 0);
     const stats = [
-      [BOOKS.length, "部著作 / 册"],
+      [BOOKS.length, "部著作 · 已收索引"],
       [totalCh, "章 索引条目"],
       [totalPages.toLocaleString("en-US"), "页 扫描件"],
       [EMPERORS.length, "帝 与监国"],
@@ -90,6 +92,7 @@
       [GLOSSARY.length, "条 词条"],
       [ERAS.length, "个 年号"],
       [DEBATES.length, "组 争议考辨"],
+      [BIB_COUNT, "种 延伸书目"],
     ];
     statBox.innerHTML = stats.map(([n, k]) => `<div class="stat"><div class="n">${esc(n)}</div><div class="k">${esc(k)}</div></div>`).join("");
 
@@ -403,7 +406,7 @@
     $("#idxSide").innerHTML = BOOKS.map((b) => `
       <button class="idx-book${curBook === b.id ? " active" : ""}" data-book="${esc(b.id)}" type="button">
         <b>${esc(b.short)}</b>
-        <span>${esc(b.vol)} · ${b.chapters.length} 章</span>
+        <span>${esc(b.vol)} · ${b.chapters.length} 章${b.noPages ? " · 仅目录" : ""}</span>
       </button>`).join("");
     $$("#idxSide .idx-book").forEach((el) => el.addEventListener("click", () => selectBook(el.dataset.book)));
 
@@ -422,8 +425,9 @@
     $("#idxPanel").innerHTML = `
       <h3>${esc(b.title)}</h3>
       <p class="blurb">${esc(b.blurb)}</p>
-      <div class="meta">${esc(b.editor)} · ${esc(b.press)}${b.pages ? " · " + b.pages + " 页" : ""} · 覆盖 ${esc(b.scope)}${b.en ? " · " + esc(b.en) : ""}</div>
+      <div class="meta">${esc(b.editor)} · ${esc(b.press)}${b.pages ? " · " + b.pages + " 页" : b.noPages ? " · 仅列目录，不标页码" : ""} · 覆盖 ${esc(b.scope)}${b.en ? " · " + esc(b.en) : ""}</div>
       ${b.split ? `<div class="notice" style="margin-bottom:16px">${Object.entries(b.split).map(([k, v]) => `<b>${esc(k)}</b>　${esc(v)}`).join("　｜　")}</div>` : ""}
+      ${b.disclaimer ? `<div class="notice" style="margin-bottom:16px">${esc(b.disclaimer)}</div>` : ""}
       <div id="idxChapters">
         ${chapters.length ? chapters.map(({ c, subs }) => {
           const hasSub = subs.length > 0;
@@ -433,10 +437,12 @@
               <span class="t">${esc(c.t)}</span>
               ${c.p ? `<span class="pg">p.${c.p}</span>` : ""}
             </button>
+            ${c.n ? `<p class="idx-note">${esc(c.n)}</p>` : ""}
             ${hasSub ? `<div class="idx-subs">${subs.map((s) => {
               const t = typeof s === "string" ? s : s.t;
               const p = typeof s === "string" ? null : s.p;
-              return `<div class="idx-sub">${p ? `<span class="pg">${p}</span>` : '<span class="pg">—</span>'}<span>${esc(t)}</span></div>`;
+              const n = typeof s === "string" ? null : s.n;
+              return `<div class="idx-sub">${b.noPages ? "" : (p ? `<span class="pg">${p}</span>` : '<span class="pg">—</span>')}<span>${esc(t)}${n ? `<em class="idx-sub-n">${esc(n)}</em>` : ""}</span></div>`;
             }).join("")}</div>` : ""}
           </div>`;
         }).join("") : '<div class="empty">没有匹配的章节</div>'}
@@ -565,6 +571,50 @@
   }
   const confClass = (k) => (k === "册载" ? "ok" : k === "估算" ? "mid" : "low");
 
+  /* ---------------- 延伸书目 ---------------- */
+  const LVL_CLASS = { "入门": "ok", "进阶": "mid", "专题": "low", "工具": "tool", "史料": "src" };
+  const lvlClass = (k) => LVL_CLASS[k] || "mid";
+  let bibLvl = "全部";
+
+  function renderBibliography() {
+    const intro = $("#bibIntro");
+    if (intro) intro.textContent = BIBLIOGRAPHY.intro || "";
+    $("#bibLegend").innerHTML = (BIBLIOGRAPHY.legend || []).map((l) => `
+      <div class="legend-item"><span class="conf ${lvlClass(l.k)}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
+
+    const lvls = ["全部"].concat((BIBLIOGRAPHY.legend || []).map((l) => l.k));
+    $("#bibFilters").innerHTML = lvls.map((k) =>
+      `<button class="pill${bibLvl === k ? " active" : ""}" data-lvl="${esc(k)}" type="button">${esc(k)}</button>`).join("");
+    $$("#bibFilters .pill").forEach((b) => b.addEventListener("click", () => { bibLvl = b.dataset.lvl; renderBibliography(); }));
+
+    const groups = (BIBLIOGRAPHY.groups || []).map((g) => {
+      const items = g.items.filter((it) => bibLvl === "全部" || it.lvl === bibLvl);
+      if (!items.length) return null;
+      return `<section class="bib-group">
+        <div class="num-group-head">
+          <span class="num-ico">${esc(g.icon)}</span>
+          <h3>${esc(g.name)}</h3>
+          <span class="chip">${items.length} / ${g.items.length} 种</span>
+        </div>
+        <div class="bib-list">${items.map((it) => `
+          <article class="bib">
+            <div class="bib-top">
+              <b class="bib-t">《${esc(it.t)}》</b>
+              <span class="conf ${lvlClass(it.lvl)}">${esc(it.lvl)}</span>
+              ${it.indexed ? '<span class="chip accent bib-idx">已收作索引</span>' : ""}
+            </div>
+            <div class="bib-meta">${esc(it.a)}　·　${esc(it.v)}　·　${esc(it.y)}</div>
+            <p class="bib-d">${esc(it.d)}</p>
+            <p class="bib-use"><b>适合 · </b>${esc(it.use)}</p>
+          </article>`).join("")}</div>
+      </section>`;
+    }).filter(Boolean);
+    $("#bibGroups").innerHTML = groups.length ? groups.join("") : '<div class="empty">该难度下暂无书目</div>';
+
+    const cl = $("#bibClosing");
+    if (cl) cl.innerHTML = `<b>阅读顺序建议。</b>${esc(String(BIBLIOGRAPHY.closing || "").replace(/^顺序建议：/, ""))}`;
+  }
+
   /* ---------------- 争议考辨 ---------------- */
   function renderDebates() {
     $("#debList").innerHTML = DEBATES.map((d, i) => `
@@ -674,6 +724,7 @@
     initGlossSearch();
     renderGeo();
     renderNumbers();
+    renderBibliography();
     renderDebates();
     renderThemes();
     initReader();

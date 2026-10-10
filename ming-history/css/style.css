@@ -679,3 +679,49 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
 .tabs.more-right { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 34px), transparent 100%); mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 34px), transparent 100%); }
 .tabs.more-left { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 34px, #000 100%); mask-image: linear-gradient(90deg, transparent 0, #000 34px, #000 100%); }
 .tabs.more-left.more-right { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 34px, #000 calc(100% - 34px), transparent 100%); }
+
+/* ==========================================================================
+   V3 精修层 · 增补书目（万历十五年 / 明史讲义）与延伸书目
+   同样以追加方式引入。
+   ========================================================================== */
+
+/* 章节索引：章节提示与无页码模式 */
+.idx-note {
+  margin: 6px 0 0 22px; font-size: 0.82rem; color: var(--text-muted);
+  line-height: 1.7; padding-left: 10px; border-left: 2px solid var(--border-color);
+}
+.idx-sub-n { display: block; font-style: normal; font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.idx-book span { white-space: nowrap; }
+
+/* 延伸书目 */
+.conf.tool { color: var(--c-violet); border-color: rgba(167, 139, 250, 0.38); background: rgba(167, 139, 250, 0.08); }
+.conf.src { color: var(--c-indigo); border-color: rgba(129, 140, 248, 0.38); background: rgba(129, 140, 248, 0.08); }
+[data-theme="light"] .conf.tool { background: rgba(124, 58, 237, 0.07); }
+[data-theme="light"] .conf.src { background: rgba(79, 70, 229, 0.07); }
+
+.bib-groups { display: grid; gap: 30px; }
+.bib-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.bib {
+  border: 1px solid var(--border-color); background: var(--bg-card);
+  border-radius: var(--radius-md); padding: 16px 18px; transition: var(--transition);
+  display: flex; flex-direction: column;
+}
+.bib:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.bib-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
+.bib-t { font-family: var(--font-serif); font-size: 1.02rem; }
+.bib-idx { font-size: 0.68rem; margin-left: auto; }
+.bib-meta {
+  font-size: 0.74rem; color: var(--text-muted); margin-bottom: 9px;
+  line-height: 1.6; word-break: break-word;
+}
+.bib-d { margin: 0 0 9px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.75; }
+.bib-use {
+  margin: auto 0 0; padding-top: 9px; border-top: 1px dashed var(--border-color);
+  font-size: 0.82rem; color: var(--text-muted); line-height: 1.75;
+}
+.bib-use b { color: var(--accent-primary); }
+
+/* 总览统计：9 张卡在 1180px 容器内单行排布 */
+.stats { grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
+@media (max-width: 620px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 420px) { .stats { grid-template-columns: repeat(2, 1fr); } }
