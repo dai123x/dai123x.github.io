@@ -130,11 +130,11 @@
     reader: initReader,
   };
 
-  function ensure(view) {
+  function ensure(view, opts) {
     if (rendered[view]) return;
     rendered[view] = true;
     const fn = BUILD[view];
-    if (fn) fn();
+    if (fn) fn(opts || {});
   }
 
   /* 地址格式：
@@ -188,6 +188,11 @@
     ensure(view);
     syncTabs(view);
     curView = view;
+
+    // 「权力」栏的段落语料有 1 MB，只在真正进入该栏时才拉。
+    // 空闲预渲染会把这个栏目也建出来（只建骨架），若在 renderPower 里无条件 loadPwText()，
+    // 等于每次冷启动都白下载 1 MB —— 实测这是首屏 load 的最大单项（线上冷启 ~2.5s）。
+    if (view === "power") loadPwText();
 
     if (opts.push !== false) setHash(view, anchor, opts.replace === true);
 
@@ -1084,7 +1089,7 @@
       </article>`).join("");
   }
 
-  function renderPower() {
+  function renderPower(opts) {
     const intro = $("#pwIntro");
     if (intro) intro.textContent = POWER.intro || "";
     $("#pwLegend").innerHTML = (POWER.legend || []).map((l) =>
@@ -1103,7 +1108,8 @@
     $("#pwThemes").innerHTML = (POWER.themes || []).map(pwThemeHtml).join("");
     pwApplyFilter();
     setPwMeta("输入关键词，检索全书段落。");
-    loadPwText();
+    // 语料不在这里拉：本函数也会被空闲预渲染调用，见 go() 里的说明
+    if (!(opts && opts.prefetch)) loadPwText();
   }
 
   function initPower() {
@@ -1930,7 +1936,7 @@
       const budget = deadline && typeof deadline.timeRemaining === "function"
         ? Math.max(8, Math.min(24, deadline.timeRemaining()))
         : 10;
-      while (i < order.length && performance.now() - t0 < budget) ensure(order[i++]);
+      while (i < order.length && performance.now() - t0 < budget) ensure(order[i++], { prefetch: true });
       if (i < order.length) schedule();
     };
     const schedule = () => {
@@ -1946,7 +1952,10 @@
     if (!nav) return;
     const warm = (e) => {
       const t = e.target.closest ? e.target.closest(".tab") : null;
-      if (t) ensure(t.dataset.view);
+      if (!t) return;
+      ensure(t.dataset.view);
+      // 指针已经停在「权力」标签上，说明多半要进去：这时就开始拉那 1 MB 语料
+      if (t.dataset.view === "power") loadPwText();
     };
     nav.addEventListener("pointerover", warm);
     nav.addEventListener("focusin", warm);
