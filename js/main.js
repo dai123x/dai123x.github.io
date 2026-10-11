@@ -11,7 +11,99 @@
 (function () {
   'use strict';
 
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let prefersReducedMotion = motionQuery.matches;
+  const onMotionChange = (event) => {
+    prefersReducedMotion = event.matches;
+    document.dispatchEvent(new CustomEvent('dx:motion-change'));
+  };
+  if (motionQuery.addEventListener) motionQuery.addEventListener('change', onMotionChange);
+  else if (motionQuery.addListener) motionQuery.addListener(onMotionChange);
+
+  let activeDialog = null;
+  let backgroundState = [];
+
+  function syncScrollLock() {
+    const menu = document.getElementById('nav-menu');
+    document.body.classList.toggle('nav-open', !!activeDialog || !!menu?.classList.contains('active'));
+  }
+
+  function dialogFocusables(dialog) {
+    return Array.from(dialog.querySelectorAll('button, a[href], input, textarea, select, [tabindex]'))
+      .filter(el => !el.disabled && el.tabIndex >= 0 && !el.closest('[hidden], [inert]') && el.getClientRects().length);
+  }
+
+  /** Shared focus and background handling for the main site's modal overlays. */
+  function createDialogController(dialog, options = {}) {
+    dialog.setAttribute('aria-hidden', 'true');
+    dialog.inert = true;
+    if (!dialog.hasAttribute('tabindex')) dialog.tabIndex = -1;
+    let returnFocus = null;
+    const controller = {
+      dialog,
+      open() {
+        if (activeDialog === controller) return;
+        returnFocus = activeDialog?.dialog.contains(document.activeElement)
+          ? activeDialog.getReturnFocus() : document.activeElement;
+        if (activeDialog) activeDialog.close(false);
+        activeDialog = controller;
+        dialog.inert = false;
+        dialog.setAttribute('aria-hidden', 'false');
+        dialog.classList.add('active');
+        options.onOpen?.();
+        backgroundState = Array.from(document.body.children)
+          .filter(el => el !== dialog && el.id !== 'toast' && !['SCRIPT', 'STYLE'].includes(el.tagName))
+          .map(el => ({ el, inert: el.inert }));
+        backgroundState.forEach(({ el }) => { el.inert = true; });
+        syncScrollLock();
+        const focus = options.initialFocus?.() || dialogFocusables(dialog)[0] || dialog;
+        focus.focus({ preventScroll: true });
+      },
+      close(restoreFocus = true) {
+        if (activeDialog !== controller) return;
+        dialog.classList.remove('active');
+        backgroundState.forEach(({ el, inert }) => { el.inert = inert; });
+        backgroundState = [];
+        activeDialog = null;
+        if (restoreFocus && returnFocus?.isConnected && !returnFocus.closest('[inert], [hidden]')) {
+          returnFocus.focus({ preventScroll: true });
+        }
+        dialog.inert = true;
+        dialog.setAttribute('aria-hidden', 'true');
+        options.onClose?.();
+        syncScrollLock();
+      },
+      getReturnFocus: () => returnFocus
+    };
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) controller.close();
+    });
+    return controller;
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (!activeDialog) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      activeDialog.close();
+    } else if (event.key === 'Tab') {
+      const elements = dialogFocusables(activeDialog.dialog);
+      const first = elements[0] || activeDialog.dialog;
+      const last = elements[elements.length - 1] || first;
+      if (!elements.length || !activeDialog.dialog.contains(document.activeElement)
+          || (event.shiftKey && document.activeElement === first)
+          || (!event.shiftKey && document.activeElement === last)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
+    }
+  }, true);
+
+  document.addEventListener('focusin', (event) => {
+    if (!activeDialog || activeDialog.dialog.contains(event.target)) return;
+    (dialogFocusables(activeDialog.dialog)[0] || activeDialog.dialog).focus({ preventScroll: true });
+  });
 
   // 沉浸体验层：由下方 init 函数注入，供命令面板调用
   let openWelcomeModal = null;
@@ -63,25 +155,49 @@
      -------------------------------------------------------------------------- */
   function initTheme() {
     const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) return;
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+    const readSavedTheme = () => {
+      try {
+        const saved = localStorage.getItem('dx_theme');
+        return saved === 'dark' || saved === 'light' ? saved : null;
+      } catch (e) { return null; }
+    };
+    let explicitTheme = readSavedTheme();
+    const applyTheme = (theme) => {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.style.colorScheme = theme;
+      updateThemeIcon(theme);
+      if (themeToggle) {
+        themeToggle.setAttribute('aria-label', `切换至${theme === 'dark' ? '浅色' : '深色'}模式`);
+        themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+      }
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) themeColorMeta.setAttribute('content', theme === 'dark' ? '#0a0e17' : '#f8fafc');
+    };
+    applyTheme(explicitTheme || (systemTheme.matches ? 'dark' : 'light'));
 
-    // data-theme 已由 head 内联脚本同步写入，此处直接读取当前值
-    updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'dark');
+    const followSystem = () => {
+      if (!explicitTheme) applyTheme(systemTheme.matches ? 'dark' : 'light');
+    };
+    if (systemTheme.addEventListener) systemTheme.addEventListener('change', followSystem);
+    else if (systemTheme.addListener) systemTheme.addListener(followSystem);
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'dx_theme' || event.key === null) {
+        explicitTheme = readSavedTheme();
+        applyTheme(explicitTheme || (systemTheme.matches ? 'dark' : 'light'));
+      }
+    });
+    if (!themeToggle) return;
 
     themeToggle.addEventListener('click', () => {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
       const target = isDark ? 'light' : 'dark';
+      explicitTheme = target;
 
-      document.documentElement.setAttribute('data-theme', target);
       try {
         localStorage.setItem('dx_theme', target);
       } catch (e) { /* 隐私模式下忽略 */ }
-      updateThemeIcon(target);
-      // 同步移动端浏览器状态栏颜色
-      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', target === 'dark' ? '#0a0e17' : '#f8fafc');
-      }
+      applyTheme(target);
       showToast(`已切换至${target === 'dark' ? '深色' : '浅色'}模式`);
     });
   }
@@ -103,20 +219,38 @@
     const navMenu = document.getElementById('nav-menu');
     if (!toggle || !navMenu) return;
 
-    function setMenu(open) {
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
+    function setMenu(open, restoreFocus = false) {
+      open = open && mobileQuery.matches;
       navMenu.classList.toggle('active', open);
-      document.body.classList.toggle('nav-open', open);
+      navMenu.inert = mobileQuery.matches && !open;
+      if (mobileQuery.matches) navMenu.setAttribute('aria-hidden', String(!open));
+      else navMenu.removeAttribute('aria-hidden');
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? '收起导航菜单' : '展开导航菜单');
+      syncScrollLock();
+      if (restoreFocus) toggle.focus({ preventScroll: true });
     }
+    setMenu(false);
 
     toggle.addEventListener('click', () => {
-      setMenu(!navMenu.classList.contains('active'));
+      const open = !navMenu.classList.contains('active');
+      setMenu(open);
+      if (open) navMenu.querySelector('.nav-link')?.focus({ preventScroll: true });
     });
 
     // 点击菜单项后收起（锚点跳转）
     navMenu.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => setMenu(false));
+      link.addEventListener('click', () => {
+        setMenu(false);
+        const href = link.getAttribute('href');
+        if (!href?.startsWith('#')) return;
+        const target = document.getElementById(href.slice(1));
+        if (target) {
+          if (!target.hasAttribute('tabindex')) target.tabIndex = -1;
+          target.focus({ preventScroll: true });
+        }
+      });
     });
 
     // 点击菜单外部区域关闭
@@ -127,62 +261,89 @@
 
     // ESC 关闭 / 视口放大到桌面端时重置
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && navMenu.classList.contains('active')) {
-        setMenu(false);
-        toggle.focus();
+      if (e.key === 'Escape' && navMenu.classList.contains('active') && !activeDialog) {
+        e.preventDefault();
+        setMenu(false, true);
+      } else if (e.key === 'Tab' && mobileQuery.matches && navMenu.classList.contains('active') && !activeDialog) {
+        const links = Array.from(navMenu.querySelectorAll('a[href], button')).filter(el => !el.disabled && el.getClientRects().length);
+        const first = links[0] || toggle;
+        const last = links[links.length - 1] || toggle;
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); toggle.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); toggle.focus(); }
+        else if (document.activeElement === toggle) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
       }
     });
-
-    window.addEventListener('resize', rafThrottle(() => {
-      if (window.innerWidth > 768 && navMenu.classList.contains('active')) setMenu(false);
-    }));
+    const resetMenu = () => setMenu(false, navMenu.contains(document.activeElement) && mobileQuery.matches);
+    if (mobileQuery.addEventListener) mobileQuery.addEventListener('change', resetMenu);
+    else if (mobileQuery.addListener) mobileQuery.addListener(resetMenu);
   }
 
   /* --------------------------------------------------------------------------
      3. 作品项目分类筛选（class 驱动，动画与布局解耦）
      -------------------------------------------------------------------------- */
   function initProjectFilter() {
-    const btns = document.querySelectorAll('.tab-btn');
-    const cards = document.querySelectorAll('.project-card');
+    const projects = document.getElementById('projects');
+    if (!projects) return;
+    const btns = Array.from(projects.querySelectorAll('.tab-btn[data-filter], .filter-chip[data-filter]'));
+    const cards = Array.from(projects.querySelectorAll('.project-card[data-category]'));
     if (!btns.length || !cards.length) return;
+    const search = document.getElementById('project-search');
+    const count = document.getElementById('project-result-count');
+    const empty = document.getElementById('project-empty-state');
+    const clear = document.getElementById('project-clear-search');
+    const normalize = value => String(value || '').normalize('NFKC').toLocaleLowerCase('zh-CN').replace(/\s+/g, ' ').trim();
+    const categories = new Set(btns.map(btn => btn.dataset.filter));
+    const index = cards.map(card => ({ card, text: normalize(card.textContent), categories: (card.dataset.category || '').split(/\s+/) }));
+    let category = 'all';
 
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        btns.forEach(b => {
-          b.classList.remove('active');
-          b.setAttribute('aria-pressed', 'false');
-        });
-        btn.classList.add('active');
-        btn.setAttribute('aria-pressed', 'true');
-
-        const filter = btn.getAttribute('data-filter');
-
-        cards.forEach(card => {
-          const categories = (card.getAttribute('data-category') || '').split(/\s+/);
-          const match = filter === 'all' || categories.includes(filter);
-
-          if (card._fadeTimer) clearTimeout(card._fadeTimer);
-
-          if (match) {
-            card.classList.remove('is-hidden');
-            // 下一帧再移除渐隐，确保过渡生效
-            requestAnimationFrame(() => card.classList.remove('is-fading'));
-          } else {
-            card.classList.add('is-fading');
-            if (prefersReducedMotion) {
-              card.classList.add('is-hidden');
-            } else {
-              card._fadeTimer = setTimeout(() => {
-                if (card.classList.contains('is-fading')) card.classList.add('is-hidden');
-              }, 320);
-            }
-          }
-        });
+    function update(save = true) {
+      const query = normalize(search?.value);
+      const terms = query.split(' ').filter(Boolean);
+      let visible = 0;
+      index.forEach(({ card, text, categories: cardCategories }) => {
+        const match = (category === 'all' || cardCategories.includes(category)) && terms.every(term => text.includes(term));
+        card.hidden = !match;
+        card.classList.toggle('is-hidden', !match);
+        card.classList.remove('is-fading');
+        if (match) {
+          card.classList.add('is-visible');
+          visible += 1;
+        }
       });
-    });
+      btns.forEach(btn => {
+        const selected = btn.dataset.filter === category;
+        btn.classList.toggle('active', selected);
+        btn.setAttribute('aria-pressed', String(selected));
+      });
+      if (count) count.textContent = `显示 ${visible} / ${cards.length} 个项目`;
+      if (empty) empty.hidden = visible !== 0;
+      if (clear) clear.hidden = !query && category === 'all';
+      if (save) {
+        const url = new URL(window.location.href);
+        if (category === 'all') url.searchParams.delete('category');
+        else url.searchParams.set('category', category);
+        const rawQuery = (search?.value || '').trim();
+        if (rawQuery) url.searchParams.set('q', rawQuery);
+        else url.searchParams.delete('q');
+        try { history.replaceState(history.state, '', url); } catch (e) { /* file previews may not allow history changes */ }
+      }
+    }
 
-    // 初始无障碍状态
-    btns.forEach(b => b.setAttribute('aria-pressed', String(b.classList.contains('active'))));
+    function readLocation() {
+      const params = new URLSearchParams(window.location.search);
+      category = categories.has(params.get('category')) ? params.get('category') : 'all';
+      if (search) search.value = params.get('q') || '';
+      update(false);
+    }
+    btns.forEach(btn => btn.addEventListener('click', () => { category = btn.dataset.filter; update(); }));
+    search?.addEventListener('input', () => update());
+    clear?.addEventListener('click', () => {
+      category = 'all';
+      if (search) { search.value = ''; search.focus({ preventScroll: true }); }
+      update();
+    });
+    window.addEventListener('popstate', readLocation);
+    readLocation();
   }
 
   /* --------------------------------------------------------------------------
@@ -275,68 +436,30 @@
     ].filter(Boolean);
 
     const closeBtn = document.getElementById('modal-close');
-    let lastFocused = null;
+    const controller = createDialogController(modal, {
+      initialFocus: () => closeBtn,
+      onOpen: () => {
+        const qr = modal.querySelector('img[data-src]');
+        if (qr) {
+          qr.src = qr.dataset.src;
+          qr.removeAttribute('data-src');
+        }
+      }
+    });
 
     triggers.forEach(t => {
       if (!t.hasAttribute('tabindex') && t.tagName !== 'BUTTON') t.setAttribute('tabindex', '0');
       if (!t.hasAttribute('role') && t.tagName !== 'BUTTON') t.setAttribute('role', 'button');
-      t.addEventListener('click', open);
+      t.addEventListener('click', () => controller.open());
+      if (t.tagName === 'BUTTON') return;
       t.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          open();
+          controller.open();
         }
       });
     });
-
-    function open() {
-      lastFocused = document.activeElement;
-      const qr = modal.querySelector('img[data-src]');
-      if (qr) {
-        qr.src = qr.dataset.src;
-        qr.removeAttribute('data-src');
-      }
-      document.body.classList.add('nav-open');
-      modal.classList.add('active');
-      if (closeBtn) closeBtn.focus();
-    }
-
-    function close() {
-      modal.classList.remove('active');
-      document.body.classList.remove('nav-open');
-      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-    }
-
-    if (closeBtn) closeBtn.addEventListener('click', close);
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) close();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (!modal.classList.contains('active')) return;
-
-      if (e.key === 'Escape') {
-        close();
-        return;
-      }
-
-      // 焦点陷阱：Tab 在弹窗内循环
-      if (e.key === 'Tab') {
-        const focusables = modal.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
-        if (!focusables.length) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    });
+    if (closeBtn) closeBtn.addEventListener('click', () => controller.close());
   }
 
   /* --------------------------------------------------------------------------
@@ -374,8 +497,11 @@
      7. 导航高亮 (ScrollSpy) —— IntersectionObserver 替代 scroll 计算
      -------------------------------------------------------------------------- */
   function initScrollSpy() {
-    const sections = Array.from(document.querySelectorAll('section[id]'));
     const links = Array.from(document.querySelectorAll('.nav-link'));
+    const sections = Array.from(new Set(links.map(link => {
+      const href = link.getAttribute('href');
+      return href?.startsWith('#') ? document.getElementById(href.slice(1)) : null;
+    }).filter(Boolean)));
     if (!sections.length || !links.length || !('IntersectionObserver' in window)) return;
 
     const visible = new Map();
@@ -413,7 +539,7 @@
     sections.forEach(s => observer.observe(s));
 
     // 触底兜底高亮：确保页面滚动到最底部时正确激活“联系方式”
-    window.addEventListener('scroll', () => {
+    window.addEventListener('scroll', rafThrottle(() => {
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40) {
         links.forEach(link => {
           const isContact = link.getAttribute('href') === '#contact';
@@ -422,7 +548,7 @@
           else link.removeAttribute('aria-current');
         });
       }
-    }, { passive: true });
+    }), { passive: true });
   }
 
   /* --------------------------------------------------------------------------
@@ -452,6 +578,11 @@
       el.style.transitionDelay = `${Math.min((i % 4) * 70, 280)}ms`;
       observer.observe(el);
     });
+    document.addEventListener('dx:motion-change', () => {
+      if (!prefersReducedMotion) return;
+      targets.forEach(el => { el.classList.add('is-visible'); el.style.transitionDelay = ''; });
+      observer.disconnect();
+    });
   }
 
   /* --------------------------------------------------------------------------
@@ -469,17 +600,15 @@
       'Web 3D 全景数字孪生 · Three.js 研发探索'
     ];
 
-    if (prefersReducedMotion) {
-      target.textContent = phrases[0];
-      return;
-    }
-
     let phraseIndex = 0;
     let charIndex = phrases[0].length;
     let isDeleting = true;
     let speed = 2200; // 首屏完整停留 2.2 秒后再平滑回退，避免切字突变
+    let timer = null;
+    let visible = true;
 
     function tick() {
+      if (prefersReducedMotion || document.hidden || !visible) return;
       const phrase = phrases[phraseIndex];
 
       if (isDeleting) {
@@ -500,10 +629,23 @@
         speed = 400;
       }
 
-      setTimeout(tick, speed);
+      timer = setTimeout(tick, speed);
     }
-
-    setTimeout(tick, speed);
+    function syncTypewriter() {
+      clearTimeout(timer);
+      if (prefersReducedMotion) { target.textContent = phrases[0]; return; }
+      if (!document.hidden && visible) timer = setTimeout(tick, speed);
+    }
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        visible = entries[0].isIntersecting;
+        syncTypewriter();
+      });
+      observer.observe(target);
+    }
+    document.addEventListener('visibilitychange', syncTypewriter);
+    document.addEventListener('dx:motion-change', syncTypewriter);
+    syncTypewriter();
   }
 
   /* --------------------------------------------------------------------------
@@ -562,6 +704,7 @@
       '.skill-category-card, .competition-hero-card'
     ).forEach(card => {
       card.addEventListener('pointermove', (e) => {
+        if (prefersReducedMotion) return;
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', `${e.clientX - rect.left}px`);
         card.style.setProperty('--my', `${e.clientY - rect.top}px`);
@@ -595,6 +738,7 @@
   function initBootScreen() {
     const boot = document.getElementById('boot-screen');
     if (!boot) return;
+    if (!boot.getClientRects().length) { boot.remove(); return; }
 
     let skip = prefersReducedMotion || !!window.location.hash;
     try {
@@ -637,7 +781,7 @@
   }
 
   /* --------------------------------------------------------------------------
-     16. 访客身份卡：首次到访弹出，星徽 + 称呼同步到 localStorage
+     16. 访客身份卡：手动打开，星徽 + 称呼保存在当前浏览器
      -------------------------------------------------------------------------- */
   function initWelcomeIdentity() {
     const modal = document.getElementById('welcome-modal');
@@ -651,62 +795,55 @@
     const skipBtn = document.getElementById('welcome-skip');
 
     const STORAGE_KEY = 'dx_visitor';
-    const SEEN_KEY = 'dx_welcome_seen';
     let avatar = '🛰️';
-    let lastFocused = null;
 
     function readVisitor() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); }
+      try {
+        const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        return value && typeof value === 'object' ? value : null;
+      }
       catch (e) { return null; }
-    }
-
-    function markSeen() {
-      try { localStorage.setItem(SEEN_KEY, '1'); } catch (e) { /* 忽略 */ }
     }
 
     function renderChip(v) {
       if (!chip) return;
-      if (!v) { chip.hidden = true; chip.classList.remove('show'); return; }
       const av = document.getElementById('identity-avatar');
       const nm = document.getElementById('identity-name');
-      if (av) av.textContent = v.avatar || '🛰️';
-      if (nm) nm.textContent = v.name || '访客';
+      const status = chip.querySelector('em');
+      if (av) av.textContent = v?.avatar || '🛰️';
+      if (nm) nm.textContent = v?.name || '访客';
+      if (status) status.textContent = v ? '身份保存在此浏览器' : '设置访客称呼';
+      chip.setAttribute('aria-label', v ? '修改访客称呼与星徽' : '设置访客称呼与星徽');
       chip.hidden = false;
       requestAnimationFrame(() => chip.classList.add('show'));
     }
 
-    function openModal() {
-      lastFocused = document.activeElement;
-      const v = readVisitor();
-      if (v) {
-        avatar = v.avatar || '🛰️';
-        if (input) input.value = v.name || '';
-        row.querySelectorAll('.avatar-opt').forEach(b => {
+    const controller = createDialogController(modal, {
+      initialFocus: () => input || closeBtn,
+      onOpen: () => {
+        const v = readVisitor();
+        avatar = v?.avatar || '🛰️';
+        if (input) input.value = v?.name || '';
+        row?.querySelectorAll('.avatar-opt').forEach(b => {
           const sel = b.dataset.avatar === avatar;
           b.classList.toggle('is-selected', sel);
           b.setAttribute('aria-checked', String(sel));
+          b.tabIndex = sel ? 0 : -1;
         });
       }
-      document.body.classList.add('nav-open');
-      modal.classList.add('active');
-      setTimeout(() => { if (input) input.focus(); }, 80);
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
-      document.body.classList.remove('nav-open');
-      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-    }
+    });
 
     function persist() {
       const v = { avatar, name: (input ? input.value : '').trim().slice(0, 16) };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); } catch (e) { /* 忽略 */ }
-      markSeen();
+      let saved = true;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); } catch (e) { saved = false; }
       renderChip(v);
-      return v;
+      if (!saved && chip?.querySelector('em')) chip.querySelector('em').textContent = '本次访问称呼';
+      document.dispatchEvent(new CustomEvent('dx:identity-updated'));
+      return { ...v, saved };
     }
 
-    row.addEventListener('click', (e) => {
+    row?.addEventListener('click', (e) => {
       const btn = e.target.closest('.avatar-opt');
       if (!btn) return;
       avatar = btn.dataset.avatar;
@@ -714,43 +851,42 @@
         const sel = b === btn;
         b.classList.toggle('is-selected', sel);
         b.setAttribute('aria-checked', String(sel));
+        b.tabIndex = sel ? 0 : -1;
       });
+    });
+    row?.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) return;
+      const choices = Array.from(row.querySelectorAll('.avatar-opt'));
+      const current = choices.indexOf(e.target);
+      if (current < 0 || !choices.length) return;
+      e.preventDefault();
+      const next = e.key === 'Home' ? 0 : e.key === 'End' ? choices.length - 1
+        : (current + (['ArrowLeft', 'ArrowUp'].includes(e.key) ? -1 : 1) + choices.length) % choices.length;
+      choices[next].click();
+      choices[next].focus();
     });
 
     if (syncBtn) syncBtn.addEventListener('click', () => {
       const v = persist();
-      closeModal();
-      showToast(`身份已同步，欢迎你，${v.name || '访客'} ${v.avatar}`);
+      controller.close();
+      showToast(`欢迎你，${v.name || '访客'} ${v.avatar} · ${v.saved ? '称呼已保存在此浏览器' : '浏览器未允许保存称呼'}`);
     });
 
     if (input) input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); if (syncBtn) syncBtn.click(); }
     });
 
-    if (skipBtn) skipBtn.addEventListener('click', () => { markSeen(); closeModal(); });
-    if (closeBtn) closeBtn.addEventListener('click', () => { markSeen(); closeModal(); });
+    if (skipBtn) skipBtn.addEventListener('click', () => controller.close());
+    if (closeBtn) closeBtn.addEventListener('click', () => controller.close());
 
-    if (chip) chip.addEventListener('click', openModal);
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) { markSeen(); closeModal(); }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape' || !modal.classList.contains('active')) return;
-      markSeen();
-      closeModal();
-    });
+    if (chip) chip.addEventListener('click', () => controller.open());
 
     renderChip(readVisitor());
 
-    // 首次到访自动弹出（等开场加载幕落幕；已有身份或已关过则不再打扰）
-    const v = readVisitor();
-    let seen = false;
-    try { seen = localStorage.getItem(SEEN_KEY) === '1'; } catch (e) { /* 忽略 */ }
-    if (!v && !seen) setTimeout(openModal, 1800);
-
-    openWelcomeModal = openModal;
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEY || event.key === null) renderChip(readVisitor());
+    });
+    openWelcomeModal = () => controller.open();
   }
 
   /* --------------------------------------------------------------------------
@@ -769,6 +905,9 @@
 
     let greeted = false;
     let hideTimer = null;
+    let returnFocus = null;
+    drawer.setAttribute('aria-modal', 'false');
+    if (log) { log.setAttribute('role', 'log'); log.setAttribute('aria-live', 'polite'); }
 
     const QUICK = ['极客画像', '核心进化', '丰田实习', '雪线之上', '价值心法', '星空足迹', '怎么联系？'];
 
@@ -844,7 +983,8 @@
     function addMsg(html, who) {
       const div = document.createElement('div');
       div.className = `twin-msg ${who}`;
-      div.innerHTML = html;
+      if (who === 'user') div.textContent = html;
+      else div.innerHTML = html;
       log.appendChild(div);
       log.scrollTop = log.scrollHeight;
     }
@@ -869,6 +1009,7 @@
       greeted = true;
       let name = '';
       try { name = (JSON.parse(localStorage.getItem('dx_visitor') || 'null') || {}).name || ''; } catch (e) { /* 忽略 */ }
+      name = String(name).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
       const hi = name ? `${name}，` : '';
       addMsg(`Hello${hi}你好呀 ✦ 我是<strong>戴璇的数字分身</strong>，TA 的教育、实习、项目和联系方式都可以问我～`, 'bot');
     }
@@ -890,19 +1031,27 @@
     }
 
     function open() {
+      if (drawer.classList.contains('open')) return;
+      returnFocus = document.activeElement;
       clearTimeout(hideTimer);
       drawer.hidden = false;
-      requestAnimationFrame(() => drawer.classList.add('open'));
+      drawer.inert = false;
+      drawer.classList.add('open');
       launcher.setAttribute('aria-expanded', 'true');
       greet();
       renderChips();
-      setTimeout(() => { if (input) input.focus(); }, 120);
+      if (input) input.focus({ preventScroll: true });
     }
 
     function close() {
       drawer.classList.remove('open');
       launcher.setAttribute('aria-expanded', 'false');
-      hideTimer = setTimeout(() => { drawer.hidden = true; }, 280);
+      if (drawer.contains(document.activeElement)) {
+        const target = returnFocus?.isConnected && !returnFocus.closest('[hidden], [inert]') ? returnFocus : launcher;
+        target.focus({ preventScroll: true });
+      }
+      drawer.inert = true;
+      hideTimer = setTimeout(() => { drawer.hidden = true; }, prefersReducedMotion ? 0 : 280);
     }
 
     launcher.addEventListener('click', () => {
@@ -920,7 +1069,7 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && drawer.classList.contains('open')) close();
+      if (e.key === 'Escape' && drawer.classList.contains('open') && !activeDialog) { e.preventDefault(); close(); }
     });
 
     openTwinDrawer = open;
@@ -1021,7 +1170,7 @@
       <div class="palette-panel">
         <div class="palette-input-row">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input id="palette-input" class="palette-input" type="text" placeholder="搜索章节、页面或操作…" autocomplete="off" spellcheck="false" aria-label="搜索章节、页面或操作">
+          <input id="palette-input" class="palette-input" type="text" placeholder="搜索章节、页面或操作…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="palette-list" aria-label="搜索章节、页面或操作">
           <kbd class="palette-kbd">Esc</kbd>
         </div>
         <div class="palette-list" id="palette-list" role="listbox" aria-label="结果列表"></div>
@@ -1032,7 +1181,11 @@
     const list = overlay.querySelector('.palette-list');
     let flat = [];        // [{ el, item }]
     let activeIdx = 0;
-    let lastFocused = null;
+    const controller = createDialogController(overlay, {
+      initialFocus: () => input,
+      onOpen: () => { input.value = ''; input.setAttribute('aria-expanded', 'true'); render(); },
+      onClose: () => input.setAttribute('aria-expanded', 'false')
+    });
 
     function render() {
       const q = input.value.trim().toLowerCase();
@@ -1074,14 +1227,14 @@
     }
 
     function setActive(i) {
-      if (!flat.length) { activeIdx = 0; return; }
+      if (!flat.length) { activeIdx = 0; input.removeAttribute('aria-activedescendant'); return; }
       activeIdx = (i + flat.length) % flat.length;
       flat.forEach((e, idx) => {
         e.el.classList.toggle('active', idx === activeIdx);
         e.el.setAttribute('aria-selected', String(idx === activeIdx));
       });
       const cur = flat[activeIdx].el;
-      list.setAttribute('aria-activedescendant', cur.id);
+      input.setAttribute('aria-activedescendant', cur.id);
       if (cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
     }
 
@@ -1091,23 +1244,23 @@
       if (!it.href) return;
       if (it.href.startsWith('#')) {
         const target = document.querySelector(it.href);
-        if (target) target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+        if (target) {
+          if (!target.hasAttribute('tabindex')) target.tabIndex = -1;
+          target.focus({ preventScroll: true });
+          target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+          try { history.replaceState(history.state, '', it.href); } catch (e) { /* ignore */ }
+        }
       } else {
         window.open(it.href, '_blank', 'noopener');
       }
     }
 
     function open() {
-      lastFocused = document.activeElement;
-      overlay.classList.add('active');
-      input.value = '';
-      render();
-      setTimeout(() => input.focus(), 0);
+      controller.open();
     }
 
     function close() {
-      overlay.classList.remove('active');
-      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+      controller.close();
     }
 
     document.addEventListener('keydown', (e) => {
@@ -1130,14 +1283,7 @@
       } else if (e.key === 'Enter') {
         e.preventDefault();
         if (flat[activeIdx]) run(flat[activeIdx].item);
-      } else if (e.key === 'Tab') {
-        // 单输入框面板：Tab 留在输入框内即可
-        e.preventDefault();
       }
-    });
-
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) close();
     });
     input.addEventListener('input', render);
 
@@ -1172,6 +1318,10 @@
         if (navBtn) navBtn.classList.remove('is-playing');
         if (statusText) statusText.textContent = '已暂停 · 点击播放';
       }
+      [navBtn, vinylBtn].filter(Boolean).forEach(button => {
+        button.setAttribute('aria-pressed', String(playing));
+        button.setAttribute('aria-label', playing ? '暂停背景音乐' : '播放背景音乐');
+      });
     }
 
     function togglePlay() {
@@ -1198,12 +1348,17 @@
         audio.muted = !audio.muted;
         muteBtn.style.opacity = audio.muted ? '0.45' : '1';
         muteBtn.title = audio.muted ? '取消静音' : '静音';
+        muteBtn.setAttribute('aria-pressed', String(audio.muted));
+        muteBtn.setAttribute('aria-label', audio.muted ? '取消静音' : '静音');
       });
     }
 
     if (minBtn) {
       minBtn.addEventListener('click', () => {
         capsule.classList.toggle('is-minimized');
+        const minimized = capsule.classList.contains('is-minimized');
+        minBtn.setAttribute('aria-expanded', String(!minimized));
+        minBtn.setAttribute('aria-label', minimized ? '展开音乐盒' : '折叠音乐盒');
       });
     }
 
@@ -1211,6 +1366,9 @@
     if (window.matchMedia('(max-width: 640px)').matches) {
       capsule.classList.add('is-minimized');
     }
+    if (minBtn) minBtn.setAttribute('aria-expanded', String(!capsule.classList.contains('is-minimized')));
+    if (muteBtn) muteBtn.setAttribute('aria-pressed', String(audio.muted));
+    updateUI(!audio.paused);
 
     audio.addEventListener('play', () => updateUI(true));
     audio.addEventListener('pause', () => updateUI(false));
@@ -1238,18 +1396,24 @@
     try {
       savedStar = JSON.parse(localStorage.getItem('dx_star_lit') || 'null');
     } catch (e) { /* ignore */ }
+    if (!savedStar || typeof savedStar !== 'object' || typeof savedStar.id !== 'string') savedStar = null;
 
     if (savedStar && userCard) {
       userCard.style.display = 'flex';
       if (userTitle) userTitle.textContent = `专属星辰：${savedStar.id}（${savedStar.signer}）`;
       if (userMeta) userMeta.textContent = `坐标：${savedStar.coord} · 点亮时间：${savedStar.time} · 寄语：“${savedStar.wish || '探索永无止境'}”`;
+      if (totalCountEl) totalCountEl.textContent = '你的星辰已保存到当前浏览器';
     }
 
     // Canvas 星图粒子引擎
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      let width = canvas.width = canvas.offsetWidth;
-      let height = canvas.height = canvas.offsetHeight;
+      if (ctx) {
+      let width = Math.max(1, canvas.clientWidth);
+      let height = Math.max(1, canvas.clientHeight);
+      let frame = null;
+      let previousTime = 0;
+      let visible = false;
       const stars = [];
       const numStars = Math.min(80, Math.floor(width / 12));
 
@@ -1261,19 +1425,23 @@
           vx: (Math.random() - 0.5) * 0.25,
           vy: (Math.random() - 0.5) * 0.25,
           alpha: Math.random() * 0.7 + 0.3,
-          pulse: Math.random() * 0.02 + 0.005
+          pulse: Math.random() * 0.002 + 0.0005,
+          phase: Math.random() * Math.PI * 2
         });
       }
 
       let shockwaves = [];
 
       function addShockwave(x, y) {
+        if (prefersReducedMotion) return;
         shockwaves.push({ x, y, r: 0, maxR: Math.max(width, height) * 0.45, alpha: 0.9 });
       }
 
       window.__starShockwave = addShockwave;
 
-      function renderStars() {
+      function renderStars(time = performance.now(), animate = false) {
+        const step = previousTime ? Math.min((time - previousTime) / 16.67, 3) : 1;
+        previousTime = time;
         ctx.clearRect(0, 0, width, height);
 
         // 绘制微弱连线
@@ -1295,17 +1463,14 @@
 
         // 绘制星辰
         stars.forEach(s => {
-          s.x += s.vx;
-          s.y += s.vy;
+          if (animate) { s.x += s.vx * step; s.y += s.vy * step; }
           if (s.x < 0) s.x = width;
           if (s.x > width) s.x = 0;
           if (s.y < 0) s.y = height;
           if (s.y > height) s.y = 0;
 
-          s.alpha += Math.sin(Date.now() * s.pulse) * 0.008;
-          s.alpha = Math.max(0.2, Math.min(0.9, s.alpha));
-
-          ctx.fillStyle = `rgba(224, 231, 255, ${s.alpha})`;
+          const alpha = animate ? Math.max(0.2, Math.min(0.9, s.alpha + Math.sin(time * s.pulse + s.phase) * 0.12)) : s.alpha;
+          ctx.fillStyle = `rgba(224, 231, 255, ${alpha})`;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
           ctx.fill();
@@ -1313,8 +1478,7 @@
 
         // 绘制冲击波光环
         shockwaves = shockwaves.filter(sw => {
-          sw.r += 3.5;
-          sw.alpha *= 0.965;
+          if (animate) { sw.r += 3.5 * step; sw.alpha *= Math.pow(0.965, step); }
           ctx.strokeStyle = `rgba(129, 140, 248, ${sw.alpha})`;
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -1323,37 +1487,63 @@
           return sw.r < sw.maxR && sw.alpha > 0.02;
         });
 
-        requestAnimationFrame(renderStars);
       }
-
-      renderStars();
-
-      window.addEventListener('resize', () => {
-        if (!canvas) return;
-        width = canvas.width = canvas.offsetWidth;
-        height = canvas.height = canvas.offsetHeight;
-      });
+      function tick(time) {
+        frame = null;
+        if (document.hidden || !visible || prefersReducedMotion) return;
+        renderStars(time, true);
+        frame = requestAnimationFrame(tick);
+      }
+      function syncAnimation() {
+        if (frame !== null) cancelAnimationFrame(frame);
+        frame = null;
+        previousTime = 0;
+        if (document.hidden || !visible) return;
+        renderStars();
+        if (!prefersReducedMotion) frame = requestAnimationFrame(tick);
+      }
+      function resizeCanvas() {
+        const oldWidth = width;
+        const oldHeight = height;
+        width = Math.max(1, canvas.clientWidth);
+        height = Math.max(1, canvas.clientHeight);
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        stars.forEach(star => { star.x *= width / oldWidth; star.y *= height / oldHeight; });
+        syncAnimation();
+      }
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          visible = entries[0].isIntersecting;
+          syncAnimation();
+        }, { rootMargin: '80px' });
+        observer.observe(canvas);
+      } else visible = true;
+      if ('ResizeObserver' in window) new ResizeObserver(resizeCanvas).observe(canvas);
+      else window.addEventListener('resize', rafThrottle(resizeCanvas));
+      document.addEventListener('visibilitychange', syncAnimation);
+      document.addEventListener('dx:motion-change', syncAnimation);
+      resizeCanvas();
+      }
     }
 
     // 点亮星辰交互
+    const starDialog = modal ? createDialogController(modal, { initialFocus: () => signerInput || closeBtn }) : null;
     function openStarModal() {
-      if (!modal) return;
-      modal.classList.add('active');
-      if (signerInput) signerInput.focus();
+      starDialog?.open();
     }
 
     function closeStarModal() {
-      if (!modal) return;
-      modal.classList.remove('active');
+      starDialog?.close();
     }
 
     if (triggerBtn) triggerBtn.addEventListener('click', openStarModal);
     if (closeBtn) closeBtn.addEventListener('click', closeStarModal);
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeStarModal();
-      });
-    }
+    wishInput?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); confirmBtn?.click(); }
+    });
 
     if (confirmBtn) {
       confirmBtn.addEventListener('click', () => {
@@ -1367,15 +1557,16 @@
         const timeStr = new Date().toLocaleDateString('zh-CN');
 
         const newStar = { id: starId, signer, wish, coord, time: timeStr };
+        let stored = true;
         try {
           localStorage.setItem('dx_star_lit', JSON.stringify(newStar));
-        } catch (e) { /* ignore */ }
+        } catch (e) { stored = false; }
 
         closeStarModal();
 
         // 激荡光环
         if (canvas && window.__starShockwave) {
-          window.__starShockwave(canvas.width / 2, canvas.height / 2);
+          window.__starShockwave(canvas.clientWidth / 2, canvas.clientHeight / 2);
         }
 
         if (userCard) {
@@ -1384,15 +1575,10 @@
           if (userMeta) userMeta.textContent = `坐标：${coord} · 点亮时间：${timeStr} · 寄语：“${wish}”`;
         }
 
-        if (totalCountEl) totalCountEl.textContent = '已点亮 843+ 颗星辰 (含你的专属星)';
+        if (totalCountEl) totalCountEl.textContent = stored ? '你的星辰已保存到当前浏览器' : '本次访问已点亮星辰 · 浏览器未允许保存';
 
         // 触发全局 Toast 提醒
-        const toast = document.getElementById('toast');
-        if (toast) {
-          toast.textContent = `✨ 恭喜！您已成功在璇玑星图点亮专属星辰 ${starId}`;
-          toast.classList.add('show');
-          setTimeout(() => toast.classList.remove('show'), 3800);
-        }
+        showToast(`✨ 专属星辰 ${starId} ${stored ? '已保存在当前浏览器' : '已点亮 · 浏览器未允许保存'}`);
       });
     }
   }
@@ -1418,7 +1604,7 @@
       return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
     };
 
-    // 隐身模式下不携带任何身份信息
+    // 不填联系方式时，链接中不携带称呼和联系方式
     const isStealth = () => form.dataset.stealth === '1';
 
     const readFields = () => ({
@@ -1483,13 +1669,6 @@
         return;
       }
 
-      const orig = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<span>⚡ 正在生成投递链接...</span>';
-
-      // 兜底：先把留言复制到剪贴板，方便没有 GitHub 账号的访客走任意渠道发送
-      copyText(p.text).catch(() => { /* 忽略：仍会打开 GitHub 提交页 */ });
-
       // 本地留存草稿（只存在访客自己的浏览器里，便于误关页面后找回）
       try {
         const list = JSON.parse(localStorage.getItem('dx_msg_drafts') || '[]');
@@ -1501,24 +1680,20 @@
         '?title=' + encodeURIComponent(p.title) +
         '&body=' + encodeURIComponent(p.body);
 
-      let win = null;
-      try { win = window.open(url, '_blank', 'noopener'); } catch (err) { win = null; }
-
-      btn.innerHTML = '<span>✨ 投递链接已生成</span>';
-
-      if (win) {
-        setFeedback('已在新标签打开 GitHub 提交页：登录 GitHub 后点击「Submit new issue」即可送达；留言内容也已复制到剪贴板。', 'ok');
-        say('🛰️ 已打开 GitHub 提交页（需登录 GitHub 账号）· 留言内容已复制备用');
-        form.reset();
-      } else {
-        setFeedback('浏览器拦截了新窗口：请点击「复制留言」，再通过微信或邮箱发送给戴璇。', 'error');
-        say('⚠️ 新窗口被拦截 · 留言已复制，请通过微信或邮箱发送给戴璇');
-      }
-
-      setTimeout(() => {
-        btn.disabled = false;
-        btn.innerHTML = orig;
-      }, 2200);
+      // 原生链接保留用户手势；noopener 的 null 返回值不能用来判断是否打开成功。
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = '前往 GitHub 确认并提交留言 ↗';
+      if (feedback) {
+        setFeedback('留言链接已生成。请在 GitHub 页面确认并提交，提交后的内容会公开。若页面未打开，可点击：', 'ok');
+        feedback.appendChild(document.createTextNode(' '));
+        feedback.appendChild(link);
+      } else document.body.appendChild(link);
+      link.click();
+      if (!feedback) link.remove();
+      say('GitHub 留言链接已生成，需登录并确认提交；也可使用「复制留言」通过邮箱或微信发送。');
     });
 
     if (copyBtn) {
@@ -1553,9 +1728,11 @@
      21. 鼠标动态聚光灯追踪 (Cursor Spotlight - 参考 bobzhang.top Xv/Ip 组件)
      -------------------------------------------------------------------------- */
   function initSpotlightCards() {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     const cards = document.querySelectorAll('.spectral-matrix-card, .stage-bento-card');
     cards.forEach(card => {
       card.addEventListener('mousemove', (e) => {
+        if (prefersReducedMotion) return;
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -1585,6 +1762,8 @@
     // 把隐身状态同步到表单，供留言终端决定是否携带身份信息
     const syncStealthState = () => {
       if (form) form.dataset.stealth = isStealth ? '1' : '0';
+      toggleBtn.setAttribute('aria-pressed', String(isStealth));
+      if (toggleBtn.getAttribute('role') === 'switch') toggleBtn.setAttribute('aria-checked', String(isStealth));
     };
     syncStealthState();
 
@@ -1595,7 +1774,7 @@
 
       if (isStealth) {
         if (realFields) realFields.style.display = 'none';
-        // 兑现「所有身份特征已被抹除」：清空此前已填写的姓名与联系方式
+        // 清空此前已填写的称呼与联系方式，生成链接时也跳过这两项。
         const senderEl = document.getElementById('terminal-sender');
         const contactEl = document.getElementById('terminal-contact');
         if (senderEl) senderEl.value = '';
@@ -1623,11 +1802,11 @@
       try {
         const saved = JSON.parse(localStorage.getItem('dx_visitor') || 'null');
         if (saved && saved.name) {
-          visitorNameEl.textContent = `${saved.name} · 访客已同步 👋`;
+          visitorNameEl.textContent = `${saved.name} · 欢迎来访 👋`;
         } else {
-          visitorNameEl.textContent = '访客身份已同步 👋';
+          visitorNameEl.textContent = '欢迎来到我的作品空间';
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) { visitorNameEl.textContent = '欢迎来到我的作品空间'; }
     }
 
     update();
