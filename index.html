@@ -38,20 +38,17 @@
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/refresh.css">
+  <link rel="stylesheet" href="css/refresh.css?v=20261011-2">
 
   <!-- 主题预初始化：在首帧前同步应用，避免深色/浅色切换闪屏 (FOUC) -->
   <script>
     (function () {
       // 标记 JS 可用：仅在此情况下才启用入场动画的初始隐藏，避免脚本失效导致内容不可见
       document.documentElement.classList.add('js');
-      try {
-        var saved = localStorage.getItem('dx_theme');
-        var theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      var saved = null;
+      try { saved = localStorage.getItem('dx_theme'); } catch (e) { /* follow system theme when storage is unavailable */ }
+      var theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.content = document.documentElement.getAttribute('data-theme') === 'light' ? '#f8fafc' : '#0a0e17';
     })();
@@ -284,24 +281,22 @@
           </div>
 
           <!-- Card 4: 记忆链接卡片 (Core Memory Gallery) -->
-          <div class="stage-bento-card bento-card-media" role="link" tabindex="0" aria-label="打开长工大 3D 校园全景" onclick="window.location.href='campus-map/'">
-            <img src="assets/images/og-campus-map.jpg" alt="校园3D地图" class="media-bg" width="1200" height="630" loading="lazy" decoding="async">
+          <a class="stage-bento-card bento-card-media" href="campus-map/" aria-label="打开长工大 3D 校园全景">
+            <img src="assets/images/project-3dmap.svg" alt="校园3D地图" class="media-bg" width="800" height="500" loading="lazy" decoding="async">
             <span class="media-badge-tag media-badge-cyan">WEB 3D / 校园漫游</span>
             <div class="media-content">
               <h3 class="media-title">长工大 3D 校园全景</h3>
               <p class="media-sub">双校区建筑示意 · 第一人称漫游</p>
-            </div>
-          </div>
+            </div></a>
 
           <!-- Card 5: 热爱与足迹卡片 (Life Matrix) -->
-          <div class="stage-bento-card bento-card-media" role="link" tabindex="0" aria-label="跳转到星空足迹打卡区" onclick="document.getElementById('star-footprint').scrollIntoView({behavior: 'smooth'})">
-            <img src="assets/images/og-snowviz.jpg" alt="雪线之上" class="media-bg" width="1186" height="630" loading="lazy" decoding="async">
+          <a class="stage-bento-card bento-card-media star-preview-card" href="#star-footprint" aria-label="跳转到星空足迹打卡区">
+            <svg class="star-preview" viewBox="0 0 600 300" fill="none" aria-hidden="true"><path d="M50 180 170 80 260 140 370 45 475 115 550 60M170 80 210 240 360 215 475 115M260 140 360 215" stroke="#a5b4fc" stroke-opacity=".35"/><g fill="#c7d2fe"><circle cx="50" cy="180" r="3"/><circle cx="170" cy="80" r="5"/><circle cx="260" cy="140" r="3"/><circle cx="370" cy="45" r="4"/><circle cx="475" cy="115" r="5"/><circle cx="550" cy="60" r="3"/><circle cx="210" cy="240" r="4"/><circle cx="360" cy="215" r="3"/></g><g fill="#fff" opacity=".45"><circle cx="70" cy="40" r="1.5"/><circle cx="305" cy="25" r="1"/><circle cx="410" cy="260" r="1.5"/><circle cx="550" cy="220" r="1"/><circle cx="95" cy="265" r="1"/></g></svg>
             <span class="media-badge-tag media-badge-purple">STAR MAP / 访客足迹</span>
             <div class="media-content">
               <h3 class="media-title">在星图留下足迹</h3>
               <p class="media-sub">点亮每一颗星星 · 纪念来过的足迹</p>
-            </div>
-          </div>
+            </div></a>
         </div>
 
         <section class="section" id="projects">
@@ -318,16 +313,25 @@
             <span class="sr-only">搜索项目名称、技术或主题</span>
             <input id="project-search" type="search" placeholder="搜索项目、技术或主题…" autocomplete="off" maxlength="100" aria-controls="project-grid">
           </label>
+          <div class="project-toolbar-actions">
+            <div class="project-view-controls" id="project-view-controls" role="group" aria-label="作品显示方式">
+              <button type="button" data-project-view="grid" aria-pressed="true" aria-controls="project-grid"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>卡片</button>
+              <button type="button" data-project-view="list" aria-pressed="false" aria-controls="project-grid"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 5h13M8 12h13M8 19h13M3 5h1M3 12h1M3 19h1"/></svg>列表</button>
+            </div>
+          </div>
+        </div>
+        <div class="project-results-row">
           <p id="project-result-count" class="project-result-count" role="status" aria-live="polite" aria-atomic="true">共 10 个项目</p>
+          <button id="project-reset-filters" type="button" class="project-reset" hidden>清除筛选</button>
         </div>
         <!-- Filter Tabs -->
         <div class="filter-tabs" role="group" aria-label="项目分类筛选">
-          <button class="tab-btn active" type="button" aria-pressed="true" data-filter="all">全部作品</button>
-          <button class="tab-btn" type="button" aria-pressed="false" data-filter="stats">统计案例</button>
-          <button class="tab-btn" type="button" aria-pressed="false" data-filter="github">开源仓库</button>
-          <button class="tab-btn" type="button" aria-pressed="false" data-filter="tech">交互开发</button>
-          <button class="tab-btn" type="button" aria-pressed="false" data-filter="ie">工业工程</button>
-        <button class="tab-btn" type="button" aria-pressed="false" data-filter="history">历史研读</button>
+          <button class="tab-btn active" type="button" aria-pressed="true" data-filter="all"><span>全部作品</span><span class="filter-count"></span></button>
+          <button class="tab-btn" type="button" aria-pressed="false" data-filter="stats"><span>统计案例</span><span class="filter-count"></span></button>
+          <button class="tab-btn" type="button" aria-pressed="false" data-filter="github"><span>开源仓库</span><span class="filter-count"></span></button>
+          <button class="tab-btn" type="button" aria-pressed="false" data-filter="tech"><span>交互开发</span><span class="filter-count"></span></button>
+          <button class="tab-btn" type="button" aria-pressed="false" data-filter="ie"><span>工业工程</span><span class="filter-count"></span></button>
+        <button class="tab-btn" type="button" aria-pressed="false" data-filter="history"><span>历史研读</span><span class="filter-count"></span></button>
         </div>
 
         <div class="project-empty-state" id="project-empty-state" hidden>
@@ -336,35 +340,26 @@
           <p>试试其他关键词，或返回全部作品。</p>
           <button id="project-clear-search" type="button" class="btn btn-secondary">重置筛选与搜索</button>
         </div>
-        <div class="projects-grid" id="project-grid">
+        <div class="projects-grid" id="project-grid" data-view="grid">
           <!-- 明史资料平台 -->
-          <article class="project-card featured" data-category="history research">
+          <article id="work-ming" class="project-card featured" data-category="history research">
             <div class="project-cover">
               <img src="assets/images/project-minghistory.svg" alt="明史资料平台：明代文献索引与研读工具封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge violet">📚 7 部著作 · 108 章 · 35 种延伸书目 · 17 个栏目</div>
-              <div class="project-tags">
-                <span class="tag-badge">明史 / 南明史</span>
-                <span class="tag-badge">纯静态 · 无后端</span>
-                <span class="tag-badge">全站检索 · Ctrl K</span>
-                <span class="tag-badge">帝王世系 + 皇族世系图</span>
-                <span class="tag-badge">年号纪年 ⇄ 干支换算</span>
-                <span class="tag-badge">官僚体系 + 品级总表</span>
-                <span class="tag-badge">心学与明末三大儒</span>
-                <span class="tag-badge">权力结构 · 段落级检索</span>
-                <span class="tag-badge">可深链 · 可打印</span>
-                <span class="tag-badge">本地阅读器</span>
-              </div>
+              <span class="project-eyebrow">01 / 文献研读 / INTERACTIVE ARCHIVE</span>
               <h3 class="project-title">明史资料平台 · 明代文献索引与研读工具</h3>
+              <div class="project-metric-badge violet">📚 7 部著作 · 108 章 · 35 种延伸书目 · 17 个栏目</div>
               <p class="project-desc">以 7 部明史著作的真实目录为骨架，把文献索引、人物制度、年号换算与段落检索放到一个可交互的研读空间。支持稳定地址分享、栏目打印与本地 PDF / TXT 阅读。</p>
+              <div class="project-tags"><span class="tag-badge">明史 / 南明史</span><span class="tag-badge">纯静态 · 无后端</span><span class="tag-badge">全站检索 · Ctrl K</span></div>
               <details class="project-details">
                 <summary>展开完整功能与内容说明</summary>
-                <div class="project-details-content">
+                <div class="project-details-content"><div class="project-tags project-extra-tags"><span class="tag-badge">帝王世系 + 皇族世系图</span><span class="tag-badge">年号纪年 ⇄ 干支换算</span><span class="tag-badge">官僚体系 + 品级总表</span><span class="tag-badge">心学与明末三大儒</span><span class="tag-badge">权力结构 · 段落级检索</span><span class="tag-badge">可深链 · 可打印</span><span class="tag-badge">本地阅读器</span></div>
                 以《剑桥中国明代史》上下卷、《南明史》上下册、《明朝那些事儿》全九部、《万历十五年》、《明史讲义》、方志远《明代国家权力结构及运行机制》七部著作的真实目录为骨架，配 17 个栏目：帝王世系时间轴与皇族世系图（1368—1683）、149 条大事年表（按分期与类型筛选）、23 个年号与公元⇄干支换算器、<b>6 大体系 24 个职位的明代官僚体系</b>（中枢、部院九卿、监察科道、军事、地方、内廷，附文官品级总表与入仕途径）、<b>7 大学派 20 位思想家的明代思想界</b>（白沙、阳明、泰州学派、气学、东林蕺山、西学实学、明末三大儒）、<b>权力结构</b>（方志远全书骨架 + 皇权与相权、票拟与批红、以内制外、监察以下制上、三司→三堂→巡抚等 <b>100 个主题</b>，每个主题都定位到书中段落，并支持<b>全书段落级检索</b>）、两京十三布政使司与九边重镇、<b>61 项数据一览</b>（分人口田土、赋税白银、军额科举、宗藩驿传、司法刑狱、官僚编制等 11 组，逐条标注册载/估算/存疑）、<b>24 张图表</b>（统计本站自身的内容构成：两套检索口径的差、年表时间密度与年代×类别构成、<b>帝王在位与年号起止两条时间轴</b>、权力结构 100 个主题的论断与语料页码覆盖、词条出处、数据×可信度与书目×难度两张热力图、思想人物生卒时间轴等，每张都配一段解读并点出缺口）、12 组史学争议考辨、32 组多书对照、272 条人物制度词条、12 条主题阅读线索，另附 35 种权威著作的延伸书目（标难度与适用场景）。回答「这件事在哪本书哪一页、几种写法差在哪、这个年号是哪一年、这个官有多大、权力怎么运转、接下来该读什么」。配 <b>全站检索（Ctrl/⌘+K）</b>：一次搜遍 1,657 条人物、制度、事件、年号、地名、官职、思想家、数据、主题、书目与章节，支持「王阳明」「李卓吾」「吏部尚书」这类别名，回车直达并高亮；每个条目都有稳定地址可分享。任意栏目可直接打印成讲义。附本地阅读器：把自有 PDF/TXT 拖进浏览器即可打开，文件不经过任何服务器。不转载书籍正文。
               </div>
               </details>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-ming" aria-label="复制明史资料平台 · 明代文献索引与研读工具的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">原创索引与研读工具 · 尊重著作权</span>
                 <a href="ming-history/" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>进入明史资料平台</span>
@@ -375,23 +370,19 @@
           </article>
 
           <!-- Case Study: 应用统计案例分析 -->
-          <article class="project-card featured" data-category="stats ie">
+          <article id="work-manufacturing" class="project-card featured" data-category="stats ie">
             <div class="project-cover">
               <img src="assets/images/project-casestudy.svg" alt="智能制造产线节拍异常诊断应用统计案例分析" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge green">⚡ 产线平衡率 84.4% → 92.7% (+8.28个百分点)</div>
-              <div class="project-tags">
-                <span class="tag-badge">应用统计实战</span>
-                <span class="tag-badge">时间序列 (ARIMA)</span>
-                <span class="tag-badge">工艺场景标定</span>
-                <span class="tag-badge">精益工业工程</span>
-              </div>
+              <span class="project-eyebrow">02 / 统计案例 / TIME SERIES</span>
               <h3 class="project-title">智能制造产线节拍异常诊断与动态容量预测</h3>
-              <p class="project-desc">
-                基于汽车发动机总装流水线工艺标定的 2,000 循环高保真仿真数据集，运用时间序列建模 (ARIMA)、分布拟合检验与精益 IE 动作分析，定量识别瓶颈工位跨周期自相关记忆拖滞 (&phi;₁=0.453)，情景推演测算产线平衡率由 84.43% 提升至 92.71%（提高 8.28 个百分点）。
-              </p>
+              <div class="project-metric-badge green">⚡ 产线平衡率 84.4% → 92.7% (+8.28个百分点)</div>
+              <p class="project-desc">以产线工艺标定的仿真数据分析节拍波动，结合 ARIMA、分布检验与工业工程动作分析，呈现瓶颈诊断和容量推演。</p>
+              <div class="project-tags"><span class="tag-badge">应用统计实战</span><span class="tag-badge">时间序列 (ARIMA)</span><span class="tag-badge">工艺场景标定</span><span class="tag-badge">精益工业工程</span></div>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">基于汽车发动机总装流水线工艺标定的 2,000 循环高保真仿真数据集，运用时间序列建模 (ARIMA)、分布拟合检验与精益 IE 动作分析，定量识别瓶颈工位跨周期自相关记忆拖滞 (&phi;₁=0.453)，情景推演测算产线平衡率由 84.43% 提升至 92.71%（提高 8.28 个百分点）。</div></details>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-manufacturing" aria-label="复制智能制造产线节拍异常诊断与动态容量预测的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">戴璇 · 应用统计案例分析库</span>
                 <a href="case-studies/smart-manufacturing-takt-time-analysis.html" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>查阅完整案例分析报告</span>
@@ -402,23 +393,20 @@
           </article>
 
           <!-- Case Study 2: Applied Statistics Credit Risk -->
-          <article class="project-card featured" data-category="stats ie">
+          <article id="work-credit" class="project-card featured" data-category="stats ie">
             <div class="project-cover">
               <img src="assets/images/project-casestudy2.svg" alt="专精特新中小企业信贷违约风险预警与数智定价应用统计案例研究封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge blue">🔬 13 阶段全流程 · 20 张学术级图表</div>
-              <div class="project-tags">
-                <span class="tag-badge">应用统计</span>
-                <span class="tag-badge">生存分析</span>
-                <span class="tag-badge">双重机器学习</span>
-                <span class="tag-badge">风险预警</span>
-              </div>
+              <span class="project-eyebrow">03 / 统计案例 / CREDIT RISK</span>
               <h3 class="project-title">应用统计案例分析：专精特新企业信贷违约预警</h3>
+              <div class="project-metric-badge blue">🔬 13 阶段全流程 · 20 张学术级图表</div>
               <p class="project-desc">
                 基于高维信贷数据，构建了基于 Cox 比例风险、Frailty 脆弱模型及 DML 因果推断框架的中小企业信贷违约风险早期预警评估系统。
               </p>
+              <div class="project-tags"><span class="tag-badge">应用统计</span><span class="tag-badge">生存分析</span><span class="tag-badge">双重机器学习</span><span class="tag-badge">风险预警</span></div>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-credit" aria-label="复制应用统计案例分析：专精特新企业信贷违约预警的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">全国应用统计案例分析大赛</span>
                 <a href="case-studies/applied-statistics-credit-risk.html" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>查看案例详情</span>
@@ -429,23 +417,19 @@
           </article>
 
           <!-- Project 0: Aurora Chat 极光 AI 聊天工作台 -->
-          <article class="project-card featured" data-category="github tech">
+          <article id="work-aurora" class="project-card featured" data-category="github tech">
             <div class="project-cover">
               <img src="assets/images/project-aurorachat.svg" alt="Aurora Chat 极光私有 AI 聊天工作台封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge green">🛰️ 零后端 · 浏览器直连 5 家大模型 API</div>
-              <div class="project-tags">
-                <span class="tag-badge">纯前端 / 无构建</span>
-                <span class="tag-badge">流式 SSE</span>
-                <span class="tag-badge">双模型对比投票</span>
-                <span class="tag-badge">MIT 开源可商用</span>
-              </div>
+              <span class="project-eyebrow">04 / 交互工具 / AI WORKSPACE</span>
               <h3 class="project-title">Aurora Chat · 极光 — 私有 AI 聊天工作台</h3>
-              <p class="project-desc">
-                参考 lobe-chat 与 LMSYS Chatbot Arena 的纯静态 AI 工作台：智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，推理模型思考过程折叠展示；同一问题双模型并行对比并可投票，内置 18 个提示词模板，对话与 API Key 仅存本机浏览器。
-              </p>
+              <div class="project-metric-badge green">🛰️ 零后端 · 浏览器直连 5 家大模型 API</div>
+              <p class="project-desc">纯静态 AI 工作台，支持多家模型 API、流式对话与双模型对比。对话与 API Key 保存在当前浏览器。</p>
+              <div class="project-tags"><span class="tag-badge">纯前端 / 无构建</span><span class="tag-badge">流式 SSE</span><span class="tag-badge">双模型对比投票</span><span class="tag-badge">MIT 开源可商用</span></div>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">参考 lobe-chat 与 LMSYS Chatbot Arena 的纯静态 AI 工作台：智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，推理模型思考过程折叠展示；同一问题双模型并行对比并可投票，内置 18 个提示词模板，对话与 API Key 仅存本机浏览器。</div></details>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-aurora" aria-label="复制Aurora Chat · 极光 — 私有 AI 聊天工作台的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">MIT 开源 · 允许商用（保留声明即可）</span>
                 <a href="aurora-chat/" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>打开在线应用</span>
@@ -456,23 +440,19 @@
           </article>
 
           <!-- Project 1: 华为杯研究生数模 LaTeX 模板 -->
-          <article class="project-card" data-category="github tech">
+          <article id="work-latex" class="project-card" data-category="github tech">
             <div class="project-cover">
               <img src="assets/images/project-mathmodel.svg" alt="华为杯研究生数学建模 LaTeX 模板" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge amber">LaTeX / 支持 Overleaf 与本地编译</div>
-              <div class="project-tags">
-                <span class="tag-badge">开源模板</span>
-                <span class="tag-badge">LaTeX / TeX</span>
-                <span class="tag-badge">Overleaf 在线编译</span>
-                <span class="tag-badge">华为杯研究生数模</span>
-              </div>
+              <span class="project-eyebrow">05 / 开源模板 / RESEARCH WRITING</span>
               <h3 class="project-title">“华为杯”第23届研究生数模 LaTeX 模板</h3>
-              <p class="project-desc">
-                为“华为杯”中国研究生数学建模竞赛量身打造的高可用 LaTeX 论文模板（支持 Overleaf / 本地 XeLaTeX）。深度对齐最新官方 Word 格式（西安交通大学承办），彻底解决中文字体缺失报错，内置楷体、隶书、新魏等多款中文字体包，开箱即用。
-              </p>
+              <div class="project-metric-badge amber">LaTeX / 支持 Overleaf 与本地编译</div>
+              <p class="project-desc">面向“华为杯”研究生数学建模竞赛的 LaTeX 论文模板，支持 Overleaf 与本地 XeLaTeX 编译，附中文字体与排版配置。</p>
+              <div class="project-tags"><span class="tag-badge">开源模板</span><span class="tag-badge">LaTeX / TeX</span><span class="tag-badge">Overleaf 在线编译</span><span class="tag-badge">华为杯研究生数模</span></div>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">为“华为杯”中国研究生数学建模竞赛量身打造的高可用 LaTeX 论文模板（支持 Overleaf / 本地 XeLaTeX）。深度对齐最新官方 Word 格式（西安交通大学承办），彻底解决中文字体缺失报错，内置楷体、隶书、新魏等多款中文字体包，开箱即用。</div></details>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-latex" aria-label="复制“华为杯”第23届研究生数模 LaTeX 模板的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">仓库：dai123x/2026-</span>
                 <a href="https://github.com/dai123x/2026-" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>查看 GitHub 仓库</span>
@@ -483,23 +463,19 @@
           </article>
 
           <!-- Project 2: AI 云资源运营与成本优化分析 -->
-          <article class="project-card" data-category="github ie">
+          <article id="work-cloud" class="project-card" data-category="github ie">
             <div class="project-cover">
               <img src="assets/images/project-cloudops.svg" alt="AI 云资源运营与成本优化分析" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge blue">📊 算力聚类分析 · 闲置成本削减</div>
-              <div class="project-tags">
-                <span class="tag-badge">Python / pandas</span>
-                <span class="tag-badge">SQLite / SQL</span>
-                <span class="tag-badge">GPU 算力监控</span>
-                <span class="tag-badge">降本增效容量规划</span>
-              </div>
+              <span class="project-eyebrow">06 / 数据分析 / RESOURCE OPERATIONS</span>
               <h3 class="project-title">AI 云资源运营与算力成本优化分析系统</h3>
-              <p class="project-desc">
-                基于大规模 GPU/CPU 算力集群运行日志与资源流水数据，利用 SQLite 与高阶 SQL 提取多维算力指标；结合 Python (pandas) 对低利用率闲置算力进行精准聚类与潜在浪费成本测算，输出面向生产环境的弹性容量规划与降本增效建议。
-              </p>
+              <div class="project-metric-badge blue">📊 算力聚类分析 · 闲置成本削减</div>
+              <p class="project-desc">从 GPU / CPU 运行日志提取算力指标，结合 SQL 与 pandas 分析闲置资源，形成成本测算和容量规划建议。</p>
+              <div class="project-tags"><span class="tag-badge">Python / pandas</span><span class="tag-badge">SQLite / SQL</span><span class="tag-badge">GPU 算力监控</span><span class="tag-badge">降本增效容量规划</span></div>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">基于大规模 GPU/CPU 算力集群运行日志与资源流水数据，利用 SQLite 与高阶 SQL 提取多维算力指标；结合 Python (pandas) 对低利用率闲置算力进行精准聚类与潜在浪费成本测算，输出面向生产环境的弹性容量规划与降本增效建议。</div></details>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-cloud" aria-label="复制AI 云资源运营与算力成本优化分析系统的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">仓库：ai-cloud-resource-ops-analysis</span>
                 <a href="https://github.com/dai123x/ai-cloud-resource-ops-analysis" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>查看 GitHub 仓库</span>
@@ -510,23 +486,20 @@
           </article>
 
           <!-- Project 3: 长工大全景立体地图 -->
-          <article class="project-card" data-category="tech">
+          <article id="work-campus" class="project-card" data-category="tech">
             <div class="project-cover">
               <img src="assets/images/project-3dmap.svg" alt="长春工业大学全景立体地图封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge green">Three.js / 双校区交互示意地图</div>
-              <div class="project-tags">
-                <span class="tag-badge">Three.js</span>
-                <span class="tag-badge">WebGL</span>
-                <span class="tag-badge">第一人称漫游</span>
-                <span class="tag-badge">数字孪生</span>
-              </div>
+              <span class="project-eyebrow">07 / 空间交互 / WEB 3D</span>
               <h3 class="project-title">长春工业大学 · 全景立体地图系统</h3>
+              <div class="project-metric-badge green">Three.js / 双校区交互示意地图</div>
               <p class="project-desc">
                 纯原生、零构建依赖的三维校园示意地图。以公开地图数据与校区资料为参考呈现北湖与南湖校区建筑模型，支持沉浸漫游、可选卫星底图与季节场景切换；模型并非测绘成果或导航数据。
               </p>
+              <div class="project-tags"><span class="tag-badge">Three.js</span><span class="tag-badge">WebGL</span><span class="tag-badge">第一人称漫游</span><span class="tag-badge">数字孪生</span></div>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-campus" aria-label="复制长春工业大学 · 全景立体地图系统的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">独立研发 · 空间可视化</span>
                 <a href="campus-map/index.html" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>在线 3D 漫游体验</span>
@@ -537,23 +510,19 @@
           </article>
 
           <!-- Project 4: 个人数字门户 daixuan.cloud -->
-          <article class="project-card" data-category="github tech">
+          <article id="work-portal" class="project-card" data-category="github tech">
             <div class="project-cover">
               <img src="assets/images/project-cloud.svg" alt="daixuan.cloud 个人主页封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge blue">个人作品空间 / 原生前端 · 双主题</div>
-              <div class="project-tags">
-                <span class="tag-badge">GitHub Pages</span>
-                <span class="tag-badge">daixuan.cloud</span>
-                <span class="tag-badge">原生前端</span>
-                <span class="tag-badge">全端响应式</span>
-              </div>
+              <span class="project-eyebrow">08 / 个人网站 / FRONTEND</span>
               <h3 class="project-title">daixuan.cloud · 个人学术与工程数字门户</h3>
-              <p class="project-desc">
-                托管于 GitHub 仓库（<code>dai123x/dai123x.github.io</code>），绑定独立顶级域名 <code>daixuan.cloud</code>。支持深浅双主题切换，兼顾极速轻量与现代毛玻璃 Bento 视觉设计。
-              </p>
+              <div class="project-metric-badge blue">个人作品空间 / 原生前端 · 双主题</div>
+              <p class="project-desc">以原生前端构建个人作品空间，托管于 GitHub Pages，支持独立域名、双主题与响应式浏览。</p>
+              <div class="project-tags"><span class="tag-badge">GitHub Pages</span><span class="tag-badge">daixuan.cloud</span><span class="tag-badge">原生前端</span><span class="tag-badge">全端响应式</span></div>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">托管于 GitHub 仓库（<code>dai123x/dai123x.github.io</code>），绑定独立顶级域名 <code>daixuan.cloud</code>。支持深浅双主题切换，兼顾极速轻量与现代毛玻璃 Bento 视觉设计。</div></details>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-portal" aria-label="复制daixuan.cloud · 个人学术与工程数字门户的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">当前站点 · 自动化集成</span>
                 <a href="https://github.com/dai123x/dai123x.github.io" class="project-link" target="_blank" rel="noopener noreferrer">
                   <span>查看 GitHub 仓库</span>
@@ -564,23 +533,20 @@
           </article>
 
           <!-- Project 5: 一汽丰田生产线测定与 AGV 路径优化 -->
-          <article class="project-card" data-category="ie">
+          <article id="work-toyota" class="project-card" data-category="ie">
             <div class="project-cover">
               <img src="assets/images/project-media.svg" alt="一汽丰田生产线与 AGV 路径优化" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge green">🏭 IE 作业测定 · AGV 路径重构</div>
-              <div class="project-tags">
-                <span class="tag-badge">精益工业工程</span>
-                <span class="tag-badge">一汽丰田</span>
-                <span class="tag-badge">作业测定</span>
-                <span class="tag-badge">AGV 路径优化</span>
-              </div>
+              <span class="project-eyebrow">09 / 工程实践 / LEAN MANUFACTURING</span>
               <h3 class="project-title">一汽丰田发动机产线时间研究与 AGV 物流优化</h3>
+              <div class="project-metric-badge green">🏭 IE 作业测定 · AGV 路径重构</div>
               <p class="project-desc">
                 结合现场实地作业时间观测测定，拆解识别制造装配各工序非增值活动，为精益效率提供量化依据；重构简化物料供给 AGV 搬运路径网络，提升车间综合制造效能。
               </p>
+              <div class="project-tags"><span class="tag-badge">精益工业工程</span><span class="tag-badge">一汽丰田</span><span class="tag-badge">作业测定</span><span class="tag-badge">AGV 路径优化</span></div>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-toyota" aria-label="复制一汽丰田发动机产线时间研究与 AGV 物流优化的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">工业工程企业实践</span>
                 <a href="#internships" class="project-link">
                   <span>查看实习经历</span>
@@ -591,23 +557,20 @@
           </article>
 
           <!-- Project 6: 注塑厂房通风与环境改善 -->
-          <article class="project-card" data-category="ie">
+          <article id="work-ventilation" class="project-card" data-category="ie">
             <div class="project-cover">
               <img src="assets/images/project-study.svg" alt="注塑厂房通风与环境改善" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
-              <div class="project-metric-badge amber">🌿 VOCs 环境治理 · 离心风机选型</div>
-              <div class="project-tags">
-                <span class="tag-badge">长春派格塑料</span>
-                <span class="tag-badge">VOCs 治理</span>
-                <span class="tag-badge">设备选型</span>
-                <span class="tag-badge">离心风机</span>
-              </div>
+              <span class="project-eyebrow">10 / 工程实践 / WORKPLACE ENVIRONMENT</span>
               <h3 class="project-title">注塑厂房作业环境改善与离心式屋顶通风系统选型</h3>
+              <div class="project-metric-badge amber">🌿 VOCs 环境治理 · 离心风机选型</div>
               <p class="project-desc">
                 系统评估 VOCs、粉尘及一氧化碳环境浓度，针对进料口等结构空间限制完成设备选型与风量平衡计算，运用离心式屋顶风机方案解决厂房异味与环保废气排放指标。
               </p>
+              <div class="project-tags"><span class="tag-badge">长春派格塑料</span><span class="tag-badge">VOCs 治理</span><span class="tag-badge">设备选型</span><span class="tag-badge">离心风机</span></div>
               <div class="project-footer">
+                <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-ventilation" aria-label="复制注塑厂房作业环境改善与离心式屋顶通风系统选型的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">厂房工程环境实践</span>
                 <a href="#internships" class="project-link">
                   <span>查看详情</span>
@@ -697,10 +660,10 @@
               <h3 class="geek-card-title">空间三维与视觉逻辑</h3>
               <p class="geek-card-lead">Three.js / WebGL 原生研发 · 数字化空间孪生</p>
               <p class="geek-card-body">
-                结合遥感测绘 1:1 独立三维建模还原长春工大两大校区 84 处建筑单体，实现 WebGL 原生高性能第一人称漫游，Draw Call 极限压降 53%；主研《雪线之上》吉林冰雪经济多维时空可视化大屏。
+                依据公开校区资料，为长春工大两大校区 84 处建筑单体搭建三维示意模型，实现 WebGL 原生高性能第一人称漫游，Draw Call 极限压降 53%；主研《雪线之上》吉林冰雪经济多维时空可视化大屏。
               </p>
               <div class="geek-card-meta">
-                <span>#WebGL原生</span><span>#84处建筑测绘</span><span>#冰雪可视化</span>
+                <span>#WebGL原生</span><span>#84处建筑建模</span><span>#冰雪可视化</span>
               </div>
             </div>
 
@@ -800,7 +763,7 @@
                 </div>
 
                 <p class="evolution-body">
-                  系统打下机械制造基础、生产系统建模、运筹优化及现场工业工程改善方法。深入一汽丰田发动机工厂主导装配产线作业测定与 AGV 路径优化；在长春派格塑料攻关注塑车间环境质量改造与屋顶风机选型。独立研发《长春工业大学·全景立体地图》（Three.js），实现 84 处建筑 3D 实测漫游。
+                  系统打下机械制造基础、生产系统建模、运筹优化及现场工业工程改善方法。深入一汽丰田发动机工厂主导装配产线作业测定与 AGV 路径优化；在长春派格塑料攻关注塑车间环境质量改造与屋顶风机选型。独立研发《长春工业大学·全景立体地图》（Three.js），实现 84 处建筑的三维示意建模与漫游。
                 </p>
 
                 <div class="evolution-tags">
@@ -969,7 +932,7 @@
               </div>
               <h3 class="matrix-title">Web 3D 数字孪生与全景视界</h3>
               <p class="matrix-desc">
-                Three.js 原生研发长春工业大学 3D 校园全景，遥感测绘 1:1 还原 84 处建筑单体，极致几何合批；支持第一人称沉浸式漫游、动态视锥剔除与全端适配。
+                Three.js 原生研发长春工业大学 3D 校园全景，依据公开校区资料呈现 84 处建筑示意模型，通过几何合批组织场景；支持第一人称沉浸式漫游、动态视锥剔除与全端适配。
               </p>
               <div class="matrix-chips">
                 <span class="matrix-chip">Three.js</span>
@@ -1471,16 +1434,18 @@
                   <div id="real-fields-group" style="display: contents;">
                     <div>
                       <label for="terminal-sender" class="terminal-label">姓名或称呼（选填）</label>
-                      <input id="terminal-sender" class="terminal-input" type="text" placeholder="方便我称呼你">
+                      <input id="terminal-sender" class="terminal-input" type="text" placeholder="方便我称呼你" maxlength="20" autocomplete="nickname">
                     </div>
                     <div>
                       <label for="terminal-contact" class="terminal-label">联系方式（选填）</label>
-                      <input id="terminal-contact" class="terminal-input" type="text" placeholder="请勿填写不希望公开的联系方式">
+                      <input id="terminal-contact" class="terminal-input" type="text" placeholder="请勿填写不希望公开的联系方式" maxlength="60">
                     </div>
                   </div>
                   <div class="terminal-form-full">
                     <label for="terminal-text" class="terminal-label">留言内容</label>
-                    <textarea id="terminal-text" class="terminal-textarea" placeholder="想交流的项目、问题或建议…" required></textarea>
+                    <textarea id="terminal-text" class="terminal-textarea" placeholder="想交流的项目、问题或建议…" required maxlength="500" aria-describedby="terminal-text-note terminal-hint"></textarea>
+                    <div class="terminal-text-tools" id="terminal-text-note"><span>最多 500 字符</span><span id="terminal-character-count">0 / 500</span></div>
+                    <button type="button" id="terminal-restore-draft" class="terminal-restore-draft" hidden>恢复最近一次生成的留言草稿</button>
                   </div>
                   <p class="terminal-hint terminal-form-full" id="terminal-hint">
                     投递方式：点击「在 GitHub 留言」会打开公开的 Issue 提交页（<strong>需登录 GitHub</strong>）。私人交流请复制留言，通过微信或邮箱联系我。
@@ -1665,6 +1630,6 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/main.js" defer></script>
+  <script src="js/main.js?v=20261011-2" defer></script>
 </body>
 </html>

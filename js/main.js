@@ -291,10 +291,32 @@
     const count = document.getElementById('project-result-count');
     const empty = document.getElementById('project-empty-state');
     const clear = document.getElementById('project-clear-search');
+    const reset = document.getElementById('project-reset-filters');
+    const grid = document.getElementById('project-grid');
+    const viewBtns = Array.from(projects.querySelectorAll('[data-project-view]'));
     const normalize = value => String(value || '').normalize('NFKC').toLocaleLowerCase('zh-CN').replace(/\s+/g, ' ').trim();
     const categories = new Set(btns.map(btn => btn.dataset.filter));
     const index = cards.map(card => ({ card, text: normalize(card.textContent), categories: (card.dataset.category || '').split(/\s+/) }));
     let category = 'all';
+    let view = 'grid';
+    const validView = value => value === 'grid' || value === 'list';
+    const storedView = () => {
+      try {
+        const value = localStorage.getItem('dx_project_view');
+        return validView(value) ? value : 'grid';
+      } catch (e) { return 'grid'; }
+    };
+
+    btns.forEach(btn => {
+      const badge = btn.querySelector('.filter-count');
+      const label = Array.from(btn.childNodes).filter(node => node !== badge).map(node => node.textContent || '').join('').replace(/\s+/g, ' ').trim();
+      const total = index.filter(item => btn.dataset.filter === 'all' || item.categories.includes(btn.dataset.filter)).length;
+      if (badge) {
+        badge.textContent = String(total);
+        badge.setAttribute('aria-hidden', 'true');
+      }
+      btn.setAttribute('aria-label', `${label}，${total}个项目`);
+    });
 
     function update(save = true) {
       const query = normalize(search?.value);
@@ -318,6 +340,17 @@
       if (count) count.textContent = `显示 ${visible} / ${cards.length} 个项目`;
       if (empty) empty.hidden = visible !== 0;
       if (clear) clear.hidden = !query && category === 'all';
+      if (reset) {
+        reset.hidden = !query && category === 'all';
+        reset.disabled = reset.hidden;
+      }
+      if (grid) grid.dataset.view = view;
+      viewBtns.forEach(button => {
+        const selected = button.dataset.projectView === view;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
+      });
+      try { localStorage.setItem('dx_project_view', view); } catch (e) { /* the view also works without browser storage */ }
       if (save) {
         const url = new URL(window.location.href);
         if (category === 'all') url.searchParams.delete('category');
@@ -325,25 +358,42 @@
         const rawQuery = (search?.value || '').trim();
         if (rawQuery) url.searchParams.set('q', rawQuery);
         else url.searchParams.delete('q');
+        if (view === 'list') url.searchParams.set('view', view);
+        else url.searchParams.delete('view');
         try { history.replaceState(history.state, '', url); } catch (e) { /* file previews may not allow history changes */ }
       }
     }
 
-    function readLocation() {
+    function readLocation(initial = false) {
       const params = new URLSearchParams(window.location.search);
       category = categories.has(params.get('category')) ? params.get('category') : 'all';
       if (search) search.value = params.get('q') || '';
-      update(false);
+      view = validView(params.get('view')) ? params.get('view') : (initial ? storedView() : 'grid');
+      update(initial);
     }
     btns.forEach(btn => btn.addEventListener('click', () => { category = btn.dataset.filter; update(); }));
     search?.addEventListener('input', () => update());
-    clear?.addEventListener('click', () => {
+    search?.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || !search.value || activeDialog) return;
+      event.preventDefault();
+      event.stopPropagation();
+      search.value = '';
+      update();
+    });
+    const resetFilters = () => {
       category = 'all';
       if (search) { search.value = ''; search.focus({ preventScroll: true }); }
       update();
-    });
-    window.addEventListener('popstate', readLocation);
-    readLocation();
+    };
+    clear?.addEventListener('click', resetFilters);
+    reset?.addEventListener('click', resetFilters);
+    viewBtns.forEach(button => button.addEventListener('click', () => {
+      if (!validView(button.dataset.projectView)) return;
+      view = button.dataset.projectView;
+      update();
+    }));
+    window.addEventListener('popstate', () => readLocation());
+    readLocation(true);
   }
 
   /* --------------------------------------------------------------------------
@@ -494,7 +544,7 @@
   }
 
   /* --------------------------------------------------------------------------
-     7. 导航高亮 (ScrollSpy) —— IntersectionObserver 替代 scroll 计算
+     7. 导航高亮 (ScrollSpy) —— 按导航目标位置更新，同帧合并滚动事件
      -------------------------------------------------------------------------- */
   function initScrollSpy() {
     const links = Array.from(document.querySelectorAll('.nav-link'));
@@ -502,26 +552,22 @@
       const href = link.getAttribute('href');
       return href?.startsWith('#') ? document.getElementById(href.slice(1)) : null;
     }).filter(Boolean)));
-    if (!sections.length || !links.length || !('IntersectionObserver' in window)) return;
-
-    const visible = new Map();
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        visible.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
-      });
-
-      // 取当前可见比例最高的区块
-      let currentId = '';
-      let max = 0;
-      visible.forEach((ratio, id) => {
-        if (ratio > max) {
-          max = ratio;
-          currentId = id;
+    if (!sections.length || !links.length) return;
+    const navbar = document.getElementById('navbar');
+    const update = () => {
+      const threshold = Math.max(0, navbar?.getBoundingClientRect().bottom || 72) + 120;
+      let currentId = sections.find(section => section.id === 'hero')?.id || sections[0].id;
+      let latestTop = -Infinity;
+      sections.forEach(section => {
+        if (section.id === 'hero') return;
+        const top = section.getBoundingClientRect().top;
+        if (top <= threshold && top >= latestTop) {
+          latestTop = top;
+          currentId = section.id;
         }
       });
-      if (!currentId) return;
-
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40
+          && sections.some(section => section.id === 'contact')) currentId = 'contact';
       links.forEach(link => {
         const active = link.getAttribute('href') === `#${currentId}`;
         link.classList.toggle('active', active);
@@ -531,24 +577,15 @@
           link.removeAttribute('aria-current');
         }
       });
-    }, {
-      rootMargin: '-72px 0px -55% 0px',
-      threshold: [0, 0.25, 0.5, 0.75, 1]
-    });
-
-    sections.forEach(s => observer.observe(s));
-
-    // 触底兜底高亮：确保页面滚动到最底部时正确激活“联系方式”
-    window.addEventListener('scroll', rafThrottle(() => {
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 40) {
-        links.forEach(link => {
-          const isContact = link.getAttribute('href') === '#contact';
-          link.classList.toggle('active', isContact);
-          if (isContact) link.setAttribute('aria-current', 'true');
-          else link.removeAttribute('aria-current');
-        });
-      }
-    }), { passive: true });
+    };
+    const onPositionChange = rafThrottle(update);
+    window.addEventListener('scroll', onPositionChange, { passive: true });
+    window.addEventListener('resize', onPositionChange);
+    window.addEventListener('hashchange', onPositionChange);
+    window.addEventListener('load', onPositionChange);
+    window.addEventListener('pageshow', onPositionChange);
+    update();
+    onPositionChange();
   }
 
   /* --------------------------------------------------------------------------
@@ -914,11 +951,11 @@
     const KB = [
       {
         keys: ['谁', '介绍', 'about', 'intro', '自我'],
-        a: '戴璇（Dai Xuan），长春工业大学<strong>应用统计硕士在读</strong>（2025-2028，研究方向：数据分析），本科工业工程——「统计 + IE」复合背景，玩得转时间序列建模、精益现场改善，也写得了 <strong>Web 3D</strong>。慢慢逛，或从<a href="#about">个人概况</a>看起～'
+        a: '戴璇（Dai Xuan），长春工业大学<strong>应用统计硕士在读</strong>（2025-2028，研究方向：数据分析），本科工业工程——「统计 + IE」复合背景，玩得转时间序列建模、精益现场改善，也写得了 <strong>Web 3D</strong>。慢慢逛，或从<a href="#hero">个人概况</a>看起～'
       },
       {
         keys: ['画像', 'geek', '极客'],
-        a: '戴璇具备<strong>四重极客认知维度</strong>：🎯 <strong>长期主义者</strong>（数理与工科复合沉淀）、⚙️ <strong>效率与实证工程</strong>（一汽丰田生产线时间研究与AGV优化）、👁️ <strong>空间三维与视觉逻辑</strong>（84处单体建筑3D测绘与漫游）、📐 <strong>量化实证与严谨建模</strong>（时间序列、生存分析、Monte Carlo应力测试）。详见<a href="#geek-profile">极客画像</a>。'
+        a: '戴璇具备<strong>四重极客认知维度</strong>：🎯 <strong>长期主义者</strong>（数理与工科复合沉淀）、⚙️ <strong>效率与实证工程</strong>（一汽丰田生产线时间研究与AGV优化）、👁️ <strong>空间三维与视觉逻辑</strong>（84处建筑示意建模与漫游）、📐 <strong>量化实证与严谨建模</strong>（时间序列、生存分析、Monte Carlo应力测试）。详见<a href="#geek-profile">极客画像</a>。'
       },
       {
         keys: ['进化', '档案', '基石', '成长'],
@@ -991,7 +1028,14 @@
 
     function botReply(question) {
       const text = question.toLowerCase();
-      const hit = KB.find(item => item.keys.some(k => text.includes(k)));
+      let hit = null;
+      let longestMatch = 0;
+      KB.forEach(item => item.keys.forEach(key => {
+        if (key.length > longestMatch && text.includes(key)) {
+          longestMatch = key.length;
+          hit = item;
+        }
+      }));
       const typing = document.createElement('div');
       typing.className = 'twin-typing';
       typing.innerHTML = '<i></i><i></i><i></i>';
@@ -1594,6 +1638,11 @@
     const btn = document.getElementById('btn-transmit');
     const copyBtn = document.getElementById('btn-copy-msg');
     const feedback = document.getElementById('terminal-feedback');
+    const senderField = document.getElementById('terminal-sender');
+    const contactField = document.getElementById('terminal-contact');
+    const textField = document.getElementById('terminal-text');
+    const characterCount = document.getElementById('terminal-character-count');
+    const restoreDraft = document.getElementById('terminal-restore-draft');
     if (!form || !btn) return;
 
     const ISSUE_BASE = 'https://github.com/dai123x/dai123x.github.io/issues/new';
@@ -1608,10 +1657,29 @@
     const isStealth = () => form.dataset.stealth === '1';
 
     const readFields = () => ({
-      sender: (document.getElementById('terminal-sender')?.value || '').trim().slice(0, 20),
-      contact: (document.getElementById('terminal-contact')?.value || '').trim().slice(0, 60),
-      text: (document.getElementById('terminal-text')?.value || '').trim().slice(0, 500)
+      sender: (senderField?.value || '').trim(),
+      contact: (contactField?.value || '').trim(),
+      text: textField?.value || ''
     });
+
+    const updateCharacterCount = () => {
+      const length = (textField?.value || '').length;
+      if (characterCount) {
+        characterCount.textContent = `${length} / 500`;
+        characterCount.classList.toggle('is-over-limit', length > 500);
+      }
+    };
+
+    const readLastDraft = () => {
+      try {
+        const drafts = JSON.parse(localStorage.getItem('dx_msg_drafts') || '[]');
+        const last = Array.isArray(drafts) ? drafts[drafts.length - 1] : null;
+        return last && typeof last.text === 'string' && last.text.trim() ? last.text : null;
+      } catch (e) { return null; }
+    };
+    const updateDraftButton = () => {
+      if (restoreDraft) restoreDraft.hidden = readLastDraft() === null;
+    };
 
     const buildPayload = () => {
       const { sender, contact, text } = readFields();
@@ -1661,20 +1729,80 @@
       feedback.classList.toggle('is-ok', kind === 'ok');
     };
 
+    const validateFields = () => {
+      const constraints = [
+        { field: senderField, max: 20, name: '姓名或称呼' },
+        { field: contactField, max: 60, name: '联系方式' },
+        { field: textField, max: 500, name: '留言内容' }
+      ];
+      let message = '';
+      constraints.forEach(({ field, max, name }) => {
+        if (!field) return;
+        if (isStealth() && field !== textField) {
+          field.setCustomValidity('');
+          return;
+        }
+        const error = field.value.length > max ? `${name}最多可填写 ${max} 个字符，请删减后重试。` : '';
+        field.setCustomValidity(error);
+        if (!message && error) message = error;
+      });
+      if (textField && !textField.value.trim()) {
+        const error = '请先填写留言内容。';
+        textField.setCustomValidity(error);
+        if (!message) message = error;
+      }
+      updateCharacterCount();
+      if (!form.reportValidity()) {
+        setFeedback(message || '请检查填写内容后重试。', 'error');
+        return false;
+      }
+      return true;
+    };
+
+    const invalidateGeneratedLink = () => {
+      if (feedback?.querySelector('a')) setFeedback('内容或联系方式设置已更新，请重新生成 GitHub 留言链接。');
+    };
+    [senderField, contactField, textField].forEach(field => field?.addEventListener('input', () => {
+      field.setCustomValidity('');
+      updateCharacterCount();
+      invalidateGeneratedLink();
+    }));
+    document.getElementById('stealth-toggle-btn')?.addEventListener('click', () => {
+      senderField?.setCustomValidity('');
+      contactField?.setCustomValidity('');
+      invalidateGeneratedLink();
+    });
+    restoreDraft?.addEventListener('click', () => {
+      const draft = readLastDraft();
+      updateDraftButton();
+      if (draft === null || !textField) return;
+      textField.value = draft;
+      textField.setCustomValidity('');
+      updateCharacterCount();
+      textField.focus({ preventScroll: true });
+      setFeedback(draft.length > 500
+        ? `本机草稿已恢复，共 ${draft.length} 个字符。请删减至 500 个字符以内再生成链接或复制。`
+        : '本机草稿已恢复到留言内容，请检查后继续。称呼和联系方式由你自行填写。', draft.length > 500 ? 'error' : 'ok');
+    });
+    window.addEventListener('storage', event => {
+      if (event.key === 'dx_msg_drafts' || event.key === null) updateDraftButton();
+    });
+    updateCharacterCount();
+    updateDraftButton();
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+      if (!validateFields()) return;
       const p = buildPayload();
-      if (!p.text) {
-        document.getElementById('terminal-text')?.focus();
-        return;
-      }
 
       // 本地留存草稿（只存在访客自己的浏览器里，便于误关页面后找回）
       try {
-        const list = JSON.parse(localStorage.getItem('dx_msg_drafts') || '[]');
+        const saved = JSON.parse(localStorage.getItem('dx_msg_drafts') || '[]');
+        const list = Array.isArray(saved) ? saved : [];
         list.push({ who: p.who, text: p.text, time: new Date().toISOString() });
         localStorage.setItem('dx_msg_drafts', JSON.stringify(list.slice(-20)));
       } catch (err) { /* 隐私模式下忽略 */ }
+      updateDraftButton();
 
       const url = ISSUE_BASE +
         '?title=' + encodeURIComponent(p.title) +
@@ -1698,11 +1826,8 @@
 
     if (copyBtn) {
       copyBtn.addEventListener('click', () => {
+        if (!validateFields()) return;
         const p = buildPayload();
-        if (!p.text) {
-          document.getElementById('terminal-text')?.focus();
-          return;
-        }
         const orig = copyBtn.innerHTML;
         copyText(p.text).then(() => {
           setFeedback('留言内容已复制，可粘贴到微信、邮箱等任意渠道发送给戴璇。', 'ok');
