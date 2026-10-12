@@ -37,7 +37,7 @@
 
     <!-- UI Elements -->
     <g transform="translate(30, 70)">
-      <!-- Left: Survival Curve -->
+      <!-- Left: Illustrative Survival Curves -->
       <g>
         <rect width="240" height="150" rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.05)"/>
         <!-- Axes -->
@@ -48,7 +48,7 @@
         <path d="M 30,30 L 60,30 L 60,45 L 90,45 L 90,65 L 120,65 L 120,95 L 160,95 L 160,110 L 210,110" fill="none" stroke="#10b981" stroke-width="2.5"/>
         <path d="M 30,40 L 70,40 L 70,65 L 110,65 L 110,105 L 140,105 L 140,120 L 210,120" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4 4"/>
         
-        <text x="40" y="20" fill="#cbd5e1" font-size="10" font-family="sans-serif">Survival Prob S(t)</text>
+        <text x="40" y="20" fill="#cbd5e1" font-size="10" font-family="sans-serif">生存曲线（示意）</text>
       </g>
       
       <!-- Right: DML Causal Tree/Metrics -->
@@ -56,17 +56,16 @@
         <rect width="140" height="150" rx="8" fill="#0f172a" stroke="rgba(255,255,255,0.05)"/>
         
         <!-- Metric 1 -->
-        <text x="15" y="30" fill="#94a3b8" font-size="10" font-family="sans-serif">DML Treatment Effect</text>
-        <text x="15" y="55" fill="#38bdf8" font-size="20" font-weight="bold">-4.18%</text>
-        <text x="85" y="55" fill="#10b981" font-size="10">p&lt;0.05</text>
+        <text x="15" y="28" fill="#94a3b8" font-size="11" font-family="sans-serif">DML 点估计</text>
+        <text x="15" y="51" fill="#38bdf8" font-size="20" font-weight="bold">-5.62%</text>
+        <text x="15" y="68" fill="#94a3b8" font-size="10" font-family="sans-serif">p≈0.27 · 未达显著</text>
         
         <!-- Divider -->
         <line x1="15" y1="75" x2="125" y2="75" stroke="#1e293b"/>
         
         <!-- Metric 2 -->
-        <text x="15" y="100" fill="#94a3b8" font-size="10" font-family="sans-serif">Model AUC</text>
-        <text x="15" y="125" fill="#f43f5e" font-size="20" font-weight="bold">0.915</text>
-        <path d="M 75,120 L 85,110 L 95,115 L 115,100" fill="none" stroke="#10b981" stroke-width="2"/>
+        <text x="15" y="99" fill="#94a3b8" font-size="10" font-family="sans-serif">Logistic 折外 AUC</text>
+        <text x="15" y="124" fill="#38bdf8" font-size="20" font-weight="bold">0.6834</text>
       </g>
     </g>
   </g>

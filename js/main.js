@@ -22,6 +22,7 @@
 
   let activeDialog = null;
   let backgroundState = [];
+  const isComposingKey = (event) => event.isComposing || event.keyCode === 229;
 
   function syncScrollLock() {
     const menu = document.getElementById('nav-menu');
@@ -82,7 +83,7 @@
   }
 
   document.addEventListener('keydown', (event) => {
-    if (!activeDialog) return;
+    if (!activeDialog || isComposingKey(event)) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
@@ -374,7 +375,7 @@
     btns.forEach(btn => btn.addEventListener('click', () => { category = btn.dataset.filter; update(); }));
     search?.addEventListener('input', () => update());
     search?.addEventListener('keydown', event => {
-      if (event.key !== 'Escape' || !search.value || activeDialog) return;
+      if (isComposingKey(event) || event.key !== 'Escape' || !search.value || activeDialog) return;
       event.preventDefault();
       event.stopPropagation();
       search.value = '';
@@ -910,6 +911,7 @@
     });
 
     if (input) input.addEventListener('keydown', (e) => {
+      if (isComposingKey(e)) return;
       if (e.key === 'Enter') { e.preventDefault(); if (syncBtn) syncBtn.click(); }
     });
 
@@ -999,7 +1001,7 @@
       },
       {
         keys: ['aurora chat', '聊天', '工作台', '大模型', 'ai'],
-        a: '🛰️ <strong>Aurora Chat · 极光</strong>是戴璇开源的纯静态 AI 工作台：智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，支持双模型对比投票，MIT 协议可商用。<a href="aurora-chat/" target="_blank" rel="noopener noreferrer">打开在线应用 ↗</a>'
+        a: '🛰️ <strong>Aurora Chat · 极光</strong>是戴璇开源的纯静态 AI 工作台：支持智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 5 家云服务与本地模型（OpenAI 需自建代理），支持双模型对比投票，MIT 协议可商用。<a href="aurora-chat/" target="_blank" rel="noopener noreferrer">打开在线应用 ↗</a>'
       },
       {
         keys: ['技能', 'skill', 'stack', '会什么'],
@@ -1113,7 +1115,7 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && drawer.classList.contains('open') && !activeDialog) { e.preventDefault(); close(); }
+      if (!isComposingKey(e) && e.key === 'Escape' && drawer.classList.contains('open') && !activeDialog) { e.preventDefault(); close(); }
     });
 
     openTwinDrawer = open;
@@ -1308,6 +1310,7 @@
     }
 
     document.addEventListener('keydown', (e) => {
+      if (isComposingKey(e)) return;
       if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
         e.preventDefault();
         overlay.classList.contains('active') ? close() : open();
@@ -1586,6 +1589,7 @@
     if (triggerBtn) triggerBtn.addEventListener('click', openStarModal);
     if (closeBtn) closeBtn.addEventListener('click', closeStarModal);
     wishInput?.addEventListener('keydown', e => {
+      if (isComposingKey(e)) return;
       if (e.key === 'Enter') { e.preventDefault(); confirmBtn?.click(); }
     });
 
@@ -1825,24 +1829,43 @@
     });
 
     if (copyBtn) {
+      const originalCopyLabel = copyBtn.innerHTML;
+      let copyResetTimer = null;
+      let copyAttempt = 0;
+      const resetCopyLabel = () => {
+        clearTimeout(copyResetTimer);
+        copyResetTimer = null;
+        copyBtn.classList.remove('is-done');
+        copyBtn.innerHTML = originalCopyLabel;
+      };
       copyBtn.addEventListener('click', () => {
+        if (copyBtn.disabled) return;
         if (!validateFields()) return;
         const p = buildPayload();
-        const orig = copyBtn.innerHTML;
+        const attempt = ++copyAttempt;
+        resetCopyLabel();
+        copyBtn.disabled = true;
+        copyBtn.setAttribute('aria-busy', 'true');
         copyText(p.text).then(() => {
+          if (attempt !== copyAttempt) return;
           setFeedback('留言内容已复制，可粘贴到微信、邮箱等任意渠道发送给戴璇。', 'ok');
           say('📋 留言内容已复制到剪贴板');
           copyBtn.classList.add('is-done');
           copyBtn.innerHTML = '<span>✓ 已复制</span>';
-          setTimeout(() => {
-            copyBtn.classList.remove('is-done');
-            copyBtn.innerHTML = orig;
+          copyResetTimer = setTimeout(() => {
+            if (attempt === copyAttempt) resetCopyLabel();
           }, 2200);
         }).catch(() => {
+          if (attempt !== copyAttempt) return;
+          resetCopyLabel();
           const ta = document.getElementById('terminal-text');
           if (ta) { ta.focus(); ta.select(); }
           setFeedback('自动复制失败，已为你选中留言内容，请按 Ctrl/Cmd + C 复制。', 'error');
           say('⚠️ 复制失败，请手动复制留言内容');
+        }).finally(() => {
+          if (attempt !== copyAttempt) return;
+          copyBtn.disabled = false;
+          copyBtn.removeAttribute('aria-busy');
         });
       });
     }

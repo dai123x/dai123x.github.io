@@ -866,7 +866,7 @@ body {
   display: block;
 }
 
-.contact-item h4 {
+.contact-item h4, .contact-item h3 {
   font-size: 0.9rem;
   color: var(--text-muted);
   margin-bottom: 4px;
@@ -1611,7 +1611,7 @@ body.nav-open {
   font-size: 1.3rem;
 }
 
-.award-content h4 {
+.award-content h4, .award-content h3 {
   font-size: 0.98rem;
   font-weight: 700;
   color: var(--text-primary);

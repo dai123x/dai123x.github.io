@@ -115,7 +115,7 @@
 #contact .contact-box { border-radius: 22px !important; box-shadow: var(--card-shadow); padding: 32px; }
 #contact .scanline-effect { display: none; }
 #contact .contact-item { min-width: 0; overflow-wrap: anywhere; }
-#contact .contact-item h4 { font-size: .83rem; }
+#contact .contact-item h4, #contact .contact-item h3 { font-size: .83rem; }
 #contact .contact-item p { font-size: .78rem; }
 #contact .terminal-form { gap: 18px; }
 #contact .terminal-label { font: .78rem var(--font-sans); }

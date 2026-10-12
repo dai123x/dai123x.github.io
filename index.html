@@ -32,13 +32,12 @@
   <link rel="apple-touch-icon" href="assets/images/icon-192.png">
   <link rel="manifest" href="site.webmanifest">
 
-  <!-- Performance: 关键资源预加载 -->
-  <link rel="preload" href="css/style.css" as="style">
-  <link rel="preload" href="assets/images/avatar.jpg" as="image" fetchpriority="high">
+  <!-- Performance: 预加载首屏侧栏头像（避免深层图片延迟发现） -->
+  <link rel="preload" href="assets/images/avatar.jpg?v=20261011-4" as="image" fetchpriority="high">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/refresh.css?v=20261011-2">
+  <link rel="stylesheet" href="css/style.css?v=20261011-3">
+  <link rel="stylesheet" href="css/refresh.css?v=20261011-3">
 
   <!-- 主题预初始化：在首帧前同步应用，避免深色/浅色切换闪屏 (FOUC) -->
   <script>
@@ -186,7 +185,7 @@
       <!-- 左侧粘性极客画卷 (Sticky Profile Sidebar - 参考 bobzhang.top 左侧画卷) -->
       <aside class="bento-sidebar" id="sidebar-profile">
         <div class="bento-avatar-ring">
-          <img src="assets/images/avatar.jpg" alt="戴璇" class="bento-avatar-img" width="110" height="110" loading="eager" fetchpriority="high">
+          <img src="assets/images/avatar.jpg?v=20261011-4" alt="戴璇" class="bento-avatar-img" width="110" height="110" loading="eager" fetchpriority="high">
         </div>
 
         <!-- 访客身份同步徽章 -->
@@ -344,7 +343,7 @@
           <!-- 明史资料平台 -->
           <article id="work-ming" class="project-card featured" data-category="history research">
             <div class="project-cover">
-              <img src="assets/images/project-minghistory.svg" alt="明史资料平台：明代文献索引与研读工具封面" loading="lazy" decoding="async" width="800" height="500">
+              <img src="assets/images/project-minghistory.svg?v=20261011-3" alt="明史资料平台：明代文献索引与研读工具封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <span class="project-eyebrow">01 / 文献研读 / INTERACTIVE ARCHIVE</span>
@@ -372,7 +371,7 @@
           <!-- Case Study: 应用统计案例分析 -->
           <article id="work-manufacturing" class="project-card featured" data-category="stats ie">
             <div class="project-cover">
-              <img src="assets/images/project-casestudy.svg" alt="智能制造产线节拍异常诊断应用统计案例分析" loading="lazy" decoding="async" width="800" height="500">
+              <img src="assets/images/project-casestudy.svg?v=20261011-3" alt="智能制造产线节拍异常诊断应用统计案例分析" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <span class="project-eyebrow">02 / 统计案例 / TIME SERIES</span>
@@ -395,7 +394,7 @@
           <!-- Case Study 2: Applied Statistics Credit Risk -->
           <article id="work-credit" class="project-card featured" data-category="stats ie">
             <div class="project-cover">
-              <img src="assets/images/project-casestudy2.svg" alt="专精特新中小企业信贷违约风险预警与数智定价应用统计案例研究封面" loading="lazy" decoding="async" width="800" height="500">
+              <img src="assets/images/project-casestudy2.svg?v=20261011-3" alt="专精特新中小企业信贷违约风险预警与数智定价应用统计案例研究封面" loading="lazy" decoding="async" width="800" height="500">
             </div>
             <div class="project-body">
               <span class="project-eyebrow">03 / 统计案例 / CREDIT RISK</span>
@@ -424,10 +423,10 @@
             <div class="project-body">
               <span class="project-eyebrow">04 / 交互工具 / AI WORKSPACE</span>
               <h3 class="project-title">Aurora Chat · 极光 — 私有 AI 聊天工作台</h3>
-              <div class="project-metric-badge green">🛰️ 零后端 · 浏览器直连 5 家大模型 API</div>
+              <div class="project-metric-badge green">🛰️ 纯静态 · 支持 5 家云服务，OpenAI 需代理</div>
               <p class="project-desc">纯静态 AI 工作台，支持多家模型 API、流式对话与双模型对比。对话与 API Key 保存在当前浏览器。</p>
               <div class="project-tags"><span class="tag-badge">纯前端 / 无构建</span><span class="tag-badge">流式 SSE</span><span class="tag-badge">双模型对比投票</span><span class="tag-badge">MIT 开源可商用</span></div>
-              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">参考 lobe-chat 与 LMSYS Chatbot Arena 的纯静态 AI 工作台：智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，推理模型思考过程折叠展示；同一问题双模型并行对比并可投票，内置 18 个提示词模板，对话与 API Key 仅存本机浏览器。</div></details>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">参考 lobe-chat 与 LMSYS Chatbot Arena 的纯静态 AI 工作台：支持智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow，其中 OpenAI 需先配置自建代理，其他服务商按应用内说明连接。推理模型思考过程折叠展示；同一问题双模型并行对比并可投票，内置 18 个提示词模板，对话与 API Key 仅存本机浏览器。</div></details>
               <div class="project-footer">
                 <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-aurora" aria-label="复制Aurora Chat · 极光 — 私有 AI 聊天工作台的直达链接" title="复制作品链接">复制链接</button>
                 <span  class="text-meta">MIT 开源 · 允许商用（保留声明即可）</span>
@@ -987,7 +986,7 @@
           <div class="award-card">
             <div class="award-icon-box">🏆</div>
             <div class="award-content">
-              <h4>“挑战杯”东北振兴专项赛</h4>
+              <h3>“挑战杯”东北振兴专项赛</h3>
               <span class="award-level">省级二等奖</span>
             </div>
           </div>
@@ -996,7 +995,7 @@
           <div class="award-card">
             <div class="award-icon-box">🥉</div>
             <div class="award-content">
-              <h4>中国国际“互联网+”大学生创新创业大赛</h4>
+              <h3>中国国际“互联网+”大学生创新创业大赛</h3>
               <span class="award-level">校级铜奖</span>
             </div>
           </div>
@@ -1005,7 +1004,7 @@
           <div class="award-card">
             <div class="award-icon-box">📊</div>
             <div class="award-content">
-              <h4>第二届中国高校大数据挑战赛</h4>
+              <h3>第二届中国高校大数据挑战赛</h3>
               <span class="award-level">全国优秀奖</span>
             </div>
           </div>
@@ -1014,7 +1013,7 @@
           <div class="award-card">
             <div class="award-icon-box">📐</div>
             <div class="award-content">
-              <h4>华中杯数学建模挑战赛</h4>
+              <h3>华中杯数学建模挑战赛</h3>
               <span class="award-level">优秀奖</span>
             </div>
           </div>
@@ -1023,7 +1022,7 @@
           <div class="award-card">
             <div class="award-icon-box">⚙️</div>
             <div class="award-content">
-              <h4>长春工业大学机械创新设计大赛</h4>
+              <h3>长春工业大学机械创新设计大赛</h3>
               <span class="award-level">校级三等奖</span>
             </div>
           </div>
@@ -1032,7 +1031,7 @@
           <div class="award-card">
             <div class="award-icon-box">📜</div>
             <div class="award-content">
-              <h4>“外研社·国才杯”全国外语能力大赛</h4>
+              <h3>“外研社·国才杯”全国外语能力大赛</h3>
               <span class="award-level">阅读 / 写作 / 笔译 三项校三等奖</span>
             </div>
           </div>
@@ -1371,28 +1370,28 @@
                 <!-- GitHub -->
                 <a class="contact-item" href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" style="text-decoration: none;" title="访问 GitHub 主页">
                   <span class="contact-item-icon">🐙</span>
-                  <h4>GitHub (点击访问)</h4>
+                  <h3>GitHub (点击访问)</h3>
                   <p>@dai123x</p>
                 </a>
 
                 <!-- Email -->
                 <div class="contact-item" data-mailbox data-user="daixuan26" data-domain="outlook.com" title="点击复制邮箱">
                   <span class="contact-item-icon">📬</span>
-                  <h4>电子邮箱 (点击复制)</h4>
+                  <h3>电子邮箱 (点击复制)</h3>
                   <p class="mailbox-text"></p>
                 </div>
 
                 <!-- WeChat -->
                 <div class="contact-item" id="wechat-box-trigger" title="点击查看微信二维码">
                   <span class="contact-item-icon">💬</span>
-                  <h4>微信交流 (点击查看)</h4>
+                  <h3>微信交流 (点击查看)</h3>
                   <p>戴璇 (Dai Xuan)</p>
                 </div>
 
                 <!-- Location -->
                 <div class="contact-item">
                   <span class="contact-item-icon">📍</span>
-                  <h4>所在地区 / 籍贯</h4>
+                  <h3>所在地区 / 籍贯</h3>
                   <p>浙江湖州 / 吉林长春</p>
                 </div>
               </div>
@@ -1630,6 +1629,6 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/main.js?v=20261011-2" defer></script>
+  <script src="js/main.js?v=20261011-3" defer></script>
 </body>
 </html>

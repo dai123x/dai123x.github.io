@@ -332,7 +332,7 @@ details.thinking summary:hover { color: var(--muted); }
 .hero-glow::after { right: 10%; top: 60px; width: 380px; height: 220px; background: var(--acc3); }
 [data-theme="light"] .hero-glow { opacity: .18; }
 .hero-logo { width: 74px; height: 74px; position: relative; }
-.hero h1 {
+.hero h1, .hero h2 {
   margin: 14px 0 6px; font-size: 30px; letter-spacing: .5px;
   background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
