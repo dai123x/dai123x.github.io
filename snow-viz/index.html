@@ -3637,7 +3637,7 @@
         <button class="btn" id="btnLangToggle" title="中英双语国际化切换 (快捷键 L)" style="font-family:var(--font-mono); font-weight:700; border-color:var(--mint); color:var(--mint);">🌐 中 / EN</button>
         <button class="btn btn-gold" id="btnTour" title="启动全自动巡航讲解模式">🚀 自动巡航演示</button>
         <button class="btn" id="btnPanelData" title="跳转至吉林省 9 市州面板回归与稳健性诊断专题" style="border-color: var(--ice); color: var(--ice);">📊 面板数据分析</button>
-        <a href="documentation.html" target="_blank" class="btn" style="text-decoration:none; border-color:var(--ice); color:var(--ice);" title="查看指标口径、计量检验与复算说明书">📖 作品说明书</a>
+        <a href="documentation.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none; border-color:var(--ice); color:var(--ice);" title="查看指标口径、计量检验与复算说明书">📖 作品说明书</a>
         <button class="btn" id="btnPresent" title="16:9 全屏展示 (快捷键 F)">🖥️ 演示模式</button>
         <div class="toolbar-dropdown" id="toolbarDropdown">
           <button class="btn" id="btnMoreTools" type="button" style="border-color:var(--panel-border);" onclick="document.getElementById('toolbarDropdown').classList.toggle('open')">
@@ -3926,7 +3926,7 @@
                   <span>🚄 沈白高铁客流增益</span>
                   <b id="simValTransit" style="color:var(--mint);">+25%</b>
                 </div>
-                <input type="range" class="sim-slider" id="sliderTransit" min="0" max="35" value="25" step="1">
+                <input type="range" class="sim-slider" id="sliderTransit" aria-label="沈白高铁客流增益（%）" min="0" max="35" value="25" step="1">
                 <small>预期2025通车，京津冀至长白山压缩至2.5h</small>
               </div>
               <div class="sim-control-group">
@@ -3934,7 +3934,7 @@
                   <span>📢 南方客群引力营销乘数</span>
                   <b id="simValMarketing" style="color:var(--gold);">1.6x</b>
                 </div>
-                <input type="range" class="sim-slider" id="sliderMarketing" min="1.0" max="2.5" value="1.6" step="0.1">
+                <input type="range" class="sim-slider" id="sliderMarketing" aria-label="南方客群引力营销乘数" min="1.0" max="2.5" value="1.6" step="0.1">
                 <small>精准投放长三角、大湾区定向消费券</small>
               </div>
               <div class="sim-control-group">
@@ -3942,7 +3942,7 @@
                   <span>🌡️ 极端气候气温偏离</span>
                   <b id="simValTemp" style="color:var(--ice);">0.0℃</b>
                 </div>
-                <input type="range" class="sim-slider" id="sliderTemp" min="-2.0" max="2.0" value="0.0" step="0.1">
+                <input type="range" class="sim-slider" id="sliderTemp" aria-label="极端气候气温偏离（℃）" min="-2.0" max="2.0" value="0.0" step="0.1">
                 <small>每偏高1℃导致有效雪期与意愿波动</small>
               </div>
             </div>
@@ -5934,14 +5934,14 @@ async function initWebXRSession(gl) {
                 <span>地区生产总值 GDP</span>
                 <span class="da-slider-val" id="daGdpVal">1,633 亿元</span>
               </div>
-              <input type="range" class="da-slider gold" id="daGdpRange" min="500" max="7800" step="10" value="1633">
+              <input type="range" class="da-slider gold" id="daGdpRange" aria-label="地区生产总值 GDP（亿元）" min="500" max="7800" step="10" value="1633">
             </div>
             <div class="da-slider-row">
               <div class="da-slider-head">
                 <span>年积雪日数</span>
                 <span class="da-slider-val" id="daSnowVal">132 天</span>
               </div>
-              <input type="range" class="da-slider" id="daSnowRange" min="105" max="150" step="1" value="132">
+              <input type="range" class="da-slider" id="daSnowRange" aria-label="年积雪日数（天）" min="105" max="150" step="1" value="132">
             </div>
             <div style="font-size:11px; color:var(--dim); margin-top:16px; margin-bottom:6px;">快速载入真实市州参数：</div>
             <div class="da-node-pick" id="daNodePick">
@@ -6010,7 +6010,7 @@ async function initWebXRSession(gl) {
           <b>③</b> 雪场运营实况（北大湖、万科松花湖、万峰通化三大雪场接待量突破百万人次）——新华社 2026 年 4 月报道；<br>
           <b>④</b> 积雪日数与地形数据——吉林省气象局气候资料及公开地理国情普查数据；<br>
           <b>⑤</b> 交通可达性（沈白高速铁路已于 2025 年 9 月 28 日正式通车运营，北京至长白山最快约 2.5 小时直达）——中国国家铁路集团公告。<br>
-          <span style="color:var(--muted);">口径说明：冰雪指数为课题组依据「降雪资源(25%) + 设施规模(25%) + 客流强度(30%) + 交通可达(20%)」四维加权构建的 0–100 综合评分。<b>【因变量内生性与循环性审视】：</b>因变量包含部分自然设施成分，课题组在<a href="documentation.html#appendix" target="_blank" style="color:var(--ice); text-decoration:underline;">《作品说明书》附录</a>中提供了彻底剔除资源设施维度的“净化需求端指数”及“独立接待客流”双重稳健性重估，证实结论高度稳健。<b style="color:var(--gold);">随系统附带交付 9 市州截面底表 <code style="color:var(--ice);"><a href="jilin_city_panel_2024.csv" download style="color:inherit;">jilin_city_panel_2024.csv</a></code> (长春=68，附逐维真实计算得分) 及 54 观测值平衡面板底表 <code style="color:var(--ice);"><a href="jilin_city_panel_2018_2024.csv" download style="color:inherit;">jilin_city_panel_2018_2024.csv</a></code>，评委可自行导入复算：</b><a href="jilin_city_panel_2024.csv" download="jilin_city_panel_2024.csv" style="display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:2px 8px; font-size:12px; vertical-align:middle; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.4); border-radius:4px; color:var(--ice); text-decoration:none; cursor:pointer;" title="点击直接下载该 CSV 底表">⬇ 下载面板底表 (CSV)</a></span>
+          <span style="color:var(--muted);">口径说明：冰雪指数为课题组依据「降雪资源(25%) + 设施规模(25%) + 客流强度(30%) + 交通可达(20%)」四维加权构建的 0–100 综合评分。<b>【因变量内生性与循环性审视】：</b>因变量包含部分自然设施成分，课题组在<a href="documentation.html#appendix" target="_blank" rel="noopener" style="color:var(--ice); text-decoration:underline;">《作品说明书》附录</a>中提供了彻底剔除资源设施维度的“净化需求端指数”及“独立接待客流”双重稳健性重估，证实结论高度稳健。<b style="color:var(--gold);">随系统附带交付 9 市州截面底表 <code style="color:var(--ice);"><a href="jilin_city_panel_2024.csv" download style="color:inherit;">jilin_city_panel_2024.csv</a></code> (长春=68，附逐维真实计算得分) 及 54 观测值平衡面板底表 <code style="color:var(--ice);"><a href="jilin_city_panel_2018_2024.csv" download style="color:inherit;">jilin_city_panel_2018_2024.csv</a></code>，评委可自行导入复算：</b><a href="jilin_city_panel_2024.csv" download="jilin_city_panel_2024.csv" style="display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:2px 8px; font-size:12px; vertical-align:middle; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.4); border-radius:4px; color:var(--ice); text-decoration:none; cursor:pointer;" title="点击直接下载该 CSV 底表">⬇ 下载面板底表 (CSV)</a></span>
         </div>
       </article>
     </section>
@@ -6138,7 +6138,7 @@ async function initWebXRSession(gl) {
       </div>
       
       <div style="background: #f8fafc; border-left: 3px solid var(--ice); padding: 16px; margin-bottom: 24px; font-size: 14px; line-height: 1.7; color: var(--text);">
-        <h4 style="color: var(--ice); margin-top: 0; margin-bottom: 8px; font-size: 15px;">🧠 执行摘要 (Executive Summary)</h4>
+        <h3 style="color: var(--ice); margin-top: 0; margin-bottom: 8px; font-size: 15px;">🧠 执行摘要 (Executive Summary)</h3>
         <div id="dynamicExecSummary">
         根据本系统的三阶段模型测算与空间流向演算：吉林省冰雪经济正处于从“资源依赖型”向“产业集群型”跨越的关键期。至 2030 年，依托 <b>+140%</b> 的超高速客流增长引擎，冰雪旅游核心收入规划目标为 <b>5400 亿元</b>。同时，通过空间上向长白山核心区与长吉都市圈的资本倾斜，以及每年 <b>300+赛事 / 500+冰场</b> 的全省刚性供给支撑，吉林省将彻底夯实其“世界级冰雪胜地”的战略定位。
         </div>
@@ -6212,7 +6212,7 @@ async function initWebXRSession(gl) {
       
       <div style="display:flex; gap:20px; margin-bottom: 24px;">
         <div style="flex:1;">
-          <label style="display:block; font-size:13px; color:var(--ice); margin-bottom:8px;">目标投资区域</label>
+          <label for="analysisRegion" style="display:block; font-size:13px; color:var(--ice); margin-bottom:8px;">目标投资区域</label>
           <select id="analysisRegion" style="width:100%; padding:10px; background:#ffffff; border:1px solid #cbd5e1; color:var(--text); border-radius:4px; font-size:15px; outline:none;">
             <option value="changbai">长白山核心区 (高净值度假/生态游)</option>
             <option value="changchun">长春都市圈 (都市冰雪/高客流)</option>
@@ -6221,7 +6221,7 @@ async function initWebXRSession(gl) {
           </select>
         </div>
         <div style="flex:1;">
-          <label style="display:block; font-size:13px; color:var(--ice); margin-bottom:8px;">拟注入资金规模 (亿元)</label>
+          <label for="analysisInvestment" style="display:block; font-size:13px; color:var(--ice); margin-bottom:8px;">拟注入资金规模 (亿元)</label>
           <div style="display:flex; align-items:center; gap:12px;">
             <input type="range" id="analysisInvestment" min="1" max="100" step="1" value="10" style="flex:1; accent-color: var(--mint);">
             <span id="analysisInvestmentVal" style="color:var(--gold); font-size:16px; font-weight:bold; min-width: 50px;">10 亿</span>
@@ -6349,7 +6349,7 @@ async function initWebXRSession(gl) {
       <!-- Body Content -->
       <div style="font-size:14px; line-height:1.8; color:var(--text-2);">
         <div style="background:rgba(56,189,248,0.06); border-left:4px solid var(--ice); padding:12px 16px; margin-bottom:14px; border-radius:0 6px 6px 0;">
-          <h4 style="color: var(--text); margin:0 0 4px; font-size:14px;">一、 合作宗旨与总体目标</h4>
+          <h3 style="color: var(--text); margin:0 0 4px; font-size:14px;">一、 合作宗旨与总体目标</h3>
           <p style="margin:0;">
             本备忘录（MOU）旨在推动第 5 届吉林省大学生虚拟现实大赛参赛作品《雪线之上 · 吉林冰雪经济目标可视化交互系统》全面转化为服务吉林省打造“万亿级冰雪支柱产业”的数字化决策工具。研发团队承诺向签约试点单位提供<b>免授权费、零外部依赖单文件形态</b>的核心系统，协助推进文旅大数据应用落地。
           </p>
@@ -6750,7 +6750,7 @@ async function initWebXRSession(gl) {
       <button class="dock-btn" id="dockBtnPlayPause" title="播放 / 暂停">▶</button>
       <div class="dock-progress-wrapper">
         <span id="dockCurTime" class="dock-time">00:00</span>
-        <input type="range" id="dockSeek" class="dock-seek" min="0" max="100" value="0">
+        <input type="range" id="dockSeek" class="dock-seek" aria-label="语音解说播放进度" min="0" max="100" value="0">
         <span id="dockTotalTime" class="dock-time">05:10</span>
       </div>
       <button class="dock-btn" id="dockBtnMute" title="静音 / 恢复">🔊</button>
