@@ -47,6 +47,10 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
+
+  /* 正文内联链接色。深色底上 #38bdf8 有 9:1，但同一个值放到浅色底 (#f8fafc)
+     只剩 1.9:1 —— 浅色主题必须压到 #0369a1 (5.7:1) 才够 WCAG AA。 */
+  --link-inline: #38bdf8;
 }
 
 [data-theme="light"] {
@@ -73,6 +77,8 @@
 
   --nav-bg: rgba(248, 250, 252, 0.85);
   --noise-opacity: 0.07;
+
+  --link-inline: #0369a1; /* 5.67:1 on #f8fafc */
 }
 
 /* Base Styles */
@@ -4894,12 +4900,19 @@ body:has(.twin-launcher) .back-to-top {
 [data-theme="light"] .bento-hero-pill-badge {
   background: rgba(245, 158, 11, 0.12);
   border-color: rgba(217, 119, 6, 0.32);
-  color: #b45309;
+  /* 徽章浮在 hero 的浅色渐变垫层上，实测底色约 #f0e0e0；
+     #b45309 在那里只有 3.93:1，压到 #92400e 后 5.55:1。 */
+  color: #92400e;
 }
 
 /* --- 3. 数据统计卡：数字取深墨色，分隔线转浅描边 --- */
+/* 浅色主题的「次要说明文字」统一用 #627188（Slate 500 略压深）。
+   原 #64748b 压在 #f8fafc 上像素实测只有 4.48:1，卡在 AA 线下方 0.02，
+   同一页面每次重测会在 4.48~4.51 之间抖 —— 与其留着当「临界可接受」，
+   不如压到 4.66:1 一次坐稳。本文件内 5 处（统计标签 / 侧栏架构行 /
+   侧栏特征标题 / 媒体副标题 / 隐形告警正文）语义相同，一起改。 */
 [data-theme="light"] .bento-stat-number { color: #0f172a; }
-[data-theme="light"] .bento-stat-label { color: #64748b; }
+[data-theme="light"] .bento-stat-label { color: #627188; }
 [data-theme="light"] .bento-stat-divider { background: rgba(15, 23, 42, 0.10); }
 
 /* --- 4. 技术栈卡：标题、行底、徽章全部浅色化 --- */
@@ -4947,25 +4960,30 @@ body:has(.twin-launcher) .back-to-top {
   text-shadow: none;
 }
 [data-theme="light"] .bento-card-media .media-sub {
-  color: #64748b;
+  color: #627188;
   /* 白色半透明在浅色底上不可读，改回墨色并保留等宽排版纪律 */
 }
+/* 这两枚徽章压在 bento 卡的照片上，而照片在两个主题下都是同一张暗图
+   （.media-bg 的 filter: brightness(.65) 与主题无关）。
+   原浅色主题覆盖把文字改成深青 #0e7490 / 深紫 #7e22ce，压在照片暗部只有
+   2.86:1 / 2.42:1，属于「按浅色底假设改色，但底色其实没变」的错误。
+   这里显式沿用深色主题的亮色文字：实测 7.2:1 / 7.3:1。 */
 [data-theme="light"] .bento-card-media .media-badge-cyan {
-  background: rgba(8, 145, 178, 0.12);
-  border-color: rgba(8, 145, 178, 0.34);
-  color: #0e7490;
+  background: rgba(34, 211, 238, 0.2);
+  border-color: rgba(34, 211, 238, 0.4);
+  color: #38bdf8;
 }
 [data-theme="light"] .bento-card-media .media-badge-purple {
-  background: rgba(126, 34, 206, 0.12);
-  border-color: rgba(126, 34, 206, 0.32);
-  color: #7e22ce;
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #c084fc;
 }
 
 /* --- 6. 侧栏：结构芯片、档案徽章、座右铭 --- */
-[data-theme="light"] .bento-sidebar-arch { color: #64748b; }
+[data-theme="light"] .bento-sidebar-arch { color: #627188; }
 [data-theme="light"] .bento-sidebar-motto { color: #475569; }
 [data-theme="light"] .bento-sidebar-traits-header .line { background: rgba(15, 23, 42, 0.16); }
-[data-theme="light"] .bento-sidebar-traits-header .title { color: #64748b; }
+[data-theme="light"] .bento-sidebar-traits-header .title { color: #627188; }
 [data-theme="light"] .bento-sidebar-trait-chip {
   background: rgba(15, 23, 42, 0.04);
   border-color: rgba(15, 23, 42, 0.10);
@@ -5018,7 +5036,7 @@ body:has(.twin-launcher) .back-to-top {
   border-color: rgba(192, 38, 211, 0.26);
 }
 [data-theme="light"] .stealth-alert-text strong { color: #a21caf; }
-[data-theme="light"] .stealth-alert-text p { color: #64748b; }
+[data-theme="light"] .stealth-alert-text p { color: #627188; }
 
 /* --- 10. 深层 Bento 卡（首屏大板）：基础规则已使用主题变量，此处仅补充悬停光晕 --- */
 [data-theme="light"] .bento-card:hover {

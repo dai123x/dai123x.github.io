@@ -59,6 +59,13 @@
   </url>
 
   <url>
+    <loc>https://daixuan.cloud/stats-lab/</loc>
+    <lastmod>2026-10-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://daixuan.cloud/aurora-chat/</loc>
     <lastmod>2026-10-11</lastmod>
     <changefreq>monthly</changefreq>
