@@ -94,7 +94,9 @@
       border: 1px solid var(--border);
     }
     .btn-ghost:hover { border-color: rgba(99, 102, 241, 0.4); }
-    .meta { margin-top: 26px; font-size: 0.8rem; color: #64748b; }
+    /* #64748b 压在 .card 的 rgba(17,24,39,.75) 上实测只有 3.81:1；
+       卡片底色比页面底色浅，所以这里必须比页面上的同级灰更亮。 */
+    .meta { margin-top: 26px; font-size: 0.8rem; color: #738196; }
     .meta a { color: var(--accent); text-decoration: none; }
   </style>
 </head>

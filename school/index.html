@@ -567,6 +567,9 @@
     <span class="pill badge"><i aria-hidden="true"></i>CCUT · EST. 1952</span>
   </header>
 
+  <!-- 主内容地标：原来整页没有 <main>，读屏用户无法一键跳到正文。
+       纯包裹、不动任何 class 与样式（<main> 是 display:block、不产生定位/层叠上下文）。 -->
+  <main id="main">
   <!-- 首屏：校徽 + 校名 -->
   <section class="hero">
     <img class="hero-logo" src="ccut-logo.jpg" alt="长春工业大学校徽" width="640" height="640" fetchpriority="high">
@@ -684,6 +687,7 @@
       </a>
     </div>
   </section>
+  </main>
 
   <footer>
     <p><span data-i18n="footNote">页面资料来自学校公开信息与个人经历</span> · <a href="../">daixuan.cloud</a> · 原生 Canvas 零依赖</p>

@@ -272,7 +272,7 @@ a:hover { text-decoration: underline; }
 .emp-span { font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .emp-body { padding: 0 18px 18px 84px; }
 .emp-body .one { font-size: 0.92rem; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.75; }
-.emp-body h4 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; font-weight: 600; }
+.emp-body h3 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; font-weight: 600; }
 .emp-body ul { margin: 0 0 14px; padding-left: 18px; font-size: 0.86rem; color: var(--text-secondary); }
 .emp-body li { margin: 3px 0; }
 .emp-refs { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -436,7 +436,7 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
   border-radius: var(--radius-md); padding: 16px 18px;
   border-left: 3px solid var(--accent-primary);
 }
-.rel h4 { font-family: var(--font-serif); font-size: 0.98rem; margin: 0 0 6px; }
+.rel h3 { font-family: var(--font-serif); font-size: 0.98rem; margin: 0 0 6px; }
 .rel p { margin: 0; font-size: 0.86rem; color: var(--text-secondary); line-height: 1.8; }
 
 /* ---------------- 帝王世系：新增字段 ---------------- */
