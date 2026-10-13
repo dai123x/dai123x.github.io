@@ -20,7 +20,7 @@
 <meta property="og:description" content="长春工业大学交互式三维校园示意地图，支持建筑检索、模型坐标距离估算、示意导览路线与季节光影切换；模型不作为测绘或导航数据。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://daixuan.cloud/assets/images/og-campus-map.jpg">
-<link rel="stylesheet" href="css/style.css?v=20261003_05">
+<link rel="stylesheet" href="css/style.css?v=20261003_06">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🏫</text></svg>">
 </head>
 <body>
@@ -36,8 +36,9 @@
   <div class="tip" id="loadTip">正在构建三维校园…</div>
 </div>
 
-<!-- 顶栏 -->
-<div id="topbar">
+<!-- 顶栏。改用 header 标签而非 div：它是 body 的直接子元素，会得到 banner 地标，
+     屏幕阅读器可一键跳转。样式全部挂在 #topbar 上，不受标签名影响。 -->
+<header id="topbar">
   <div class="brand">
     <h1><span class="dot"></span>长春工业大学 · 全景立体地图</h1>
     <div class="sub">三维校园示意模型 · 参考公开地图数据与校区资料绘制 · 支持建筑检索与模型坐标距离估算</div>
@@ -60,7 +61,11 @@
       <button id="btnHelp" class="btn-top" title="使用帮助与键盘快捷键 (快捷键: ?)">❓</button>
     </div>
   </div>
-</div>
+</header>
+
+<!-- 主内容区。main 默认 position:static、无 transform/filter/contain，不产生包含块，
+     因此其内部所有 position:fixed 覆盖层仍相对视口定位，几何完全不变。 -->
+<main id="main">
 
 <!-- 校区简介 -->
 <div id="campusIntro"></div>
@@ -115,7 +120,7 @@
     </div>
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="#9db8d6" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input id="bsearch" type="text" placeholder="搜索建筑名称 / 拼音缩写 (如 tsg, st)…" autocomplete="off">
+      <input id="bsearch" type="text" aria-label="搜索建筑名称或拼音缩写" placeholder="搜索建筑名称 / 拼音缩写 (如 tsg, st)…" autocomplete="off">
       <button id="searchClear" class="search-clear" title="清空搜索">✕</button>
     </div>
     <div class="hot-chips" id="hotChips">
@@ -135,7 +140,7 @@
   <div class="ic-hd">
     <span class="cat" id="icCat"></span>
     <div>
-      <h3 id="icName">建筑名称</h3>
+      <h2 id="icName">建筑名称</h2>
       <div class="campus" id="icCampus"></div>
     </div>
     <span class="ic-x" id="icClose" title="关闭 (Esc)">✕</span>
@@ -217,6 +222,8 @@
     </div>
   </div>
 </div>
+
+</main>
 
 <!-- 脚本置于 body 末尾 + defer：HTML 解析与脚本下载并行，避免阻塞首屏；
      defer 保持原有执行顺序，且晚于 DOMContentLoaded 前解析完毕，与 main.js 的 boot 逻辑兼容。 -->

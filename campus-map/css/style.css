@@ -161,7 +161,7 @@ body {
 #infoCard .ic-hd { padding: 13px 15px 10px; display: flex; align-items: flex-start; gap: 10px;
   background: linear-gradient(135deg, rgba(255,213,77,.18), rgba(255,158,100,.06)); flex-shrink: 0; }
 #infoCard .ic-hd .cat { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; box-shadow: 0 0 8px currentColor; }
-#infoCard .ic-hd h3 { font-size: 15.5px; letter-spacing: .5px; line-height: 1.35; }
+#infoCard .ic-hd h2 { font-size: 15.5px; letter-spacing: .5px; line-height: 1.35; }
 #infoCard .ic-hd .campus { font-size: 10.5px; color: #9db8d6; margin-top: 2px; }
 #infoCard .ic-x { margin-left: auto; cursor: pointer; color: #9db8d6; font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 6px; }
 #infoCard .ic-x:hover { color: #fff; background: rgba(255,255,255,.1); }
