@@ -15,7 +15,13 @@
       --text: #f1f5f9;
       --muted: #94a3b8;
       --accent: #818cf8;
-      --grad: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+      /* 与全站暗色主题的品牌渐变完全一致（见 css/style.css 的 --accent-gradient）。
+         原先这里是独立的三停靠点版本 linear-gradient(#7c83f5, #8b5cf6, #ec4899)，
+         中停靠点 #8b5cf6 的亮度 (0.1980) 比左右邻居 (#7c83f5 0.2711 / #ec4899 0.2477)
+         都低，是个「亮度凹陷」；深色字压上去在 t≈53.7% 处只有 4.47:1，差 0.03 不达标。
+         换成全站同款后稠密采样最坏 4.78:1，且 404 大字与首页品牌色统一。 */
+      --grad: linear-gradient(135deg, #818cf8 0%, #7c83f5 28%, #a855f7 62%, #ec4899 100%);
+      --on-accent: #0b1020;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
@@ -85,7 +91,7 @@
     }
     .btn:hover { transform: translateY(-2px); }
     .btn-primary {
-      color: #fff;
+      color: var(--on-accent);
       background: var(--grad);
     }
     .btn-ghost {
