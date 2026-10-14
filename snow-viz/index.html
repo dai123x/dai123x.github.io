@@ -9086,26 +9086,55 @@ async function initWebXRSession(gl) {
         ctx.restore();
       }
 
-      // 1.5 Draw Base Reference Grid (Datum Plane)
-      ctx.strokeStyle = vrLayer === 'thermal' ? 'rgba(255, 180, 50, 0.1)' : 'rgba(56, 189, 248, 0.1)';
+      // 1.5 Draw Base Reference Grid (Datum Plane) & Scientific 3D Coordinate Bounding Box
+      ctx.strokeStyle = vrLayer === 'thermal' ? 'rgba(255, 180, 50, 0.12)' : 'rgba(56, 189, 248, 0.14)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       const gridMinX = -320, gridMaxX = 240, gridMinZ = -340, gridMaxZ = 200;
-      const gridStep = 30;
+      const gridStep = 35;
       const datumY = -15;
-      // Draw X lines
+      // Draw Floor X lines
       for (let z = gridMinZ; z <= gridMaxZ; z += gridStep) {
         const p1 = project3D({x: gridMinX, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
         const p2 = project3D({x: gridMaxX, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       }
-      // Draw Z lines
+      // Draw Floor Z lines
       for (let x = gridMinX; x <= gridMaxX; x += gridStep) {
         const p1 = project3D({x: x, y: datumY, z: gridMinZ}, w, h, yaw, pitch, dist, cx, cy);
         const p2 = project3D({x: x, y: datumY, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       }
       ctx.stroke();
+
+      // Draw Back Vertical Wall (Z = gridMaxZ) with elevation contour ticks (对标学术级坐标系)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      const elevTicks = [0, 50, 100, 150, 200, 260];
+      elevTicks.forEach(eY => {
+        const pW1 = project3D({x: gridMinX, y: datumY + eY, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
+        const pW2 = project3D({x: gridMaxX, y: datumY + eY, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
+        if (pW1 && pW2) {
+          ctx.moveTo(pW1.x, pW1.y); ctx.lineTo(pW2.x, pW2.y);
+        }
+      });
+      ctx.stroke();
+
+      // Axis Ticks & Labels on Datum Floor
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
+      ctx.font = '10px system-ui, -apple-system, sans-serif';
+      const pFront = project3D({x: (gridMinX + gridMaxX)/2, y: datumY, z: gridMinZ}, w, h, yaw, pitch, dist, cx, cy);
+      if (pFront) {
+        ctx.fillText('东向经度跨距 (km)', pFront.x - 42, pFront.y + 16);
+      }
+      const pWallTop = project3D({x: gridMaxX, y: datumY + 260, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
+      if (pWallTop) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText('海拔 (m) 0-2,691m', pWallTop.x + 8, pWallTop.y - 4);
+      }
+      ctx.restore();
 
       // 2. Project Terrain Points
       const projected = terrainPoints.map(p => project3D(p, w, h, yaw, pitch, dist, cx, cy));
@@ -9168,7 +9197,7 @@ async function initWebXRSession(gl) {
           else if (avgY > 45) { baseR = 25; baseG = 95; baseB = 145; }
           else { baseR = 14; baseG = 45; baseB = 75; }
         } else {
-          // Realistic Natural Topography & Tianchi Caldera Shimmer
+          // Realistic Scientific Topography & Tianchi Caldera Shimmer (对标学术级三维高程连续色谱)
           const dxC = v0.x - 140, dzC = v0.z - 120;
           const distToTianchi = Math.hypot(dxC, dzC);
           if (distToTianchi < 36 && avgY < 125) {
@@ -9177,11 +9206,31 @@ async function initWebXRSession(gl) {
             baseR = Math.floor(40 + shimmer * 55);
             baseG = Math.floor(135 + shimmer * 75);
             baseB = Math.floor(190 + shimmer * 65);
-          } else if (avgY > 120) { baseR = 255; baseG = 255; baseB = 255; } // Top snow peaks
-          else if (avgY > 90) { baseR = 220; baseG = 242; baseB = 247; } // Bright snow peak
-          else if (avgY > 60) { baseR = 114; baseG = 200; baseB = 219; } // Ice blue slope
-          else if (avgY > 37) { baseR = 25; baseG = 83; baseB = 102; } // Lake rim
-          else { baseR = 13; baseG = 34; baseB = 43; } // Frozen lake plate
+          } else {
+            // 学术级高程连续渐变色彩映射：深大洋蓝(0-200m) -> 蔚蓝青空(200-500m) -> 极地薄荷绿(500-750m) -> 暖金琥珀(750-950m) -> 晨曦金峰(950m+)
+            const normY = Math.min(1.0, Math.max(0.0, (avgY - 10) / 195.0));
+            if (normY < 0.24) {
+              const u = normY / 0.24;
+              baseR = Math.floor(18 + (38 - 18) * u);
+              baseG = Math.floor(75 + (175 - 75) * u);
+              baseB = Math.floor(160 + (235 - 160) * u);
+            } else if (normY < 0.50) {
+              const u = (normY - 0.24) / 0.26;
+              baseR = Math.floor(38 + (60 - 38) * u);
+              baseG = Math.floor(175 + (215 - 175) * u);
+              baseB = Math.floor(235 + (185 - 235) * u);
+            } else if (normY < 0.74) {
+              const u = (normY - 0.50) / 0.24;
+              baseR = Math.floor(60 + (245 - 60) * u);
+              baseG = Math.floor(215 + (175 - 215) * u);
+              baseB = Math.floor(185 + (25 - 185) * u);
+            } else {
+              const u = (normY - 0.74) / 0.26;
+              baseR = Math.floor(245 + (255 - 245) * u);
+              baseG = Math.floor(175 + (235 - 175) * u);
+              baseB = Math.floor(25 + (85 - 25) * u);
+            }
+          }
         }
 
         const r = Math.floor(baseR * (vrLayer === 'aurora' ? 1.0 : light));
@@ -9210,8 +9259,8 @@ async function initWebXRSession(gl) {
           ctx.lineWidth = 0.8;
           ctx.stroke();
         } else {
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
-          ctx.lineWidth = 0.5;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
       });
@@ -9295,14 +9344,19 @@ async function initWebXRSession(gl) {
       });
       ctx.restore();
 
-      // 5.5 Draw 3D Network Routes (Ice & Snow Golden Tourism Lines)
+      // 5.5 Draw 3D Network Routes (多架次空铁联运与立体调度网络，对标学术图解)
       const hub = PLACES[0]; // Changchun as Hub
-      const destinations = [1, 2, 4, 6]; // Jilin, Changbaishan, Tonghua, Baicheng
+      const routeConfigs = [
+        { dIdx: 2, col: 'rgba(239, 68, 68, 0.75)', glow: '#ef4444', label: '18架次·最优航线 (长白山)' },
+        { dIdx: 1, col: 'rgba(14, 165, 233, 0.75)', glow: '#38bdf8', label: '31架次·A型运输 (吉林市)' },
+        { dIdx: 4, col: 'rgba(245, 158, 11, 0.75)', glow: '#f59e0b', label: '31架次·B型联运 (通化)' },
+        { dIdx: 6, col: 'rgba(16, 185, 129, 0.75)', glow: '#10b981', label: '31架次·应急保供 (白城)' }
+      ];
       
-      const routeAnim = (Date.now() % 3000) / 3000; // 0.0 to 1.0 looping
+      const routeAnim = (Date.now() % 2400) / 2400;
 
-      destinations.forEach(dIdx => {
-        const dst = PLACES[dIdx];
+      routeConfigs.forEach((rc, rIdx) => {
+        const dst = PLACES[rc.dIdx];
         const steps = 40;
         ctx.beginPath();
 
@@ -9310,29 +9364,35 @@ async function initWebXRSession(gl) {
           const t = i / steps;
           const ix = hub.pos3d[0] + (dst.pos3d[0] - hub.pos3d[0]) * t;
           const iz = hub.pos3d[2] + (dst.pos3d[2] - hub.pos3d[2]) * t;
-          const iy = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(t * Math.PI) * 120;
+          const iy = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(t * Math.PI) * 115;
           
           const pt = project3D({ x: ix, y: iy, z: iz }, w, h, yaw, pitch, dist, cx, cy);
           if (pt) {
             if (i === 0) ctx.moveTo(pt.x, pt.y);
             else ctx.lineTo(pt.x, pt.y);
-
-            if (Math.abs(t - routeAnim) < 0.02) {
-              ctx.save();
-              ctx.fillStyle = '#f4c66d';
-              ctx.shadowColor = '#f4c66d';
-              ctx.shadowBlur = 10;
-              ctx.beginPath();
-              ctx.arc(pt.x, pt.y, 3 * pt.scale, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.restore();
-            }
           }
         }
         
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = rc.col;
+        ctx.lineWidth = 1.8;
         ctx.stroke();
+
+        // 沿航线飞驰的发光能量光子
+        const pulseT = ((routeAnim + rIdx * 0.25) % 1.0);
+        const px = hub.pos3d[0] + (dst.pos3d[0] - hub.pos3d[0]) * pulseT;
+        const pz = hub.pos3d[2] + (dst.pos3d[2] - hub.pos3d[2]) * pulseT;
+        const py = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(pulseT * Math.PI) * 115;
+        const ptPulse = project3D({ x: px, y: py, z: pz }, w, h, yaw, pitch, dist, cx, cy);
+        if (ptPulse) {
+          ctx.save();
+          ctx.fillStyle = '#fff';
+          ctx.shadowColor = rc.glow;
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(ptPulse.x, ptPulse.y, 3 * ptPulse.scale, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
       });
 
       // 5.6 High-Speed Rail Corridor 3D Spine (沈白高铁时空压缩走廊)
@@ -10625,6 +10685,9 @@ async function initWebXRSession(gl) {
       playCrystalClick(); 
       $('coverModal').classList.remove('show');
     };
+    if (new URLSearchParams(window.location.search).has('nocover') || location.hash.includes('sandtable') || location.hash.includes('vr')) {
+      $('coverModal').classList.remove('show');
+    }
     $('btnPlayPromo').onclick = () => {
       playCrystalClick();
       $('coverModal').classList.remove('show');
