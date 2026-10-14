@@ -4045,6 +4045,7 @@
             </div>
             <div class="vr-layer-pills" id="vrLayerPills">
               <button class="layer-pill active" data-layer="terrain" title="自然地势三维高程">🏔️ 自然高程</button>
+              <button class="layer-pill" data-layer="promo" title="官方宣传地图：一主六双·四大黄金冰雪文旅走廊">🗺️ 宣传走廊</button>
               <button class="layer-pill" data-layer="thermal" title="粉雪热力集聚场">🔥 粉雪热力</button>
               <button class="layer-pill" data-layer="aurora" title="极光夜景通天光柱">🌌 极光夜景</button>
               <button class="layer-pill" data-layer="hsr" title="沈白高铁350km/h极速走廊 (京津冀2.5h直达)">🚄 高铁走廊</button>
@@ -6928,6 +6929,7 @@ async function initWebXRSession(gl) {
         <div style="display:flex;align-items:center;gap:12px;">
           <div class="vr-layer-pills" id="vrExpandLayerPills" style="position:static;">
             <button class="layer-pill active" data-layer="terrain">🏔️ 自然高程</button>
+            <button class="layer-pill" data-layer="promo">🗺️ 宣传走廊</button>
             <button class="layer-pill" data-layer="thermal">🔥 粉雪热力</button>
             <button class="layer-pill" data-layer="aurora">🌌 极光夜景</button>
             <button class="layer-pill" data-layer="hsr">🚄 高铁走廊</button>
@@ -8767,9 +8769,122 @@ async function initWebXRSession(gl) {
       }
     }
 
-    // Generate Procedural 3D Topographic Mesh (Changbai Mountains & Jilin Terrain)
-    const GRID_SIZE = 24;
-    const GRID_STEP = 20;
+    // ==================== 吉林省真实行政边界与官方文旅宣传四大走廊 ====================
+    // 吉林省真实行政边界多边形 3D 轮廓数据 (WGS84 投影)
+    const JILIN_GEO_BOUNDARY = [[65.7,144.5,95.3],[86.9,32.8,96.2],[96.4,22.7,93.5],[104.1,25.5,90.5],[108.6,23.4,86.6],[114.3,23.1,82.9],[114.3,23.5,78.2],[116.4,23.1,73.2],[119.9,20.6,70.2],[124.7,24.2,70.6],[130.4,23.3,70.2],[136.4,22.8,67.7],[137.5,21.4,57.9],[138.3,23.2,49.6],[141.1,20.4,38.0],[147.7,23.3,37.8],[153.1,24.6,41.8],[157.2,26.8,49.2],[164.7,22.6,59.0],[169.0,25.2,58.7],[172.7,24.8,70.0],[172.6,25.5,62.7],[169.8,26.1,54.0],[165.3,24.0,50.9],[174.4,26.8,45.5],[180.7,25.8,43.2],[188.2,25.7,44.5],[191.7,25.2,40.9],[193.8,23.6,35.1],[197.8,26.8,25.9],[200.3,27.9,18.0],[201.8,26.5,8.7],[198.6,27.2,8.6],[190.1,24.5,5.5],[181.6,25.4,5.8],[173.5,22.9,1.0],[166.1,21.0,-2.9],[163.1,19.9,-11.3],[161.9,18.7,-20.4],[160.4,21.2,-26.4],[153.9,20.8,-19.1],[148.5,18.9,-15.3],[146.8,19.2,-24.1],[140.3,18.3,-23.8],[136.1,19.3,-16.9],[126.4,17.9,-16.4],[118.5,17.2,-12.7],[114.7,20.7,-6.9],[112.0,22.0,1.7],[101.4,19.1,3.4],[95.4,17.3,-7.2],[93.2,18.8,-13.1],[89.6,20.3,-18.7],[85.5,15.9,-29.5],[82.3,16.1,-36.7],[83.0,16.4,-44.8],[77.2,17.8,-54.3],[69.8,16.4,-44.7],[66.3,17.5,-42.4],[66.9,17.4,-34.9],[61.4,15.6,-29.3],[51.6,14.1,-29.9],[47.9,14.9,-35.6],[45.6,15.6,-42.4],[40.8,16.3,-52.1],[44.4,18.0,-58.6],[34.4,14.4,-62.3],[26.0,15.1,-60.9],[22.3,16.9,-64.6],[21.5,14.0,-77.4],[23.4,13.6,-83.5],[19.5,12.4,-92.0],[12.7,10.8,-92.4],[5.9,11.1,-96.8],[-1.7,13.2,-98.1],[-8.2,9.6,-94.7],[-12.3,9.3,-93.2],[-18.5,10.4,-93.9],[-25.1,11.4,-96.6],[-31.2,9.0,-101.0],[-32.9,10.8,-109.3],[-35.8,11.6,-114.7],[-44.8,13.4,-111.5],[-54.2,9.7,-108.2],[-61.5,9.6,-111.6],[-67.6,11.8,-111.4],[-76.0,9.1,-111.1],[-84.8,7.9,-111.4],[-90.4,8.7,-116.8],[-97.1,7.8,-121.0],[-100.9,9.4,-127.3],[-103.5,8.3,-134.3],[-104.2,7.1,-143.3],[-105.0,7.1,-150.6],[-105.9,7.1,-157.1],[-108.9,10.2,-161.7],[-118.9,7.1,-159.5],[-128.0,7.1,-158.0],[-134.3,8.6,-158.9],[-148.8,7.1,-149.4],[-157.5,7.1,-128.2],[-165.2,7.1,-132.9],[-173.8,8.0,-137.2],[-178.0,8.8,-131.7],[-184.7,7.1,-136.9],[-190.6,7.1,-142.9],[-197.5,9.8,-144.6],[-197.2,7.1,-138.0],[-200.7,8.1,-131.1],[-197.0,7.6,-125.6],[-190.4,7.1,-119.8],[-182.8,8.4,-106.5],[-184.0,7.1,-88.1],[-185.2,10.2,-74.0],[-182.6,9.4,-68.6],[-179.6,9.1,-55.6],[-175.6,8.5,-38.0],[-150.4,7.6,-49.9],[-141.3,9.9,-48.4],[-130.8,7.2,-33.7],[-131.5,10.6,-24.3],[-127.5,9.0,-15.9],[-126.6,9.8,-8.7],[-125.4,8.4,-0.9],[-127.8,8.0,3.1],[-130.4,9.2,9.5],[-117.4,11.6,13.4],[-113.9,10.4,7.2],[-110.6,10.3,12.3],[-100.7,8.2,18.7],[-96.6,11.5,21.3],[-93.5,12.8,25.3],[-90.4,12.3,36.7],[-89.6,13.1,41.9],[-83.4,13.1,43.6],[-78.3,12.2,37.6],[-72.0,12.7,29.6],[-67.9,11.4,30.3],[-68.6,14.0,38.3],[-68.6,13.7,47.6],[-63.9,12.7,50.8],[-62.4,12.9,56.0],[-59.6,11.8,60.7],[-56.7,11.1,68.9],[-55.6,13.9,75.2],[-51.4,17.7,80.0],[-50.0,18.0,85.8],[-46.3,16.3,86.0],[-45.7,17.2,90.0],[-50.5,18.8,97.6],[-50.7,17.2,104.9],[-49.3,18.2,115.8],[-44.1,18.7,120.1],[-40.4,23.5,127.8],[-37.4,25.9,134.1],[-32.8,23.8,141.4],[-33.1,20.6,150.3],[-35.9,17.3,159.0],[-33.3,18.3,163.9],[-24.4,16.5,161.4],[-21.9,15.4,161.4],[-17.4,18.7,155.5],[-13.2,21.8,149.6],[-5.9,24.4,140.8],[0.6,19.2,133.7],[1.7,18.5,126.4],[3.9,17.0,118.5],[9.3,17.7,112.7],[13.0,20.4,111.1],[18.2,21.1,109.3],[23.8,19.4,114.6],[26.3,20.8,118.6],[25.4,21.2,123.3],[30.8,24.6,125.4],[37.4,32.2,127.0],[43.7,33.3,127.4],[49.4,32.4,131.1],[55.7,34.1,131.5],[60.1,37.0,129.3],[63.8,33.1,130.4],[67.6,28.6,132.9],[73.3,27.9,128.7],[76.2,34.0,121.3],[74.3,47.6,115.9],[69.3,84.4,110.1],[67.5,149.8,99.0],[65.7,144.5,95.3]];
+
+    // 官方宣传地图·四大黄金冰雪文旅走廊 (一主六双大通道)
+    const PROMO_CORRIDORS = [
+      {
+        id: 'corridor_city',
+        name: '长吉长雪国都市走廊',
+        nameEn: 'Changchun-Jilin Metro Ski Corridor',
+        color: '#38bdf8',
+        glowColor: 'rgba(56, 189, 248, 0.45)',
+        desc: '全省冰雪都市体验枢纽与超级雪场集群：长春冰雪新天地 ↔ 万科松花湖 ↔ 北大湖 870m 亚洲最大落差。沈白高铁与城际公交连通。',
+        nodes: ['长春', '吉林市'],
+        waypoints: [
+          [-160, 50, -140],
+          [-110, 62, -90],
+          [-65, 75, -45]
+        ]
+      },
+      {
+        id: 'corridor_powder',
+        name: '东部大长白山粉雪度假走廊',
+        nameEn: 'East Great Changbaishan Powder Corridor',
+        color: '#f59e0b',
+        glowColor: 'rgba(245, 158, 11, 0.45)',
+        desc: '世界三大粉雪基地：吉林青山/北大湖 ↔ 通化万峰(新中国滑雪摇篮) ↔ 白山西坡 ↔ 长白山天池主峰 2,691m 世界级粉雪度假区。',
+        nodes: ['吉林市', '通化', '长白山'],
+        waypoints: [
+          [-65, 75, -45],
+          [-60, 95, 120],
+          [15, 125, 100],
+          [90, 160, 80]
+        ]
+      },
+      {
+        id: 'corridor_border',
+        name: '延边鸭绿江·边境民俗走廊',
+        nameEn: 'Yanbian Border & Folk Culture Corridor',
+        color: '#a855f7',
+        glowColor: 'rgba(168, 85, 247, 0.45)',
+        desc: '中俄朝边境风情与朝鲜族民俗美食：长白山 ↔ 延吉帽儿山/中国朝鲜族民俗园 ↔ 珲春一眼望三国。非遗参鸡汤与冰雪民俗风情。',
+        nodes: ['长白山', '延边'],
+        waypoints: [
+          [90, 160, 80],
+          [130, 120, 30],
+          [170, 85, -20]
+        ]
+      },
+      {
+        id: 'corridor_fishery',
+        name: '西部松花江·嫩江湿地冬捕走廊',
+        nameEn: 'West Chagan Lake Winter Fishing Corridor',
+        color: '#10b981',
+        glowColor: 'rgba(16, 185, 129, 0.45)',
+        desc: '千年国家级非遗冬捕渔猎与大湿地生态：长春 ↔ 松原查干湖冬捕渔猎节 ↔ 白城嫩江湾国家湿地公园。万尾鲜鱼跃冰面，极寒生态冰雪游。',
+        nodes: ['长春', '松原 · 查干湖', '白城 · 嫩江湾'],
+        waypoints: [
+          [-160, 50, -140],
+          [-180, 46, -185],
+          [-200, 42, -230],
+          [-230, 36, -265],
+          [-260, 30, -300]
+        ]
+      }
+    ];
+
+    // 射线交叉算法：精确判定 (x, z) 是否在吉林省真实实际地图边界内
+    function isPointInJilin(x, z) {
+      let inside = false;
+      const poly = JILIN_GEO_BOUNDARY;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i][0], zi = poly[i][2];
+        const xj = poly[j][0], zj = poly[j][2];
+        const intersect = ((zi > z) !== (zj > z)) && (x < (xj - xi) * (z - zi) / (zj - zi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    // 计算吉林省真实地图三维 DEM 宏观阶梯高程 (东南高、西北低)
+    function calcRealJilinHeight(x, z, orgNoise) {
+      const isInside = isPointInJilin(x, z);
+      if (!isInside) {
+        return 10.0; // 省界外为深邃科技基座
+      }
+      // 1. 东南向宏观阶梯坡度 (东南高 80-160，西北低 20-35)
+      const uSE = Math.min(1.2, Math.max(0.0, ((x + 220) / 440) * 0.65 + ((180 - z) / 360) * 0.35));
+      const baseMacro = 20.0 + 35.0 * Math.pow(uSE, 1.5);
+
+      // 2. 长白山主峰天池巨大玄武岩穹窿 (x: 90, z: 80, 峰顶海拔 2,691m -> 对应 y ≈ 165)
+      const dMt = Math.hypot(x - 90, z - 80);
+      let hMount = 125.0 * Math.exp(-Math.pow(dMt, 1.4) / 1200);
+      if (dMt < 32) {
+        hMount -= 35.0 * (1.0 - Math.pow(dMt / 32, 2)); // 天池火山口水面凹陷
+      }
+
+      // 3. 北大湖、松花湖中低山地 (x: -65, z: -45)
+      const dJilin = Math.hypot((x + 65) * 1.1, z + 45);
+      const hJilin = 45.0 * Math.exp(-Math.pow(dJilin, 2) / 2500);
+
+      // 4. 通化万峰龙岗山脉 (x: -60, z: 120)
+      const dTonghua = Math.hypot((x + 60) * 1.1, z - 120);
+      const hTonghua = 42.0 * Math.exp(-Math.pow(dTonghua, 2) / 2200);
+
+      // 5. 西部查干湖与松嫩平原湿地水系 (低平坦原)
+      const dWest = Math.hypot(x + 220, z + 240);
+      const hWest = -8.0 * Math.exp(-Math.pow(dWest, 2) / 3500);
+
+      const totalH = baseMacro + hMount + hJilin + hTonghua + hWest + (orgNoise * 0.45);
+      return Math.max(12.0, totalH);
+    }
+
+    // Generate Procedural 3D Topographic Mesh (Jilin Real Map & DEM)
+    const GRID_SIZE = 26;
+    const GRID_STEP = 18;
     const terrainPoints = [];
     const terrainFaces = [];
 
@@ -8802,47 +8917,13 @@ async function initWebXRSession(gl) {
       terrainFaces.length = 0;
       const half = (GRID_SIZE * GRID_STEP) / 2;
 
-      // Changbai Mountain epicenter (South-East)
-      const mountX = 140;
-      const mountZ = 120;
-
       for (let iz = 0; iz <= GRID_SIZE; iz++) {
         for (let ix = 0; ix <= GRID_SIZE; ix++) {
           const x = ix * GRID_STEP - half;
           const z = iz * GRID_STEP - half;
           
-          const dx = x - mountX;
-          const dz = z - mountZ;
-          const distToMount = Math.hypot(dx, dz);
-          const angle = Math.atan2(dz, dx);
-          
-          let y = 0;
-          // Generate realistic organic terrain using fBm (Fractal Brownian Motion)
-          const organicNoise = fbm(x * 0.015, z * 0.015, 5) * 60; 
-
-          if (distToMount < 40) {
-            // Tianchi Caldera Basin (Extremely steep inner walls, flat frozen lake)
-            const lakeFloor = 100 + smoothNoise(x*0.1, z*0.1) * 5;
-            const wallDist = Math.max(0, distToMount - 25);
-            y = lakeFloor + Math.pow(wallDist, 1.8);
-          } else if (distToMount < 200) {
-            // Changbai Mountain Range - Rugged satellite terrain
-            // Base mountain shape drops off with distance
-            const baseHeight = 240 * Math.exp(-Math.pow(distToMount - 40, 2) / 6000);
-            
-            // Generate 16 main peaks + high frequency satellite noise
-            const peakModulation = (Math.abs(Math.sin(angle * 8)) * 30) * Math.exp(-Math.pow(distToMount - 45, 2) / 2000);
-            
-            // Add organic ruggedness
-            const ruggedness = fbm(x * 0.03, z * 0.03, 4) * 40 * Math.exp(-Math.pow(distToMount - 50, 2) / 10000);
-            
-            y = baseHeight + peakModulation + ruggedness + (organicNoise * 0.5);
-          } else {
-            // Plains & Wetlands (North-West)
-            // Gentle rolling hills fading into flat plains
-            const terrainSlope = (x + z) * 0.12; // Gradual slope down to NW
-            y = Math.max(10, 40 + terrainSlope + organicNoise * 0.8);
-          }
+          const organicNoise = fbm(x * 0.015, z * 0.015, 5) * 50; 
+          const y = calcRealJilinHeight(x, z, organicNoise);
           
           terrainPoints.push({ x, y, z });
         }
@@ -8860,28 +8941,11 @@ async function initWebXRSession(gl) {
         }
       }
 
-      // Precompute landmark ground heights once for maximum rendering efficiency
+      // Precompute landmark ground heights strictly based on real Jilin DEM
       PLACES.forEach(p => {
-        const dx = p.pos3d[0] - mountX, dz = p.pos3d[2] - mountZ;
-        const distToMount = Math.hypot(dx, dz);
-        const angle = Math.atan2(dz, dx);
-        let gy = 0;
-        const orgNoise = fbm(p.pos3d[0] * 0.015, p.pos3d[2] * 0.015, 5) * 60;
-        if (distToMount < 40) {
-          const lakeFloor = 100 + smoothNoise(p.pos3d[0] * 0.1, p.pos3d[2] * 0.1) * 5;
-          const wallDist = Math.max(0, distToMount - 25);
-          gy = lakeFloor + Math.pow(wallDist, 1.8);
-        } else if (distToMount < 200) {
-          const baseHeight = 240 * Math.exp(-Math.pow(distToMount - 40, 2) / 6000);
-          const peakMod = (Math.abs(Math.sin(angle * 8)) * 30) * Math.exp(-Math.pow(distToMount - 45, 2) / 2000);
-          const rugged = fbm(p.pos3d[0] * 0.03, p.pos3d[2] * 0.03, 4) * 40 * Math.exp(-Math.pow(distToMount - 50, 2) / 10000);
-          gy = baseHeight + peakMod + rugged + (orgNoise * 0.5);
-        } else {
-          const terrainSlope = (p.pos3d[0] + p.pos3d[2]) * 0.12;
-          gy = Math.max(10, 40 + terrainSlope + orgNoise * 0.8);
-        }
+        const gy = calcRealJilinHeight(p.pos3d[0], p.pos3d[2], 0);
         p.groundY = gy;
-        p.markerY = Math.max(p.pos3d[1], gy + 40);
+        p.markerY = Math.max(p.pos3d[1], gy + 32);
       });
     }
     build3DTerrain();
@@ -9498,6 +9562,141 @@ async function initWebXRSession(gl) {
         ctx.stroke();
         ctx.fillStyle = '#0284c7';
         ctx.fillText(hsrText, boxX + 8, 56);
+        ctx.restore();
+      }
+
+      // 5.7 吉林省真实行政边界实际地图 3D 轮廓光带 (无论处于何种图层均呈现真实省界雄姿)
+      ctx.save();
+      ctx.beginPath();
+      let firstPt = null;
+      JILIN_GEO_BOUNDARY.forEach((pt, bIdx) => {
+        const pr = project3D({ x: pt[0], y: pt[1] + 2, z: pt[2] }, w, h, yaw, pitch, dist, cx, cy);
+        if (pr) {
+          if (!firstPt) {
+            firstPt = pr;
+            ctx.moveTo(pr.x, pr.y);
+          } else {
+            ctx.lineTo(pr.x, pr.y);
+          }
+        }
+      });
+      if (firstPt) ctx.closePath();
+      ctx.strokeStyle = vrLayer === 'promo' ? 'rgba(0, 229, 255, 0.95)' : 'rgba(56, 189, 248, 0.65)';
+      ctx.lineWidth = vrLayer === 'promo' ? 2.8 : 1.8;
+      ctx.shadowColor = '#00e5ff';
+      ctx.shadowBlur = vrLayer === 'promo' ? 14 : 8;
+      ctx.stroke();
+
+      // 省界关键转折点立体垂线 (Extruded Plateau Skirt)
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+      ctx.lineWidth = 0.8;
+      ctx.shadowBlur = 0;
+      for (let bi = 0; bi < JILIN_GEO_BOUNDARY.length; bi += 8) {
+        const bpt = JILIN_GEO_BOUNDARY[bi];
+        const pTop = project3D({ x: bpt[0], y: bpt[1], z: bpt[2] }, w, h, yaw, pitch, dist, cx, cy);
+        const pBot = project3D({ x: bpt[0], y: 0, z: bpt[2] }, w, h, yaw, pitch, dist, cx, cy);
+        if (pTop && pBot) {
+          ctx.beginPath();
+          ctx.moveTo(pTop.x, pTop.y);
+          ctx.lineTo(pBot.x, pBot.y);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      // 5.8 官方文旅宣传地图四大黄金冰雪文旅走廊 (一主六双空间大通道)
+      if (vrLayer === 'promo') {
+        const promoTime = Date.now() * 0.001;
+        PROMO_CORRIDORS.forEach((corridor, cIdx) => {
+          const wps = corridor.waypoints;
+          const curveSteps = 30;
+          
+          // 绘制光晕背景带
+          ctx.save();
+          ctx.beginPath();
+          for (let step = 0; step <= curveSteps; step++) {
+            const t = step / curveSteps;
+            const seg = t * (wps.length - 1);
+            const i0 = Math.floor(seg);
+            const i1 = Math.min(wps.length - 1, i0 + 1);
+            const f = seg - i0;
+            const p0 = wps[i0], p1 = wps[i1];
+            const curX = p0[0] + (p1[0] - p0[0]) * f;
+            const curZ = p0[2] + (p1[2] - p0[2]) * f;
+            const curY = p0[1] + (p1[1] - p0[1]) * f + Math.sin(t * Math.PI) * 20 + 8;
+            const pr = project3D({ x: curX, y: curY, z: curZ }, w, h, yaw, pitch, dist, cx, cy);
+            if (pr) {
+              if (step === 0) ctx.moveTo(pr.x, pr.y);
+              else ctx.lineTo(pr.x, pr.y);
+            }
+          }
+          ctx.strokeStyle = corridor.glowColor;
+          ctx.lineWidth = 6;
+          ctx.shadowColor = corridor.color;
+          ctx.shadowBlur = 15;
+          ctx.stroke();
+
+          // 核心高亮主干线
+          ctx.strokeStyle = corridor.color;
+          ctx.lineWidth = 2.2;
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+
+          // 沿走廊飞驰的高速文旅光子
+          const photonT = (promoTime * 0.45 + cIdx * 0.25) % 1.0;
+          const segP = photonT * (wps.length - 1);
+          const ip0 = Math.floor(segP);
+          const ip1 = Math.min(wps.length - 1, ip0 + 1);
+          const fp = segP - ip0;
+          const px0 = wps[ip0], px1 = wps[ip1];
+          const photonX = px0[0] + (px1[0] - px0[0]) * fp;
+          const photonZ = px0[2] + (px1[2] - px0[2]) * fp;
+          const photonY = px0[1] + (px1[1] - px0[1]) * fp + Math.sin(photonT * Math.PI) * 20 + 8;
+          const prPhoton = project3D({ x: photonX, y: photonY, z: photonZ }, w, h, yaw, pitch, dist, cx, cy);
+          if (prPhoton) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.arc(prPhoton.x, prPhoton.y, 4.5 * prPhoton.scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // 走廊中点宣传微徽章
+          const midIdx = Math.floor(wps.length / 2);
+          const midPt = wps[midIdx];
+          const prMid = project3D({ x: midPt[0], y: midPt[1] + 28, z: midPt[2] }, w, h, yaw, pitch, dist, cx, cy);
+          if (prMid) {
+            ctx.font = 'bold 10px sans-serif';
+            const badgeW = ctx.measureText(corridor.name).width + 16;
+            ctx.fillStyle = 'rgba(10, 18, 38, 0.88)';
+            ctx.strokeStyle = corridor.color;
+            ctx.lineWidth = 1.2;
+            if (ctx.roundRect) ctx.roundRect(prMid.x - badgeW / 2, prMid.y - 12, badgeW, 20, 4);
+            else ctx.rect(prMid.x - badgeW / 2, prMid.y - 12, badgeW, 20);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = corridor.color;
+            ctx.fillText(corridor.name, prMid.x - badgeW / 2 + 8, prMid.y + 2);
+          }
+          ctx.restore();
+        });
+
+        // 顶部文旅宣传大徽标卡片
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.65)';
+        ctx.lineWidth = 1.4;
+        const promoText = '🗺️ 文旅厅宣传走廊：一主六双 · 四大黄金冰雪通道全域巡礼';
+        ctx.font = 'bold 10.5px sans-serif';
+        const promoW = ctx.measureText(promoText).width + 18;
+        const boxX = clipRect ? clipRect.x + 10 : 10;
+        if (ctx.roundRect) ctx.roundRect(boxX, 40, promoW, 25, 4);
+        else ctx.rect(boxX, 40, promoW, 25);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#b45309';
+        ctx.fillText(promoText, boxX + 8, 56);
         ctx.restore();
       }
 
@@ -10747,6 +10946,20 @@ async function initWebXRSession(gl) {
       document.querySelectorAll('.layer-pill').forEach(b => {
         b.classList.toggle('active', b.dataset.layer === layer);
       });
+      const tagEl = document.getElementById('vrTagText');
+      if (tagEl) {
+        if (layer === 'promo') {
+          tagEl.innerHTML = '🗺️ 文旅宣传走廊 · 一主六双 四大黄金文旅大通道全景巡礼';
+        } else if (layer === 'hsr') {
+          tagEl.innerHTML = '🚄 沈白高铁时空压缩走廊 · 京津冀2.5h直达雪场黄金动脉';
+        } else if (layer === 'aurora') {
+          tagEl.innerHTML = '🌌 极光夜景 · 冰雪名城百亿夜经济与天际光柱';
+        } else if (layer === 'thermal') {
+          tagEl.innerHTML = '🔥 粉雪热力集聚场 · 41°N 世界三大黄金粉雪带';
+        } else {
+          tagEl.innerHTML = '🏔️ 吉林省实际地理版图 · 三维冰雪空间孪生沙盘 (0-2,691m)';
+        }
+      }
     }
     document.querySelectorAll('.layer-pill').forEach(btn => {
       btn.onclick = () => {
