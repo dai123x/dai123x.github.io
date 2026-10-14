@@ -107,6 +107,10 @@
       padding-bottom: 14px;
       border-bottom: 1px solid var(--panel-border);
       backdrop-filter: blur(8px);
+      /* 顶栏本身因 backdrop-filter 已成层叠上下文，若不抬升会被后面的 Hero 卡片整块盖住，
+         导致「更多工具」下拉菜单被遮挡。显式抬升到兄弟节点之上即可。 */
+      position: relative;
+      z-index: 30;
     }
     .brand {
       display: flex;
@@ -2326,6 +2330,15 @@
       background: #f0f9ff; border-left: 3px solid var(--ice);
       padding: 9px 13px; border-radius: 0 4px 4px 0;
     }
+    /* 东三省版图：通栏画布，比双栏的 da3d-cv 更高，留出经纬网与走廊的空间 */
+    /* 东三省版图：限宽居中 + 加高。
+       地面投影的宽高比 ≈2:1，若让画布撑满 1332px 通栏、高度只有 372px，
+       取景就只能用掉中间约 44% 的宽度（实测 usedW=0.444），两侧大片留白、
+       标签被挤成一团。限宽 1060px 并加高到 520px 后，横向利用率升到约 0.78，
+       纵向也有了给标签避让的余量。 */
+    canvas.da3d-cv.ned3-cv { height: 520px; max-width: 1060px; margin-left: auto; margin-right: auto; }
+    @media (max-width: 900px) { canvas.da3d-cv.ned3-cv { height: 420px; } }
+    @media (max-width: 560px) { canvas.da3d-cv.ned3-cv { height: 320px; } }
 
     /* ============================================================
        UI 精修层 (Visual Polish Layer)
@@ -3598,6 +3611,19 @@
       .hero::before { inset: 5px; }
       .kpi-label { letter-spacing: 0.12em; }
     }
+    /* ---------- ⑬ 3D 沙盘展开弹窗的窄屏收敛 ----------
+       96vw 宽的弹窗在手机上把标题、图层胶囊、关闭按钮挤到同一行，
+       关闭按钮被顶出视口，装饰性 HUD 文字也会压在三维地形上。 */
+    @media (max-width: 720px) {
+      #vrExpandModal .modal-card { padding: 12px !important; }
+      #vrExpandModal .vr-expand-head { flex-wrap: wrap; gap: 8px; }
+      #vrExpandModal .vr-expand-head h3 { font-size: 14px; gap: 8px; flex-wrap: wrap; }
+      #vrExpandModal .vr-expand-hud,
+      #vrExpandModal .vr-expand-hint { display: none; }
+      #vrExpandModal .vr-layer-pills { flex-wrap: wrap; justify-content: flex-start; }
+      #vrExpandModal .vr-expand-actions { left: 12px; right: 12px; bottom: 12px; justify-content: flex-start; }
+      #vrExpandModal .vr-expand-actions .vr-btn { padding: 5px 9px !important; font-size: 11px; }
+    }
     @media (prefers-reduced-motion: reduce) {
       .hero::after { display: none; }
       .grid > .card.reveal { animation: none; }
@@ -3714,7 +3740,7 @@
         <a href="documentation.html" target="_blank" rel="noopener" class="btn" style="text-decoration:none; border-color:var(--ice); color:var(--ice);" title="查看指标口径、计量检验与复算说明书">📖 作品说明书</a>
         <button class="btn" id="btnPresent" title="16:9 全屏展示 (快捷键 F)">🖥️ 演示模式</button>
         <div class="toolbar-dropdown" id="toolbarDropdown">
-          <button class="btn" id="btnMoreTools" type="button" style="border-color:var(--panel-border);" onclick="document.getElementById('toolbarDropdown').classList.toggle('open')">
+          <button class="btn" id="btnMoreTools" type="button" style="border-color:var(--panel-border);" aria-haspopup="true" aria-expanded="false" aria-controls="moreToolsMenu" onclick="svToggleMoreTools()">
             <span>⚙️ 更多工具 ▾</span>
           </button>
           <div class="toolbar-dropdown-menu" id="moreToolsMenu">
@@ -3731,6 +3757,8 @@
               <button class="btn btn-gold" id="btnCultureGuide" style="font-size:12px; padding:5px 8px; border-color:var(--gold); color:var(--gold);" title="文旅官方推荐线路与文化图鉴">🏛️ 文旅推荐</button>
               <button class="btn" id="btnExport" style="font-size:12px; padding:5px 8px;" title="一键导出政策对比数据表 (CSV)">📥 导出数据</button>
               <button class="btn" id="btnHelp" style="font-size:12px; padding:5px 8px;" title="查看键盘快捷键帮助 (H / ?)">⌨️ 快捷键</button>
+              <button class="btn" id="btnGotoDa3d" type="button" style="font-size:12px; padding:5px 8px; border-color:var(--ice); color:var(--ice);" title="跳转到「九、三维可视化」章节">🧊 3D 可视化</button>
+              <button class="btn" id="btnGotoNed3" type="button" style="font-size:12px; padding:5px 8px; border-color:var(--mint); color:var(--mint);" title="跳转到「十、东三省冰雪三维版图」章节">🧭 东三省 3D 版图</button>
             </div>
             <div style="margin-top:6px; padding-top:6px; border-top:1px solid var(--panel-border); display:flex; align-items:center; justify-content:space-between; font-size:11px; color:var(--dim);">
               <span>频谱能量</span>
@@ -3784,6 +3812,86 @@
         <button class="season-btn" data-year="2024">2023—2024 实绩</button>
         <button class="season-btn" data-year="2028">2027—2028 雪季</button>
         <button class="season-btn active" data-year="2030">2029—2030 雪季</button>
+      </div>
+    </section>
+
+    <!-- 00 发现：结论先行，证据随后 (对标寸土有数 blacksoil-atlas 顶级架构) -->
+    <section class="insights-section" id="insights" style="margin-bottom: 24px;">
+      <div style="background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--radius-lg); padding:20px 24px; box-shadow:var(--shadow-sm); position:relative; overflow:hidden;">
+        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--ice), var(--gold), var(--mint));"></div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:16px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:12px; font-weight:800; color:var(--ice); background:var(--ice-bg); padding:3px 8px; border-radius:4px; font-family:var(--font-mono);">00 发现</span>
+              <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--text); letter-spacing:-0.01em;">结论先行，证据随后</h3>
+              <span style="font-size:12px; color:var(--muted);">· 点击卡片直接穿梭至对应图表与 3D 推演视点</span>
+            </div>
+            <p style="margin:6px 0 0 0; font-size:13px; color:var(--muted); line-height:1.5;">穿透枯燥公报长文，用可追溯的开放数据与严谨计量推演万亿冰雪产业的达成路径——并诚实标出模型的科学边界。</p>
+          </div>
+          
+          <!-- 报告直达快捷文档链 -->
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <a href="REPORT.md" target="_blank" rel="noopener" class="btn" style="text-decoration:none; font-size:12px; padding:6px 10px; border-color:var(--ice); color:var(--ice); background:var(--panel);" title="查看核心数据分析报告 (REPORT.md)">📄 数据分析报告</a>
+            <a href="EXTENDED_REPORT.md" target="_blank" rel="noopener" class="btn" style="text-decoration:none; font-size:12px; padding:6px 10px; border-color:var(--mint); color:var(--mint); background:var(--panel);" title="查看扩展数理白皮书与计量检验 (EXTENDED_REPORT.md)">📑 扩展技术报告</a>
+            <a href="vr_mapping.json" target="_blank" rel="noopener" class="btn" style="text-decoration:none; font-size:12px; padding:6px 10px; border-color:var(--gold); color:var(--gold); background:var(--panel);" title="查看 3D 沙盘空间映射配置 (vr_mapping.json)">🧭 空间映射配置</a>
+          </div>
+        </div>
+
+        <!-- 4 大结论卡片网格 -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+          <!-- 卡片 1 -->
+          <div class="insight-card" style="background:var(--bg); border:1px solid var(--panel-border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s ease, border-color 0.2s ease;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px; font-weight:700; color:var(--ice); text-transform:uppercase;">01 · 战略跨越</span>
+                <span style="font-size:11px; background:#eff6ff; color:#1d4ed8; padding:2px 6px; border-radius:4px; font-weight:600;">+30.4% / +28.6%</span>
+              </div>
+              <h4 style="margin:0 0 6px 0; font-size:15px; font-weight:700; color:var(--text);">两大雪季质与量双跃升</h4>
+              <p style="margin:0; font-size:12px; color:var(--muted); line-height:1.5;">2027—2028 至 2029—2030 雪季：接待游客从 2.3 亿冲刺至 3.0 亿人次；出游总花费由 4,200 亿提升至 5,400 亿元，双指标以独立比例尺严谨核验。</p>
+            </div>
+            <button class="btn" onclick="document.querySelector('[data-tab=\'compare\']').click(); document.getElementById('chartView').scrollIntoView({behavior:'smooth'});" style="margin-top:10px; width:100%; justify-content:center; font-size:12px; padding:5px 8px; border-color:var(--ice); color:var(--ice);">📊 查看阶段目标对比</button>
+          </div>
+
+          <!-- 卡片 2 -->
+          <div class="insight-card" style="background:var(--bg); border:1px solid var(--panel-border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s ease, border-color 0.2s ease;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px; font-weight:700; color:var(--coral); text-transform:uppercase;">02 · 供给底盘</span>
+                <span style="font-size:11px; background:#fff1f2; color:#be123c; padding:2px 6px; border-radius:4px; font-weight:600;">3大刚性任务</span>
+              </div>
+              <h4 style="margin:0 0 6px 0; font-size:15px; font-weight:700; color:var(--text);">供给侧三大任务刚性托底</h4>
+              <p style="margin:0; font-size:12px; color:var(--muted); line-height:1.5;">每年 ≥300 项赛事、≥500 块浇建冰场、≥100 家特色乐园，市县 100% 全覆盖。不是纸面设想，而是支撑 3 亿客流的物理底座。</p>
+            </div>
+            <button class="btn" onclick="document.querySelector('[data-tab=\'supply\']').click(); document.getElementById('chartView').scrollIntoView({behavior:'smooth'});" style="margin-top:10px; width:100%; justify-content:center; font-size:12px; padding:5px 8px; border-color:var(--coral); color:var(--coral);">🎯 穿梭至供给任务仪表</button>
+          </div>
+
+          <!-- 卡片 3 -->
+          <div class="insight-card" style="background:var(--bg); border:1px solid var(--panel-border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s ease, border-color 0.2s ease;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px; font-weight:700; color:var(--mint); text-transform:uppercase;">03 · 产业乘数</span>
+                <span style="font-size:11px; background:#ecfdf5; color:#047857; padding:2px 6px; border-radius:4px; font-weight:600;">乘数 1 : 3.82</span>
+              </div>
+              <h4 style="margin:0 0 6px 0; font-size:15px; font-weight:700; color:var(--text);">千亿协同与装备制造突破</h4>
+              <p style="margin:0; font-size:12px; color:var(--muted); line-height:1.5;">列昂惕夫投入产出测算显示综合拉动乘数达 1:3.82。装备制造产值突破 50 亿元，带动高端机械加工与碳纤维轻量化材料全产业链。</p>
+            </div>
+            <button class="btn" onclick="document.querySelector('[data-tab=\'industry\']').click(); document.getElementById('chartView').scrollIntoView({behavior:'smooth'});" style="margin-top:10px; width:100%; justify-content:center; font-size:12px; padding:5px 8px; border-color:var(--mint); color:var(--mint);">🏭 查看装备协同与桑基</button>
+          </div>
+
+          <!-- 卡片 4 -->
+          <div class="insight-card" style="background:var(--bg); border:1px solid var(--panel-border); border-radius:var(--radius-md); padding:14px; display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s ease, border-color 0.2s ease;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase;">04 · 概率推演</span>
+                <span style="font-size:11px; background:#fffbeb; color:#b45309; padding:2px 6px; border-radius:4px; font-weight:600;">88.7% 达成概率</span>
+              </div>
+              <h4 style="margin:0 0 6px 0; font-size:15px; font-weight:700; color:var(--text);">暖冬应力与蒙特卡洛置信</h4>
+              <p style="margin:0; font-size:12px; color:var(--muted); line-height:1.5;">受 n=6 样本制约如实披露 OLS R²=0.5137；万次蒙特卡洛模拟给出 88.7% 目标达成概率，并在 +1.8°C 强暖冬下检验造雪水网韧性。</p>
+            </div>
+            <button class="btn" onclick="document.querySelector('[data-tab=\'montecarlo\']').click(); document.getElementById('chartView').scrollIntoView({behavior:'smooth'});" style="margin-top:10px; width:100%; justify-content:center; font-size:12px; padding:5px 8px; border-color:var(--gold); color:var(--gold);">🎲 穿梭至万次推演扇形</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -6077,7 +6185,7 @@ async function initWebXRSession(gl) {
         </div>
 
         <!-- I. 三维可视化（零依赖 · 自研透视投影） -->
-        <div class="lab-subhead">
+        <div class="lab-subhead" id="da3dBlock" style="scroll-margin-top:16px;">
           <span style="font-size:15px;">🧊</span>
           <b>九、三维可视化：模型 D 的回归几何与省域格局</b>
           <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">零依赖 · 自研透视投影</span>
@@ -6117,6 +6225,47 @@ async function initWebXRSession(gl) {
         </div>
         <div class="da3d-src">
           <b style="color:var(--ice-dark);">投影与数据口径：</b>两图均由本作品自研的透视投影（Yaw/Pitch 双轴旋转 + FOV 缩放 + 深度剔除）在原生 Canvas 上绘制，零第三方库、零 WebGL；9 个市州的 GDP、积雪日数、冰雪指数与经纬度取自随附底表，拟合平面由主模型 D 系数（β₀ = −155.2677、β_GDP = 0.003834、β_积雪日数 = 1.6540）实时生成，与上方系数表逐位一致。<a href="jilin_city_panel_2024.csv" download="jilin_city_panel_2024.csv" style="display:inline-flex; align-items:center; gap:4px; margin-left:6px; padding:2px 8px; font-size:11px; vertical-align:middle; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.4); border-radius:4px; color:var(--ice-dark); text-decoration:none; cursor:pointer;">⬇ 下载面板底表 (CSV)</a>
+        </div>
+
+        <!-- J. 东三省冰雪三维版图（零依赖 · 自研透视投影 · 数据示意图，不绘制行政边界） -->
+        <div class="lab-subhead" id="ned3Block" style="scroll-margin-top:16px;">
+          <span style="font-size:15px;">🧭</span>
+          <b>十、东三省冰雪三维版图：三省客流—花费的空间格局</b>
+          <span class="badge" style="font-size:10px; padding:2px 7px; background:#f0f9ff; color:#0284c7; border:1px solid #bae6fd; font-weight:600;">零依赖 · 自研透视投影</span>
+        </div>
+        <div class="da3d-note">
+          <b style="color:var(--ice-dark);">读图指南：</b>把吉林放回东北三省的坐标系里看。底面是真实经纬网（118.8°E–135.1°E / 38.7°N–53.6°N，正北朝后），三根棱柱按省域质心经纬度落位，<b>柱底面积按省域陆域面积等比缩放，柱高＝2024—2025 冰雪季接待游客量同比增速</b>；地面圆点与虚线串起哈—长—沈「冰雪走廊」上的 8 个核心冰雪目的地。<b style="color:var(--gold);">⚠️ 本图为数据示意图：只用经纬度定位与标注，不绘制任何行政边界，不作为疆域或边界依据。</b>
+        </div>
+        <div class="da3d-card" style="margin-top:12px;">
+          <div class="da3d-h"><span class="da3d-no">东三省</span><span>冰雪季客流 3D 空间版图</span></div>
+          <div class="da3d-stage">
+            <canvas id="ned3Cv" class="da3d-cv ned3-cv" role="img" tabindex="0" aria-label="东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域质心经纬度在经纬网上落位，柱底面积按陆域面积缩放、柱高为 2024—2025 冰雪季接待游客量同比增速；地面标注哈尔滨、亚布力、中国雪乡、长春、北大湖、长白山、沈阳、大连等核心目的地。等价数据见下方数据来源说明。"></canvas>
+          </div>
+          <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放 · 方向键微调</span><span>柱高 = 冰雪季客流同比增速</span></div>
+        </div>
+        <div class="da3d-ctl">
+          <span class="da3d-ctl-label">视角：</span>
+          <button class="da3d-btn" id="ned3Reset" type="button">🔄 复位视角</button>
+          <button class="da3d-btn active" data-ned3-view="45" type="button">45° 黄金斜俯</button>
+          <button class="da3d-btn" data-ned3-view="82" type="button">82° 卫星鸟瞰</button>
+          <button class="da3d-btn" data-ned3-view="12" type="button">12° 宏伟平视</button>
+          <span class="da3d-ctl-label" style="margin-left:auto;">⇆ 独立相机，不与上图联动</span>
+        </div>
+        <div class="da3d-legend">
+          <span><i class="da3d-sw" style="background:#0284c7;"></i>黑龙江 · 1.35 亿人次 · +18.5%</span>
+          <span><i class="da3d-sw" style="background:#059669;"></i>吉林 · 1.70 亿人次 · +35.0%</span>
+          <span><i class="da3d-sw" style="background:#d97706;"></i>辽宁 · 绝对值未公布 · +14.8%</span>
+          <span><i class="da3d-sw" style="background:#38bdf8; border-radius:50%;"></i>核心冰雪目的地</span>
+        </div>
+        <div class="da3d-src">
+          <b style="color:var(--ice-dark);">数据来源与口径（三省口径不一致，已分列标注）：</b>
+          <b>①</b> 黑龙江 1.3508 亿人次 / 2,117.2 亿元（+18.5% / +30.7%）——黑龙江省文化和旅游厅 2025-03-04 收官通报，统计区间 2024-11-08 至 2025-02-28，含国内外游客；
+          <b>②</b> 吉林 1.70 亿人次 / 2,950 亿元（+35% / +21%）——吉林省文化和旅游厅据银联大数据测算，2025-04-02 发布，口径为国内游客；
+          <b>③</b> 辽宁接待游客数量、旅游综合收入同比分别 +14.8% / +7.4%，绝对值未公布——辽宁省文化和旅游厅；
+          <b>④</b> 哈尔滨 9,035.7 万人次 / 1,372.2 亿元（+9.7% / +16.6%）、全国滑雪场累计接待客流超 1.9 亿人次（+22.8%）——文化和旅游部 / 新华社 2025-03-24 报道；
+          <b>⑤</b> 北大湖接待游客首次突破百万人次（105 万）、全国雪场人气与里程前十中吉林各占 3 席——吉林省文化和旅游厅；
+          <b>⑥</b> 全国运营滑雪场 748 家（66 室内 + 682 户外）、滑雪人次 2,605 万（+12.90%）——伍斌《2024-2025 中国滑雪产业白皮书》（2025-08-26）。
+          <span style="color:var(--muted);">⚠️ 三省统计口径、统计区间与测算方法均不相同（黑含入境游客、吉为银联大数据国内游客、辽未公布绝对值），故本图<b>不直接比较绝对量</b>，只以增速作柱高、以陆域面积作柱底，绝对量仅作为文字标注并列展示。</span>
         </div>
 
         <!-- H. 数据来源 -->
@@ -6764,7 +6913,7 @@ async function initWebXRSession(gl) {
   <!-- VR Sandbox Expand Modal -->
   <div class="modal-overlay" id="vrExpandModal">
     <div class="modal-card" style="width:min(1100px, 96vw);padding:20px;text-align:left;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div class="vr-expand-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <h3 style="color: var(--text);display:flex;align-items:center;gap:12px; font-family: var(--font-mono);">
           <span>[ 🥽 3D_VR_DIGITAL_TWIN ]</span>
           <span class="badge" id="vrExpandBadge" style="background: rgba(244,198,109,0.15); border: 1px solid var(--gold); color: var(--gold); font-size: 15px; letter-spacing: 0.02em;">长白山主峰天池</span>
@@ -6788,7 +6937,7 @@ async function initWebXRSession(gl) {
         <div style="position:absolute; bottom:20px; left:20px; width:40px; height:40px; border-bottom:3px solid var(--ice); border-left:3px solid var(--ice); pointer-events:none;"></div>
         <div style="position:absolute; bottom:20px; right:20px; width:40px; height:40px; border-bottom:3px solid var(--ice); border-right:3px solid var(--ice); pointer-events:none;"></div>
         
-        <div style="position:absolute; top:35px; left:70px; font-family: var(--font-mono); font-size:11px; color:var(--gold); letter-spacing:1px; pointer-events:none; opacity:0.8;">
+        <div class="vr-expand-hud" style="position:absolute; top:35px; left:70px; font-family: var(--font-mono); font-size:11px; color:var(--gold); letter-spacing:1px; pointer-events:none; opacity:0.8;">
           <div style="margin-bottom:4px;">SYS.TARGET: JILIN PROVINCE (吉林省全域)</div>
           <div style="margin-bottom:4px;">PROV.REF (长春枢纽点): 43.8961° N, 125.3246° E</div>
           <div style="margin-bottom:4px;">NAT.CORE (长白山核心区): 42.0050° N, 128.0580° E</div>
@@ -6821,10 +6970,10 @@ async function initWebXRSession(gl) {
 
 </style>
 
-        <div style="position:absolute;bottom:25px;left:70px;font-size:12px;color:var(--ice);background:#f8fafc;padding:6px 12px;border-radius:6px;backdrop-filter: blur(4px);pointer-events:none; border: 1px solid rgba(56,189,248,0.3);">
+        <div class="vr-expand-hint" style="position:absolute;bottom:25px;left:70px;font-size:12px;color:var(--ice);background:#f8fafc;padding:6px 12px;border-radius:6px;backdrop-filter: blur(4px);pointer-events:none; border: 1px solid rgba(56,189,248,0.3);">
           ▶ 支持鼠标左键拖拽旋转 · 滚轮视角缩放 · <span style="color:var(--gold);">直接点击画面地标光标选中城市</span>
         </div>
-        <div style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="vr-expand-actions" style="position:absolute;bottom:25px;right:70px;display:flex;gap:8px;flex-wrap:wrap;">
           <button class="vr-btn" id="btnExpandSki" style="border:1px solid var(--gold); color:var(--gold); padding: 8px 16px;">⛷️ 第一人称滑雪速降</button>
           <button class="vr-btn" id="btnExpandOrbit" style="border:1px solid var(--ice); color:var(--ice); padding: 8px 16px;">🚁 航拍巡游</button>
           <button class="vr-btn" id="btnExpandStereo" style="border:1px solid var(--mint); color:var(--mint); padding: 8px 16px;">🥽 双目VR分屏</button>
@@ -8550,13 +8699,19 @@ async function initWebXRSession(gl) {
     const vrCtx = vrCanvas.getContext('2d');
     let vrW, vrH;
 
-    // 3D Camera State
-    let camYaw = 0.45;
-    let camPitch = 0.42;
-    let camDist = 480;
-    let targetYaw = 0.45;
-    let targetPitch = 0.42;
-    let targetDist = 480;
+    // 3D Camera State & Target LookAt Center
+    // 全省 8 大核心文旅地标几何重心：X=-45（西起白城-260、东至延边170），Y=60，Z=-90（北起白城-300、南至通化120）
+    const HOME_LOOK = { x: -45, y: 60, z: -90 };
+    let camLookX = HOME_LOOK.x, camLookY = HOME_LOOK.y, camLookZ = HOME_LOOK.z;
+    let targetLookX = HOME_LOOK.x, targetLookY = HOME_LOOK.y, targetLookZ = HOME_LOOK.z;
+
+    // 默认机位：正视全域黄金中心，俯仰约 32°，距离 600，保证白城到延边全境舒展收纳
+    let camYaw = 0;
+    let camPitch = 0.56;
+    let camDist = 600;
+    let targetYaw = 0;
+    let targetPitch = 0.56;
+    let targetDist = 600;
     let vrDragging = false;
     let vrStartX = 0, vrStartY = 0;
 
@@ -8566,7 +8721,30 @@ async function initWebXRSession(gl) {
     let isExpandOpen = false;
 
     let expandW = 800, expandH = 500;
+
+    // —— 可视带（被悬浮工具条让出的安全区）——
+    // 上下工具条是绝对定位悬浮在画布上的，窄卡片上会换行到 2~3 行：
+    // 390px 手机实测顶栏 94px + 底栏 114px = 208px，只剩 20px 可见。这里
+    // 按实测占位抬升视口高度，保证中间始终留出 VR_MIN_BAND 的可用高度。
+    const VR_MIN_BAND = 168;
+    let vrActiveBandTop = 46, vrActiveBandBot = 62;   // 内联沙盘的可视带上下留白
+    function syncVrViewportHeight() {
+      const box = document.querySelector('.grid > .card > .vr-viewport-box') || document.querySelector('.vr-viewport-box');
+      const tb = document.querySelector('.vr-top-toolbar');
+      const bb = document.querySelector('.vr-bottom-toolbar');
+      if (!box || !tb || !bb) return;
+      box.style.height = '';                          // 先复位量最自然的排版（工具条为绝对定位，量得稳定）
+      const br = box.getBoundingClientRect();
+      const top = Math.max(0, tb.getBoundingClientRect().bottom - br.top);
+      const bot = Math.max(0, br.bottom - bb.getBoundingClientRect().top);
+      const target = Math.max(228, Math.min(430, Math.round(top + bot + VR_MIN_BAND)));
+      box.style.height = target + 'px';
+      vrActiveBandTop = Math.round(top);
+      vrActiveBandBot = Math.round(bot);
+    }
+
     function resizeVr() {
+      syncVrViewportHeight();                         // 必须先于画布尺寸读取
       // 同样按 DPR 放大位图；render3DScene 仍接收 CSS 尺寸，几何逻辑零改动
       vrW = vrCanvas.clientWidth || 320;
       vrH = vrCanvas.clientHeight || 228;
@@ -8703,26 +8881,41 @@ async function initWebXRSession(gl) {
 
     function flyCameraToTarget(pos3d) {
       playSwoosh();
-      const angle = Math.atan2(pos3d[0], pos3d[2]);
-      targetYaw = angle + 0.3;
-      targetPitch = 0.48;
-      targetDist = 420;
+      // 平滑将相机注视中心正对目标地标，居中呈现于安全可视带
+      targetLookX = pos3d[0];
+      targetLookY = pos3d[1] + 15;
+      targetLookZ = pos3d[2];
+      targetDist = 380;
+      targetPitch = 0.50;
+      // 轻微方位角偏转，使背后吉林雪山山脉呈现层次景深
+      const angle = Math.atan2(pos3d[0] - HOME_LOOK.x, pos3d[2] - HOME_LOOK.z);
+      targetYaw = angle * 0.22;
     }
 
-    // 3D Perspective Projection Math (Supports custom optical center cx, cy for Stereoscopic VR)
-    function project3D(p, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2) {
+    // 3D Perspective Projection Math (Supports camera lookAt offset & custom optical center cx, cy for Stereoscopic VR)
+    // 视场角由 renderSingle3DView 按「可视带与全域地标」逐帧反解后写入 vrActiveFov，
+    // 使地形与全省 8 大核心地标在任意画布尺寸下都不会横向溢出。
+    let vrActiveFov = 340;
+    function project3D(p, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2, customLook = null) {
+      const lkX = customLook ? customLook.x : camLookX;
+      const lkY = customLook ? customLook.y : camLookY;
+      const lkZ = customLook ? customLook.z : camLookZ;
+      const dx = p.x - lkX;
+      const dy = p.y - lkY;
+      const dz = p.z - lkZ;
+
       // Rotation around Y (Yaw)
       const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
-      const x1 = p.x * cosY - p.z * sinY;
-      const z1 = p.x * sinY + p.z * cosY;
+      const x1 = dx * cosY - dz * sinY;
+      const z1 = dx * sinY + dz * cosY;
 
       // Rotation around X (Pitch)
       const cosP = Math.cos(pitch), sinP = Math.sin(pitch);
-      const y2 = p.y * cosP - z1 * sinP;
-      const z2 = p.y * sinP + z1 * cosP + dist;
+      const y2 = dy * cosP - z1 * sinP;
+      const z2 = dy * sinP + z1 * cosP + dist;
 
       if (z2 <= 20) return null; // Behind camera
-      const fov = 340;
+      const fov = vrActiveFov;
       const scale = fov / z2;
       return {
         x: cx + x1 * scale,
@@ -8811,6 +9004,42 @@ async function initWebXRSession(gl) {
         ctx.clip();
       }
 
+      // —— 视角自适应取景 ——
+      // 上下两条悬浮 HUD 工具条压在画布两端，真正看得见的只有中间一条「可视带」。
+      // 包围盒同时采样三维地形网格与全省 8 大核心文旅地标（含标记物高度），
+      // 彻底解决西部极远端（白城·嫩江湾、松原·查干湖）在默认机位与窄屏下被裁切出画的痛点。
+      vrActiveFov = 340;
+      const bandTop = (clipRect ? clipRect.y : 0) + vrActiveBandTop;
+      const bandBot = (clipRect ? clipRect.y + clipRect.h : h) - vrActiveBandBot;
+      const bandCy = (bandTop + bandBot) / 2;
+      const targetCx = clipRect ? clipRect.x + clipRect.w / 2 : w / 2;
+      let bx0 = Infinity, bx1 = -Infinity;
+      for (let ti = 0; ti < terrainPoints.length; ti += 4) {
+        const q = project3D(terrainPoints[ti], w, h, yaw, pitch, dist, targetCx, bandCy);
+        if (!q) continue;
+        if (q.x < bx0) bx0 = q.x;
+        if (q.x > bx1) bx1 = q.x;
+      }
+      PLACES.forEach(p => {
+        const q1 = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, yaw, pitch, dist, targetCx, bandCy);
+        if (q1) {
+          if (q1.x < bx0) bx0 = q1.x;
+          if (q1.x > bx1) bx1 = q1.x;
+        }
+        const q2 = project3D({ x: p.pos3d[0], y: p.markerY + 28, z: p.pos3d[2] }, w, h, yaw, pitch, dist, targetCx, bandCy);
+        if (q2) {
+          if (q2.x < bx0) bx0 = q2.x;
+          if (q2.x > bx1) bx1 = q2.x;
+        }
+      });
+      if (bx1 > bx0) {
+        const k = Math.min(1.12, Math.max(0.68, (w * 0.90) / (bx1 - bx0)));
+        vrActiveFov = 340 * k;
+        // 视场角按 k 缩放后，屏幕偏移同步按 k 缩放 → 直接解出居中的光学中心
+        cx = targetCx - k * (((bx0 + bx1) / 2) - targetCx);
+      }
+      cy = bandCy;
+
       // 1. Sky Gradient
       const sky = ctx.createLinearGradient(0, 0, 0, h);
       if (vrLayer === 'thermal') {
@@ -8854,19 +9083,19 @@ async function initWebXRSession(gl) {
       ctx.strokeStyle = vrLayer === 'thermal' ? 'rgba(255, 180, 50, 0.1)' : 'rgba(56, 189, 248, 0.1)';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      const gridRadius = 250;
-      const gridStep = 25;
+      const gridMinX = -320, gridMaxX = 240, gridMinZ = -340, gridMaxZ = 200;
+      const gridStep = 30;
       const datumY = -15;
       // Draw X lines
-      for (let z = -gridRadius; z <= gridRadius; z += gridStep) {
-        const p1 = project3D({x: -gridRadius, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
-        const p2 = project3D({x: gridRadius, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
+      for (let z = gridMinZ; z <= gridMaxZ; z += gridStep) {
+        const p1 = project3D({x: gridMinX, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
+        const p2 = project3D({x: gridMaxX, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       }
       // Draw Z lines
-      for (let x = -gridRadius; x <= gridRadius; x += gridStep) {
-        const p1 = project3D({x: x, y: datumY, z: -gridRadius}, w, h, yaw, pitch, dist, cx, cy);
-        const p2 = project3D({x: x, y: datumY, z: gridRadius}, w, h, yaw, pitch, dist, cx, cy);
+      for (let x = gridMinX; x <= gridMaxX; x += gridStep) {
+        const p1 = project3D({x: x, y: datumY, z: gridMinZ}, w, h, yaw, pitch, dist, cx, cy);
+        const p2 = project3D({x: x, y: datumY, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
         if (p1 && p2) { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
       }
       ctx.stroke();
@@ -9206,6 +9435,46 @@ async function initWebXRSession(gl) {
       }
 
       // 6. Draw 3D Spatial Policy Landmarks
+      // —— 标签排版预计算 ——
+      // 原实现是「边画边向下避让一次」，8 个市州标签会挤成一列、互相压字，
+      // 而且整体落在底部悬浮工具条后面。这里改成：先收集所有可见锚点，
+      // 按 y 自上而下依次下移堆叠（保证不重叠），再整体夹进可视带内。
+      const isEnLabel = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+      const LABEL_PAD_Y = 3, LABEL_EDGE = 4, LABEL_H = 15;
+      const vrLabels = [];
+      PLACES.forEach((p, idx) => {
+        const q = project3D({ x: p.pos3d[0], y: p.markerY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
+        if (!q) return;
+        // 确保全省 8 大核心文旅地标全量参与排版与引线计算
+        if (q.x < -80 || q.x > w + 80 || q.y < -80 || q.y > h + 80) return;
+        const shortName = isEnLabel ? (p.nameEn || p.name) : (p.name.includes(' · ') ? p.name.split(' · ')[1] : p.name);
+        vrLabels.push({ idx, ax: q.x, ay: q.y, text: `${shortName} (${p.elev})` });
+      });
+      vrLabels.forEach(L => {
+        ctx.font = (L.idx === currentPlaceIdx ? 'bold 11px' : '10px') + ' sans-serif';
+        L.w = ctx.measureText(L.text).width + 10;
+        L.h = LABEL_H;
+      });
+      vrLabels.sort((a, b) => a.ay - b.ay);
+      {
+        const lo = bandTop + LABEL_EDGE, hi = bandBot - LABEL_EDGE;
+        let cursor = -Infinity;
+        for (const L of vrLabels) {
+          L.ly = Math.max(L.ay - 8, lo, cursor + LABEL_PAD_Y);
+          cursor = L.ly + L.h;
+        }
+        const lastL = vrLabels[vrLabels.length - 1];
+        if (lastL && lastL.ly + lastL.h > hi) {          // 整列越出下沿 → 等比上移
+          const shift = lastL.ly + lastL.h - hi;
+          for (const L of vrLabels) L.ly = Math.max(lo, L.ly - shift);
+        }
+        for (const L of vrLabels) {
+          L.lx = Math.min(Math.max(L.ax + 8, LABEL_EDGE), Math.max(LABEL_EDGE, w - LABEL_EDGE - L.w));
+        }
+      }
+      const labelAt = Object.create(null);
+      vrLabels.forEach(L => { labelAt[L.idx] = L; });
+
       const renderedBadges = [];
       PLACES.forEach((p, idx) => {
         const pt = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
@@ -9267,28 +9536,27 @@ async function initWebXRSession(gl) {
         ctx.arc(updatedPt.x, updatedPt.y, isCurrent ? 6 : 4, 0, Math.PI * 2);
         ctx.fill();
 
-        // 3D Text Label with high-contrast cyber micro-badge
-        const isEnScene = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
-        const shortName = isEnScene ? (p.nameEn || p.name) : (p.name.includes(' · ') ? p.name.split(' · ')[1] : p.name);
-        const tagText = `${shortName} (${p.elev})`;
-        ctx.font = `${isCurrent ? 'bold 11px' : '10px'} sans-serif`;
-        const textMetrics = ctx.measureText(tagText);
+        // 3D Text Label with high-contrast cyber micro-badge（落点由上面的预排版给出）
+        const LB = labelAt[idx];
         const padX = 5;
-        let badgeX = updatedPt.x + 8;
-        let badgeY = updatedPt.y - 8;
-        const badgeW = textMetrics.width + padX * 2;
-        const badgeH = 15;
+        const badgeW = LB ? LB.w : 0;
+        const badgeH = LABEL_H;
+        const badgeX = LB ? LB.lx : updatedPt.x + 8;
+        const badgeY = LB ? LB.ly : updatedPt.y - 8;
+        const tagText = LB ? LB.text : '';
+        ctx.font = `${isCurrent ? 'bold 11px' : '10px'} sans-serif`;
 
-        // Dynamic collision avoidance against already placed badges
-        for (const rb of renderedBadges) {
-          const overlap = !(badgeX + badgeW < rb.x || badgeX > rb.x + rb.w || badgeY + badgeH < rb.y || badgeY > rb.y + rb.h);
-          if (overlap) {
-            if (badgeY <= rb.y) {
-              badgeY = rb.y - badgeH - 3;
-            } else {
-              badgeY = rb.y + rb.h + 3;
-            }
-          }
+        // 标签被挪离锚点时，用虚线牵引线保持归属关系
+        if (LB && Math.abs(badgeY - (updatedPt.y - 8)) > 2) {
+          ctx.save();
+          ctx.setLineDash([3, 3]);
+          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.85)' : 'rgba(148, 163, 184, 0.7)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(updatedPt.x, updatedPt.y);
+          ctx.lineTo(badgeX, badgeY + badgeH / 2);
+          ctx.stroke();
+          ctx.restore();
         }
         renderedBadges.push({ x: badgeX, y: badgeY, w: badgeW, h: badgeH });
 
@@ -9555,10 +9823,17 @@ async function initWebXRSession(gl) {
     function render3DScene(ctx, w, h) {
       ctx.clearRect(0, 0, w, h);
 
-      // Interpolate Camera
+      // 展开弹窗的悬浮层只有四角标记与底部提示条，留白远小于内联卡片
+      const bandT = vrActiveBandTop, bandB = vrActiveBandBot;
+      if (isExpandOpen) { vrActiveBandTop = 46; vrActiveBandBot = 58; }
+
+      // Interpolate Camera (Position & LookAt Center)
       camYaw += (targetYaw - camYaw) * 0.08;
       camPitch += (targetPitch - camPitch) * 0.08;
       camDist += (targetDist - camDist) * 0.08;
+      camLookX += (targetLookX - camLookX) * 0.08;
+      camLookY += (targetLookY - camLookY) * 0.08;
+      camLookZ += (targetLookZ - camLookZ) * 0.08;
       if (isSkiingRunning) {
         skiProgress += 0.0022;
         if (skiProgress >= 1.0) {
@@ -9590,7 +9865,10 @@ async function initWebXRSession(gl) {
         const dx = nextX - curX, dz = nextZ - curZ;
         targetYaw = Math.atan2(dx, dz) + 0.05;
         targetPitch = 0.30 + Math.sin(skiProgress * 22) * 0.04;
-        targetDist = 280;
+        targetDist = 200;
+        targetLookX = curX;
+        targetLookY = curY + 6;
+        targetLookZ = curZ;
 
         // Spawn snow carving spray particles
         if (Math.random() < 0.6) {
@@ -9607,9 +9885,12 @@ async function initWebXRSession(gl) {
           });
         }
       } else if (isOrbitRunning) {
+        targetLookX = HOME_LOOK.x;
+        targetLookY = HOME_LOOK.y;
+        targetLookZ = HOME_LOOK.z;
         targetYaw += 0.012;
-        targetPitch = 0.42 + Math.sin(Date.now() * 0.001) * 0.08;
-        targetDist = 440 + Math.cos(Date.now() * 0.0008) * 35;
+        targetPitch = 0.52 + Math.sin(Date.now() * 0.001) * 0.08;
+        targetDist = 580 + Math.cos(Date.now() * 0.0008) * 35;
       } else if (!vrDragging && !isTourRunning) {
         targetYaw += 0.002; // Gentle idle drift
       }
@@ -9652,6 +9933,10 @@ async function initWebXRSession(gl) {
         renderSingle3DView(ctx, w, h, camYaw - 0.022, camPitch, camDist, w / 4, h / 2, { x: 0, y: 0, w: w / 2, h: h }, 'L-EYE');
         // Right Eye
         renderSingle3DView(ctx, w, h, camYaw + 0.022, camPitch, camDist, 3 * w / 4, h / 2, { x: w / 2, y: 0, w: w / 2, h: h }, 'R-EYE');
+      }
+      if (isExpandOpen) { vrActiveBandTop = bandT; vrActiveBandBot = bandB; }
+
+      if (isStereoVR) {
 
         // Central Optical Divider Beam
         ctx.save();
@@ -9824,9 +10109,9 @@ async function initWebXRSession(gl) {
 
     // Quick Pitch Angle Presets: 45° Natural -> 82° Top-down Satellite -> 12° Grand Horizon
     const PITCH_PRESETS = [
-      { name: '45° 黄金斜俯', pitch: 0.45, dist: 480 },
-      { name: '82° 卫星鸟瞰', pitch: 1.42, dist: 530 },
-      { name: '12° 宏伟平视', pitch: 0.16, dist: 440 }
+      { name: '45° 黄金斜俯', pitch: 0.56, dist: 600 },
+      { name: '82° 卫星鸟瞰', pitch: 1.42, dist: 640 },
+      { name: '12° 宏伟平视', pitch: 0.16, dist: 560 }
     ];
     let pitchPresetIdx = 0;
 
@@ -9843,9 +10128,12 @@ async function initWebXRSession(gl) {
     if ($('btnExpandPitch')) $('btnExpandPitch').onclick = cyclePitchPreset;
 
     $('btnVrReset').onclick = () => {
-      targetYaw = 0.45;
-      targetPitch = 0.42;
-      targetDist = 480;
+      targetLookX = HOME_LOOK.x;
+      targetLookY = HOME_LOOK.y;
+      targetLookZ = HOME_LOOK.z;
+      targetYaw = 0;
+      targetPitch = 0.56;
+      targetDist = 600;
       pitchPresetIdx = 0;
       if ($('btnVrPitch')) $('btnVrPitch').textContent = '📐 俯仰切换';
       if ($('btnExpandPitch')) $('btnExpandPitch').textContent = '📐 俯仰视角切换';
@@ -9906,7 +10194,8 @@ async function initWebXRSession(gl) {
       while (rel > 180) rel -= 360;
       while (rel < -180) rel += 360;
       // 水平方位角 → 偏航；前后倾斜 → 俯仰（直立时 beta ≈ 90）
-      targetYaw = -rel * Math.PI / 180 + 0.45;
+      // 基准偏航与默认机位保持一致（默认 yaw=0）
+      targetYaw = -rel * Math.PI / 180;
       const pitch = (90 - e.beta) * Math.PI / 180;
       targetPitch = Math.max(-0.22, Math.min(1.32, pitch));
     }
@@ -9989,6 +10278,13 @@ async function initWebXRSession(gl) {
           $('btnExpandOrbit').textContent = isEnSki ? '🛸 Smart Drone Orbit' : '🛸 智能无人机环绕巡航';
           $('btnExpandOrbit').style.background = '';
         }
+      } else {
+        targetLookX = HOME_LOOK.x;
+        targetLookY = HOME_LOOK.y;
+        targetLookZ = HOME_LOOK.z;
+        targetDist = 600;
+        targetPitch = 0.56;
+        targetYaw = 0;
       }
       const label = isSkiingRunning ? (isEnSki ? '⛷️ Exit Skiing' : '⛷️ 退出速降') : (isEnSki ? '⛷️ Downhill Skiing' : '⛷️ 速降滑雪');
       if ($('btnVrSki')) {
@@ -10800,7 +11096,11 @@ async function initWebXRSession(gl) {
           if (el && el.classList.contains('show')) el.classList.remove('show');
         });
         if ($('voiceoverDock')) $('voiceoverDock').classList.add('hidden');
-        if ($('toolbarDropdown')) $('toolbarDropdown').classList.remove('open');
+        if ($('toolbarDropdown')) {
+          $('toolbarDropdown').classList.remove('open');
+          const mtb = $('btnMoreTools');
+          if (mtb) mtb.setAttribute('aria-expanded', 'false');
+        }
         if (isSkiingRunning) toggleSkiingSimulation();
         isExpandOpen = false;
         stopAutoTour();
@@ -10885,16 +11185,84 @@ async function initWebXRSession(gl) {
       }
     });
 
+    // 「更多工具」下拉开关：展开时按视口夹取水平位置，避免窄屏溢出到屏幕外
+    window.svToggleMoreTools = function () {
+      const dd = $('toolbarDropdown');
+      if (!dd) return;
+      const willOpen = !dd.classList.contains('open');
+      dd.classList.toggle('open', willOpen);
+      const btn = $('btnMoreTools');
+      if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      if (!willOpen) return;
+      svClampMoreToolsMenu();
+    };
+
+    // 让菜单在视口内水平居中可用：优先右对齐按钮，越界则左贴边
+    window.svClampMoreToolsMenu = function () {
+      const dd = $('toolbarDropdown'), menu = $('moreToolsMenu'), btn = $('btnMoreTools');
+      if (!dd || !menu || !btn || !dd.classList.contains('open')) return;
+      menu.style.left = 'auto';
+      menu.style.right = '0px';
+      menu.style.maxWidth = '';
+      const vw = document.documentElement.clientWidth || window.innerWidth;
+      const GAP = 10;
+      const br = btn.getBoundingClientRect();
+      let mw = menu.offsetWidth;
+      if (mw > vw - GAP * 2) { menu.style.maxWidth = (vw - GAP * 2) + 'px'; mw = menu.offsetWidth; }
+      // 默认 right:0 → 菜单右边与按钮右边齐平；若左边越界则整体左移
+      if (br.right - mw < GAP) {
+        menu.style.right = (br.right - (GAP + mw)) + 'px';
+      }
+    };
+
     document.addEventListener('click', e => {
       const dd = $('toolbarDropdown');
       if (dd && dd.classList.contains('open') && !dd.contains(e.target)) {
         dd.classList.remove('open');
+        const btn = $('btnMoreTools');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
       }
     });
+
+    // 「更多工具」→ 3D 图表直达入口（九、三维可视化 / 十、东三省冰雪三维版图）。
+    // ⚠️ 目标章节若位于折叠/隐藏容器内，scrollIntoView 会静默失效 → 先逐级展开祖先，
+    // 再滚动 + 用 Web Animations API 闪一下底色，帮助用户确认落点（无需额外 CSS）。
+    window.svGotoSection = function (id) {
+      const dd = $('toolbarDropdown');
+      if (dd && dd.classList.contains('open')) {
+        dd.classList.remove('open');
+        const mb = $('btnMoreTools');
+        if (mb) mb.setAttribute('aria-expanded', 'false');
+      }
+      const el = document.getElementById(id);
+      if (!el) return;
+      let n = el;
+      while (n && n !== document.body) {
+        if (n.tagName === 'DETAILS') n.open = true;
+        if (n.hidden) n.hidden = false;
+        if (getComputedStyle(n).display === 'none') n.style.display = '';
+        n = n.parentElement;
+      }
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (el.animate) {
+        el.animate(
+          [{ backgroundColor: 'rgba(56,189,248,0.30)' },
+           { backgroundColor: 'rgba(56,189,248,0.06)' },
+           { backgroundColor: 'rgba(56,189,248,0)' }],
+          { duration: 1600, easing: 'ease-out' }
+        );
+      }
+    };
+    (function () {
+      const b1 = $('btnGotoDa3d'), b2 = $('btnGotoNed3');
+      if (b1) b1.addEventListener('click', () => svGotoSection('da3dBlock'));
+      if (b2) b2.addEventListener('click', () => svGotoSection('ned3Block'));
+    })();
 
     window.addEventListener('resize', () => {
       initBgParticles();
       resizeVr();
+      svClampMoreToolsMenu();
     });
 
     document.addEventListener('fullscreenchange', () => {
@@ -12990,6 +13358,67 @@ P.push(["三维回归散点图：9 个市州按地区生产总值、年积雪日
 P.push(["三维柱状沙盘：9 个市州按真实经纬度铺排，柱体高度表示冰雪指数。等价数据见上方供给端核验表与随附 CSV 底表。", "3D bar sandbox: the 9 cities laid out by real longitude and latitude, with bar height representing the ice-and-snow index. Equivalent data appears in the supply-side verification table above and the accompanying CSV base table."]);
 P.push(["经度", "Longitude"]);
 P.push(["纬度", "Latitude"]);
+/* ---- 十、东三省冰雪三维版图：新增文案补译（零依赖自研透视投影 · 数据示意图） ----
+   ⚠️ 本章节为纯 DOM + Canvas 混排：DOM 文本走 EXACT 精确匹配（key 取 norm() 后的
+   整段文本），Canvas 文本走 disp() → SnowVizI18N.t() → 同一张表。
+   任一处中文改动都必须同步这里，否则英文模式会残留中文。 */
+P.push(["十、东三省冰雪三维版图：三省客流—花费的空间格局", "X. Northeast China 3D Ice-and-Snow Atlas: Provincial Visitor–Spending Spatial Pattern"]);
+/* 读图指南：长段被内联 <b> 切成 4 个文本节点，逐节点精确收录 */
+P.push(["把吉林放回东北三省的坐标系里看。底面是真实经纬网（118.8°E–135.1°E / 38.7°N–53.6°N，正北朝后），三根棱柱按省域质心经纬度落位，", "Placing Jilin back into the Northeast China coordinate frame. The base is a real graticule (118.8°E–135.1°E / 38.7°N–53.6°N, north pointing away from the viewer); three prisms are positioned at the provincial centroids, "]);
+P.push(["柱底面积按省域陆域面积等比缩放，柱高＝2024—2025 冰雪季接待游客量同比增速", "each base scaled proportionally to provincial land area and each height set to the year-on-year growth of visitors received in the 2024–2025 ice-and-snow season"]);
+P.push(["；地面圆点与虚线串起哈—长—沈「冰雪走廊」上的 8 个核心冰雪目的地。", "; ground dots and a dashed line string together the 8 core ice-and-snow destinations along the Harbin–Changchun–Shenyang “Ice-and-Snow Corridor”."]);
+P.push(["⚠️ 本图为数据示意图：只用经纬度定位与标注，不绘制任何行政边界，不作为疆域或边界依据。", " ⚠️ This is a schematic data illustration: it uses longitude/latitude only for positioning and labelling, draws no administrative boundaries, and is not a basis for any territory or border."]);
+/* 卡片头 / 提示条 */
+P.push(["东三省", "Northeast China"]);
+P.push(["冰雪季客流 3D 空间版图", "3D Spatial Atlas of Ice-and-Snow Season Visitor Traffic"]);
+P.push(["🖱️ 拖拽旋转 · 滚轮缩放 · 方向键微调", "🖱️ Drag to rotate · Scroll to zoom · Arrow keys to nudge"]);
+P.push(["柱高 = 冰雪季客流同比增速", "Bar height = YoY visitor growth"]);
+P.push(["⇆ 独立相机，不与上图联动", "⇆ Independent camera, not linked to the chart above"]);
+/* 图例（省份 + 绝对值 + 增速） */
+P.push(["黑龙江 · 1.35 亿人次 · +18.5%", "Heilongjiang · 135 million visits · +18.5%"]);
+P.push(["吉林 · 1.70 亿人次 · +35.0%", "Jilin · 170 million visits · +35.0%"]);
+P.push(["辽宁 · 绝对值未公布 · +14.8%", "Liaoning · absolute figure not published · +14.8%"]);
+P.push(["核心冰雪目的地", "Core Ice-and-Snow Destinations"]);
+/* Canvas 省域标签与绝对量标注 */
+P.push(["黑龙江", "Heilongjiang"]);
+P.push(["辽宁", "Liaoning"]);
+P.push(["1.35 亿人次 · 2,117 亿元", "135 million visits · 211.7 billion CNY"]);
+P.push(["1.70 亿人次 · 2,950 亿元", "170 million visits · 295 billion CNY"]);
+P.push(["绝对值未公布", "Absolute figure not published"]);
+/* Canvas 目的地节点名 */
+P.push(["哈尔滨", "Harbin"]);
+P.push(["亚布力", "Yabuli"]);
+P.push(["中国雪乡", "China Snow Town"]);
+P.push(["北大湖", "Beidahu"]);
+P.push(["沈阳", "Shenyang"]);
+P.push(["大连", "Dalian"]);
+/* Canvas 目的地节点注释 */
+P.push(["9,035.7 万人次 / 1,372.2 亿元", "90.36 million visits / 137.22 billion CNY"]);
+P.push(["亚冬会赛场 · 国家级度假区", "Asian Winter Games venue · national-level resort"]);
+P.push(["雪期近 7 个月", "Snow season of nearly 7 months"]);
+P.push(["冰雪新天地 · 省会枢纽", "Ice-and-Snow Wonderland · provincial-capital hub"]);
+P.push(["105 万人次 · 全国人气第一", "1.05 million visits · No. 1 nationwide for popularity"]);
+P.push(["世界级粉雪胜地", "World-class powder-snow destination"]);
+P.push(["辽宁东部雪上运动先导区", "Eastern Liaoning snow-sports pilot zone"]);
+P.push(["滨海冰雪 · 口岸城市", "Coastal ice-and-snow · port city"]);
+/* 数据来源与口径（三段：标题 + 六条分列 + 尾部口径警示；尾部含内联 <b>，按残片收录） */
+P.push(["数据来源与口径（三省口径不一致，已分列标注）：", "Data Sources & Definitions (the three provinces use different calibers; listed separately):"]);
+P.push(["黑龙江 1.3508 亿人次 / 2,117.2 亿元（+18.5% / +30.7%）——黑龙江省文化和旅游厅 2025-03-04 收官通报，统计区间 2024-11-08 至 2025-02-28，含国内外游客；", "Heilongjiang 135.08 million visits / 211.72 billion CNY (+18.5% / +30.7%) — closing bulletin of the Heilongjiang Provincial Department of Culture and Tourism, 4 March 2025; statistical window 8 Nov 2024 – 28 Feb 2025; includes domestic and inbound visitors;"]);
+P.push(["吉林 1.70 亿人次 / 2,950 亿元（+35% / +21%）——吉林省文化和旅游厅据银联大数据测算，2025-04-02 发布，口径为国内游客；", "Jilin 170 million visits / 295 billion CNY (+35% / +21%) — estimated by the Jilin Provincial Department of Culture and Tourism from UnionPay big data, released 2 April 2025; caliber is domestic visitors;"]);
+P.push(["辽宁接待游客数量、旅游综合收入同比分别 +14.8% / +7.4%，绝对值未公布——辽宁省文化和旅游厅；", "Liaoning: visitor arrivals and comprehensive tourism revenue up +14.8% / +7.4% year on year; absolute figures not published — Liaoning Provincial Department of Culture and Tourism;"]);
+P.push(["哈尔滨 9,035.7 万人次 / 1,372.2 亿元（+9.7% / +16.6%）、全国滑雪场累计接待客流超 1.9 亿人次（+22.8%）——文化和旅游部 / 新华社 2025-03-24 报道；", "Harbin 90.36 million visits / 137.22 billion CNY (+9.7% / +16.6%); ski resorts nationwide received a cumulative total of more than 190 million visits (+22.8%) — Ministry of Culture and Tourism / Xinhua, 24 March 2025;"]);
+P.push(["北大湖接待游客首次突破百万人次（105 万）、全国雪场人气与里程前十中吉林各占 3 席——吉林省文化和旅游厅；", "Beidahu received over one million visitors for the first time (1.05 million); Jilin holds 3 of the national top ten spots for both resort popularity and trail mileage — Jilin Provincial Department of Culture and Tourism;"]);
+P.push(["全国运营滑雪场 748 家（66 室内 + 682 户外）、滑雪人次 2,605 万（+12.90%）——伍斌《2024-2025 中国滑雪产业白皮书》（2025-08-26）。", "748 ski resorts operating nationwide (66 indoor + 682 outdoor), with 26.05 million skier visits (+12.90%) — Wu Bin, “2024–2025 China Ski Industry White Paper” (26 August 2025)."]);
+P.push(["⚠️ 三省统计口径、统计区间与测算方法均不相同（黑含入境游客、吉为银联大数据国内游客、辽未公布绝对值），故本图", "⚠️ The three provinces differ in statistical caliber, statistical window and estimation method (Heilongjiang includes inbound visitors, Jilin counts domestic visitors from UnionPay big data, Liaoning publishes no absolute figures), so this chart "]);
+P.push(["不直接比较绝对量", "does not compare absolute volumes directly"]);
+P.push(["，只以增速作柱高、以陆域面积作柱底，绝对量仅作为文字标注并列展示。", "; only growth rates are used as bar heights and land areas as bar bases, with absolute volumes shown side by side as text labels only."]);
+/* 章节入口（「更多工具」下拉） */
+P.push(["🧊 3D 可视化", "🧊 3D Visualization"]);
+P.push(["🧭 东三省 3D 版图", "🧭 Northeast China 3D Atlas"]);
+P.push(["跳转到「九、三维可视化」章节", "Jump to the “IX. 3D Visualization” section"]);
+P.push(["跳转到「十、东三省冰雪三维版图」章节", "Jump to the “X. Northeast China 3D Ice-and-Snow Atlas” section"]);
+/* 画布无障碍标签（aria-label 走 ATTRS 精确匹配；缺此条会残留中英混排） */
+P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域质心经纬度在经纬网上落位，柱底面积按陆域面积缩放、柱高为 2024—2025 冰雪季接待游客量同比增速；地面标注哈尔滨、亚布力、中国雪乡、长春、北大湖、长白山、沈阳、大连等核心目的地。等价数据见下方数据来源说明。", "Schematic 3D view of Northeast China's ice-and-snow pattern: Heilongjiang, Jilin and Liaoning are positioned on a graticule by provincial centroid coordinates, with base area scaled to land area and height set to the year-on-year growth of visitors received in the 2024–2025 ice-and-snow season; the ground layer labels core destinations including Harbin, Yabuli, China Snow Town, Changchun, Beidahu, Changbai Mountain, Shenyang and Dalian. Equivalent data appears in the data-source note below."]);
 }})();</script>
 <script id="svI18nEngine">
 /* =========================================================================
@@ -14124,6 +14553,550 @@ P.push(["纬度", "Latitude"]);
     try { new ResizeObserver(schedule).observe(planeCv.parentNode || planeCv); } catch (x) { }
   }
   draw();
+  if (document.readyState !== 'complete') window.addEventListener('load', schedule);
+})();
+
+</script>
+
+<!-- ================================================================
+     V10 · 东三省冰雪三维版图（零依赖 · 自研透视投影）
+     · 真实经纬网底面（118.8°E–135.1°E / 38.7°N–53.6°N，正北朝后）
+     · 三省棱柱：柱底面积 ∝ 省域陆域面积，柱高 = 冰雪季客流同比增速
+     · 哈—长—沈「冰雪走廊」+ 8 个核心目的地节点
+     · 数据示意图：只用经纬度定位与标注，不绘制任何行政边界
+     纯 Canvas 2D；中文标签交给全站 i18n 引擎在绘制期即时翻译。
+     ================================================================ -->
+<script id="ned3Engine">
+(function () {
+  'use strict';
+  var cv = document.getElementById('ned3Cv');
+  if (!cv || !cv.getContext) return;
+
+  /* ---------- 数据：2024—2025 冰雪季（口径各不相同，只比增速，不比绝对量） ----------
+     黑龙江 —— 黑龙江省文化和旅游厅 2025-03-04 收官通报（2024-11-08 ~ 2025-02-28，含国内外游客）
+     吉林   —— 吉林省文化和旅游厅 · 银联大数据测算（2025-04-02 发布，国内游客口径）
+     辽宁   —— 辽宁省文化和旅游厅（仅公布同比增速，绝对值未公布）
+     全国/哈尔滨 —— 文化和旅游部 · 新华社 2025-03-24；白皮书 —— 伍斌《2024-2025 中国滑雪产业白皮书》 */
+  var PROV = [
+    { n: '黑龙江', en: 'Heilongjiang', lon: 128.0, lat: 47.5, area: 47.30, growth: 18.5,
+      abs: '1.35 亿人次 · 2,117 亿元', col: '#0284c7', colD: '#0369a1' },
+    { n: '吉林', en: 'Jilin', lon: 126.0, lat: 43.7, area: 18.74, growth: 35.0,
+      abs: '1.70 亿人次 · 2,950 亿元', col: '#059669', colD: '#047857' },
+    { n: '辽宁', en: 'Liaoning', lon: 123.0, lat: 41.5, area: 14.87, growth: 14.8,
+      abs: '绝对值未公布', col: '#d97706', colD: '#b45309' }
+  ];
+  var NODES = [
+    { n: '哈尔滨', en: 'Harbin', lon: 126.53, lat: 45.80, lv: 1, tag: '9,035.7 万人次 / 1,372.2 亿元' },
+    { n: '亚布力', en: 'Yabuli', lon: 128.62, lat: 44.70, lv: 2, tag: '亚冬会赛场 · 国家级度假区' },
+    { n: '中国雪乡', en: 'Snow Town', lon: 128.90, lat: 44.33, lv: 2, tag: '雪期近 7 个月' },
+    { n: '长春', en: 'Changchun', lon: 125.32, lat: 43.82, lv: 1, tag: '冰雪新天地 · 省会枢纽' },
+    { n: '北大湖', en: 'Beidahu', lon: 126.55, lat: 43.60, lv: 1, tag: '105 万人次 · 全国人气第一' },
+    { n: '长白山', en: 'Changbai Mtn', lon: 128.06, lat: 42.01, lv: 1, tag: '世界级粉雪胜地' },
+    { n: '沈阳', en: 'Shenyang', lon: 123.43, lat: 41.80, lv: 1, tag: '辽宁东部雪上运动先导区' },
+    { n: '大连', en: 'Dalian', lon: 121.62, lat: 38.92, lv: 2, tag: '滨海冰雪 · 口岸城市' }
+  ];
+  /* 哈—长—沈冰雪走廊（按节点名索引） */
+  var CORRIDOR = ['哈尔滨', '长春', '沈阳'];
+
+  /* ---------- 经纬域 → 世界坐标 ----------
+     正北朝后：纬度越高 z 越负（屏幕上越靠上），与标准地图「上北下南」一致。
+     经纬度按 1:1 折算（未做等距投影），属示意图约定。 */
+  var LON0 = 118.8, LON1 = 135.1, LAT0 = 38.7, LAT1 = 53.6;
+  var XH = 1.95, ZH = 1.95;
+  function mx(lon) { return -XH + 2 * XH * (lon - LON0) / (LON1 - LON0); }
+  function mz(lat) { return  ZH - 2 * ZH * (lat - LAT0) / (LAT1 - LAT0); }
+  /* 柱高：增速 0% → 0，40% → 满量程 */
+  var GH = 1.75, GMAX = 40;
+  function gy(g) { return GH * Math.min(g, GMAX) / GMAX; }
+  /* 柱底半边长 ∝ √陆域面积 */
+  function gs(a) { return 0.56 * Math.sqrt(a / 47.30); }
+
+  /* ---------- 配色（浅色主题，显式色值） ---------- */
+  var C = {
+    ink: '#0f172a', muted: '#64748b', dim: '#94a3b8',
+    ice: '#0284c7', iceDark: '#0369a1', iceLite: '#38bdf8',
+    gold: '#d97706', mint: '#059669',
+    grid: 'rgba(2,132,199,0.16)', gridMajor: 'rgba(2,132,199,0.30)',
+    axis: 'rgba(2,132,199,0.42)',
+    road: 'rgba(217,119,6,0.55)'
+  };
+  var MONO = 'ui-monospace, "Cascadia Mono", Consolas, monospace';
+  var MAXW = 210;
+
+  /* ---------- 相机 ---------- */
+  var HOME = { yaw: -0.42, pitch: 0.50, dist: 6.4 };
+  var view = { yaw: HOME.yaw, pitch: HOME.pitch, dist: HOME.dist };
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+
+  /* 与 sv3dEngine 同款投影，但视场角按「版图包围盒 + 标签外扩」反解。
+     通栏画布宽高比可达 3.6:1，固定 fov 会让版图要么太小要么出画。 */
+  function rawProj(p, cam) {
+    var cy = Math.cos(view.yaw), sy = Math.sin(view.yaw);
+    var x1 = p.x * cy - p.z * sy;
+    var z1 = p.x * sy + p.z * cy;
+    var cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
+    var y2 = p.y * cp - z1 * sp;
+    var z2 = p.y * sp + z1 * cp + cam.dist;
+    if (z2 < 0.2) return null;
+    var s = cam.fov / z2;
+    return { X: cam.cx + x1 * s, Y: cam.cy - y2 * s, s: s, z: z2 };
+  }
+  /* 标签外扩（屏幕 px）：柱顶省域标签在柱顶之上约 32px；经度轴名在前沿之下约 42px；
+     左侧纬度刻度与轴名伸出平面约 46px；右侧目的地标签伸出约 18px。
+     把这些外扩量折进包围盒再反解 fov，取景才会真正均衡——
+     否则会出现「几何居中但标签把下沿顶满」的偏心画面。 */
+  var FIT_MARGIN = { t: 8, b: 58, l: 46, r: 18 };
+  function camOf(w, h) {
+    var cam = { cx: w / 2, cy: h * 0.56, fov: 1, dist: view.dist };
+    /* 采样：地面四角 + 三根柱顶 */
+    var i, pts = [
+      { x: -XH, y: 0, z: -ZH }, { x: XH, y: 0, z: -ZH },
+      { x: -XH, y: 0, z: ZH }, { x: XH, y: 0, z: ZH }
+    ];
+    for (i = 0; i < PROV.length; i++) {
+      pts.push({ x: mx(PROV[i].lon), y: gy(PROV[i].growth), z: mz(PROV[i].lat) });
+    }
+    var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (i = 0; i < pts.length; i++) {
+      var q = rawProj(pts[i], cam);
+      if (!q) continue;
+      if (q.X < x0) x0 = q.X; if (q.X > x1) x1 = q.X;
+      if (q.Y < y0) y0 = q.Y; if (q.Y > y1) y1 = q.Y;
+    }
+    if (x1 > x0 && y1 > y0) {
+      /* 记 u = x1/z2（与 cx、fov 无关）→ 屏幕 X = cx + u·fov。
+         fov=1 时测得包围盒宽 bw、高 bh；把屏幕像素外扩量换算成 u 单位要除以 fov，
+         而 fov 又依赖外扩量 → 先用不含外扩的 f0 估一次，再算最终 f。 */
+      var bw = x1 - x0, bh = y1 - y0;
+      var f0 = 1 / Math.max(bw / (w * 0.86), bh / (h * 0.78));
+      var mL = FIT_MARGIN.l / f0, mR = FIT_MARGIN.r / f0;
+      var mT = FIT_MARGIN.t / f0, mB = FIT_MARGIN.b / f0;
+      var f = Math.min((w * 0.94) / (bw + mL + mR), (h * 0.94) / (bh + mT + mB));
+      cam.fov = f;
+      /* 反解 cx/cy，使「含外扩」的包围盒中心落在画布中心 */
+      var bcx = (x0 + x1) / 2 + (mR - mL) / 2;
+      var bcy = (y0 + y1) / 2 + (mB - mT) / 2;
+      cam.cx = w / 2 - f * (bcx - cam.cx);
+      cam.cy = h / 2 - f * (bcy - cam.cy);
+    } else {
+      cam.fov = Math.min(w, h) * 1.2;
+    }
+    return cam;
+  }
+  function proj(p, cam) { return rawProj(p, cam); }
+
+  /* ---------- 绘图基元 ---------- */
+  function seg(ctx, cam, p, q, color, lw, dash) {
+    var A = proj(p, cam), B = proj(q, cam);
+    if (!A || !B) return;
+    ctx.save();
+    ctx.setLineDash(dash || []);
+    ctx.beginPath(); ctx.moveTo(A.X, A.Y); ctx.lineTo(B.X, B.Y);
+    ctx.strokeStyle = color; ctx.lineWidth = lw || 1; ctx.stroke();
+    ctx.restore();
+  }
+  function poly(ctx, cam, pts, fill, stroke, lw) {
+    var out = [], i, P;
+    for (i = 0; i < pts.length; i++) {
+      P = proj(pts[i], cam);
+      if (!P) return null;
+      out.push(P);
+    }
+    ctx.beginPath();
+    ctx.moveTo(out[0].X, out[0].Y);
+    for (i = 1; i < out.length; i++) ctx.lineTo(out[i].X, out[i].Y);
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); }
+    return out;
+  }
+
+  /* ⚠️ SnowVizI18N.t() 是「纯查表」，永远返回英文；必须先用 isEN() 判语言，
+     否则中文模式下画布也会输出英文。（与 sv3dEngine 同一约定） */
+  function disp(s) {
+    var I = window.SnowVizI18N;
+    return (I && I.isEN && I.isEN() && I.t) ? I.t(s) : s;
+  }
+  /* 标签避让：把「名称 + 注释」当作一个整体块（block）来排版。
+     块内各行保持固定 13px 行距，块与块之间做自上而下的堆叠避让。
+     ⚠️ 反面教材：把每一行都当独立标签参与避让时，同一节点的「名称」与「注释」
+     会被别的标签插队拆散（排序键是 y，注释的 y 比下一个节点的名称还大），
+     而且每条都被 cursor 继续向下推 13px —— 16 条节点标签累计下漂近 200px，
+     最终被 hi 夹在画布底沿，观感就是「标签全糊在底部、还认不出属于哪个点」。
+     按块排版后：8 个目的地块 + 3 个省域块 = 11 块，最大累计漂移 ~140px。 */
+  var LINE_H = 13;
+  function placeBlocks(ctx, blocks, maxY, maxX) {
+    var i, j, g;
+    var PADX = 4, lo = 10, hi = (maxY || 1e6) - 12;
+    var EDGE = 3, xhi = (maxX || 1e6) - EDGE;
+    var boxes = [];
+    function hits(bx, w, by, bh) {
+      for (var q = 0; q < boxes.length; q++) {
+        var b = boxes[q];
+        if (bx - PADX < b.x + b.w && bx + w + PADX > b.x && by < b.y + b.h && by + bh > b.y) return true;
+      }
+      return false;
+    }
+    /* 量宽（一次量完，避免 measureText 与绘制字号不一致） */
+    for (i = 0; i < blocks.length; i++) {
+      var blk = blocks[i], w2 = 0;
+      for (j = 0; j < blk.lines.length; j++) {
+        ctx.font = blk.lines[j].font;
+        blk.lines[j].w = ctx.measureText(blk.lines[j].text).width;
+        if (blk.lines[j].w > w2) w2 = blk.lines[j].w;
+      }
+      blk.w = w2;
+      blk.h = LINE_H * blk.lines.length;
+    }
+    function lay(blk, cy) {
+      var bx = blk.align === 'left' ? blk.x : blk.x - blk.w / 2;
+      bx = Math.min(Math.max(bx, EDGE), Math.max(EDGE, xhi - blk.w));
+      blk.bx = bx;
+      var top = cy - blk.h / 2 + LINE_H / 2;
+      for (var k2 = 0; k2 < blk.lines.length; k2++) {
+        blk.lines[k2].fx = blk.align === 'left' ? bx : bx + blk.w / 2;
+        blk.lines[k2].fy = top + k2 * LINE_H;
+      }
+      boxes.push({ x: bx, y: cy - blk.h / 2, w: blk.w, h: blk.h });
+    }
+    /* ① 优先块（省域标签）先落位，基本保持贴柱顶的理想位置 */
+    for (i = 0; i < blocks.length; i++) {
+      var pb = blocks[i];
+      if (!pb.pri) continue;
+      pb.cy = clamp(pb.y, lo + pb.h / 2, hi - pb.h / 2);
+      lay(pb, pb.cy);
+    }
+    /* ② 其余块：按锚点 y 自上而下堆叠，cursor 单调递增保证互不重叠 */
+    var rest = [];
+    for (i = 0; i < blocks.length; i++) if (!blocks[i].pri) rest.push(blocks[i]);
+    rest.sort(function (a, b) { return a.y - b.y; });
+    var cursor = -1e9;
+    for (i = 0; i < rest.length; i++) {
+      var b2 = rest[i];
+      var bx2 = b2.align === 'left' ? b2.x : b2.x - b2.w / 2;
+      bx2 = Math.min(Math.max(bx2, EDGE), Math.max(EDGE, xhi - b2.w));
+      var top = Math.max(b2.y - b2.h / 2, lo, cursor);
+      for (g = 0; g < 120 && hits(bx2, b2.w, top, b2.h); g++) top += 3;
+      b2.cy = clamp(top + b2.h / 2, lo + b2.h / 2, hi - b2.h / 2);
+      lay(b2, b2.cy);
+      cursor = b2.cy + b2.h / 2 + 1;
+    }
+    /* ③ 绘制 */
+    for (i = 0; i < blocks.length; i++) {
+      var B = blocks[i];
+      for (j = 0; j < B.lines.length; j++) {
+        var L = B.lines[j];
+        ctx.font = L.font;
+        ctx.textAlign = B.align === 'left' ? 'left' : 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(248,250,252,0.92)';
+        ctx.strokeText(L.text, L.fx, L.fy, MAXW);
+        ctx.fillStyle = L.color;
+        ctx.fillText(L.text, L.fx, L.fy, MAXW);
+      }
+    }
+  }
+
+  /* ================= 主绘制 ================= */
+  function draw(ctx, w, h) {
+    var cam = camOf(w, h);
+    var y0 = 0, i, j, k;
+
+    /* ① 经纬网（每 2° 一条，每 6° 加重） */
+    for (i = 0; i <= 8; i++) {
+      var lon = LON0 + (LON1 - LON0) * i / 8;
+      var major = (i % 3 === 0);
+      seg(ctx, cam, { x: mx(lon), y: y0, z: mz(LAT0) }, { x: mx(lon), y: y0, z: mz(LAT1) },
+        major ? C.gridMajor : C.grid, major ? 1.2 : 0.8);
+    }
+    for (i = 0; i <= 8; i++) {
+      var lat = LAT0 + (LAT1 - LAT0) * i / 8;
+      var mj = (i % 3 === 0);
+      seg(ctx, cam, { x: mx(LON0), y: y0, z: mz(lat) }, { x: mx(LON1), y: y0, z: mz(lat) },
+        mj ? C.gridMajor : C.grid, mj ? 1.2 : 0.8);
+    }
+    /* 外框 */
+    poly(ctx, cam, [
+      { x: mx(LON0), y: y0, z: mz(LAT0) }, { x: mx(LON1), y: y0, z: mz(LAT0) },
+      { x: mx(LON1), y: y0, z: mz(LAT1) }, { x: mx(LON0), y: y0, z: mz(LAT1) }
+    ], null, C.axis, 1.2);
+
+    /* ② 哈—长—沈冰雪走廊（地面虚线 + 走廊端点小方标） */
+    var byName = {};
+    for (i = 0; i < NODES.length; i++) byName[NODES[i].n] = NODES[i];
+    for (i = 0; i + 1 < CORRIDOR.length; i++) {
+      var A = byName[CORRIDOR[i]], B = byName[CORRIDOR[i + 1]];
+      if (!A || !B) continue;
+      seg(ctx, cam, { x: mx(A.lon), y: y0, z: mz(A.lat) }, { x: mx(B.lon), y: y0, z: mz(B.lat) },
+        C.road, 2.2, [7, 5]);
+    }
+
+    /* ③ 三省棱柱：远 → 近 */
+    var items = [], half = [], top = [];
+    for (i = 0; i < PROV.length; i++) {
+      var p = PROV[i];
+      var x = mx(p.lon), z = mz(p.lat), s = gs(p.area), t = gy(p.growth);
+      half.push(s); top.push(t);
+      var mid = proj({ x: x, y: t / 2, z: z }, cam);
+      /* 顶面四角的投影：取最高点（min Y）与水平中心。
+         省域标签要挂在「顶面最高处之上」，不能挂在顶面中心 —— 顶面是斜的，
+         后沿比中心高出近一个棱柱半宽，挂中心会让标签压在柱顶面上。 */
+      var tY = 1e9, tX = 0, tc = 0;
+      for (k = 0; k < 4; k++) {
+        var corner = [{ dx: -s, dz: -s }, { dx: s, dz: -s }, { dx: s, dz: s }, { dx: -s, dz: s }][k];
+        var cq = proj({ x: x + corner.dx, y: t, z: z + corner.dz }, cam);
+        if (!cq) continue;
+        if (cq.Y < tY) tY = cq.Y;
+        tX += cq.X; tc++;
+      }
+      items.push({
+        i: i, p: p, x: x, z: z, s: s, t: t, d: mid ? mid.z : -1,
+        topMinY: tc ? tY : null, topCx: tc ? tX / tc : null
+      });
+    }
+    items.sort(function (a, b) { return b.d - a.d; });
+    for (i = 0; i < items.length; i++) {
+      var it = items[i], x2 = it.x, z2 = it.z, s2 = it.s, t2 = it.t, col = it.p.col, colD = it.p.colD;
+      var faces = [
+        { q: [{ x: x2 - s2, y: t2, z: z2 - s2 }, { x: x2 + s2, y: t2, z: z2 - s2 }, { x: x2 + s2, y: t2, z: z2 + s2 }, { x: x2 - s2, y: t2, z: z2 + s2 }], f: 'top' },
+        { q: [{ x: x2 - s2, y: 0, z: z2 - s2 }, { x: x2 + s2, y: 0, z: z2 - s2 }, { x: x2 + s2, y: t2, z: z2 - s2 }, { x: x2 - s2, y: t2, z: z2 - s2 }], f: 'back' },
+        { q: [{ x: x2 - s2, y: 0, z: z2 + s2 }, { x: x2 + s2, y: 0, z: z2 + s2 }, { x: x2 + s2, y: t2, z: z2 + s2 }, { x: x2 - s2, y: t2, z: z2 + s2 }], f: 'front' },
+        { q: [{ x: x2 - s2, y: 0, z: z2 - s2 }, { x: x2 - s2, y: 0, z: z2 + s2 }, { x: x2 - s2, y: t2, z: z2 + s2 }, { x: x2 - s2, y: t2, z: z2 - s2 }], f: 'left' },
+        { q: [{ x: x2 + s2, y: 0, z: z2 - s2 }, { x: x2 + s2, y: 0, z: z2 + s2 }, { x: x2 + s2, y: t2, z: z2 + s2 }, { x: x2 + s2, y: t2, z: z2 - s2 }], f: 'right' }
+      ];
+      var fs = [];
+      for (j = 0; j < faces.length; j++) {
+        var dd = 0, ok = true;
+        for (k = 0; k < 4; k++) {
+          var pr = proj(faces[j].q[k], cam);
+          if (!pr) { ok = false; break; }
+          dd += pr.z;
+        }
+        if (ok) fs.push({ q: faces[j].q, f: faces[j].f, d: dd / 4 });
+      }
+      fs.sort(function (a, b) { return b.d - a.d; });
+      for (j = 0; j < fs.length; j++) {
+        var fill = fs[j].f === 'top' ? col : (fs[j].f === 'back' || fs[j].f === 'left' ? colD : col);
+        poly(ctx, cam, fs[j].q, hexA(fill, fs[j].f === 'top' ? 0.74 : 0.52), 'rgba(255,255,255,0.72)', 0.8);
+      }
+      /* 顶面增速刻度短柱：把「+18.5%」也画成可读的长度 */
+      seg(ctx, cam, { x: x2, y: t2, z: z2 }, { x: x2, y: t2 + 0.16, z: z2 }, 'rgba(255,255,255,0.85)', 1.6);
+    }
+
+    /* ④ 目的地节点（画在棱柱之上，保证不被玻璃柱吞掉）
+       名称 + 注释打包成一个块，保证两者永远相邻、不会被别的标签插队拆散 */
+    var nblocks = [];
+    for (i = 0; i < NODES.length; i++) {
+      var nd = NODES[i];
+      var np = { x: mx(nd.lon), y: 0, z: mz(nd.lat) };
+      var P = proj(np, cam);
+      if (!P) continue;
+      var r = clamp(P.s * 0.030, 2.6, 6.5);
+      /* 立杆：从地面抬起，避免和棱柱底边糊在一起 */
+      seg(ctx, cam, np, { x: np.x, y: 0.20 + (nd.lv === 1 ? 0.06 : 0), z: np.z }, 'rgba(2,132,199,0.45)', 1);
+      ctx.beginPath(); ctx.arc(P.X, P.Y, r, 0, Math.PI * 2);
+      ctx.fillStyle = nd.lv === 1 ? C.ice : C.iceLite; ctx.fill();
+      ctx.lineWidth = 1.3; ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.stroke();
+      if (nd.lv === 1) {
+        ctx.beginPath(); ctx.arc(P.X, P.Y, r + 3.2, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(2,132,199,0.35)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+      nblocks.push({
+        align: 'left', x: P.X + r + 5, y: P.Y - 4,
+        ax: P.X, ay: P.Y, lead: true,
+        lines: [
+          { text: disp(nd.n), color: C.ink, font: (nd.lv === 1 ? '700 11px ' : '600 10px ') + MONO },
+          { text: disp(nd.tag), color: C.muted, font: '400 9.5px ' + MONO }
+        ]
+      });
+    }
+
+    /* ⑤ 轴标与刻度 */
+    var labs = [];
+    function put(p, str, dx, dy, color, font, lead) {
+      var P2 = proj(p, cam);
+      if (!P2) return;
+      labs.push({
+        x: P2.X + dx, y: P2.Y + dy, text: str, color: color, font: font, align: 'center',
+        ax: P2.X, ay: P2.Y, lead: !!lead
+      });
+    }
+    for (i = 0; i <= 8; i += 2) {
+      var lo2 = LON0 + (LON1 - LON0) * i / 8;
+      put({ x: mx(lo2), y: y0, z: mz(LAT0) }, lo2.toFixed(0) + '°E', 0, 16, C.dim, '600 9.5px ' + MONO);
+    }
+    for (i = 0; i <= 8; i += 2) {
+      var la2 = LAT0 + (LAT1 - LAT0) * i / 8;
+      put({ x: mx(LON0), y: y0, z: mz(la2) }, la2.toFixed(0) + '°N', -24, 0, C.dim, '600 9.5px ' + MONO);
+    }
+    put({ x: (mx(LON0) + mx(LON1)) / 2, y: y0, z: mz(LAT0) }, disp('经度'), 0, 34, C.iceDark, '700 10px ' + MONO);
+    put({ x: mx(LON0), y: y0, z: (mz(LAT0) + mz(LAT1)) / 2 }, disp('纬度'), -46, 0, C.iceDark, '700 10px ' + MONO);
+
+    /* ⑥ 省域标签：柱顶名称 + 增速 + 绝对量（三行合一，避免互相压字）
+       pri=true → 进优先层，位置基本不动，其余标签绕着它避让 */
+    var pblocks = [];
+    for (i = 0; i < items.length; i++) {
+      var pit = items[i];
+      var T = proj({ x: pit.x, y: pit.t, z: pit.z }, cam);
+      if (!T) continue;
+      pblocks.push({
+        align: 'center', x: T.X, y: T.Y - 32, ax: T.X, ay: T.Y, lead: true, pri: true,
+        lines: [
+          { text: disp(pit.p.n) + '  +' + pit.p.growth.toFixed(1) + '%', color: C.ink, font: '700 12px ' + MONO },
+          { text: disp(pit.p.abs), color: C.muted, font: '400 9.5px ' + MONO }
+        ]
+      });
+    }
+
+    /* 省域 + 目的地标签参与避让；轴刻度/轴名沿平面边缘自然散开，
+       不参与避让（否则会被堆叠规则从边缘拽到中间）。 */
+    placeBlocks(ctx, pblocks.concat(nblocks), h, w);
+    drawAxisLabels(ctx, labs, h);
+
+    /* 被避让推开的块补引线：从锚点连到块内首行 */
+    var allb = pblocks.concat(nblocks);
+    for (i = 0; i < allb.length; i++) {
+      var L2 = allb[i], f0 = L2.lines[0];
+      if (!L2.lead || f0.fy == null || Math.abs(f0.fy - L2.y) < 6) continue;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(100,116,139,0.5)';
+      ctx.lineWidth = 0.8;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(L2.ax, L2.ay);
+      ctx.lineTo(f0.fx, f0.fy);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+  /* 轴刻度/轴名：位置由投影决定，直接落笔不参与避让；仅做画布内夹取防裁切 */
+  function drawAxisLabels(ctx, labs, maxY) {
+    var lo = 8, hi = (maxY || 1e6) - 8;
+    for (var i = 0; i < labs.length; i++) {
+      var L = labs[i];
+      var y = Math.min(Math.max(L.y, lo), hi);
+      ctx.font = L.font;
+      ctx.textAlign = L.align || 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(248,250,252,0.92)';
+      ctx.strokeText(L.text, L.x, y);
+      ctx.fillStyle = L.color;
+      ctx.fillText(L.text, L.x, y);
+    }
+  }
+  /* '#0284c7' + alpha → rgba()，用于玻璃柱面 */
+  function hexA(hex, a) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+
+  /* ---------- 画布装配 ---------- */
+  function fit() {
+    var r = cv.getBoundingClientRect();
+    if (r.width < 60 || r.height < 60) return null;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.round(r.width), h = Math.round(r.height);
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    }
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return { ctx: ctx, w: w, h: h };
+  }
+  function drawAll() {
+    var a = fit();
+    if (a) draw(a.ctx, a.w, a.h);
+  }
+
+  /* ---------- 交互：拖拽 / 滚轮 / 方向键 ---------- */
+  function markCustom() {
+    var bs = document.querySelectorAll('[data-ned3-view]');
+    for (var i = 0; i < bs.length; i++) bs[i].classList.remove('active');
+  }
+  (function bind() {
+    var drag = false, lx = 0, ly = 0;
+    cv.addEventListener('pointerdown', function (e) {
+      drag = true; lx = e.clientX; ly = e.clientY;
+      if (cv.setPointerCapture) { try { cv.setPointerCapture(e.pointerId); } catch (x) { } }
+      cv.classList.add('grabbing');
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      view.yaw += (e.clientX - lx) * 0.0075;
+      view.pitch = clamp(view.pitch - (e.clientY - ly) * 0.006, 0.06, 1.45);
+      lx = e.clientX; ly = e.clientY;
+      markCustom(); drawAll();
+    });
+    function end() { drag = false; cv.classList.remove('grabbing'); }
+    cv.addEventListener('pointerup', end);
+    cv.addEventListener('pointercancel', end);
+    cv.addEventListener('pointerleave', function () { if (drag) end(); });
+    cv.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      view.dist = clamp(view.dist + (e.deltaY > 0 ? 0.5 : -0.5), 4.0, 11);
+      markCustom(); drawAll();
+    }, { passive: false });
+    cv.addEventListener('keydown', function (e) {
+      var k = e.key, hit = true;
+      if (k === 'ArrowLeft') view.yaw -= 0.09;
+      else if (k === 'ArrowRight') view.yaw += 0.09;
+      else if (k === 'ArrowUp') view.pitch = clamp(view.pitch + 0.07, 0.06, 1.45);
+      else if (k === 'ArrowDown') view.pitch = clamp(view.pitch - 0.07, 0.06, 1.45);
+      else hit = false;
+      if (hit) { e.preventDefault(); e.stopPropagation(); markCustom(); drawAll(); }
+    });
+  })();
+
+  /* ---------- 预设视角 / 复位 ---------- */
+  var VIEWS = {
+    '45': { yaw: -0.42, pitch: 0.50, dist: 6.4 },
+    '82': { yaw: -0.42, pitch: 1.34, dist: 6.4 },
+    '12': { yaw: -0.42, pitch: 0.12, dist: 6.4 }
+  };
+  var btns = document.querySelectorAll('[data-ned3-view]');
+  for (var bi = 0; bi < btns.length; bi++) {
+    (function (btn) {
+      btn.addEventListener('click', function () {
+        var v = VIEWS[btn.getAttribute('data-ned3-view')];
+        if (!v) return;
+        view.yaw = v.yaw; view.pitch = v.pitch; view.dist = v.dist;
+        for (var q = 0; q < btns.length; q++) btns[q].classList.remove('active');
+        btn.classList.add('active');
+        drawAll();
+      });
+    })(btns[bi]);
+  }
+  var rst = document.getElementById('ned3Reset');
+  if (rst) rst.addEventListener('click', function () {
+    view.yaw = HOME.yaw; view.pitch = HOME.pitch; view.dist = HOME.dist;
+    markCustom();
+    var b45 = document.querySelector('[data-ned3-view="45"]');
+    if (b45) b45.classList.add('active');
+    drawAll();
+  });
+
+  /* ---------- 语言切换后重绘 ---------- */
+  var langBtn = document.getElementById('btnLangToggle');
+  if (langBtn) langBtn.addEventListener('click', function () { setTimeout(drawAll, 60); });
+
+  /* ---------- 尺寸自适应 ---------- */
+  var raf = 0;
+  function schedule() {
+    if (raf) return;
+    raf = (window.requestAnimationFrame || function (f) { return setTimeout(f, 32); })(function () {
+      raf = 0; drawAll();
+    });
+  }
+  window.addEventListener('resize', schedule);
+  if (window.ResizeObserver) {
+    try { new ResizeObserver(schedule).observe(cv.parentNode || cv); } catch (x) { }
+  }
+  drawAll();
   if (document.readyState !== 'complete') window.addEventListener('load', schedule);
 })();
 
