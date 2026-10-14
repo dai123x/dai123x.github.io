@@ -110,7 +110,7 @@
       /* 顶栏本身因 backdrop-filter 已成层叠上下文，若不抬升会被后面的 Hero 卡片整块盖住，
          导致「更多工具」下拉菜单被遮挡。显式抬升到兄弟节点之上即可。 */
       position: relative;
-      z-index: 30;
+      z-index: 500;
     }
     .brand {
       display: flex;
@@ -159,6 +159,9 @@
       position: relative;
       display: inline-flex;
     }
+    .toolbar-dropdown.open {
+      z-index: 1001;
+    }
     .toolbar-dropdown-menu {
       display: none;
       position: absolute;
@@ -167,11 +170,21 @@
       background: #ffffff;
       border: 1px solid var(--line-1);
       border-radius: var(--r-lg);
-      padding: 10px;
-      box-shadow: var(--lift-3);
+      padding: 12px;
+      box-shadow: 0 18px 48px -8px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(56, 189, 248, 0.25);
       backdrop-filter: blur(16px);
-      z-index: 1000;
+      z-index: 1002;
       min-width: 280px;
+      max-width: min(340px, calc(100vw - 24px));
+      max-height: min(440px, calc(100vh - 130px));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      box-sizing: border-box;
+    }
+    .toolbar-dropdown-menu.dropup {
+      top: auto !important;
+      bottom: calc(100% + 6px) !important;
     }
     .toolbar-dropdown.open .toolbar-dropdown-menu {
       display: block !important;
@@ -2519,18 +2532,12 @@
       }
       .toolbar {
         width: 100%;
-        overflow-x: auto;
-        flex-wrap: nowrap;
+        overflow: visible;
+        flex-wrap: wrap;
         padding-bottom: 6px;
         justify-content: flex-start;
-        -webkit-overflow-scrolling: touch;
-      }
-      .toolbar::-webkit-scrollbar {
-        height: 3px;
-      }
-      .toolbar::-webkit-scrollbar-thumb {
-        background: #3c2367;
-        border-radius: 4px;
+        gap: 6px;
+        row-gap: 8px;
       }
       .btn {
         padding: 5px 10px;
@@ -11197,21 +11204,50 @@ async function initWebXRSession(gl) {
       svClampMoreToolsMenu();
     };
 
-    // 让菜单在视口内水平居中可用：优先右对齐按钮，越界则左贴边
+    // 让「更多工具」菜单在视口内全方向智能防遮挡（自适应平移、向上/向下反折、最大高度保护）
     window.svClampMoreToolsMenu = function () {
       const dd = $('toolbarDropdown'), menu = $('moreToolsMenu'), btn = $('btnMoreTools');
       if (!dd || !menu || !btn || !dd.classList.contains('open')) return;
-      menu.style.left = 'auto';
+
+      menu.classList.remove('dropup');
+      menu.style.left = '';
       menu.style.right = '0px';
-      menu.style.maxWidth = '';
+      menu.style.top = '';
+      menu.style.bottom = '';
+      menu.style.maxHeight = '';
+      menu.style.transform = '';
+
       const vw = document.documentElement.clientWidth || window.innerWidth;
-      const GAP = 10;
+      const vh = document.documentElement.clientHeight || window.innerHeight;
+      const GAP = 12;
+
+      let mr = menu.getBoundingClientRect();
+
+      // 水平防裁切：若左侧越出视口，向右推入
+      if (mr.left < GAP) {
+        const shiftX = GAP - mr.left;
+        menu.style.transform = `translateX(${shiftX}px)`;
+        mr = menu.getBoundingClientRect();
+      }
+      // 水平防裁切：若右侧越出视口，向左推入
+      if (mr.right > vw - GAP) {
+        const shiftX = (vw - GAP) - mr.right;
+        menu.style.transform = `translateX(${shiftX}px)`;
+        mr = menu.getBoundingClientRect();
+      }
+
+      // 垂直防遮挡：判断下方空间是否足以完整显示
       const br = btn.getBoundingClientRect();
-      let mw = menu.offsetWidth;
-      if (mw > vw - GAP * 2) { menu.style.maxWidth = (vw - GAP * 2) + 'px'; mw = menu.offsetWidth; }
-      // 默认 right:0 → 菜单右边与按钮右边齐平；若左边越界则整体左移
-      if (br.right - mw < GAP) {
-        menu.style.right = (br.right - (GAP + mw)) + 'px';
+      const spaceBelow = vh - br.bottom - GAP;
+      const spaceAbove = br.top - GAP;
+      const mh = menu.offsetHeight;
+
+      if (mr.bottom > vh - GAP) {
+        if (spaceAbove > mh || spaceAbove > spaceBelow) {
+          menu.classList.add('dropup');
+        } else {
+          menu.style.maxHeight = Math.max(180, spaceBelow) + 'px';
+        }
       }
     };
 
@@ -11264,6 +11300,10 @@ async function initWebXRSession(gl) {
       resizeVr();
       svClampMoreToolsMenu();
     });
+    window.addEventListener('scroll', () => {
+      const dd = $('toolbarDropdown');
+      if (dd && dd.classList.contains('open')) svClampMoreToolsMenu();
+    }, { passive: true });
 
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
