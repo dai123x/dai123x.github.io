@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
-
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>工大印记 · 长春工业大学 | daixuan.cloud</title>
@@ -16,6 +16,8 @@
   <meta property="og:description" content="星空校徽 + 校情速览 + 足迹星图，戴璇的工大专属页。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://daixuan.cloud/school/">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <meta property="og:site_name" content="戴璇 · Dai Xuan">
   <meta property="og:locale" content="zh_CN">
   <meta name="twitter:card" content="summary">
@@ -565,6 +567,9 @@
     <span class="pill badge"><i aria-hidden="true"></i>CCUT · EST. 1952</span>
   </header>
 
+  <!-- 主内容地标：原来整页没有 <main>，读屏用户无法一键跳到正文。
+       纯包裹、不动任何 class 与样式（<main> 是 display:block、不产生定位/层叠上下文）。 -->
+  <main id="main">
   <!-- 首屏：校徽 + 校名 -->
   <section class="hero">
     <img class="hero-logo" src="ccut-logo.jpg" alt="长春工业大学校徽" width="640" height="640" fetchpriority="high">
@@ -682,6 +687,7 @@
       </a>
     </div>
   </section>
+  </main>
 
   <footer>
     <p><span data-i18n="footNote">页面资料来自学校公开信息与个人经历</span> · <a href="../">daixuan.cloud</a> · 原生 Canvas 零依赖</p>

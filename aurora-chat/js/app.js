@@ -255,7 +255,7 @@
     segBtns.forEach((b) => b.classList.toggle("active", !!c && b.dataset.mode === c.mode));
 
     if (!c) {
-      $("#head-sub").textContent = "极光 · 数据只存在你的浏览器里";
+      $("#head-sub").textContent = "极光 · 对话与密钥保存在本机";
       $("#model-select").innerHTML = '<option value="">选择模型</option>';
       $("#model-select-b").innerHTML = $("#model-select").innerHTML;
       $("#model-select-b").classList.add("hidden");
@@ -364,11 +364,12 @@
         <path d="M10 46 Q22 18 33 33 T54 18" stroke="url(#lg-hero)" stroke-width="6" fill="none" stroke-linecap="round"/>
         <path d="M10 33 Q24 12 35 25 T54 11" stroke="url(#lg-hero)" stroke-width="4" fill="none" stroke-linecap="round" opacity=".55"/>
       </svg>
-      <h1>Aurora Chat</h1>
-      <p>极光 · 私有 AI 聊天工作台 —— 零后端、数据不出浏览器</p>
+      <h2>Aurora Chat</h2>
+      <p>极光 · 纯静态 AI 聊天工作台，对话与 Key 在本机保存</p>
+      <p>使用真实模型时，请求发送至所选服务商或代理；OpenAI 需自建代理。</p>
       <div class="hero-actions">
         <button class="btn primary" data-hero="demo">🚀 一键体验（演示模式）</button>
-        <button class="btn" data-hero="setup">🔑 配置 API，直连真实模型</button>
+        <button class="btn" data-hero="setup">🔑 配置 API，连接真实模型</button>
       </div>
       <div class="starters">
         ${AC.STARTERS.map((s) => `<button data-starter="${esc(s)}">${esc(s)}</button>`).join("")}
@@ -1160,7 +1161,7 @@
     return `
       <p style="font-size:13.5px;line-height:1.8">
         <b>Aurora Chat · 极光</b> v${AC.VERSION}<br>
-        一个纯静态的私有 AI 聊天工作台：浏览器直连各服务商 API，没有后端、没有账号，数据只存在本机 localStorage。
+        一个纯静态的私有 AI 聊天工作台：没有后端、没有账号，支持 5 家云服务与本地模型；OpenAI 需自建代理，本地模型需配置跨域。对话与 API Key 保存在本机 localStorage，请求只发送至你选定的服务商或自建代理。
       </p>
       <ul class="about-list">
         <li>对话体验参考 <b>lobe-chat</b> / <b>open-webui</b></li>

@@ -20,7 +20,9 @@
   --accent-primary: #818cf8;
   --accent-secondary: #8b5cf6;
   --accent-3: #22d3ee;
-  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 28%, #a855f7 62%, #ec4899 100%);
+  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #7c83f5 28%, #a855f7 62%, #ec4899 100%);
+  /* 亮渐变上用深色字：白字在 #a855f7 停靠点只有 3.96:1，深字 4.78:1 */
+  --on-accent: #0b1020;
   --accent-glow: rgba(99, 102, 241, 0.25);
   --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   --card-shadow-hover: 0 24px 48px -16px rgba(0, 0, 0, 0.55), 0 0 24px -6px var(--accent-glow);
@@ -63,7 +65,9 @@
   --accent-primary: #4f46e5;
   --accent-secondary: #7c3aed;
   --accent-3: #0891b2;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #7c3aed 50%, #db2777 100%);
+  --accent-gradient: linear-gradient(135deg, #585bea 0%, #7c3aed 50%, #db2777 100%);
+  /* 深渐变上用白字：首停靠点由 #6366f1 压深到 #585bea，4.47 → 5.12 */
+  --on-accent: #ffffff;
   --accent-glow: rgba(79, 70, 229, 0.18);
   --card-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.10);
   --card-shadow-hover: 0 24px 48px -16px rgba(15, 23, 42, 0.16), 0 0 24px -8px var(--accent-glow);
@@ -132,7 +136,7 @@ a:hover { text-decoration: underline; }
   width: 34px; height: 34px; border-radius: 9px;
   display: grid; place-items: center;
   background: var(--accent-gradient);
-  color: #fff; font-family: var(--font-serif); font-size: 19px; font-weight: 700;
+  color: var(--on-accent); font-family: var(--font-serif); font-size: 19px; font-weight: 700;
   box-shadow: 0 4px 14px -4px var(--accent-glow);
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
@@ -147,8 +151,8 @@ a:hover { text-decoration: underline; }
   cursor: pointer; white-space: nowrap; transition: var(--transition);
 }
 .tab:hover { color: var(--text-primary); background: var(--bg-tertiary); }
-.tab.active { color: #fff; background: var(--accent-gradient); box-shadow: 0 6px 18px -8px var(--accent-glow); }
-[data-theme="light"] .tab.active { color: #fff; }
+.tab.active { color: var(--on-accent); background: var(--accent-gradient); box-shadow: 0 6px 18px -8px var(--accent-glow); }
+[data-theme="light"] .tab.active { color: var(--on-accent); }
 
 .icon-btn {
   border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-secondary);
@@ -237,7 +241,7 @@ a:hover { text-decoration: underline; }
   transition: var(--transition);
 }
 .pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
-.pill.active { background: var(--accent-gradient); color: #fff; border-color: transparent; }
+.pill.active { background: var(--accent-gradient); color: var(--on-accent); border-color: transparent; }
 
 .axis { position: relative; height: 84px; margin: 8px 0 26px; }
 .axis-track { position: absolute; top: 44px; left: 0; right: 0; height: 2px; background: var(--border-color); }
@@ -272,7 +276,7 @@ a:hover { text-decoration: underline; }
 .emp-span { font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .emp-body { padding: 0 18px 18px 84px; }
 .emp-body .one { font-size: 0.92rem; color: var(--text-secondary); margin: 0 0 14px; line-height: 1.75; }
-.emp-body h4 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; font-weight: 600; }
+.emp-body h3 { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; font-weight: 600; }
 .emp-body ul { margin: 0 0 14px; padding-left: 18px; font-size: 0.86rem; color: var(--text-secondary); }
 .emp-body li { margin: 3px 0; }
 .emp-refs { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -436,7 +440,7 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
   border-radius: var(--radius-md); padding: 16px 18px;
   border-left: 3px solid var(--accent-primary);
 }
-.rel h4 { font-family: var(--font-serif); font-size: 0.98rem; margin: 0 0 6px; }
+.rel h3 { font-family: var(--font-serif); font-size: 0.98rem; margin: 0 0 6px; }
 .rel p { margin: 0; font-size: 0.86rem; color: var(--text-secondary); line-height: 1.8; }
 
 /* ---------------- 帝王世系：新增字段 ---------------- */
@@ -593,7 +597,7 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
 .num-group-head .chip { margin-left: auto; }
 .num-ico {
   width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
-  background: var(--accent-gradient); color: #fff; font-family: var(--font-serif);
+  background: var(--accent-gradient); color: var(--on-accent); font-family: var(--font-serif);
   font-size: 0.94rem; font-weight: 700;
 }
 .num-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); gap: 12px; }
@@ -765,7 +769,7 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
 .skip-link {
   position: fixed; top: 8px; left: 8px; z-index: 300;
   transform: translateY(-160%); transition: transform .2s ease;
-  background: var(--accent-gradient); color: #fff; font-size: 0.86rem; font-weight: 600;
+  background: var(--accent-gradient); color: var(--on-accent); font-size: 0.86rem; font-weight: 600;
   padding: 10px 18px; border-radius: var(--radius-full); box-shadow: var(--card-shadow);
 }
 .skip-link:focus { transform: translateY(0); outline: 2px solid var(--accent-primary); outline-offset: 2px; }
@@ -1016,7 +1020,7 @@ body.pal-open { overflow: hidden; }
   display: grid; place-items: center;
   border-radius: 9px;
   background: var(--accent-gradient);
-  color: #fff; font-size: .88rem; font-weight: 700;
+  color: var(--on-accent); font-size: .88rem; font-weight: 700;
   font-family: var(--font-serif);
 }
 .bz-sec-note { margin: 0 0 14px; font-size: .88rem; color: var(--text-secondary); line-height: 1.85; }

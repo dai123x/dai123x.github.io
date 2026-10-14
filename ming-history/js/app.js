@@ -383,13 +383,13 @@
   function empBodyHtml(e) {
     return `
       <p class="one">${esc(e.one)}</p>
-      ${e.court && e.court.length ? `<h4>朝廷要人</h4><ul class="compact">${e.court.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
-      ${e.figures && e.figures.length ? `<h4>名臣名将</h4><div class="emp-tags">${e.figures.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div>` : ""}
-      <h4>在位大事</h4>
+      ${e.court && e.court.length ? `<h3>朝廷要人</h3><ul class="compact">${e.court.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      ${e.figures && e.figures.length ? `<h3>名臣名将</h3><div class="emp-tags">${e.figures.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div>` : ""}
+      <h3>在位大事</h3>
       <ul>${(e.events || []).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
-      ${e.policy && e.policy.length ? `<h4>制度与政策</h4><ul class="compact">${e.policy.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+      ${e.policy && e.policy.length ? `<h3>制度与政策</h3><ul class="compact">${e.policy.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
       ${e.reading ? `<div class="emp-reading"><b>读法提示 · </b>${esc(e.reading)}</div>` : ""}
-      <h4>对应章节</h4>
+      <h3>对应章节</h3>
       <div class="emp-refs">${(e.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>`;
   }
 
@@ -516,7 +516,7 @@
 
   function renderLineageNotes() {
     $("#lineageNotes").innerHTML = (LINEAGE.notes || []).map((n) => `
-      <div class="rel"><h4>${esc(n.t)}</h4><p>${esc(n.d)}</p></div>`).join("");
+      <div class="rel"><h3>${esc(n.t)}</h3><p>${esc(n.d)}</p></div>`).join("");
   }
 
   function initLineageMode() {
@@ -646,7 +646,7 @@
 
     $("#calendarNotes").innerHTML = `<div class="notice" style="margin-bottom:16px">${esc(CALENDAR.intro || "")}</div>` +
       (CALENDAR.items || []).map((n, i) => `
-        <div class="rel" id="cal-${i}"><h4>${esc(n.t)}</h4><p>${esc(n.d)}</p></div>`).join("");
+        <div class="rel" id="cal-${i}"><h3>${esc(n.t)}</h3><p>${esc(n.d)}</p></div>`).join("");
 
     const quick = [1368, 1402, 1421, 1449, 1521, 1567, 1581, 1619, 1644, 1662, 1683];
     $("#gzQuick").innerHTML = quick.map((y) => `<button class="pill tiny" data-y="${y}" type="button">${y}</button>`).join("");
@@ -740,10 +740,10 @@
       </div>`;
 
     $("#bzRoutes").innerHTML = (BUREAUCRACY.routes || []).map((r, i) =>
-      `<div class="rel" id="bz-route-${i}"><h4>${esc(r.t)}</h4><p>${esc(r.d)}</p></div>`).join("");
+      `<div class="rel" id="bz-route-${i}"><h3>${esc(r.t)}</h3><p>${esc(r.d)}</p></div>`).join("");
 
     $("#bzNotes").innerHTML = (BUREAUCRACY.notes || []).map((n) =>
-      `<div class="rel"><h4>${esc(n.t)}</h4><p>${esc(n.d)}</p></div>`).join("");
+      `<div class="rel"><h3>${esc(n.t)}</h3><p>${esc(n.d)}</p></div>`).join("");
 
     applyBzFilter();
   }
@@ -831,7 +831,7 @@
       </article>`).join("");
 
     $("#tkNotes").innerHTML = (THINKERS.notes || []).map((n) =>
-      `<div class="rel"><h4>${esc(n.t)}</h4><p>${esc(n.d)}</p></div>`).join("");
+      `<div class="rel"><h3>${esc(n.t)}</h3><p>${esc(n.d)}</p></div>`).join("");
 
     applyTkFilter();
   }
@@ -1403,7 +1403,7 @@
       </article>`).join("");
 
     $("#milGeo").innerHTML = MILITARY_GEO.map((m, i) =>
-      `<div class="rel" id="mil-${i}"><h4>${esc(m.t)}</h4><p>${esc(m.d)}</p></div>`).join("");
+      `<div class="rel" id="mil-${i}"><h3>${esc(m.t)}</h3><p>${esc(m.d)}</p></div>`).join("");
 
     const kinds = ["全部"].concat(PLACES.map((p) => p.kind).filter((v, i, a) => a.indexOf(v) === i));
     $("#placeFilters").innerHTML = kinds.map((k) =>

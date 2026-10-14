@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title data-i18n="meta.title">数据实验室 · 交互统计沙盒 | 戴璇 · daixuan.cloud</title>
+  <meta name="description" content="纯静态交互统计实验室：中心极限定理、Bootstrap 置信区间、均值与中位数的效率与稳健性、辛普森悖论。参数可拖动、图表即时更新、每个实验都能分享深链，零依赖。" data-i18n-a="content:meta.desc">
+  <meta name="keywords" content="交互统计,中心极限定理,Bootstrap,置信区间,标准误,辛普森悖论,应用统计,数据可视化,戴璇">
+  <meta name="author" content="戴璇">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://daixuan.cloud/stats-lab/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://daixuan.cloud/stats-lab/">
+  <link rel="alternate" hreflang="en" href="https://daixuan.cloud/stats-lab/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://daixuan.cloud/stats-lab/">
+  <meta name="theme-color" content="#0a0e17">
+
+  <meta property="og:title" content="数据实验室 · 交互统计沙盒" data-i18n-a="content:meta.title">
+  <meta property="og:description" content="把统计变成可以拖动的直觉：中心极限定理、Bootstrap 置信区间、均值 vs 中位数、辛普森悖论。零依赖纯静态，每个实验都能分享深链。" data-i18n-a="content:meta.ogDesc">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://daixuan.cloud/stats-lab/">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="数据实验室 · 交互统计沙盒" data-i18n-a="content:meta.title">
+  <meta name="twitter:description" content="中心极限定理、Bootstrap 置信区间、均值 vs 中位数、辛普森悖论 —— 可拖动、可分享深链的交互统计实验室。" data-i18n-a="content:meta.twDesc">
+  <meta name="twitter:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
+
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../css/style.css?v=20261013-3">
+
+  <!-- 首帧前同步应用主题与语言，避免深色/浅色、中文/英文切换闪屏 (FOUC) -->
+  <script>
+    (function () {
+      document.documentElement.classList.add('js');
+
+      /* —— 主题 —— */
+      var saved = null;
+      try { saved = localStorage.getItem('dx_theme'); } catch (e) { /* 存储不可用时跟随系统 */ }
+      var theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === 'light' ? '#f8fafc' : '#0a0e17';
+
+      /* —— 语言 —— */
+      /* 英文模式下先把 body 遮住（见 css/style.css 的 .sl-lang-init），
+         等 js/i18n.js（defer）把文案刷完再解除，否则英文读者会先看到一闪的中文。
+         兜底解除挂在 DOMContentLoaded 上：即使 i18n.js 没加载成功，
+         页面也不会一直藏着。defer 脚本先于 DOMContentLoaded 执行，正常路径更快。 */
+      var lang = null;
+      try { lang = new URLSearchParams(location.search).get('lang'); } catch (e) { /* 老浏览器忽略 */ }
+      if (lang !== 'zh' && lang !== 'en') {
+        try {
+          var ls = localStorage.getItem('dx_lang');
+          lang = (ls === 'en' || ls === 'zh') ? ls : null;
+        } catch (e) { lang = null; }
+      }
+      if (lang === 'en') {
+        document.documentElement.setAttribute('lang', 'en');
+        document.documentElement.classList.add('sl-lang-init');
+      }
+      var unveil = function () { document.documentElement.classList.remove('sl-lang-init'); };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', unveil);
+      else unveil();
+    })();
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "数据实验室 · 交互统计沙盒",
+    "url": "https://daixuan.cloud/stats-lab/",
+    "inLanguage": "zh-CN",
+    "author": { "@type": "Person", "name": "戴璇", "url": "https://daixuan.cloud/" },
+    "about": [
+      { "@type": "Thing", "name": "中心极限定理" },
+      { "@type": "Thing", "name": "Bootstrap 置信区间" },
+      { "@type": "Thing", "name": "标准误与稳健统计量" },
+      { "@type": "Thing", "name": "辛普森悖论" }
+    ],
+    "description": "纯静态、零依赖的交互统计实验室：参数可拖动，图表即时更新，每个实验都能分享深链。"
+  }
+  </script>
+
+  <link rel="stylesheet" href="css/style.css?v=20261013-3">
+  <!-- 必须排在 js/lab.js 之前：两者都是 defer，按文档顺序执行，
+       保证 lab.js 启动时 SL_I18N 已就绪，图表第一帧就是对的语种 -->
+  <script src="js/i18n.js?v=20261013-2" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="a11y.skip">跳到主内容</a>
+  <noscript><p style="padding:2rem;color:var(--text-primary)">数据实验室需要启用 JavaScript 才能运行。 / This lab needs JavaScript enabled to run.</p></noscript>
+
+  <header id="topbar">
+    <div class="sl-topbar-inner">
+      <a href="../index.html" class="nav-brand sl-brand">
+        <span class="brand-icon sl-brand-icon">DX</span>
+        <span class="sl-brand-text"><span data-i18n="brand.name">戴璇</span> · <span class="sl-brand-grad">daixuan.cloud</span></span>
+      </a>
+      <div class="sl-topbar-actions">
+        <button id="lang-toggle" class="btn-icon sl-lang" type="button" aria-label="Switch to English" title="Switch to English">
+          <span class="sl-lang-text" lang="en">EN</span>
+        </button>
+        <button id="theme-toggle" class="btn-icon" type="button" aria-label="切换色彩主题" title="切换深色/浅色模式" aria-pressed="true" data-i18n-a="aria-label:theme.aria;title:theme.title">
+          <span id="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </span>
+        </button>
+        <a href="../index.html#projects" class="btn btn-secondary sl-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          <span data-i18n="back">返回作品索引</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= Hero ================= -->
+    <section class="sl-hero">
+      <div class="sl-shell">
+        <p class="sl-eyebrow" data-i18n="hero.eyebrow">DATA LAB / 交互统计沙盒</p>
+        <h1 class="sl-hero-title" data-i18n="hero.title">把统计，变成可以拖动的直觉。</h1>
+        <p class="sl-hero-lead" data-i18n="hero.lead">
+          四个经典问题，全部在浏览器里现场模拟：拖一根滑块，图表立刻重算。
+          没有后端、没有第三方库，也没有预先录好的动画——你看到的每一条柱子，都是这一秒刚抽出来的样本。
+        </p>
+        <ul class="sl-hero-chips">
+          <li data-i18n="hero.chip1">零依赖 · 纯静态</li>
+          <li data-i18n="hero.chip2">随机种子可复现</li>
+          <li data-i18n="hero.chip3">每个实验都能分享深链</li>
+          <li data-i18n="hero.chip4">深浅双主题</li>
+        </ul>
+        <p class="sl-hero-hint" data-i18n-html="hero.hint">
+          玩法：拖动滑块 → 看图表与读数同步变化 → 点「复制链接」把当前这组参数发给别人，对方打开会看到<strong>一模一样</strong>的图。
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 章节导航 ================= -->
+    <nav class="sl-nav" aria-label="实验目录" data-i18n-a="aria-label:nav.aria">
+      <div class="sl-shell sl-nav-inner">
+        <a href="#clt" class="sl-nav-link" data-nav="clt"><span class="sl-nav-num">01</span><span data-i18n="nav.1">中心极限定理</span></a>
+        <a href="#bootstrap" class="sl-nav-link" data-nav="bootstrap"><span class="sl-nav-num">02</span><span data-i18n="nav.2">Bootstrap 区间</span></a>
+        <a href="#robust" class="sl-nav-link" data-nav="robust"><span class="sl-nav-num">03</span><span data-i18n="nav.3">均值 vs 中位数</span></a>
+        <a href="#simpson" class="sl-nav-link" data-nav="simpson"><span class="sl-nav-num">04</span><span data-i18n="nav.4">辛普森悖论</span></a>
+      </div>
+    </nav>
+
+    <div class="sl-shell sl-stage">
+
+      <!-- ================= 实验 01 · CLT ================= -->
+      <section class="sl-lab" id="clt" data-lab="clt" aria-labelledby="clt-title">
+        <div class="sl-lab-head">
+          <p class="sl-lab-index" data-i18n="lab1.index">实验 01 / CENTRAL LIMIT THEOREM</p>
+          <h2 id="clt-title" class="sl-lab-title" data-i18n="lab1.title">无论总体长得多奇怪，样本均值的分布都会变正态</h2>
+          <p class="sl-lab-lead" data-i18n-html="lab1.lead">
+            左边选一个总体分布，右边看它的样子；下面那张图，是「每次抽 <em>n</em> 个观测、算一次均值」重复几千次之后，
+            这些均值自己形成的分布。把 <em>n</em> 从 2 拖到 30，看它怎么从「和总体一样歪」变成一口标准的钟形。
+          </p>
+        </div>
+
+        <div class="sl-lab-body">
+          <div class="sl-controls">
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="clt-dist"><span data-i18n="lab1.dist.label">总体分布</span></label>
+              <select class="sl-select" id="clt-dist" aria-describedby="clt-dist-hint">
+                <option value="exponential" data-i18n="lab1.opt.exponential">指数分布（右偏，最经典的反例）</option>
+                <option value="uniform" data-i18n="lab1.opt.uniform">均匀分布（平顶）</option>
+                <option value="bimodal" data-i18n="lab1.opt.bimodal">双峰分布（两个峰，完全不像钟形）</option>
+                <option value="lognormal" data-i18n="lab1.opt.lognormal">对数正态（长右尾，极右偏）</option>
+              </select>
+              <p class="sl-ctrl-hint" id="clt-dist-hint" data-i18n="lab1.dist.hint">被抽样的「真实世界」长什么样</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="clt-n">
+                <span data-i18n-html="lab1.n.label">每次抽样的样本量 <em>n</em></span>
+                <output class="sl-ctrl-value" id="clt-n-out" for="clt-n">2</output>
+              </label>
+              <input class="sl-range" type="range" id="clt-n" min="1" max="100" step="1" value="2" aria-describedby="clt-n-hint">
+              <p class="sl-ctrl-hint" id="clt-n-hint" data-i18n="lab1.n.hint">一次抽样里包含多少个观测；n 越大，均值越稳定</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="clt-sims">
+                <span data-i18n="lab1.sims.label">重复抽样次数</span>
+                <output class="sl-ctrl-value" id="clt-sims-out" for="clt-sims">2000</output>
+              </label>
+              <input class="sl-range" type="range" id="clt-sims" min="200" max="5000" step="100" value="2000" aria-describedby="clt-sims-hint">
+              <p class="sl-ctrl-hint" id="clt-sims-hint" data-i18n="lab1.sims.hint">重复次数越多，直方图越平滑（不影响结论，只影响观感）</p>
+            </div>
+
+            <div class="sl-ctrl-actions">
+              <button class="btn btn-secondary sl-btn" type="button" id="clt-converge" data-i18n="lab1.btn.converge">▶ 播放收敛动画</button>
+              <button class="btn btn-secondary sl-btn" type="button" id="clt-reseed" data-i18n="lab1.btn.reseed">换一组随机数</button>
+            </div>
+          </div>
+
+          <div class="sl-viz">
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag">A</span><span data-i18n="lab1.figA">总体分布</span> <span class="sl-fig-sub" id="clt-pop-name">指数分布</span></figcaption>
+              <div class="sl-canvas-wrap"><canvas id="clt-pop" role="img" aria-label="总体分布直方图" data-i18n-a="aria-label:lab1.canvasA.aria"></canvas></div>
+            </figure>
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag sl-fig-tag-b">B</span><span data-i18n="lab1.figB">样本均值的抽样分布</span> <span class="sl-fig-sub" data-i18n="lab1.figB.sub">叠加理论正态曲线</span></figcaption>
+              <div class="sl-canvas-wrap sl-canvas-tall"><canvas id="clt-samp" role="img" aria-label="样本均值的抽样分布直方图" data-i18n-a="aria-label:lab1.canvasB.aria"></canvas></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="sl-result">
+          <dl class="sl-readout" id="clt-readout">
+            <div><dt data-i18n="ro.mu">总体均值 μ</dt><dd id="clt-mu">—</dd></div>
+            <div><dt data-i18n="ro.sigma">总体标准差 σ</dt><dd id="clt-sigma">—</dd></div>
+            <div><dt data-i18n="ro.seTheory">理论标准误 σ/√n</dt><dd id="clt-se-theory">—</dd></div>
+            <div><dt data-i18n="ro.seObs">实测标准误</dt><dd id="clt-se-obs">—</dd></div>
+            <div><dt data-i18n="ro.skew">抽样分布的偏度</dt><dd id="clt-skew">—</dd></div>
+          </dl>
+          <p class="sl-verdict" id="clt-verdict" role="status" aria-live="polite" aria-atomic="true">正在计算…</p>
+        </div>
+
+        <details class="sl-note">
+          <summary data-i18n="lab1.note.sum">这条曲线为什么重要？</summary>
+          <div class="sl-note-body">
+            <p data-i18n-html="lab1.note.p1">
+              中心极限定理说的是：只要观测之间独立、方差有限，<strong>样本均值的抽样分布</strong>会随着 <em>n</em> 增大趋近正态，
+              而且这个正态的均值等于总体均值 μ、标准差等于 σ/√n —— 后者就是「标准误」。
+            </p>
+            <p data-i18n-html="lab1.note.p2">
+              注意图 B 的横轴比图 A 窄得多，而且随 <em>n</em> 增大越来越窄。这就是为什么「平均值」这种统计量如此好用：
+              单个观测可能很吵，但它的平均值的波动被 1/√n 压下去了。
+            </p>
+            <p class="sl-note-warn" data-i18n-html="lab1.note.p3">
+              两个前提别忘：<strong>独立性</strong>（观测之间不能强相关）与<strong>有限方差</strong>。
+              厚尾到方差都不存在的分布（比如 Cauchy），这条定理不成立——实验 03 会让你看到厚尾的代价。
+            </p>
+          </div>
+        </details>
+
+        <div class="sl-share-row">
+          <button class="btn btn-secondary sl-btn sl-share" type="button" data-share="clt">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span data-i18n="share.btn">复制这个实验的链接</span>
+          </button>
+          <span class="sl-share-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- ================= 实验 02 · Bootstrap ================= -->
+      <section class="sl-lab" id="bootstrap" data-lab="bootstrap" aria-labelledby="bs-title">
+        <div class="sl-lab-head">
+          <p class="sl-lab-index" data-i18n="lab2.index">实验 02 / BOOTSTRAP CONFIDENCE INTERVAL</p>
+          <h2 id="bs-title" class="sl-lab-title" data-i18n="lab2.title">只有一份样本时，误差有多大？自己重抽样问出来</h2>
+          <p class="sl-lab-lead" data-i18n="lab2.lead">
+            图 A 是你唯一拿到的那份样本（这里的真实总体是对数正态，真实均值 μ ≈ 1.197）。
+            图 B 把这份样本「有放回地重抽」几千次，每次算一个均值——这些均值的分布，就是置信区间的来源。
+            点「模拟覆盖率」还能做一次元实验：造 200 份独立样本，看这些区间到底盖住了真值几次。
+          </p>
+        </div>
+
+        <div class="sl-lab-body">
+          <div class="sl-controls">
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="bs-n">
+                <span data-i18n-html="lab2.n.label">样本量 <em>n</em></span>
+                <output class="sl-ctrl-value" id="bs-n-out" for="bs-n">25</output>
+              </label>
+              <input class="sl-range" type="range" id="bs-n" min="5" max="200" step="1" value="25" aria-describedby="bs-n-hint">
+              <p class="sl-ctrl-hint" id="bs-n-hint" data-i18n="lab2.n.hint">样本越小，区间越宽、越容易偏</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="bs-B">
+                <span data-i18n-html="lab2.B.label">重抽样次数 <em>B</em></span>
+                <output class="sl-ctrl-value" id="bs-B-out" for="bs-B">2000</output>
+              </label>
+              <input class="sl-range" type="range" id="bs-B" min="200" max="5000" step="100" value="2000" aria-describedby="bs-B-hint">
+              <p class="sl-ctrl-hint" id="bs-B-hint" data-i18n="lab2.B.hint">B 越大，区间端点越稳定</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="bs-conf"><span data-i18n="lab2.conf.label">置信水平</span></label>
+              <select class="sl-select" id="bs-conf">
+                <option value="0.80">80%</option>
+                <option value="0.90">90%</option>
+                <option value="0.95" selected>95%</option>
+                <option value="0.99">99%</option>
+              </select>
+              <p class="sl-ctrl-hint" data-i18n="lab2.conf.hint">区间覆盖真值的名义概率</p>
+            </div>
+
+            <div class="sl-ctrl-actions">
+              <button class="btn btn-secondary sl-btn" type="button" id="bs-reseed" data-i18n="lab2.btn.reseed">换一份样本</button>
+              <button class="btn btn-secondary sl-btn" type="button" id="bs-cover" data-i18n="lab2.btn.cover">模拟覆盖率（200 份样本）</button>
+            </div>
+          </div>
+
+          <div class="sl-viz">
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag">A</span><span data-i18n="lab2.figA">你手上的那份样本</span> <span class="sl-fig-sub" id="bs-sample-note">n = 25</span></figcaption>
+              <div class="sl-canvas-wrap"><canvas id="bs-sample" role="img" aria-label="样本散点与样本均值" data-i18n-a="aria-label:lab2.canvasA.aria"></canvas></div>
+            </figure>
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag sl-fig-tag-b">B</span><span data-i18n="lab2.figB">Bootstrap 分布与置信区间</span> <span class="sl-fig-sub" data-i18n="lab2.figB.sub">阴影 = 百分位区间</span></figcaption>
+              <div class="sl-canvas-wrap sl-canvas-tall"><canvas id="bs-dist" role="img" aria-label="Bootstrap 重抽样分布与置信区间" data-i18n-a="aria-label:lab2.canvasB.aria"></canvas></div>
+            </figure>
+            <figure class="sl-figure" id="bs-cov-fig" hidden>
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag sl-fig-tag-c">C</span><span data-i18n="lab2.figC">覆盖率元实验</span> <span class="sl-fig-sub" data-i18n="lab2.figC.sub">200 份独立样本的区间，绿=盖住真值</span></figcaption>
+              <div class="sl-canvas-wrap sl-canvas-tall"><canvas id="bs-cov" role="img" aria-label="200 份独立样本的置信区间覆盖情况" data-i18n-a="aria-label:lab2.canvasC.aria"></canvas></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="sl-result">
+          <dl class="sl-readout" id="bs-readout">
+            <div><dt data-i18n="ro.xbar">样本均值 x̄</dt><dd id="bs-mean">—</dd></div>
+            <div><dt data-i18n="ro.s">样本标准差 s</dt><dd id="bs-sd">—</dd></div>
+            <div><dt data-i18n="ro.perc">百分位区间</dt><dd id="bs-perc">—</dd></div>
+            <div><dt data-i18n="ro.norm">正态近似区间</dt><dd id="bs-norm">—</dd></div>
+            <div><dt data-i18n="ro.width">区间宽度</dt><dd id="bs-width">—</dd></div>
+            <div><dt data-i18n="ro.trueMu">真实 μ</dt><dd id="bs-true">1.197</dd></div>
+          </dl>
+          <p class="sl-verdict" id="bs-verdict" role="status" aria-live="polite" aria-atomic="true">正在计算…</p>
+        </div>
+
+        <details class="sl-note">
+          <summary data-i18n="lab2.note.sum">百分位区间和正态近似区间，该信哪个？</summary>
+          <div class="sl-note-body">
+            <p data-i18n-html="lab2.note.p1">
+              <strong>百分位区间</strong>直接取 bootstrap 分布的 2.5% 与 97.5% 分位数——不假设任何分布形状，是默认选择。
+              <strong>正态近似区间</strong>用 x̄ ± 1.96·SE，只有在 bootstrap 分布近似对称时才靠得住。
+            </p>
+            <p data-i18n-html="lab2.note.p2">
+              把 <em>n</em> 拖到 5 再点「模拟覆盖率」：95% 的区间实际只盖住真值 <strong>76%</strong> 上下；
+              <em>n</em> 提到 50 才回到 93% 左右（本页 M=200 实测）。因为对数正态右偏，
+              小样本的 bootstrap 分布本身也偏，百分位区间会系统性偏移。这不是代码错了，这是 bootstrap 的真实局限，
+              也是它需要 <em>n</em> 别太小的原因。
+            </p>
+          </div>
+        </details>
+
+        <div class="sl-share-row">
+          <button class="btn btn-secondary sl-btn sl-share" type="button" data-share="bootstrap">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span data-i18n="share.btn">复制这个实验的链接</span>
+          </button>
+          <span class="sl-share-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- ================= 实验 03 · Robust ================= -->
+      <section class="sl-lab" id="robust" data-lab="robust" aria-labelledby="rb-title">
+        <div class="sl-lab-head">
+          <p class="sl-lab-index" data-i18n="lab3.index">实验 03 / EFFICIENCY vs ROBUSTNESS</p>
+          <h2 id="rb-title" class="sl-lab-title" data-i18n="lab3.title">均值更「省」，中位数更「稳」——换分布就换赢家</h2>
+          <p class="sl-lab-lead" data-i18n="lab3.lead">
+            同样是估计「中心位置」，均值和中位数谁更靠谱？答案取决于总体有没有离群点。
+            图 B 把两个统计量的抽样分布画在同一根横轴上，谁的分布更窄，谁的估计就更精确。
+          </p>
+        </div>
+
+        <div class="sl-lab-body">
+          <div class="sl-controls">
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="rb-dist"><span data-i18n="lab3.dist.label">总体分布</span></label>
+              <select class="sl-select" id="rb-dist" aria-describedby="rb-dist-hint">
+                <option value="normal" data-i18n="lab3.opt.normal">正态分布（无离群点）</option>
+                <option value="t3" data-i18n="lab3.opt.t3">t 分布，自由度 3（厚尾）</option>
+                <option value="contaminated" data-i18n="lab3.opt.contaminated">污染正态（掺入离群点）</option>
+                <option value="lognormal" data-i18n="lab3.opt.lognormal">对数正态（单侧长尾）</option>
+              </select>
+              <p class="sl-ctrl-hint" id="rb-dist-hint" data-i18n="lab3.dist.hint">离群点越多，均值的优势越小</p>
+            </div>
+
+            <div class="sl-ctrl" id="rb-eps-ctrl" hidden>
+              <label class="sl-ctrl-label" for="rb-eps">
+                <span data-i18n-html="lab3.eps.label">离群点占比 <em>ε</em></span>
+                <output class="sl-ctrl-value" id="rb-eps-out" for="rb-eps">10%</output>
+              </label>
+              <input class="sl-range" type="range" id="rb-eps" min="0" max="30" step="1" value="10" aria-describedby="rb-eps-hint">
+              <p class="sl-ctrl-hint" id="rb-eps-hint" data-i18n="lab3.eps.hint">有 ε 的概率抽到一个远离中心的异常观测</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="rb-n">
+                <span data-i18n-html="lab3.n.label">样本量 <em>n</em></span>
+                <output class="sl-ctrl-value" id="rb-n-out" for="rb-n">25</output>
+              </label>
+              <input class="sl-range" type="range" id="rb-n" min="5" max="100" step="1" value="25">
+              <p class="sl-ctrl-hint" data-i18n="lab3.n.hint">两个统计量用完全相同的样本</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="rb-sims">
+                <span data-i18n="lab3.sims.label">重复抽样次数</span>
+                <output class="sl-ctrl-value" id="rb-sims-out" for="rb-sims">2000</output>
+              </label>
+              <input class="sl-range" type="range" id="rb-sims" min="200" max="5000" step="100" value="2000">
+              <p class="sl-ctrl-hint" data-i18n="lab3.sims.hint">用于估计两个统计量各自的波动</p>
+            </div>
+
+            <div class="sl-ctrl-actions">
+              <button class="btn btn-secondary sl-btn" type="button" id="rb-reseed" data-i18n="lab3.btn.reseed">换一组随机数</button>
+            </div>
+          </div>
+
+          <div class="sl-viz">
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag">A</span><span data-i18n="lab3.figA">总体分布</span> <span class="sl-fig-sub" id="rb-pop-name">正态分布</span></figcaption>
+              <div class="sl-canvas-wrap"><canvas id="rb-pop" role="img" aria-label="总体分布直方图" data-i18n-a="aria-label:lab3.canvasA.aria"></canvas></div>
+            </figure>
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag sl-fig-tag-b">B</span><span data-i18n="lab3.figB">抽样分布对比</span> <span class="sl-fig-sub"><span class="sl-legend-item"><span class="sl-legend-dot sl-legend-mean"></span><span data-i18n="lab3.legend.mean">均值</span></span><span class="sl-legend-item"><span class="sl-legend-dot sl-legend-med"></span><span data-i18n="lab3.legend.median">中位数</span></span></span></figcaption>
+              <div class="sl-canvas-wrap sl-canvas-tall"><canvas id="rb-samp" role="img" aria-label="样本均值与样本中位数的抽样分布对比" data-i18n-a="aria-label:lab3.canvasB.aria"></canvas></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="sl-result">
+          <dl class="sl-readout" id="rb-readout">
+            <div><dt data-i18n="ro.seMean">均值标准误 SE(x̄)</dt><dd id="rb-se-mean">—</dd></div>
+            <div><dt data-i18n="ro.seMed">中位数标准误 SE(med)</dt><dd id="rb-se-med">—</dd></div>
+            <div><dt data-i18n="ro.eff">相对效率 SE(med)/SE(x̄)</dt><dd id="rb-eff">—</dd></div>
+            <div><dt data-i18n="ro.skewMean">均值的偏度</dt><dd id="rb-skew-mean">—</dd></div>
+            <div><dt data-i18n="ro.skewMed">中位数的偏度</dt><dd id="rb-skew-med">—</dd></div>
+          </dl>
+          <p class="sl-verdict" id="rb-verdict" role="status" aria-live="polite" aria-atomic="true">正在计算…</p>
+        </div>
+
+        <details class="sl-note">
+          <summary data-i18n="lab3.note.sum">「相对效率」怎么读？</summary>
+          <div class="sl-note-body">
+            <p data-i18n-html="lab3.note.p1">
+              SE(med)/SE(x̄) 就是中位数相对均值要多花多少样本量才能达到同样的精度。这个比值 ≈ 1 时两者打平；
+              1.25 意味着中位数需要多约 1.25² ≈ 1.6 倍的样本量。
+            </p>
+            <p data-i18n-html="lab3.note.p2">
+              正态总体下这个比值约 <strong>1.253</strong>（理论值 √(π/2)）—— 均值赢得干净利落，因为它用上了每一个观测的具体数值。
+              但换成 t(3) 或掺了离群点的污染正态，均值会被极端值反复拽偏，比值迅速跌到 1 以下，
+              <strong>中位数反而更准</strong>。这就是「稳健性」的价格：在理想世界里吃点亏，换极端情况下的不崩盘。
+            </p>
+          </div>
+        </details>
+
+        <div class="sl-share-row">
+          <button class="btn btn-secondary sl-btn sl-share" type="button" data-share="robust">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span data-i18n="share.btn">复制这个实验的链接</span>
+          </button>
+          <span class="sl-share-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- ================= 实验 04 · Simpson ================= -->
+      <section class="sl-lab" id="simpson" data-lab="simpson" aria-labelledby="sp-title">
+        <div class="sl-lab-head">
+          <p class="sl-lab-index" data-i18n="lab4.index">实验 04 / SIMPSON'S PARADOX</p>
+          <h2 id="sp-title" class="sl-lab-title" data-i18n="lab4.title">每个分组都赢，合并起来却输了</h2>
+          <p class="sl-lab-lead" data-i18n="lab4.lead">
+            方案 A 与方案 B 各自面对「轻症」和「重症」两类病例。默认参数下，A 在轻症组赢、在重症组也赢——
+            但合并统计时 B 反而领先。差别只在于：重症病例被更多地分给了 A。拖一拖「重症占比」的两个滑块，看结论什么时候翻转。
+          </p>
+        </div>
+
+        <div class="sl-lab-body">
+          <div class="sl-controls">
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="sp-light">
+                <span data-i18n="lab4.light.label">轻症组基线成功率</span>
+                <output class="sl-ctrl-value" id="sp-light-out" for="sp-light">90%</output>
+              </label>
+              <input class="sl-range" type="range" id="sp-light" min="50" max="95" step="1" value="90">
+              <p class="sl-ctrl-hint" data-i18n="lab4.light.hint">病情轻时，方案 B 的成功率</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="sp-sev">
+                <span data-i18n="lab4.sev.label">重症组基线成功率</span>
+                <output class="sl-ctrl-value" id="sp-sev-out" for="sp-sev">30%</output>
+              </label>
+              <input class="sl-range" type="range" id="sp-sev" min="5" max="60" step="1" value="30">
+              <p class="sl-ctrl-hint" data-i18n="lab4.sev.hint">病情重时，方案 B 的成功率</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="sp-margin">
+                <span data-i18n="lab4.margin.label">方案 A 的优势</span>
+                <output class="sl-ctrl-value" id="sp-margin-out" for="sp-margin">+5 个百分点</output>
+              </label>
+              <input class="sl-range" type="range" id="sp-margin" min="0" max="15" step="1" value="5">
+              <p class="sl-ctrl-hint" data-i18n="lab4.margin.hint">A 在两个组里分别比 B 高出多少（固定为正）</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="sp-a-sev">
+                <span data-i18n="lab4.aSev.label">A 组中重症占比</span>
+                <output class="sl-ctrl-value" id="sp-a-sev-out" for="sp-a-sev">70%</output>
+              </label>
+              <input class="sl-range" type="range" id="sp-a-sev" min="0" max="100" step="1" value="70">
+              <p class="sl-ctrl-hint" data-i18n="lab4.aSev.hint">这就是「混杂因素」——它让 A 看起来更差</p>
+            </div>
+
+            <div class="sl-ctrl">
+              <label class="sl-ctrl-label" for="sp-b-sev">
+                <span data-i18n="lab4.bSev.label">B 组中重症占比</span>
+                <output class="sl-ctrl-value" id="sp-b-sev-out" for="sp-b-sev">20%</output>
+              </label>
+              <input class="sl-range" type="range" id="sp-b-sev" min="0" max="100" step="1" value="20">
+              <p class="sl-ctrl-hint" data-i18n="lab4.bSev.hint">两个占比拉平，悖论就消失</p>
+            </div>
+
+            <div class="sl-ctrl-actions">
+              <button class="btn btn-secondary sl-btn" type="button" id="sp-fix" data-i18n="lab4.btn.fix">随机化分配（消除混杂）</button>
+              <button class="btn btn-secondary sl-btn" type="button" id="sp-reset" data-i18n="lab4.btn.reset">恢复默认参数</button>
+            </div>
+          </div>
+
+          <div class="sl-viz">
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag">A</span><span data-i18n="lab4.figA">分组比较</span> <span class="sl-fig-sub" data-i18n="lab4.figA.sub">同一层内，A 始终更高</span></figcaption>
+              <div class="sl-canvas-wrap"><canvas id="sp-strata" role="img" aria-label="按病情分层的成功率对比柱状图" data-i18n-a="aria-label:lab4.canvasA.aria"></canvas></div>
+            </figure>
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag sl-fig-tag-b">B</span><span data-i18n="lab4.figB">合并比较</span> <span class="sl-fig-sub" data-i18n="lab4.figB.sub">不分层时的总体成功率</span></figcaption>
+              <div class="sl-canvas-wrap"><canvas id="sp-pooled" role="img" aria-label="合并后的总体成功率对比柱状图" data-i18n-a="aria-label:lab4.canvasB.aria"></canvas></div>
+            </figure>
+            <figure class="sl-figure">
+              <figcaption class="sl-fig-cap"><span class="sl-fig-tag sl-fig-tag-c">C</span><span data-i18n="lab4.figC">病例构成</span> <span class="sl-fig-sub" data-i18n="lab4.figC.sub">重症（深色）在每组里的比例</span></figcaption>
+              <div class="sl-canvas-wrap"><canvas id="sp-mix" role="img" aria-label="两组病例中重症比例的构成条" data-i18n-a="aria-label:lab4.canvasC.aria"></canvas></div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="sl-result">
+          <div class="sl-table-wrap">
+            <table class="sl-table">
+              <caption class="sl-table-cap" data-i18n="lab4.table.cap">数值明细（成功率 = 成功数 / 该格病例数）</caption>
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="lab4.th.stratum">分层</th>
+                  <th scope="col" data-i18n="lab4.th.a">方案 A</th>
+                  <th scope="col" data-i18n="lab4.th.b">方案 B</th>
+                  <th scope="col" data-i18n="lab4.th.diff">A − B</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row" data-i18n="lab4.row.mild">轻症</th>
+                  <td id="sp-t-light-a">—</td>
+                  <td id="sp-t-light-b">—</td>
+                  <td id="sp-t-light-d">—</td>
+                </tr>
+                <tr>
+                  <th scope="row" data-i18n="lab4.row.severe">重症</th>
+                  <td id="sp-t-sev-a">—</td>
+                  <td id="sp-t-sev-b">—</td>
+                  <td id="sp-t-sev-d">—</td>
+                </tr>
+                <tr class="sl-row-total">
+                  <th scope="row" data-i18n="lab4.row.pooled">合并</th>
+                  <td id="sp-t-all-a">—</td>
+                  <td id="sp-t-all-b">—</td>
+                  <td id="sp-t-all-d">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="sl-verdict" id="sp-verdict" role="status" aria-live="polite" aria-atomic="true">正在计算…</p>
+        </div>
+
+        <details class="sl-note">
+          <summary data-i18n="lab4.note.sum">这不是数字游戏，是真实发生过的事</summary>
+          <div class="sl-note-body">
+            <p data-i18n-html="lab4.note.p1">
+              当分组变量同时影响「谁进入哪一组」和「结果」时，合并统计量就会把<strong>组间差异</strong>和<strong>构成差异</strong>混在一起。
+              本实验里，A 组重症占比高，所以它被迫在更难的人群里作战，合并成功率被拖低。
+            </p>
+            <p data-i18n-html="lab4.note.p2">
+              识别它的办法很朴素：<strong>把可能影响分配的因素都分层看一遍</strong>。点「随机化分配」把两组构成拉平，
+              悖论立刻消失——这正是随机对照试验（RCT）要随机化的原因：随机化让构成差异在期望上归零。
+            </p>
+          </div>
+        </details>
+
+        <div class="sl-share-row">
+          <button class="btn btn-secondary sl-btn sl-share" type="button" data-share="simpson">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span data-i18n="share.btn">复制这个实验的链接</span>
+          </button>
+          <span class="sl-share-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <!-- ================= 说明 ================= -->
+      <section class="sl-about" aria-labelledby="about-title">
+        <h2 id="about-title" class="sl-about-title" data-i18n="about.title">关于这个实验室</h2>
+        <div class="sl-about-grid">
+          <div class="sl-about-card">
+            <h3 data-i18n="about.c1.h">数字是怎么算出来的</h3>
+            <p data-i18n="about.c1.p">全部在浏览器里现场模拟，没有预渲染、没有后端、不引任何图表库。直方图用 Canvas 2D 绘制，柱高来自真实的抽样计数。</p>
+          </div>
+          <div class="sl-about-card">
+            <h3 data-i18n="about.c2.h">为什么同一链接结果一样</h3>
+            <p data-i18n="about.c2.p">所有随机数来自可播种的生成器（mulberry32），种子写进链接里。分享出去的不是一张图，而是「重放这段实验的完整配方」。</p>
+          </div>
+          <div class="sl-about-card">
+            <h3 data-i18n="about.c3.h">口径说明</h3>
+            <p data-i18n="about.c3.p">样本方差用 n−1（无偏）；偏度用 Fisher–Pearson 标准化矩；正态近似区间用 z 分位数，百分位区间用 bootstrap 分位数。中位数在偶数样本量时取中间两个值的平均。</p>
+          </div>
+          <div class="sl-about-card">
+            <h3 data-i18n="about.c4.h">已知取舍</h3>
+            <p data-i18n="about.c4.p">为了交互流畅，重复次数上限设为 5000、覆盖率元实验固定 200 份样本，因此读数会有约 1–2% 的蒙特卡洛抖动。抖动是模拟的常态，不是 bug。</p>
+          </div>
+        </div>
+        <p class="sl-about-foot" data-i18n-html="about.foot">
+          想聊统计建模、工业工程或这个页面的实现？<a href="../index.html#contact">在主页找我</a>，或直接看
+          <a href="../case-studies/applied-statistics-credit-risk.html">应用统计案例分析</a>。
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="sl-footer">
+    <div class="sl-shell sl-footer-inner">
+      <p>© <span id="sl-year">2026</span> <span lang="zh-CN">戴璇</span> · Dai Xuan · <a href="../index.html">daixuan.cloud</a></p>
+      <p class="sl-footer-note" data-i18n="footer.note">交互统计沙盒 · 纯静态零依赖 · 图表由浏览器现场模拟生成</p>
+    </div>
+  </footer>
+
+  <script src="js/lab.js?v=20261013-2" defer></script>
+</body>
+</html>

@@ -20,7 +20,7 @@
 
   <meta name="theme-color" content="#0a0e17">
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/style.css?v=20261013-3">
   <script>
     (function () {
       try {
@@ -278,10 +278,13 @@
       border-radius: var(--radius-sm);
       padding: 18px;
     }
-    .flow-box h4 {
+    /* 标题层级修正：h2 之下的卡片标题由 h4 提为 h3（消除 2→4 跳级）；
+       别名 + 显式 margin 保证视觉与旧 h4 完全一致（页面 reset 已把标题 margin 归零，
+       这里必须写 margin-top:0 压过 .case-section h3 的 24px） */
+    .flow-box h4, .flow-box h3 {
       font-size: 0.98rem;
       color: var(--accent-primary);
-      margin-bottom: 8px;
+      margin: 0 0 8px;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -341,7 +344,7 @@
   <header id="topbar" style="padding:14px 24px; border-bottom: 1px solid var(--border-color); background: var(--nav-bg); position:fixed; top:0; width:100%; z-index:100; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
     <div style="max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
       <a href="../index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
-        <div class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.95rem;">DX</div>
+        <div class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:var(--on-accent); font-weight:800; font-size:0.95rem;">DX</div>
         <span class="brand-text" style="color:var(--text-primary); font-size:1.15rem; font-weight:700;">戴璇 · <span style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">daixuan.cloud</span></span>
       </a>
       <div style="display: flex; align-items: center; gap: 12px;">
@@ -424,7 +427,7 @@
 
       <div class="framework-flow">
         <div class="flow-box">
-          <h4><span>📐</span> 1. 计数过程与半参数计量</h4>
+          <h3><span>📐</span> 1. 计数过程与半参数计量</h3>
           <ul>
             <li>基于滤波空间构建右截尾单跳计数过程 <i>N</i><sub><i>i</i></sub>(<i>t</i>)</li>
             <li>Doob-Meyer 分解与 Rebolledo 补偿鞅极限定理证明</li>
@@ -433,7 +436,7 @@
           </ul>
         </div>
         <div class="flow-box">
-          <h4><span>🔬</span> 2. 因果推断与机制识别</h4>
+          <h3><span>🔬</span> 2. 因果推断与机制识别</h3>
           <ul>
             <li>Chernozhukov DML-PLR 模型与 Neyman 正交化矩条件</li>
             <li>5 折交叉拟合消解非参数学习器的过拟合正则化偏差</li>
@@ -442,7 +445,7 @@
           </ul>
         </div>
         <div class="flow-box">
-          <h4><span>💼</span> 3. 金融决策与动态定价</h4>
+          <h3><span>💼</span> 3. 金融决策与动态定价</h3>
           <ul>
             <li>全特征 WoE / IV 分箱积分卡与 10,000 次宏观压力测试</li>
             <li>XGBoost-SHAP 博弈论归因挖掘非线性安全阈值</li>
@@ -780,6 +783,6 @@ def hansen_threshold_search(y, x, q, grid_points=200):
       setTimeout(() => toast.classList.remove('show'), 2200);
     }
   </script>
-  <script src="../js/lightbox.js" defer></script>
+  <script src="../js/lightbox.js?v=20261011-3" defer></script>
 </body>
 </html>

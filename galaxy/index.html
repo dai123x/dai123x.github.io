@@ -15,6 +15,8 @@
   <meta property="og:description" content="粒子星系 + 绕轨里程碑卡片，原生 Canvas 零依赖实现的沉浸式个人记忆星系。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://daixuan.cloud/galaxy/">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
   <meta property="og:site_name" content="戴璇 · Dai Xuan">
   <meta property="og:locale" content="zh_CN">
 
@@ -835,12 +837,18 @@
     <span aria-hidden="true">♪</span><span id="sound-label">氛围音 · 关</span>
   </button>
 
-  <div class="g-title">
-    <h1>璇玑星海</h1>
-    <p>每一颗星 · 都是一段旅程的注脚</p>
-  </div>
+  <!-- 主内容地标：原来整页没有任何地标，读屏用户无法一键跳到星海本体。
+       <main> 是 display:block、position:static、不产生定位/层叠上下文，
+       而 .g-title / .g-hint / .star-card 全是 position:fixed（相对视口定位），
+       所以包一层不会移动任何像素。JS 生成的卡片也挂进来（见文件末尾）。 -->
+  <main id="main">
+    <div class="g-title">
+      <h1>璇玑星海</h1>
+      <p>每一颗星 · 都是一段旅程的注脚</p>
+    </div>
 
-  <p class="g-hint">移动鼠标 <b>视差漂移</b> · 点击卡片 <b>查看印记</b></p>
+    <p class="g-hint">移动鼠标 <b>视差漂移</b> · 点击卡片 <b>查看印记</b></p>
+  </main>
 
   <!-- 印记弹窗 -->
   <div class="imprint-overlay" id="imprint-overlay" role="dialog" aria-modal="true" aria-labelledby="imprint-title">
@@ -884,7 +892,7 @@
       {
         emoji: '🛰️', title: 'Aurora Chat · 极光', meta: '2026.10 · MIT 开源',
         period: '2026.10 上线 · 纯静态 AI 聊天工作台',
-        desc: '智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 浏览器直连，流式 SSE 与双模型对比投票；对话与密钥仅存本机。MIT 协议，可商用。',
+        desc: '支持智谱 GLM / DeepSeek / OpenAI / Kimi / SiliconFlow 5 家云服务与本地模型，流式 SSE 与双模型对比投票；OpenAI 需自建代理。对话与密钥保存在本机浏览器。MIT 协议，可商用。',
         tags: ['纯前端', '流式 SSE', '双模型对比', 'MIT'],
         href: '../aurora-chat/', label: '打开在线应用'
       },
@@ -1379,7 +1387,9 @@
       cardLayer.appendChild(b);
       cards.push({ el: b, angle: (i / MILESTONES.length) * Math.PI * 2, bob: Math.random() * Math.PI * 2 });
     });
-    document.body.appendChild(cardLayer);
+    // 卡片是 position:fixed，挂到 <main> 里不影响任何定位（<main> 不是定位祖先），
+    // 但能让「跳到主内容」真正落到星海本体上；同时把 tab 顺序提到弹窗之前。
+    (document.getElementById('main') || document.body).appendChild(cardLayer);
 
     /* ==================== 印记弹窗 ==================== */
     var overlay = document.getElementById('imprint-overlay');

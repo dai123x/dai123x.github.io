@@ -20,7 +20,7 @@
 
   <meta name="theme-color" content="#0a0e17">
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/style.css?v=20261013-3">
   <script>
     (function () {
       try {
@@ -305,10 +305,13 @@
       padding: 18px;
       border-left: 3px solid var(--accent-primary);
     }
-    .flow-box h4 {
+    /* 标题层级修正：h2 之下的卡片标题由 h4 提为 h3（消除 2→4 跳级）；
+       别名 + 显式 margin 保证视觉与旧 h4 完全一致（页面 reset 已把标题 margin 归零，
+       这里必须写 margin-top:0 压过 .case-section h3 的 24px） */
+    .flow-box h4, .flow-box h3 {
       font-size: 0.98rem;
       color: var(--accent-primary);
-      margin-bottom: 8px;
+      margin: 0 0 8px;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -371,7 +374,7 @@
   <header id="topbar" style="padding:14px 24px; border-bottom: 1px solid var(--border-color); background: var(--nav-bg); position:fixed; top:0; width:100%; z-index:100; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
     <div style="max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
       <a href="../index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
-        <div class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:0.95rem;">DX</div>
+        <div class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:var(--on-accent); font-weight:800; font-size:0.95rem;">DX</div>
         <span class="brand-text" style="color:var(--text-primary); font-size:1.15rem; font-weight:700;">戴璇 · <span style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">daixuan.cloud</span></span>
       </a>
       <div style="display: flex; align-items: center; gap: 12px;">
@@ -458,7 +461,7 @@
 
       <div class="framework-flow">
         <div class="flow-box">
-          <h4><span>🔍</span> 阶段 1：场景标定与仿真构建</h4>
+          <h3><span>🔍</span> 阶段 1：场景标定与仿真构建</h3>
           <ul>
             <li>MOD 模特法动作分解与时间研究</li>
             <li>基于动力总成 5 大工位标定参数构建 2,000 循环仿真基准样本</li>
@@ -466,7 +469,7 @@
           </ul>
         </div>
         <div class="flow-box">
-          <h4><span>📊</span> 阶段 2：高阶统计与分布检验</h4>
+          <h3><span>📊</span> 阶段 2：高阶统计与分布检验</h3>
           <ul>
             <li>均值、方差、中位数与偏峰度全量描述</li>
             <li>K-S 与 Lilliefors 参数估计修正检验</li>
@@ -474,7 +477,7 @@
           </ul>
         </div>
         <div class="flow-box">
-          <h4><span>📈</span> 阶段 3：自回归时序动力学建模</h4>
+          <h3><span>📈</span> 阶段 3：自回归时序动力学建模</h3>
           <ul>
             <li>ADF 单位根平稳性检验 (拒绝单位根，呈现弱平稳)</li>
             <li>构建 ARIMA(1,0,1) 最大似然估计方程</li>
@@ -482,7 +485,7 @@
           </ul>
         </div>
         <div class="flow-box">
-          <h4><span>🚀</span> 阶段 4：精益工程与情景推演</h4>
+          <h3><span>🚀</span> 阶段 4：精益工程与情景推演</h3>
           <ul>
             <li>ECRS 原则消除合并动作，推演压缩瓶颈 6.73 秒</li>
             <li>AGV 配送路径重构与套件物料前置化</li>
@@ -761,20 +764,20 @@
 
       <div class="framework-flow">
         <div class="flow-box">
-          <h4><span>✂️</span> 1. 动作经济原则 (Motion Economy)</h4>
+          <h3><span>✂️</span> 1. 动作经济原则 (Motion Economy)</h3>
           <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
             运用两手作业分析与眼动追踪，重新布置 OP30 活塞装配台工具架，彻底消除工人在活塞环卡簧紧固过程中的双手交叉拿取与转身翻找。
             <strong>单循环稳态作业时间净缩减 6.73 秒</strong>。
           </p>
         </div>
         <div class="flow-box">
-          <h4><span>🤖</span> 2. AGV 搬运物料齐套配送前置</h4>
+          <h3><span>🤖</span> 2. AGV 搬运物料齐套配送前置</h3>
           <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
             针对物料到货等待，重构车间 AGV 循环调度网络，将曲轴轴瓦与活塞销由“按需取件”改为“单台套箱定拍巡回配送”，线旁齐套等待率降为 0。
           </p>
         </div>
         <div class="flow-box">
-          <h4><span>⚖️</span> 3. 跨工位辅助检验工步转移</h4>
+          <h3><span>⚖️</span> 3. 跨工位辅助检验工步转移</h3>
           <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
             利用 OP50 总装终检工位（节拍 42.0s，富余量充足）吸收 OP30 活塞连杆的连杆螺栓扭矩二次标记工步，实现全线负荷平顺化。
           </p>
@@ -944,6 +947,6 @@ print(f"产线平衡率提升: +{lbe_after - lbe_before:.2f} 个百分点")</cod
       setTimeout(() => toast.classList.remove('show'), 2200);
     }
   </script>
-  <script src="../js/lightbox.js" defer></script>
+  <script src="../js/lightbox.js?v=20261011-3" defer></script>
 </body>
 </html>
