@@ -919,8 +919,8 @@
       background: transparent;
       border: none;
       color: var(--muted);
-      font-size: 11px;
-      padding: 3px 8px;
+      font-size: 10px;
+      padding: 2px 6px;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s;
@@ -933,6 +933,54 @@
       color: #ffffff !important;
       font-weight: 700;
       box-shadow: 0 1px 4px rgba(2, 132, 199, 0.4);
+    }
+    .vr-view-bookmarks {
+      position: absolute;
+      bottom: 58px;
+      left: 10px;
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 2px 5px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+    }
+    .bookmark-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 700;
+      padding: 0 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .view-bookmark-btn {
+      background: transparent;
+      border: none;
+      color: #334155;
+      font-size: 10.5px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+    .view-bookmark-btn:hover {
+      background: rgba(2, 132, 199, 0.1);
+      color: var(--ice);
+    }
+    .view-bookmark-btn.active {
+      background: #0284c7 !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(2, 132, 199, 0.35);
     }
     .scenario-pill {
       flex: 1;
@@ -4052,6 +4100,14 @@
             </div>
           </div>
           <canvas id="vrCanvas"></canvas>
+          <!-- Floating View Bookmarks Dock -->
+          <div class="vr-view-bookmarks" id="vrViewBookmarks">
+            <span class="bookmark-label">🎥 视角:</span>
+            <button class="view-bookmark-btn active" data-view="panorama" title="俯瞰吉林全省冰雪地理版图全貌">🌐 全景</button>
+            <button class="view-bookmark-btn" data-view="changbai" title="特写长白山天池 2,691m 极地雪冠">🏔️ 长白</button>
+            <button class="view-bookmark-btn" data-view="resort" title="特写北大湖/松花湖超级滑雪场">⛷️ 雪场</button>
+            <button class="view-bookmark-btn" data-view="chagan" title="漫游松原查干湖冬捕与嫩江湾">🐟 查干</button>
+          </div>
           <div class="vr-bottom-toolbar">
             <div class="vr-hud-chip" id="vrHudChip" title="3D 空间姿态遥测">
               <span class="vr-hud-indicator"></span>
@@ -6926,7 +6982,14 @@ async function initWebXRSession(gl) {
           <span>[ 🥽 3D_VR_DIGITAL_TWIN ]</span>
           <span class="badge" id="vrExpandBadge" style="background: rgba(244,198,109,0.15); border: 1px solid var(--gold); color: var(--gold); font-size: 15px; letter-spacing: 0.02em;">长白山主峰天池</span>
         </h3>
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="vr-view-bookmarks" id="vrExpandBookmarks" style="position:static;">
+            <span class="bookmark-label">🎥 观赏视角:</span>
+            <button class="view-bookmark-btn active" data-view="panorama" title="俯瞰吉林全省冰雪地理版图全貌">🌐 全域全景</button>
+            <button class="view-bookmark-btn" data-view="changbai" title="特写长白山天池 2,691m 极地雪冠">🏔️ 长白粉雪</button>
+            <button class="view-bookmark-btn" data-view="resort" title="特写北大湖/松花湖超级滑雪场">⛷️ 超级雪场</button>
+            <button class="view-bookmark-btn" data-view="chagan" title="漫游松原查干湖冬捕与嫩江湾">🐟 查干冬捕</button>
+          </div>
           <div class="vr-layer-pills" id="vrExpandLayerPills" style="position:static;">
             <button class="layer-pill active" data-layer="terrain">🏔️ 自然高程</button>
             <button class="layer-pill" data-layer="promo">🗺️ 宣传走廊</button>
@@ -7109,7 +7172,7 @@ async function initWebXRSession(gl) {
         category: '名城',
         type: '冰雪名城 · 节事夜游',
         tag: '冰雪名城',
-        pos3d: [-160, 50, -140],
+        pos3d: [-48, 38, -18],
         elev: '210m',
         copy: '《实施意见》明确指出：支持长春建设“冰雪名城”。战略定位为全省冰雪都市体验枢纽。重点提升长春冰雪新天地、莲花岛冰雪大观园等核心产品，加快发展城市冰雪夜经济，打造百亿级冰雪消费商圈。',
         metrics: {
@@ -7125,7 +7188,7 @@ async function initWebXRSession(gl) {
         category: '名城',
         type: '雾凇名城 · 滑雪度假',
         tag: '冰雪名城',
-        pos3d: [-65, 75, -45],
+        pos3d: [3, 52, -15],
         elev: '450m',
         copy: '政策支持吉林市建设“冰雪名城”。吉林市拥有万科松花湖、北大湖等顶流雪场。省内已建成5家国家级滑雪度假地（数量居全国第一），吉林市占据核心份额，旨在建设具有国际影响力的顶级滑雪聚集区。',
         metrics: {
@@ -7141,7 +7204,7 @@ async function initWebXRSession(gl) {
         category: '度假',
         type: '世界级山地度假 · VR沉浸',
         tag: '世界级滑雪胜地',
-        pos3d: [90, 160, 80],
+        pos3d: [65, 138, 92],
         elev: '2,691m',
         copy: '《实施意见》提出：倾力打造长白山脉为世界级滑雪胜地。依托“4+X”冰雪产业体系（体育、文化、旅游、装备），推动滑雪度假区向四季运营转型，并鼓励文旅企业利用VR/AI技术打造数字化沉浸体验。',
         metrics: {
@@ -7157,7 +7220,7 @@ async function initWebXRSession(gl) {
         category: '景区',
         type: '冬捕文化 · 节事IP',
         tag: '主题景区',
-        pos3d: [-200, 42, -230],
+        pos3d: [-91, 28, -97],
         elev: '135m',
         copy: '查干湖列入全省重点提升的冰雪主题景区名单。深入挖掘千年查干湖冬捕国家级非遗文化，联动查干湖冬捕节，拓展冬季生态与民俗特色体验，实现“冷资源”向“热产业”的非遗活化转化。',
         metrics: {
@@ -7173,7 +7236,7 @@ async function initWebXRSession(gl) {
         category: '名城',
         type: '中国滑雪之乡 · 冰雪名城',
         tag: '冰雪名城',
-        pos3d: [-60, 95, 120],
+        pos3d: [-23, 62, 108],
         elev: '620m',
         copy: '支持通化市建设“冰雪名城”。提升东昌万峰等滑雪度假地服务品质与赛事承载力。通化作为新中国滑雪的发源地，政策着重其拓展新中国滑雪起源地文化消费场景，打造红色冰雪精神坐标。',
         metrics: {
@@ -7189,7 +7252,7 @@ async function initWebXRSession(gl) {
         category: '名城',
         type: '边境风情 · 民俗文旅',
         tag: '冰雪名城',
-        pos3d: [170, 85, -20],
+        pos3d: [126, 48, 40],
         elev: '380m',
         copy: '支持延边朝鲜族自治州建设“冰雪名城”。深度融合中俄朝边境风情与朝鲜族民俗美食，培育特色冰雪文化新载体。通过“冰雪+民俗”双轮驱动，打造独具东北亚边境特色的冰雪休闲目的地。',
         metrics: {
@@ -7205,7 +7268,7 @@ async function initWebXRSession(gl) {
         category: '景区',
         type: '湿地生态 · 冬季景观',
         tag: '主题景区',
-        pos3d: [-260, 30, -300],
+        pos3d: [-96, 25, -111],
         elev: '120m',
         copy: '嫩江湾被列入全面提升的冰雪主题景区名单。依托大湿地自然风貌，呈现生态保护与冬季极寒休闲高度融合的特色叙事节点，填补吉林西部冰雪生态观光游的战略版图。',
         metrics: {
@@ -7221,7 +7284,7 @@ async function initWebXRSession(gl) {
         category: '景区',
         type: '国家级森林 · 瓦萨越野',
         tag: '主题景区',
-        pos3d: [-110, 65, -80],
+        pos3d: [-43, 42, -12],
         elev: '280m',
         copy: '长春净月潭国家森林公园列入重点提升名单。依托净月潭瓦萨国际滑雪节，打造城郊森林生态、越野滑雪与大型冰雪雕塑艺术融为一体的经典名片，推动国际级冰雪节庆IP化。',
         metrics: {
@@ -8709,18 +8772,18 @@ async function initWebXRSession(gl) {
     let vrW, vrH;
 
     // 3D Camera State & Target LookAt Center
-    // 全省 8 大核心文旅地标几何重心：X=-45（西起白城-260、东至延边170），Y=60，Z=-90（北起白城-300、南至通化120）
-    const HOME_LOOK = { x: -45, y: 60, z: -90 };
+    // 全省真实地理几何重心：X=0，Y=35，Z=0；长春 (-48, -18)，长白山 (65, 92)，白城 (-96, -111) 全域舒展收纳
+    const HOME_LOOK = { x: 0, y: 35, z: 0 };
     let camLookX = HOME_LOOK.x, camLookY = HOME_LOOK.y, camLookZ = HOME_LOOK.z;
     let targetLookX = HOME_LOOK.x, targetLookY = HOME_LOOK.y, targetLookZ = HOME_LOOK.z;
 
-    // 默认机位：正视全域黄金中心，俯仰约 32°，距离 600，保证白城到延边全境舒展收纳
-    let camYaw = 0;
-    let camPitch = 0.56;
-    let camDist = 600;
-    let targetYaw = 0;
-    let targetPitch = 0.56;
-    let targetDist = 600;
+    // 默认机位：西南仰望东北黄金全景观赏位，偏航 -18°，俯仰 30°，视距 520
+    let camYaw = -0.32;
+    let camPitch = 0.52;
+    let camDist = 520;
+    let targetYaw = -0.32;
+    let targetPitch = 0.52;
+    let targetDist = 520;
     let vrDragging = false;
     let vrStartX = 0, vrStartY = 0;
 
@@ -8784,9 +8847,9 @@ async function initWebXRSession(gl) {
         desc: '全省冰雪都市体验枢纽与超级雪场集群：长春冰雪新天地 ↔ 万科松花湖 ↔ 北大湖 870m 亚洲最大落差。沈白高铁与城际公交连通。',
         nodes: ['长春', '吉林市'],
         waypoints: [
-          [-160, 50, -140],
-          [-110, 62, -90],
-          [-65, 75, -45]
+          [-48, 38, -18],
+          [-22, 45, -16],
+          [3, 52, -15]
         ]
       },
       {
@@ -8798,10 +8861,10 @@ async function initWebXRSession(gl) {
         desc: '世界三大粉雪基地：吉林青山/北大湖 ↔ 通化万峰(新中国滑雪摇篮) ↔ 白山西坡 ↔ 长白山天池主峰 2,691m 世界级粉雪度假区。',
         nodes: ['吉林市', '通化', '长白山'],
         waypoints: [
-          [-65, 75, -45],
-          [-60, 95, 120],
-          [15, 125, 100],
-          [90, 160, 80]
+          [3, 52, -15],
+          [-23, 62, 108],
+          [25, 95, 102],
+          [65, 138, 92]
         ]
       },
       {
@@ -8813,9 +8876,9 @@ async function initWebXRSession(gl) {
         desc: '中俄朝边境风情与朝鲜族民俗美食：长白山 ↔ 延吉帽儿山/中国朝鲜族民俗园 ↔ 珲春一眼望三国。非遗参鸡汤与冰雪民俗风情。',
         nodes: ['长白山', '延边'],
         waypoints: [
-          [90, 160, 80],
-          [130, 120, 30],
-          [170, 85, -20]
+          [65, 138, 92],
+          [95, 80, 65],
+          [126, 48, 40]
         ]
       },
       {
@@ -8827,11 +8890,10 @@ async function initWebXRSession(gl) {
         desc: '千年国家级非遗冬捕渔猎与大湿地生态：长春 ↔ 松原查干湖冬捕渔猎节 ↔ 白城嫩江湾国家湿地公园。万尾鲜鱼跃冰面，极寒生态冰雪游。',
         nodes: ['长春', '松原 · 查干湖', '白城 · 嫩江湾'],
         waypoints: [
-          [-160, 50, -140],
-          [-180, 46, -185],
-          [-200, 42, -230],
-          [-230, 36, -265],
-          [-260, 30, -300]
+          [-48, 38, -18],
+          [-70, 32, -60],
+          [-91, 28, -97],
+          [-96, 25, -111]
         ]
       }
     ];
@@ -8849,42 +8911,38 @@ async function initWebXRSession(gl) {
       return inside;
     }
 
-    // 计算吉林省真实地图三维 DEM 宏观阶梯高程 (东南高、西北低)
+    // 计算吉林省真实实际地图三维 DEM 阶梯高程 (东南高、西北低，长白山天池玄武岩穹窿)
     function calcRealJilinHeight(x, z, orgNoise) {
-      const isInside = isPointInJilin(x, z);
-      if (!isInside) {
-        return 10.0; // 省界外为深邃科技基座
-      }
       // 1. 东南向宏观阶梯坡度 (东南高 80-160，西北低 20-35)
-      const uSE = Math.min(1.2, Math.max(0.0, ((x + 220) / 440) * 0.65 + ((180 - z) / 360) * 0.35));
-      const baseMacro = 20.0 + 35.0 * Math.pow(uSE, 1.5);
+      const uSE = Math.min(1.2, Math.max(0.0, ((x + 120) / 240) * 0.55 + ((z + 120) / 240) * 0.45));
+      const baseMacro = 18.0 + 32.0 * Math.pow(uSE, 1.4);
 
-      // 2. 长白山主峰天池巨大玄武岩穹窿 (x: 90, z: 80, 峰顶海拔 2,691m -> 对应 y ≈ 165)
-      const dMt = Math.hypot(x - 90, z - 80);
-      let hMount = 125.0 * Math.exp(-Math.pow(dMt, 1.4) / 1200);
-      if (dMt < 32) {
-        hMount -= 35.0 * (1.0 - Math.pow(dMt / 32, 2)); // 天池火山口水面凹陷
+      // 2. 长白山主峰天池巨大玄武岩穹窿 (x: 65.4, z: 91.6, 峰顶海拔 2,691m -> y ≈ 140)
+      const dMt = Math.hypot(x - 65.4, z - 91.6);
+      let hMount = 110.0 * Math.exp(-Math.pow(dMt, 1.35) / 950);
+      if (dMt < 18) {
+        hMount -= 28.0 * (1.0 - Math.pow(dMt / 18, 2)); // 天池火山口水面凹陷
       }
 
-      // 3. 北大湖、松花湖中低山地 (x: -65, z: -45)
-      const dJilin = Math.hypot((x + 65) * 1.1, z + 45);
-      const hJilin = 45.0 * Math.exp(-Math.pow(dJilin, 2) / 2500);
+      // 3. 北大湖、松花湖中低山地 (x: 8, z: -8)
+      const dJilin = Math.hypot((x - 8) * 1.1, z + 8);
+      const hJilin = 38.0 * Math.exp(-Math.pow(dJilin, 2) / 1200);
 
-      // 4. 通化万峰龙岗山脉 (x: -60, z: 120)
-      const dTonghua = Math.hypot((x + 60) * 1.1, z - 120);
-      const hTonghua = 42.0 * Math.exp(-Math.pow(dTonghua, 2) / 2200);
+      // 4. 通化万峰龙岗山脉 (x: -23, z: 108)
+      const dTonghua = Math.hypot((x + 23) * 1.1, z - 108);
+      const hTonghua = 35.0 * Math.exp(-Math.pow(dTonghua, 2) / 1100);
 
-      // 5. 西部查干湖与松嫩平原湿地水系 (低平坦原)
-      const dWest = Math.hypot(x + 220, z + 240);
-      const hWest = -8.0 * Math.exp(-Math.pow(dWest, 2) / 3500);
+      // 5. 西部查干湖与松嫩平原湿地水系 (低平坦原 x: -91, z: -97)
+      const dWest = Math.hypot(x + 91, z + 97);
+      const hWest = -6.0 * Math.exp(-Math.pow(dWest, 2) / 1600);
 
-      const totalH = baseMacro + hMount + hJilin + hTonghua + hWest + (orgNoise * 0.45);
-      return Math.max(12.0, totalH);
+      const totalH = baseMacro + hMount + hJilin + hTonghua + hWest + (orgNoise * 0.35);
+      return Math.max(14.0, totalH);
     }
 
     // Generate Procedural 3D Topographic Mesh (Jilin Real Map & DEM)
-    const GRID_SIZE = 26;
-    const GRID_STEP = 18;
+    const GRID_X = 48, GRID_Z = 40;
+    const STEP_X = 9, STEP_Z = 9;
     const terrainPoints = [];
     const terrainFaces = [];
 
@@ -8915,29 +8973,43 @@ async function initWebXRSession(gl) {
     function build3DTerrain() {
       terrainPoints.length = 0;
       terrainFaces.length = 0;
-      const half = (GRID_SIZE * GRID_STEP) / 2;
+      const halfX = (GRID_X * STEP_X) / 2;
+      const halfZ = (GRID_Z * STEP_Z) / 2;
 
-      for (let iz = 0; iz <= GRID_SIZE; iz++) {
-        for (let ix = 0; ix <= GRID_SIZE; ix++) {
-          const x = ix * GRID_STEP - half;
-          const z = iz * GRID_STEP - half;
-          
-          const organicNoise = fbm(x * 0.015, z * 0.015, 5) * 50; 
+      for (let iz = 0; iz <= GRID_Z; iz++) {
+        for (let ix = 0; ix <= GRID_X; ix++) {
+          const x = ix * STEP_X - halfX;
+          const z = iz * STEP_Z - halfZ;
+          const inside = isPointInJilin(x, z);
+          const organicNoise = fbm(x * 0.015, z * 0.015, 5) * 45; 
           const y = calcRealJilinHeight(x, z, organicNoise);
-          
-          terrainPoints.push({ x, y, z });
+          terrainPoints.push({ x, y, z, inside });
         }
       }
 
-      // Build Quads (Split into 2 triangles)
-      for (let iz = 0; iz < GRID_SIZE; iz++) {
-        for (let ix = 0; ix < GRID_SIZE; ix++) {
-          const i0 = iz * (GRID_SIZE + 1) + ix;
+      // Build Quads (Split into 2 CCW triangles) — ONLY keep faces whose centroid is inside Jilin
+      for (let iz = 0; iz < GRID_Z; iz++) {
+        for (let ix = 0; ix < GRID_X; ix++) {
+          const i0 = iz * (GRID_X + 1) + ix;
           const i1 = i0 + 1;
-          const i2 = i0 + (GRID_SIZE + 1);
+          const i2 = i0 + (GRID_X + 1);
           const i3 = i2 + 1;
-          terrainFaces.push([i0, i1, i3]);
-          terrainFaces.push([i0, i3, i2]);
+          const p0 = terrainPoints[i0], p1 = terrainPoints[i1];
+          const p2 = terrainPoints[i2], p3 = terrainPoints[i3];
+
+          // Triangle 1: CCW [i0, i3, i1]
+          const c1x = (p0.x + p3.x + p1.x) / 3;
+          const c1z = (p0.z + p3.z + p1.z) / 3;
+          if (isPointInJilin(c1x, c1z) && (p0.inside || p3.inside || p1.inside)) {
+            terrainFaces.push([i0, i3, i1]);
+          }
+
+          // Triangle 2: CCW [i0, i2, i3]
+          const c2x = (p0.x + p2.x + p3.x) / 3;
+          const c2z = (p0.z + p2.z + p3.z) / 3;
+          if (isPointInJilin(c2x, c2z) && (p0.inside || p2.inside || p3.inside)) {
+            terrainFaces.push([i0, i2, i3]);
+          }
         }
       }
 
@@ -8945,7 +9017,7 @@ async function initWebXRSession(gl) {
       PLACES.forEach(p => {
         const gy = calcRealJilinHeight(p.pos3d[0], p.pos3d[2], 0);
         p.groundY = gy;
-        p.markerY = Math.max(p.pos3d[1], gy + 32);
+        p.markerY = Math.max(p.pos3d[1], gy + 24);
       });
     }
     build3DTerrain();
@@ -9060,11 +9132,11 @@ async function initWebXRSession(gl) {
 
     // Southern Inflow Flight & Rail Hubs (Hansen Spatial Gravity Model in 3D)
     const GRAVITY_HUBS = [
-      { city: '北京', cityEn: 'Beijing', label: '京津冀·客流首位 (高铁2.5h)', labelEn: 'Jing-Jin-Ji · Top Inflow (HSR 2.5h)', x: -160, y: 12, z: -110, targetX: 18, targetY: 16, targetZ: 14, color: '#f4c66d' },
-      { city: '上海', cityEn: 'Shanghai', label: '长三角·高净值度假客群', labelEn: 'Yangtze Delta · High-Net-Worth Vacationers', x: -185, y: 10, z: -40,  targetX: 18, targetY: 16, targetZ: 14, color: '#38bdf8' },
-      { city: '广州', cityEn: 'Guangzhou', label: '大湾区·北上避寒首选客源', labelEn: 'GBA · Winter Vacation Priority Source', x: -210, y: 8,  z: 60,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
-      { city: '深圳', cityEn: 'Shenzhen', label: '大湾区·青年冰雪消费领跑', labelEn: 'GBA · Youth Snow Sports Leaders', x: -220, y: 8,  z: 85,   targetX: 135, targetY: 138, targetZ: 112, color: '#94e3ca' },
-      { city: '成都', cityEn: 'Chengdu', label: '成渝·西客东引中转枢纽', labelEn: 'Chengdu-Chongqing · Western Inflow Hub', x: -175, y: 12, z: 120,  targetX: 18, targetY: 16, targetZ: 14, color: '#ff9ff3' }
+      { city: '北京', cityEn: 'Beijing', label: '京津冀·高铁2.5h', labelEn: 'Jing-Jin-Ji · HSR 2.5h', x: -80, y: 12, z: 185, targetX: -48, targetY: 38, targetZ: -18, color: '#f4c66d' },
+      { city: '上海', cityEn: 'Shanghai', label: '长三角·度假客群', labelEn: 'Yangtze Delta · Vacationers', x: 140, y: 10, z: 185, targetX: -48, targetY: 38, targetZ: -18, color: '#38bdf8' },
+      { city: '广州', cityEn: 'Guangzhou', label: '大湾区·避寒客源', labelEn: 'GBA · Priority Source', x: -10, y: 8, z: 215, targetX: 65, targetY: 138, targetZ: 92, color: '#94e3ca' },
+      { city: '深圳', cityEn: 'Shenzhen', label: '大湾区·青年冰雪', labelEn: 'GBA · Youth Snow Sports', x: 65, y: 8, z: 215, targetX: 65, targetY: 138, targetZ: 92, color: '#94e3ca' },
+      { city: '成都', cityEn: 'Chengdu', label: '成渝·西客东引', labelEn: 'Chengdu-Chongqing Hub', x: -160, y: 12, z: 155, targetX: -48, targetY: 38, targetZ: -18, color: '#ff9ff3' }
     ];
 
     function renderSingle3DView(ctx, w, h, yaw, pitch, dist, cx = w / 2, cy = h / 2, clipRect = null, eyeLabel = null) {
@@ -9104,7 +9176,7 @@ async function initWebXRSession(gl) {
         }
       });
       if (bx1 > bx0) {
-        const k = Math.min(1.12, Math.max(0.68, (w * 0.90) / (bx1 - bx0)));
+        const k = Math.min(1.15, Math.max(0.70, (w * 0.88) / (bx1 - bx0)));
         vrActiveFov = 340 * k;
         // 视场角按 k 缩放后，屏幕偏移同步按 k 缩放 → 直接解出居中的光学中心
         cx = targetCx - k * (((bx0 + bx1) / 2) - targetCx);
@@ -9118,9 +9190,9 @@ async function initWebXRSession(gl) {
         sky.addColorStop(0.6, '#ffedd5');
         sky.addColorStop(1, '#fed7aa');
       } else if (vrLayer === 'aurora') {
-        sky.addColorStop(0, '#ecfdf5');
-        sky.addColorStop(0.6, '#e0f2fe');
-        sky.addColorStop(1, '#f1f5f9');
+        sky.addColorStop(0, '#0a1128');
+        sky.addColorStop(0.6, '#0f172a');
+        sky.addColorStop(1, '#1e293b');
       } else {
         sky.addColorStop(0, '#e0f2fe');
         sky.addColorStop(0.6, '#edf4f9');
@@ -9135,7 +9207,7 @@ async function initWebXRSession(gl) {
         ctx.save();
         for (let a = 0; a < 2; a++) {
           ctx.beginPath();
-          const waveColor = a === 0 ? 'rgba(117, 255, 200, 0.18)' : 'rgba(215, 117, 255, 0.14)';
+          const waveColor = a === 0 ? 'rgba(117, 255, 200, 0.22)' : 'rgba(215, 117, 255, 0.18)';
           ctx.strokeStyle = waveColor;
           ctx.lineWidth = 14;
           const startX = clipRect ? clipRect.x : 0;
@@ -9150,13 +9222,13 @@ async function initWebXRSession(gl) {
         ctx.restore();
       }
 
-      // 1.5 Draw Base Reference Grid (Datum Plane) & Scientific 3D Coordinate Bounding Box
-      ctx.strokeStyle = vrLayer === 'thermal' ? 'rgba(255, 180, 50, 0.12)' : 'rgba(56, 189, 248, 0.14)';
-      ctx.lineWidth = 1;
+      // 1.5 Draw Base Reference Grid (Datum Plane) & Scientific 3D Coordinate Pedestal
+      ctx.strokeStyle = vrLayer === 'thermal' ? 'rgba(255, 180, 50, 0.08)' : 'rgba(56, 189, 248, 0.10)';
+      ctx.lineWidth = 0.8;
       ctx.beginPath();
-      const gridMinX = -320, gridMaxX = 240, gridMinZ = -340, gridMaxZ = 200;
+      const gridMinX = -210, gridMaxX = 210, gridMinZ = -170, gridMaxZ = 170;
       const gridStep = 35;
-      const datumY = -15;
+      const datumY = 0;
       // Draw Floor X lines
       for (let z = gridMinZ; z <= gridMaxZ; z += gridStep) {
         const p1 = project3D({x: gridMinX, y: datumY, z: z}, w, h, yaw, pitch, dist, cx, cy);
@@ -9171,32 +9243,19 @@ async function initWebXRSession(gl) {
       }
       ctx.stroke();
 
-      // Draw Back Vertical Wall (Z = gridMaxZ) with elevation contour ticks (对标学术级坐标系)
-      ctx.save();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      const elevTicks = [0, 50, 100, 150, 200, 260];
-      elevTicks.forEach(eY => {
-        const pW1 = project3D({x: gridMinX, y: datumY + eY, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
-        const pW2 = project3D({x: gridMaxX, y: datumY + eY, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
-        if (pW1 && pW2) {
-          ctx.moveTo(pW1.x, pW1.y); ctx.lineTo(pW2.x, pW2.y);
-        }
-      });
-      ctx.stroke();
-
       // Axis Ticks & Labels on Datum Floor
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
-      ctx.font = '10px system-ui, -apple-system, sans-serif';
+      ctx.save();
+      ctx.fillStyle = 'rgba(100, 116, 139, 0.70)';
+      ctx.font = '9px system-ui, -apple-system, sans-serif';
       const pFront = project3D({x: (gridMinX + gridMaxX)/2, y: datumY, z: gridMinZ}, w, h, yaw, pitch, dist, cx, cy);
       if (pFront) {
-        ctx.fillText('东向经度跨距 (km)', pFront.x - 42, pFront.y + 16);
+        ctx.fillText('经度跨距 (121.6°E - 131.3°E)', pFront.x - 55, pFront.y + 14);
       }
-      const pWallTop = project3D({x: gridMaxX, y: datumY + 260, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
+      const pWallTop = project3D({x: gridMaxX, y: datumY + 140, z: gridMaxZ}, w, h, yaw, pitch, dist, cx, cy);
       if (pWallTop) {
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillText('海拔 (m) 0-2,691m', pWallTop.x + 8, pWallTop.y - 4);
+        ctx.fillStyle = '#0284c7';
+        ctx.font = 'bold 9px system-ui, -apple-system, sans-serif';
+        ctx.fillText('DEM 0-2,691m', pWallTop.x + 6, pWallTop.y - 4);
       }
       ctx.restore();
 
@@ -9214,9 +9273,9 @@ async function initWebXRSession(gl) {
       });
       sortedFaces.sort((a, b) => b.depth - a.depth);
 
-      // 4. Draw Terrain Polygons
-      // Light Vector (from Top-Left-Front)
-      const lx = -0.5, ly = 0.8, lz = -0.3;
+      // 4. Draw Terrain Polygons with Realistic Alpine Ice & Snow Shading
+      // Sun Light Vector: Northwest & High Overhead (Azimuth 315°, Elevation 46°)
+      const lx = -0.55, ly = 0.78, lz = -0.32;
       const lLen = Math.hypot(lx, ly, lz);
       const nlx = lx / lLen, nly = ly / lLen, nlz = lz / lLen;
 
@@ -9232,74 +9291,93 @@ async function initWebXRSession(gl) {
         let nx = uy * vz - uz * vy;
         let ny = uz * vx - ux * vz;
         let nz = ux * vy - uy * vx;
-        const nLen = Math.hypot(nx, ny, nz);
+        const nLen = Math.hypot(nx, ny, nz) || 1;
         nx /= nLen; ny /= nLen; nz /= nLen;
+        // Strictly guarantee normal points UPWARDS towards the sky
+        if (ny < 0) { nx = -nx; ny = -ny; nz = -nz; }
 
-        // Lambertian Reflection
-        let intensity = nx * nlx + ny * nly + nz * nlz;
-        intensity = Math.max(0, intensity);
-        const light = 0.35 + 0.65 * intensity; // Ambient + Diffuse
+        // Lambertian Reflection + Ambient with cool alpine powder-blue shadow
+        const intensity = Math.max(0, nx * nlx + ny * nly + nz * nlz);
+        const shadowTintR = 0.82, shadowTintG = 0.88, shadowTintB = 0.98;
+        const rLight = 0.45 * shadowTintR + 0.55 * intensity;
+        const gLight = 0.45 * shadowTintG + 0.55 * intensity;
+        const bLight = 0.45 * shadowTintB + 0.55 * intensity;
+
+        // Specular glint on sunlit powder snow
+        const specAngle = Math.max(0, nx * (-0.2) + ny * 0.9 + nz * (-0.3));
+        const spec = avgY > 50 ? Math.pow(specAngle, 10) * 45 : 0;
 
         // Base color palettes [R, G, B] based on Active vrLayer
         let baseR, baseG, baseB;
         if (vrLayer === 'thermal') {
           // Powder Snow & Thermal Belt Index
-          const dx = v0.x - 140, dz = v0.z - 120;
+          const dx = v0.x - 65, dz = v0.z - 92;
           const distToCore = Math.hypot(dx, dz);
-          const tVal = Math.min(1.0, (avgY / 180) * 0.55 + Math.exp(-distToCore / 140) * 0.45);
-          if (tVal > 0.72) { baseR = 255; baseG = 230; baseB = 120; } // Core powder zone (radiant gold)
-          else if (tVal > 0.48) { baseR = 255; baseG = 110; baseB = 45; } // High heat (fiery orange)
-          else if (tVal > 0.26) { baseR = 195; baseG = 35; baseB = 75; } // Mid heat (crimson thermal)
+          const tVal = Math.min(1.0, (avgY / 135) * 0.60 + Math.exp(-distToCore / 90) * 0.40);
+          if (tVal > 0.70) { baseR = 255; baseG = 225; baseB = 110; } // Core powder zone (radiant gold)
+          else if (tVal > 0.45) { baseR = 255; baseG = 110; baseB = 40; } // High heat (fiery orange)
+          else if (tVal > 0.25) { baseR = 195; baseG = 35; baseB = 75; } // Mid heat (crimson thermal)
           else { baseR = 25; baseG = 18; baseB = 48; } // Low plains (deep thermal indigo)
         } else if (vrLayer === 'aurora') {
-          // Cyber Night Obsidian
-          baseR = 8; baseG = 22; baseB = 32;
+          // Cyber Night Obsidian with neon pulse
+          const shimmer = (Math.sin(pulseAnim * 1.5 + v0.x * 0.05 + v0.z * 0.05) + 1) * 0.5;
+          baseR = Math.floor(10 + shimmer * 15);
+          baseG = Math.floor(24 + shimmer * 35);
+          baseB = Math.floor(45 + shimmer * 55);
         } else if (vrLayer === 'hsr') {
           // High-Speed Rail Cyber Blueprint Terrain (Luminous Ice & Tech Sapphire)
-          if (avgY > 120) { baseR = 210; baseG = 245; baseB = 255; }
-          else if (avgY > 80) { baseR = 60; baseG = 180; baseB = 230; }
-          else if (avgY > 45) { baseR = 25; baseG = 95; baseB = 145; }
-          else { baseR = 14; baseG = 45; baseB = 75; }
+          if (avgY > 80) { baseR = 220; baseG = 245; baseB = 255; }
+          else if (avgY > 50) { baseR = 56; baseG = 189; baseB = 248; }
+          else if (avgY > 28) { baseR = 14; baseG = 116; baseB = 184; }
+          else { baseR = 10; baseG = 40; baseB = 75; }
         } else {
-          // Realistic Scientific Topography & Tianchi Caldera Shimmer (对标学术级三维高程连续色谱)
-          const dxC = v0.x - 140, dzC = v0.z - 120;
+          // 🏔️ 真实极地冰雪与DEM高程阶梯 (雪线之上·自然美学)
+          const dxC = v0.x - 65.4, dzC = v0.z - 91.6;
           const distToTianchi = Math.hypot(dxC, dzC);
-          if (distToTianchi < 36 && avgY < 125) {
-            // Tianchi Sapphire Ice Lake with Dynamic Specular Glint
-            const shimmer = (Math.sin(pulseAnim * 2.2 + v0.x * 0.08 + v0.z * 0.08) + 1) * 0.5;
-            baseR = Math.floor(40 + shimmer * 55);
-            baseG = Math.floor(135 + shimmer * 75);
-            baseB = Math.floor(190 + shimmer * 65);
+          const dxChagan = v0.x + 91, dzChagan = v0.z + 97;
+          const distToChagan = Math.hypot(dxChagan, dzChagan);
+
+          if (distToTianchi < 16 && avgY < 125) {
+            // 长白山天池蓝宝石火山口湖 + 冰晶水面反光
+            const shimmer = (Math.sin(pulseAnim * 2.5 + v0.x * 0.1 + v0.z * 0.1) + 1) * 0.5;
+            baseR = Math.floor(14 + shimmer * 30);
+            baseG = Math.floor(165 + shimmer * 45);
+            baseB = Math.floor(233 + shimmer * 22);
+          } else if (distToChagan < 22) {
+            // 查干湖冬捕冰封碧湖
+            const shimmer = (Math.sin(pulseAnim * 1.8 + v0.x * 0.08) + 1) * 0.5;
+            baseR = Math.floor(125 + shimmer * 35);
+            baseG = Math.floor(211 + shimmer * 30);
+            baseB = 252;
           } else {
-            // 学术级高程连续渐变色彩映射：深大洋蓝(0-200m) -> 蔚蓝青空(200-500m) -> 极地薄荷绿(500-750m) -> 暖金琥珀(750-950m) -> 晨曦金峰(950m+)
-            const normY = Math.min(1.0, Math.max(0.0, (avgY - 10) / 195.0));
-            if (normY < 0.24) {
-              const u = normY / 0.24;
-              baseR = Math.floor(18 + (38 - 18) * u);
-              baseG = Math.floor(75 + (175 - 75) * u);
-              baseB = Math.floor(160 + (235 - 160) * u);
-            } else if (normY < 0.50) {
-              const u = (normY - 0.24) / 0.26;
-              baseR = Math.floor(38 + (60 - 38) * u);
-              baseG = Math.floor(175 + (215 - 175) * u);
-              baseB = Math.floor(235 + (185 - 235) * u);
-            } else if (normY < 0.74) {
-              const u = (normY - 0.50) / 0.24;
-              baseR = Math.floor(60 + (245 - 60) * u);
-              baseG = Math.floor(215 + (175 - 215) * u);
-              baseB = Math.floor(185 + (25 - 185) * u);
+            // 极地粉雪与银白霜雪高程阶梯 (明亮、纯净、立体)
+            const normY = Math.min(1.0, Math.max(0.0, (avgY - 14.0) / 115.0));
+            if (normY < 0.25) {
+              // 松嫩平原与城市走廊低地 (100~350m): 霜雪原野
+              const u = normY / 0.25;
+              baseR = Math.floor(215 + (230 - 215) * u);
+              baseG = Math.floor(228 + (240 - 228) * u);
+              baseB = Math.floor(242 + (248 - 242) * u);
+            } else if (normY < 0.60) {
+              // 中低山滑雪林海 (350~900m: 万科松花湖、北大湖): 晶莹粉雪与雾凇浅蓝
+              const u = (normY - 0.25) / 0.35;
+              baseR = Math.floor(230 + (245 - 230) * u);
+              baseG = Math.floor(240 + (250 - 240) * u);
+              baseB = Math.floor(248 + (255 - 248) * u);
             } else {
-              const u = (normY - 0.74) / 0.26;
+              // 长白山千米主峰雪冠 (900~2691m): 极地纯白初雪，阳光雪晶高光
+              const u = (normY - 0.60) / 0.40;
               baseR = Math.floor(245 + (255 - 245) * u);
-              baseG = Math.floor(175 + (235 - 175) * u);
-              baseB = Math.floor(25 + (85 - 25) * u);
+              baseG = Math.floor(250 + (255 - 250) * u);
+              baseB = 255;
             }
           }
         }
 
-        const r = Math.floor(baseR * (vrLayer === 'aurora' ? 1.0 : light));
-        const g = Math.floor(baseG * (vrLayer === 'aurora' ? 1.0 : light));
-        const b = Math.floor(baseB * (vrLayer === 'aurora' ? 1.0 : light));
+        const isAurora = vrLayer === 'aurora';
+        const r = Math.min(255, Math.floor(baseR * (isAurora ? 1.0 : rLight) + spec));
+        const g = Math.min(255, Math.floor(baseG * (isAurora ? 1.0 : gLight) + spec));
+        const b = Math.min(255, Math.floor(baseB * (isAurora ? 1.0 : bLight) + spec));
 
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.beginPath();
@@ -9311,20 +9389,20 @@ async function initWebXRSession(gl) {
 
         // Layer-specific contour / wireframe lines
         if (vrLayer === 'thermal') {
-          ctx.strokeStyle = 'rgba(255, 180, 50, 0.35)';
-          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = 'rgba(255, 180, 50, 0.28)';
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         } else if (vrLayer === 'aurora') {
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
-          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.28)';
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         } else if (vrLayer === 'hsr') {
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
-          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         } else {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
-          ctx.lineWidth = 0.6;
+          ctx.strokeStyle = 'rgba(186, 230, 253, 0.22)';
+          ctx.lineWidth = 0.5;
           ctx.stroke();
         }
       });
@@ -9428,7 +9506,7 @@ async function initWebXRSession(gl) {
           const t = i / steps;
           const ix = hub.pos3d[0] + (dst.pos3d[0] - hub.pos3d[0]) * t;
           const iz = hub.pos3d[2] + (dst.pos3d[2] - hub.pos3d[2]) * t;
-          const iy = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(t * Math.PI) * 115;
+          const iy = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(t * Math.PI) * 38;
           
           const pt = project3D({ x: ix, y: iy, z: iz }, w, h, yaw, pitch, dist, cx, cy);
           if (pt) {
@@ -9438,14 +9516,14 @@ async function initWebXRSession(gl) {
         }
         
         ctx.strokeStyle = rc.col;
-        ctx.lineWidth = 1.8;
+        ctx.lineWidth = 1.4;
         ctx.stroke();
 
         // 沿航线飞驰的发光能量光子
         const pulseT = ((routeAnim + rIdx * 0.25) % 1.0);
         const px = hub.pos3d[0] + (dst.pos3d[0] - hub.pos3d[0]) * pulseT;
         const pz = hub.pos3d[2] + (dst.pos3d[2] - hub.pos3d[2]) * pulseT;
-        const py = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(pulseT * Math.PI) * 115;
+        const py = Math.max(hub.pos3d[1], dst.pos3d[1]) + Math.sin(pulseT * Math.PI) * 38;
         const ptPulse = project3D({ x: px, y: py, z: pz }, w, h, yaw, pitch, dist, cx, cy);
         if (ptPulse) {
           ctx.save();
@@ -9587,19 +9665,33 @@ async function initWebXRSession(gl) {
       ctx.shadowBlur = vrLayer === 'promo' ? 14 : 8;
       ctx.stroke();
 
-      // 省界关键转折点立体垂线 (Extruded Plateau Skirt)
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
-      ctx.lineWidth = 0.8;
-      ctx.shadowBlur = 0;
-      for (let bi = 0; bi < JILIN_GEO_BOUNDARY.length; bi += 8) {
-        const bpt = JILIN_GEO_BOUNDARY[bi];
-        const pTop = project3D({ x: bpt[0], y: bpt[1], z: bpt[2] }, w, h, yaw, pitch, dist, cx, cy);
-        const pBot = project3D({ x: bpt[0], y: 0, z: bpt[2] }, w, h, yaw, pitch, dist, cx, cy);
-        if (pTop && pBot) {
-          ctx.beginPath();
-          ctx.moveTo(pTop.x, pTop.y);
-          ctx.lineTo(pBot.x, pBot.y);
-          ctx.stroke();
+      // 5.7.1 吉林省地理实际版图基座包边裙翼 (Clean Architectural Pedestal Skirt)
+      for (let bi = 0; bi < JILIN_GEO_BOUNDARY.length - 1; bi++) {
+        const pA = JILIN_GEO_BOUNDARY[bi];
+        const pB = JILIN_GEO_BOUNDARY[bi + 1];
+        const pA_top = project3D({ x: pA[0], y: pA[1], z: pA[2] }, w, h, yaw, pitch, dist, cx, cy);
+        const pB_top = project3D({ x: pB[0], y: pB[1], z: pB[2] }, w, h, yaw, pitch, dist, cx, cy);
+        const pA_bot = project3D({ x: pA[0], y: 0, z: pA[2] }, w, h, yaw, pitch, dist, cx, cy);
+        const pB_bot = project3D({ x: pB[0], y: 0, z: pB[2] }, w, h, yaw, pitch, dist, cx, cy);
+        if (pA_top && pB_top && pA_bot && pB_bot) {
+          // Screen-space 2D cross product: only draw front-facing skirt walls
+          const cProd = (pB_top.x - pA_top.x) * (pA_bot.y - pA_top.y) - (pB_top.y - pA_top.y) * (pA_bot.x - pA_top.x);
+          if (cProd > 0) {
+            ctx.beginPath();
+            ctx.moveTo(pA_top.x, pA_top.y);
+            ctx.lineTo(pB_top.x, pB_top.y);
+            ctx.lineTo(pB_bot.x, pB_bot.y);
+            ctx.lineTo(pA_bot.x, pA_bot.y);
+            ctx.closePath();
+            const skirtGrad = ctx.createLinearGradient(0, pA_top.y, 0, pA_bot.y);
+            skirtGrad.addColorStop(0, 'rgba(56, 189, 248, 0.45)');
+            skirtGrad.addColorStop(1, 'rgba(15, 23, 42, 0.90)');
+            ctx.fillStyle = skirtGrad;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
         }
       }
       ctx.restore();
@@ -9700,96 +9792,52 @@ async function initWebXRSession(gl) {
         ctx.restore();
       }
 
-      // 6. Draw 3D Spatial Policy Landmarks
-      // —— 标签排版预计算 ——
-      // 原实现是「边画边向下避让一次」，8 个市州标签会挤成一列、互相压字，
-      // 而且整体落在底部悬浮工具条后面。这里改成：先收集所有可见锚点，
-      // 按 y 自上而下依次下移堆叠（保证不重叠），再整体夹进可视带内。
+      // 6. Draw 3D Spatial Policy Landmarks (自然象限微徽章排版，零连线干扰)
       const isEnLabel = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
-      const LABEL_PAD_Y = 3, LABEL_EDGE = 4, LABEL_H = 15;
-      const vrLabels = [];
+      const NODE_ICONS = ['🏢', '⛷️', '🏔️', '🐟', '🎿', '🥢', '🌿', '🌲'];
+      
       PLACES.forEach((p, idx) => {
-        const q = project3D({ x: p.pos3d[0], y: p.markerY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
-        if (!q) return;
-        // 确保全省 8 大核心文旅地标全量参与排版与引线计算
-        if (q.x < -80 || q.x > w + 80 || q.y < -80 || q.y > h + 80) return;
-        const shortName = isEnLabel ? (p.nameEn || p.name) : (p.name.includes(' · ') ? p.name.split(' · ')[1] : p.name);
-        vrLabels.push({ idx, ax: q.x, ay: q.y, text: `${shortName} (${p.elev})` });
-      });
-      vrLabels.forEach(L => {
-        ctx.font = (L.idx === currentPlaceIdx ? 'bold 11px' : '10px') + ' sans-serif';
-        L.w = ctx.measureText(L.text).width + 10;
-        L.h = LABEL_H;
-      });
-      vrLabels.sort((a, b) => a.ay - b.ay);
-      {
-        const lo = bandTop + LABEL_EDGE, hi = bandBot - LABEL_EDGE;
-        let cursor = -Infinity;
-        for (const L of vrLabels) {
-          L.ly = Math.max(L.ay - 8, lo, cursor + LABEL_PAD_Y);
-          cursor = L.ly + L.h;
-        }
-        const lastL = vrLabels[vrLabels.length - 1];
-        if (lastL && lastL.ly + lastL.h > hi) {          // 整列越出下沿 → 等比上移
-          const shift = lastL.ly + lastL.h - hi;
-          for (const L of vrLabels) L.ly = Math.max(lo, L.ly - shift);
-        }
-        for (const L of vrLabels) {
-          L.lx = Math.min(Math.max(L.ax + 8, LABEL_EDGE), Math.max(LABEL_EDGE, w - LABEL_EDGE - L.w));
-        }
-      }
-      const labelAt = Object.create(null);
-      vrLabels.forEach(L => { labelAt[L.idx] = L; });
-
-      const renderedBadges = [];
-      PLACES.forEach((p, idx) => {
-        const pt = project3D({ x: p.pos3d[0], y: p.pos3d[1], z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
-        if (!pt) return;
         const isCurrent = idx === currentPlaceIdx;
-        const groundY = p.groundY;
-        const markerY = p.markerY;
-
-        const updatedPt = project3D({ x: p.pos3d[0], y: markerY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
-        if (!updatedPt) {
-          if (!clipRect || eyeLabel === 'L-EYE') {
-            p.screenX = -999; p.screenY = -999;
-          }
+        const groundPt = project3D({ x: p.pos3d[0], y: p.groundY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
+        const markerPt = project3D({ x: p.pos3d[0], y: p.markerY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
+        if (!markerPt) {
+          if (!clipRect || eyeLabel === 'L-EYE') { p.screenX = -999; p.screenY = -999; }
           return;
         }
-        
-        // Save screen coords for click detection (only for monocular or left eye)
+
+        // Save screen coords for click detection
         if (!clipRect || eyeLabel === 'L-EYE') {
-          p.screenX = updatedPt.x;
-          p.screenY = updatedPt.y;
+          p.screenX = markerPt.x;
+          p.screenY = markerPt.y;
         }
 
-        // Ground anchor pulse ring
-        const groundPt = project3D({ x: p.pos3d[0], y: groundY, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
+        // Ground anchor pulse ring & vertical pedestal stem
         if (groundPt) {
-          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.9)' : 'rgba(56, 189, 248, 0.5)';
-          ctx.lineWidth = isCurrent ? 2 : 1;
-          const r = (isCurrent ? (Math.sin(pulseAnim) * 4 + 12) : 6) * groundPt.scale;
+          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.95)' : 'rgba(56, 189, 248, 0.50)';
+          ctx.lineWidth = isCurrent ? 2.0 : 1.0;
+          const r = (isCurrent ? (Math.sin(pulseAnim) * 3 + 10) : 5) * groundPt.scale;
           ctx.beginPath();
           ctx.arc(groundPt.x, groundPt.y, r, 0, Math.PI * 2);
           ctx.stroke();
 
-          // Vertical stem connecting ground to marker
-          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.7)' : 'rgba(56, 189, 248, 0.4)';
+          // Vertical glowing illuminated stem
+          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.85)' : 'rgba(56, 189, 248, 0.35)';
+          ctx.lineWidth = isCurrent ? 1.8 : 1.0;
           ctx.beginPath();
           ctx.moveTo(groundPt.x, groundPt.y);
-          ctx.lineTo(updatedPt.x, updatedPt.y);
+          ctx.lineTo(markerPt.x, markerPt.y);
           ctx.stroke();
         }
 
         // Aurora Skybeam Effect
         if (vrLayer === 'aurora') {
-          const skyPt = project3D({ x: p.pos3d[0], y: markerY + 120, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
+          const skyPt = project3D({ x: p.pos3d[0], y: p.markerY + 120, z: p.pos3d[2] }, w, h, yaw, pitch, dist, cx, cy);
           if (skyPt) {
             ctx.save();
             ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.85)' : 'rgba(117, 255, 220, 0.35)';
             ctx.lineWidth = isCurrent ? 2.5 : 1.2;
             ctx.beginPath();
-            ctx.moveTo(updatedPt.x, updatedPt.y);
+            ctx.moveTo(markerPt.x, markerPt.y);
             ctx.lineTo(skyPt.x, skyPt.y);
             ctx.stroke();
             ctx.restore();
@@ -9797,49 +9845,62 @@ async function initWebXRSession(gl) {
         }
 
         // Marker pin sphere
-        ctx.fillStyle = isCurrent ? '#f4c66d' : '#38bdf8';
+        ctx.fillStyle = isCurrent ? '#f59e0b' : '#38bdf8';
+        ctx.shadowColor = isCurrent ? '#f59e0b' : '#38bdf8';
+        ctx.shadowBlur = isCurrent ? 12 : 6;
         ctx.beginPath();
-        ctx.arc(updatedPt.x, updatedPt.y, isCurrent ? 6 : 4, 0, Math.PI * 2);
+        ctx.arc(markerPt.x, markerPt.y, (isCurrent ? 5.5 : 4.0) * markerPt.scale, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
 
-        // 3D Text Label with high-contrast cyber micro-badge（落点由上面的预排版给出）
-        const LB = labelAt[idx];
-        const padX = 5;
-        const badgeW = LB ? LB.w : 0;
-        const badgeH = LABEL_H;
-        const badgeX = LB ? LB.lx : updatedPt.x + 8;
-        const badgeY = LB ? LB.ly : updatedPt.y - 8;
-        const tagText = LB ? LB.text : '';
-        ctx.font = `${isCurrent ? 'bold 11px' : '10px'} sans-serif`;
+        // Label Tag Formatting
+        const icon = NODE_ICONS[idx] || '📍';
+        const rawName = isEnLabel ? (p.nameEn || p.name) : (p.name.includes(' · ') ? p.name.split(' · ')[1] : p.name);
+        const tagText = `${icon} ${rawName} ${p.elev}`;
+        
+        ctx.font = `${isCurrent ? 'bold 11px' : '10px'} system-ui, -apple-system, sans-serif`;
+        const textW = ctx.measureText(tagText).width;
+        const badgeW = textW + 12;
+        const badgeH = 18;
 
-        // 标签被挪离锚点时，用虚线牵引线保持归属关系
-        if (LB && Math.abs(badgeY - (updatedPt.y - 8)) > 2) {
-          ctx.save();
-          ctx.setLineDash([3, 3]);
-          ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.85)' : 'rgba(148, 163, 184, 0.7)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(updatedPt.x, updatedPt.y);
-          ctx.lineTo(badgeX, badgeY + badgeH / 2);
-          ctx.stroke();
-          ctx.restore();
-        }
-        renderedBadges.push({ x: badgeX, y: badgeY, w: badgeW, h: badgeH });
+        // Dedicated Collision-Free Quadrant Directions for 8 Key Landmarks
+        let offX = 8, offY = -12;
+        if (idx === 0) { offX = 12; offY = -22; }                // 长春: 偏右上 (与西北查干湖彻底分离)
+        else if (idx === 1) { offX = -badgeW / 2; offY = -30; }  // 吉林市: 正上方
+        else if (idx === 2) { offX = -badgeW / 2; offY = -28; }  // 长白山: 正上方 (直立于雪冠之上，完全避让延边)
+        else if (idx === 3) { offX = -badgeW - 12; offY = -22; } // 松原查干湖: 偏左上
+        else if (idx === 4) { offX = -badgeW / 2; offY = 18; }   // 通化万峰: 正下方
+        else if (idx === 5) { offX = 14; offY = -8; }            // 延边: 正右方 (与长白山完全错开)
+        else if (idx === 6) { offX = -badgeW - 12; offY = 18; }  // 白城嫩江湾: 偏左下 (与查干湖上下分离)
+        else if (idx === 7) { offX = -badgeW - 10; offY = 18; }  // 净月潭: 偏左下 (与长春上下分离)
 
-        ctx.fillStyle = isCurrent ? '#0284c7' : 'rgba(255, 255, 255, 0.94)';
-        ctx.strokeStyle = isCurrent ? '#0369a1' : 'rgba(15, 23, 42, 0.15)';
+        let badgeX = markerPt.x + offX;
+        let badgeY = markerPt.y + offY;
+
+        // Keep inside safe viewport band (strictly clamped within canvas margins)
+        badgeX = Math.max(10, Math.min(w - badgeW - 10, badgeX));
+        badgeY = Math.max(bandTop + 4, Math.min(bandBot - badgeH - 4, badgeY));
+
+        // Short delicate connecting arm to badge
+        ctx.strokeStyle = isCurrent ? 'rgba(244, 198, 109, 0.75)' : 'rgba(148, 163, 184, 0.45)';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 3);
-        } else {
-          ctx.rect(badgeX, badgeY, badgeW, badgeH);
-        }
+        ctx.moveTo(markerPt.x, markerPt.y);
+        ctx.lineTo(badgeX + (offX < 0 ? badgeW : 0), badgeY + badgeH / 2);
+        ctx.stroke();
+
+        // Badge pill card
+        ctx.fillStyle = isCurrent ? 'rgba(2, 132, 199, 0.95)' : 'rgba(255, 255, 255, 0.92)';
+        ctx.strokeStyle = isCurrent ? '#0284c7' : 'rgba(56, 189, 248, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4);
+        else ctx.rect(badgeX, badgeY, badgeW, badgeH);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = isCurrent ? '#ffffff' : '#0f172a';
-        ctx.fillText(tagText, badgeX + padX, badgeY + 11);
+        ctx.fillText(tagText, badgeX + 6, badgeY + 12);
       });
 
       // 6.5 Interactive Hover Tooltips (Sci-Fi Style)
@@ -9911,70 +9972,72 @@ async function initWebXRSession(gl) {
         }
       });
 
-      // 6.7 3D Spatial Gravity Flight & Rail Inflow Arcs (Southern tourists traveling North)
-      GRAVITY_HUBS.forEach((hub, hIdx) => {
-        const pOrig = project3D({ x: hub.x, y: hub.y, z: hub.z }, w, h, yaw, pitch, dist, cx, cy);
-        const pDest = project3D({ x: hub.targetX, y: hub.targetY, z: hub.targetZ }, w, h, yaw, pitch, dist, cx, cy);
+      // 6.7 3D Spatial Gravity Flight & Rail Inflow Arcs (Only in Promo & HSR layer)
+      if (vrLayer === 'promo' || vrLayer === 'hsr') {
+        GRAVITY_HUBS.forEach((hub, hIdx) => {
+          const pOrig = project3D({ x: hub.x, y: hub.y, z: hub.z }, w, h, yaw, pitch, dist, cx, cy);
+          const pDest = project3D({ x: hub.targetX, y: hub.targetY, z: hub.targetZ }, w, h, yaw, pitch, dist, cx, cy);
 
-        if (pOrig) {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
-          ctx.strokeStyle = hub.color;
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.arc(pOrig.x, pOrig.y, 4, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#0f172a';
-          ctx.font = 'bold 9px sans-serif';
-          const isEnHub = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
-          ctx.fillText(`✈️ ${isEnHub ? (hub.cityEn || hub.city) : hub.city}`, pOrig.x + 8, pOrig.y + 3);
-        }
-
-        if (pOrig && pDest) {
-          const arcPoints = [];
-          const numSteps = 12;
-          const midHeight = 65 + hIdx * 8;
-          for (let s = 0; s <= numSteps; s++) {
-            const t = s / numSteps;
-            const ax = hub.x + (hub.targetX - hub.x) * t;
-            const az = hub.z + (hub.targetZ - hub.z) * t;
-            const ay = hub.y + (hub.targetY - hub.y) * t + Math.sin(t * Math.PI) * midHeight;
-            const proj = project3D({ x: ax, y: ay, z: az }, w, h, yaw, pitch, dist, cx, cy);
-            if (proj) arcPoints.push(proj);
-          }
-
-          if (arcPoints.length > 2) {
+          if (pOrig) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
             ctx.strokeStyle = hub.color;
-            ctx.globalAlpha = 0.45;
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
-            ctx.moveTo(arcPoints[0].x, arcPoints[0].y);
-            for (let k = 1; k < arcPoints.length; k++) {
-              ctx.lineTo(arcPoints[k].x, arcPoints[k].y);
-            }
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.globalAlpha = 1.0;
-
-            const cometT = (Date.now() * 0.00045 + hIdx * 0.22) % 1.0;
-            const cIdx = Math.min(arcPoints.length - 2, Math.floor(cometT * (arcPoints.length - 1)));
-            const cFrac = cometT * (arcPoints.length - 1) - cIdx;
-            const cp0 = arcPoints[cIdx], cp1 = arcPoints[cIdx + 1];
-            const cometX = cp0.x + (cp1.x - cp0.x) * cFrac;
-            const cometY = cp0.y + (cp1.y - cp0.y) * cFrac;
-
-            ctx.fillStyle = '#fff';
-            ctx.shadowColor = hub.color;
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.arc(cometX, cometY, 3, 0, Math.PI * 2);
+            ctx.arc(pOrig.x, pOrig.y, 4, 0, Math.PI * 2);
             ctx.fill();
-            ctx.shadowBlur = 0;
+            ctx.stroke();
+
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 9px sans-serif';
+            const isEnHub = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+            ctx.fillText(`✈️ ${isEnHub ? (hub.cityEn || hub.city) : hub.city}`, pOrig.x + 8, pOrig.y + 3);
           }
-        }
-      });
+
+          if (pOrig && pDest) {
+            const arcPoints = [];
+            const numSteps = 12;
+            const midHeight = 28 + hIdx * 4;
+            for (let s = 0; s <= numSteps; s++) {
+              const t = s / numSteps;
+              const ax = hub.x + (hub.targetX - hub.x) * t;
+              const az = hub.z + (hub.targetZ - hub.z) * t;
+              const ay = hub.y + (hub.targetY - hub.y) * t + Math.sin(t * Math.PI) * midHeight;
+              const proj = project3D({ x: ax, y: ay, z: az }, w, h, yaw, pitch, dist, cx, cy);
+              if (proj) arcPoints.push(proj);
+            }
+
+            if (arcPoints.length > 2) {
+              ctx.strokeStyle = hub.color;
+              ctx.globalAlpha = 0.35;
+              ctx.lineWidth = 1.2;
+              ctx.setLineDash([4, 4]);
+              ctx.beginPath();
+              ctx.moveTo(arcPoints[0].x, arcPoints[0].y);
+              for (let k = 1; k < arcPoints.length; k++) {
+                ctx.lineTo(arcPoints[k].x, arcPoints[k].y);
+              }
+              ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.globalAlpha = 1.0;
+
+              const cometT = (Date.now() * 0.00045 + hIdx * 0.22) % 1.0;
+              const cIdx = Math.min(arcPoints.length - 2, Math.floor(cometT * (arcPoints.length - 1)));
+              const cFrac = cometT * (arcPoints.length - 1) - cIdx;
+              const cp0 = arcPoints[cIdx], cp1 = arcPoints[cIdx + 1];
+              const cometX = cp0.x + (cp1.x - cp0.x) * cFrac;
+              const cometY = cp0.y + (cp1.y - cp0.y) * cFrac;
+
+              ctx.fillStyle = '#fff';
+              ctx.shadowColor = hub.color;
+              ctx.shadowBlur = 8;
+              ctx.beginPath();
+              ctx.arc(cometX, cometY, 3, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.shadowBlur = 0;
+            }
+          }
+        });
+      }
 
       // 6.8 Snow Spray Particles
       skiSprayParticles.forEach(sp => {
@@ -10393,13 +10456,44 @@ async function initWebXRSession(gl) {
     if ($('btnVrPitch')) $('btnVrPitch').onclick = cyclePitchPreset;
     if ($('btnExpandPitch')) $('btnExpandPitch').onclick = cyclePitchPreset;
 
+    // 4 Cinematic Viewing Presets (四大观赏机位：全域全景 / 长白粉雪 / 超级雪场 / 查干冬捕)
+    const CINEMATIC_VIEWS = {
+      panorama: { yaw: -0.32, pitch: 0.52, dist: 520, look: { x: 0, y: 35, z: 0 }, tag: '全域全景 · 吉林省冰雪宏观地理沙盘' },
+      changbai: { yaw: 0.38, pitch: 0.58, dist: 250, look: { x: 65, y: 120, z: 92 }, tag: '长白山天池 · 2,691m 极地雪冠与天池水面' },
+      resort:   { yaw: -0.58, pitch: 0.46, dist: 270, look: { x: 8, y: 48, z: -12 }, tag: '超级滑雪场 · 北大湖 870m 亚洲最大垂直落差' },
+      chagan:   { yaw: -0.18, pitch: 0.40, dist: 280, look: { x: -88, y: 26, z: -95 }, tag: '松原查干湖 · 冬捕万顷冰面与嫩江湾湿地' }
+    };
+    let activeCinematicView = 'panorama';
+
+    function setCinematicView(viewKey) {
+      const v = CINEMATIC_VIEWS[viewKey];
+      if (!v) return;
+      activeCinematicView = viewKey;
+      playSwoosh();
+      targetYaw = v.yaw;
+      targetPitch = v.pitch;
+      targetDist = v.dist;
+      targetLookX = v.look.x;
+      targetLookY = v.look.y;
+      targetLookZ = v.look.z;
+      document.querySelectorAll('.view-bookmark-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === viewKey);
+      });
+      const tagEl = $('vrTagText');
+      if (tagEl && v.tag) tagEl.textContent = v.tag;
+      const expBadge = $('vrExpandBadge');
+      if (expBadge && v.tag) expBadge.textContent = v.tag;
+    }
+
+    document.querySelectorAll('.view-bookmark-btn').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        setCinematicView(btn.dataset.view);
+      };
+    });
+
     $('btnVrReset').onclick = () => {
-      targetLookX = HOME_LOOK.x;
-      targetLookY = HOME_LOOK.y;
-      targetLookZ = HOME_LOOK.z;
-      targetYaw = 0;
-      targetPitch = 0.56;
-      targetDist = 600;
+      setCinematicView('panorama');
       pitchPresetIdx = 0;
       if ($('btnVrPitch')) $('btnVrPitch').textContent = '📐 俯仰切换';
       if ($('btnExpandPitch')) $('btnExpandPitch').textContent = '📐 俯仰视角切换';
