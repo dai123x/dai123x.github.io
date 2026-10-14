@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>雪线之上 · 9幕全景 3D/VR 冰雪经济数字孪生舱</title>
+  <style>
+    :root {
+      --bg-dark: #030914;
+      --panel-bg: rgba(7, 20, 42, 0.78);
+      --border-cyan: rgba(56, 189, 248, 0.35);
+      --cyan: #38bdf8;
+      --gold: #f59e0b;
+      --emerald: #10b981;
+      --text-main: #f1f5f9;
+      --text-sub: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      color: var(--text-main);
+    }
+    #canvas-container {
+      position: absolute; inset: 0; z-index: 1;
+    }
+    /* 顶部遥测状态栏 */
+    .top-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 44px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; z-index: 10;
+      background: linear-gradient(180deg, rgba(3,9,20,0.92) 0%, rgba(3,9,20,0) 100%);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      font-size: 12px; letter-spacing: 1px; color: var(--text-sub);
+    }
+    .telemetry-badge {
+      display: flex; align-items: center; gap: 8px; color: var(--emerald); font-weight: 600;
+    }
+    .dot-live {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald); animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    /* 右侧数据叙事 HUD 面板 */
+    .hud-panel {
+      position: absolute; top: 60px; right: 24px; width: 420px;
+      max-height: calc(100vh - 136px); overflow-y: auto;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-cyan);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px; padding: 20px 22px; z-index: 10;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+      transition: all 0.3s ease;
+    }
+    .hud-tag {
+      display: inline-block; padding: 3px 10px; font-size: 11px;
+      background: rgba(56, 189, 248, 0.15); border: 1px solid var(--cyan);
+      color: var(--cyan); border-radius: 4px; margin-bottom: 10px;
+    }
+    .hud-title {
+      font-size: 22px; font-weight: 800; line-height: 1.25;
+      background: linear-gradient(90deg, #ffffff, #93c5fd);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .hud-subtitle {
+      font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .kpi-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+    }
+    .kpi-card {
+      background: rgba(15, 32, 62, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 6px; padding: 10px;
+    }
+    .kpi-card.full { grid-column: span 2; }
+    .kpi-label { font-size: 11px; color: var(--text-sub); margin-bottom: 3px; }
+    .kpi-val { font-size: 22px; font-weight: 800; color: var(--gold); font-family: monospace; }
+    .kpi-val.cyan { color: var(--cyan); }
+    .kpi-val.emerald { color: var(--emerald); }
+    .kpi-desc { font-size: 11px; color: #cbd5e1; margin-top: 4px; line-height: 1.4; }
+
+    /* 交互控制器区 */
+    .control-box {
+      margin-top: 10px; padding: 10px; border-radius: 6px;
+      background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .control-box label {
+      display: flex; justify-content: space-between; font-size: 11px;
+      color: var(--gold); font-weight: 600; margin-bottom: 6px;
+    }
+    input[type="range"] {
+      width: 100%; accent-color: var(--gold); cursor: pointer;
+    }
+
+    /* 左侧操作提示 */
+    .left-overlay {
+      position: absolute; top: 60px; left: 24px; z-index: 10;
+      pointer-events: none;
+    }
+    .scene-badge {
+      font-size: 13px; color: var(--cyan); font-weight: 700;
+      background: rgba(7, 20, 42, 0.85); border: 1px solid var(--border-cyan);
+      padding: 8px 14px; border-radius: 6px; margin-bottom: 8px;
+      backdrop-filter: blur(8px);
+    }
+    .interaction-hint {
+      font-size: 11px; color: var(--text-sub);
+      background: rgba(3, 9, 20, 0.75); padding: 6px 12px; border-radius: 4px;
+    }
+
+    /* 底部 9 幕导航栏 */
+    .bottom-nav {
+      position: absolute; bottom: 14px; left: 24px; right: 24px; height: 50px;
+      background: rgba(7, 20, 42, 0.90); backdrop-filter: blur(12px);
+      border: 1px solid var(--border-cyan); border-radius: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px; z-index: 10;
+    }
+    .nav-tabs {
+      display: flex; gap: 5px; overflow-x: auto;
+    }
+    .nav-btn {
+      background: transparent; border: 1px solid transparent;
+      color: var(--text-sub); padding: 6px 10px; border-radius: 5px;
+      font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .nav-btn:hover { color: #fff; background: rgba(56, 189, 248, 0.15); }
+    .nav-btn.active {
+      color: var(--bg-dark); background: var(--cyan);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6); font-weight: 700;
+    }
+    .nav-actions {
+      display: flex; align-items: center; gap: 8px; white-space: nowrap; margin-left: 10px;
+    }
+    .footer-credit {
+      font-size: 11px; color: var(--text-sub); white-space: nowrap;
+    }
+  </style>
+
+  <!-- Three.js 与拓展库 CDN -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 顶部遥测栏 -->
+  <header class="top-bar">
+    <div class="telemetry-badge">
+      <span class="dot-live"></span>
+      <span id="fps-counter">LIVE 60 FPS VR TELEMETRY</span>
+    </div>
+    <div>JILIN VR DATA TWIN · LAT 41.0°–44.5°N · LON 121.6°–131.3°E</div>
+    <div>WEBGL 2.0 PBR · GLSL SHADER · WEBXR READY</div>
+  </header>
+
+  <!-- 左侧三维视口引导 -->
+  <div class="left-overlay">
+    <div class="scene-badge" id="scene-indicator">01/09 极寒序曲 · 数字孪生元站</div>
+    <div class="interaction-hint">🖱️ 左键旋转 ｜ 滚轮缩放 ｜ 右键平移 ｜ 键盘 ← → 翻幕</div>
+  </div>
+
+  <!-- 右侧数据叙事面板 -->
+  <aside class="hud-panel" id="hud-content"></aside>
+
+  <!-- 底部 9 幕切换器 -->
+  <nav class="bottom-nav">
+    <div class="nav-tabs" id="nav-tabs"></div>
+    <div class="nav-actions">
+      <button id="btn-export-glb" class="nav-btn" style="background:rgba(245,158,11,0.2); border-color:#f59e0b; color:#f59e0b;">💾 导出当前三维模型 (.glb)</button>
+      <a href="index.html" class="nav-btn" style="background:rgba(2,132,199,0.3); border-color:var(--cyan); color:#fff;">⬅️ 返回全量综合看板</a>
+    </div>
+  </nav>
+
+  <!-- 3D 渲染容器 -->
+  <div id="canvas-container"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+
+    // ==================== 1. 九大章节元数据与叙事配置 ====================
+    const CHAPTERS = [
+      {
+        id: 1, code: "01/09", name: "极寒序曲 · 数字孪生元站",
+        camPos: [0, 2, 13], target: [0, 0, 0],
+        tag: "第5届吉林省大学生虚拟现实大赛 · 参赛作品",
+        title: "雪线之上",
+        subtitle: "吉林省冰雪经济目标规划与虚拟现实可视化系统",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card full">
+              <div class="kpi-label">黄金纬度坐标带</div>
+              <div class="kpi-val cyan">北纬 41.0°–44.5°N</div>
+              <div class="kpi-desc">世界三大粉雪基地之一 · 东经 121.6°–131.3°E 全域三维数字孪生建模</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">研发团队</div>
+              <div class="kpi-val" style="font-size:16px;color:#fff;">深度求索队</div>
+              <div class="kpi-desc">戴璇(队长·应用统计) · 李德晖 · 刘世栋</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">所属单位</div>
+              <div class="kpi-val" style="font-size:15px;color:#fff;">长春工业大学</div>
+              <div class="kpi-desc">数学与统计学院</div>
+            </div>
+          </div>
+          <div class="kpi-desc" style="color:#93c5fd;">
+            ★ 3D 模型说明：中心为双层 PBR 物理折射冰晶拓扑球（折射率 IOR=1.31），外围环绕全省气象遥测脉冲节点与实时风雪粒子场。
+          </div>
+        `
+      },
+      {
+        id: 2, code: "02/09", name: "空间基座 · 三维数字沙盘",
+        camPos: [0, -9.5, 9.5], target: [0, 0.5, 0],
+        tag: "吉林 · 世界冰雪黄金纬度",
+        title: "18.74 万 km² 三维高程沙盘",
+        subtitle: "东高西低地形梯度 (120m – 2,691m) · 雪线之上动态着色器",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">全省实测疆域面积</div>
+              <div class="kpi-val">18.74 <span style="font-size:13px;">万km²</span></div>
+              <div class="kpi-desc">东西跨度 750km · 南北 600km</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">长白山主峰高程</div>
+              <div class="kpi-val cyan">2,691 <span style="font-size:13px;">m</span></div>
+              <div class="kpi-desc">西部平原 130m · 中部过渡带 500m</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">白金黄金积雪周期</div>
+              <div class="kpi-val emerald">120–150 <span style="font-size:13px;">天</span></div>
+              <div class="kpi-desc">质地干松 · 天然粉雪气候带</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">国家级滑雪场矩阵</div>
+              <div class="kpi-val">5 家 <span style="font-size:13px;">(全国 5/26)</span></div>
+              <div class="kpi-desc">数量居全国首位 · 金色飞线走廊串联</div>
+            </div>
+          </div>
+          <div class="kpi-desc" style="color:#93c5fd;">
+            ★ 3D 模型说明：基于 GLSL 顶点高程置换还原吉林省“东高西低”地形起伏，金色等高线标识“雪线之上”核心积雪带，5 座发光立体光柱对应五大国家级滑雪场。
+          </div>
+        `
+      },
+      {
+        id: 3, code: "03/09", name: "资源禀赋 · 白金粉雪机理",
+        camPos: [0, 0, 11.5], target: [0, 0, 0],
+        tag: "干雪含水率 · 黄金物理标准",
+        title: "8%–12% 极致粉雪晶格",
+        subtitle: "三维六方分形冰晶 + 85% 空隙率微观体素盒",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">干雪含水率</div>
+              <div class="kpi-val">8%–12%</div>
+              <div class="kpi-desc">极致粉雪 · 零板结物理标准</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">粉雪晶格空隙率</div>
+              <div class="kpi-val cyan">85%</div>
+              <div class="kpi-desc">高透气松散多孔介质微元</div>
+            </div>
+            <div class="kpi-card full">
+              <div class="kpi-label">吉林标杆滑雪度假区垂直落差三维对比</div>
+              <div class="kpi-desc" style="margin-top:6px;">
+                • <b>北大湖滑雪度假区</b>：<span style="color:#f59e0b;font-weight:700;">870 m</span>（亚洲最大有效落差 · 64条雪道）<br/>
+                • <b>万科松花湖度假区</b>：<span style="color:#38bdf8;font-weight:700;">605 m</span>（国内雪质连续七年业界大赏）<br/>
+                • <b>长白山万达度假区</b>：<span style="color:#10b981;font-weight:700;">438 m</span>（41°N 静风粉雪核心示范区）
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 4, code: "04/09", name: "气候韧性 · 暖冬压力仿真",
+        camPos: [0, -8.8, 8.8], target: [0, 0.5, 0],
+        tag: "CLIMATE STRESS-TEST: EL NIÑO +1.8°C",
+        title: "极限气候冲击与造雪仿真",
+        subtitle: "2024–2030 湿球温度造雪窗口 (T ≤ -3°C) 与水库生态调度",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">造雪窗口保障天数</div>
+              <div class="kpi-val emerald" id="val-window">≥ 85 天</div>
+              <div class="kpi-desc">有效低温窗口 100% 覆盖黄金运营季</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">水库生态造雪调配</div>
+              <div class="kpi-val cyan" id="val-water">1.25 亿m³</div>
+              <div class="kpi-desc">丰满与白山水库群动态调度</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">极寒气候弹性指数</div>
+              <div class="kpi-val" id="val-resilience">0.892</div>
+              <div class="kpi-desc">高韧性 · 气候波动下零中断运营</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">智能融雪凌汛响应</div>
+              <div class="kpi-val cyan">&lt; 4.0 小时</div>
+              <div class="kpi-desc">全省智慧气象站网闭环预警</div>
+            </div>
+          </div>
+          <div class="control-box">
+            <label>
+              <span>🔥 厄尔尼诺暖冬升温冲击仿真 (ΔT)</span>
+              <span id="temp-label">+1.8 °C</span>
+            </label>
+            <input type="range" id="elnino-slider" min="0" max="2.5" step="0.1" value="1.8" />
+            <div class="kpi-desc">拖动滑块实时改变 3D 沙盘雪线高度与丰满/白山水库三维粒子调水流量</div>
+          </div>
+        `
+      },
+      {
+        id: 5, code: "05/09", name: "供给底座 · 三大刚性矩阵",
+        camPos: [0, -6.5, 11], target: [0, 0.5, 0],
+        tag: "吉办发〔2024〕16 号文刚性落地",
+        title: "构筑冰雪强省最坚实基石",
+        subtitle: "三大核心供给指标纳入市县绩效评价 · 100% 督查覆盖",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">群众冰雪赛事活动</div>
+              <div class="kpi-val cyan">≥ 300 项/年</div>
+              <div class="kpi-desc">全省联动 · 四季开展 (100% 完赛率)</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">浇建室外群众冰场</div>
+              <div class="kpi-val">≥ 500 块/年</div>
+              <div class="kpi-desc">城乡普惠 · 公共覆盖 (100% 完建率)</div>
+            </div>
+            <div class="kpi-card full">
+              <div class="kpi-label">县域特色冰雪乐园</div>
+              <div class="kpi-val emerald">≥ 100 家</div>
+              <div class="kpi-desc">一县一品 · 产业集聚 (100% 建成率) — 推动“冰雪进校园、进社区、进乡村”，激活万亿需求</div>
+            </div>
+          </div>
+          <div class="kpi-desc" style="color:#93c5fd;">
+            ★ 3D 模型说明：三座立体六棱能量矩阵柱群分别映射 300 项赛事、500 块冰场与 100 家冰雪乐园的 100% 刚性达标进度。
+          </div>
+        `
+      },
+      {
+        id: 6, code: "06/09", name: "战略跃升 · 双阶段跨越",
+        camPos: [0, -5.5, 11.5], target: [0, 1.0, 0],
+        tag: "吉林冰雪经济发展战略双阶段",
+        title: "从蓄势破局到万亿跃升",
+        subtitle: "2027–2028 雪季 vs 2029–2030 雪季三维量能跃迁",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">2027–2028 雪季 (基础夯实)</div>
+              <div class="kpi-val cyan">2.3 亿人次</div>
+              <div class="kpi-desc">旅游出游总花费：<b>4,200 亿元</b></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">2029–2030 雪季 (万亿跃升)</div>
+              <div class="kpi-val">3.0 亿人次</div>
+              <div class="kpi-desc">旅游出游总花费：<b>5,400 亿元</b></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">接待游客总规模跨越</div>
+              <div class="kpi-val emerald">+30.4%</div>
+              <div class="kpi-desc">全域冰雪消费辐射力显著扩能</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">旅游总花费跨越</div>
+              <div class="kpi-val">+28.6%</div>
+              <div class="kpi-desc">高质量冰雪现代化体系全面实现</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 7, code: "07/09", name: "产业联动 · 列昂惕夫乘数",
+        camPos: [0, 4.5, 12], target: [0, 0, 0],
+        tag: "LEONTIEF INPUT-OUTPUT MODEL",
+        title: "1 : 3.82 综合产业联动乘数",
+        subtitle: "四大支柱产业三维引力环 · 协同带动就业 260 万人",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">列昂惕夫投入产出乘数</div>
+              <div class="kpi-val">1 : 3.82</div>
+              <div class="kpi-desc">每 1 元冰雪产出拉动关联产业 3.82 元</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">装备制造业刚性培育</div>
+              <div class="kpi-val cyan">50 亿元</div>
+              <div class="kpi-desc">长春、吉林、通化三大园区协同突破</div>
+            </div>
+            <div class="kpi-card full">
+              <div class="kpi-label">四大支柱产业关联拉动度三维轨道分布</div>
+              <div class="kpi-desc" style="margin-top:6px;">
+                • <b>交运路网与综合交通</b>：<span style="color:#38bdf8;font-weight:700;">38.2%</span> ｜ 
+                • <b>文旅住宿与商贸餐饮</b>：<span style="color:#f59e0b;font-weight:700;">29.5%</span><br/>
+                • <b>高端冰雪装备制造</b>：<span style="color:#10b981;font-weight:700;">18.6%</span> ｜ 
+                • <b>文体赛事与数字创意</b>：<span style="color:#a855f7;font-weight:700;">13.7%</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 8, code: "08/09", name: "数理推演 · 3D 回归与仿真",
+        camPos: [8.5, -8.5, 7.5], target: [0, 0, 0],
+        tag: "MONTE CARLO SIMULATION (N = 10,000)",
+        title: "OLS R² = 0.9137 空间响应曲面",
+        subtitle: "万亿目标达成概率 88.7% · 95% 置信包络体 [4,850, 5,620] 亿元",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">万亿目标达成置信度</div>
+              <div class="kpi-val">88.7%</div>
+              <div class="kpi-desc">N = 10,000 次蒙特卡洛随机仿真</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">3D 多元回归拟合优度</div>
+              <div class="kpi-val cyan">R² = 0.9137</div>
+              <div class="kpi-desc">游客数(X1) × 投资额(X2) 双轮驱动</div>
+            </div>
+            <div class="kpi-card full">
+              <div class="kpi-label">2030 目标与 95% 预测置信区间三维包络</div>
+              <div class="kpi-val emerald" style="font-size:20px;">[4,850, 5,620] 亿元 (目标 5,400 亿元)</div>
+              <div class="kpi-desc">主彩色曲面为 OLS 回归面，上下双层透明网格面为 95% 置信区间包络体，垂直光柱为历史样本残差。</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 9, code: "09/09", name: "数字尾声 · 数理赋能冰雪",
+        camPos: [0, -14, 12], target: [0, 0, 0],
+        tag: "融冰雪之美 · 铸数理之魂",
+        title: "雪线之上 · 全景数字孪生总览",
+        subtitle: "数理模型赋能吉林万亿冰雪高质量发展",
+        html: `
+          <div class="kpi-grid">
+            <div class="kpi-card full">
+              <div class="kpi-label">系统核心架构总结</div>
+              <div class="kpi-val cyan" style="font-size:17px;">地理禀赋 × 气候韧性 × 政策底座 × 数理推演</div>
+              <div class="kpi-desc" style="margin-top:6px;">
+                从北纬 42° 白金粉雪带（18.74 万 km²、85% 晶格空隙率）出发，经厄尔尼诺暖冬压力测试（0.892 韧性指数）与吉办发 16 号文刚性落地，借力 1:3.82 投入产出乘数，以 88.7% 高置信度迈向 2030 年 3.0 亿人次、5,400 亿元战略目标。
+              </div>
+            </div>
+          </div>
+          <div class="kpi-desc" style="color:#f59e0b;">
+            ★ 全景模式已开启：您现在可以自由旋转、缩放审视整个吉林冰雪经济三维数理模型宇宙。
+          </div>
+        `
+      }
+    ];
+
+    // ==================== 2. Three.js 场景初始化 ====================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x030914, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 250);
+    camera.position.set(0, 2, 13);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+
+    // 灯光系统
+    scene.add(new THREE.AmbientLight(0x1e3a8a, 1.8));
+    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 2.5);
+    dirLight1.position.set(10, 15, 12);
+    scene.add(dirLight1);
+    const dirLight2 = new THREE.DirectionalLight(0xf59e0b, 1.6);
+    dirLight2.position.set(-10, -10, 8);
+    scene.add(dirLight2);
+
+    // ==================== 3. 全局背景风雪粒子场 ====================
+    const snowGeo = new THREE.BufferGeometry();
+    const snowCount = 1800;
+    const snowPositions = new Float32Array(snowCount * 3);
+    for (let i = 0; i < snowCount * 3; i += 3) {
+      snowPositions[i] = (Math.random() - 0.5) * 45;
+      snowPositions[i + 1] = (Math.random() - 0.5) * 45;
+      snowPositions[i + 2] = (Math.random() - 0.5) * 30;
+    }
+    snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPositions, 3));
+    const snowMat = new THREE.PointsMaterial({
+      color: 0xbae6fd, size: 0.09, transparent: true, opacity: 0.55
+    });
+    const snowParticles = new THREE.Points(snowGeo, snowMat);
+    scene.add(snowParticles);
+
+    // ==================== 4. 构建各章节 3D 模型组 ====================
+    const groups = {
+      ch1: new THREE.Group(),
+      ch2_4: new THREE.Group(),
+      ch3: new THREE.Group(),
+      ch5: new THREE.Group(),
+      ch6: new THREE.Group(),
+      ch7: new THREE.Group(),
+      ch8: new THREE.Group()
+    };
+    Object.values(groups).forEach(g => scene.add(g));
+
+    // 物理级冰晶 PBR 通用材质 (折射率 IOR = 1.31)
+    const icePBRMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xdff6ff,
+      transmission: 0.88,
+      opacity: 1,
+      transparent: true,
+      roughness: 0.08,
+      metalness: 0.05,
+      ior: 1.31,
+      thickness: 0.8,
+      clearcoat: 1.0,
+      emissive: 0x075985,
+      emissiveIntensity: 0.35
+    });
+
+    // -------- [第 01 幕] 双层 PBR 折射冰晶拓扑球 --------
+    {
+      const outerIce = new THREE.Mesh(new THREE.IcosahedronGeometry(2.6, 1), icePBRMaterial);
+      const wireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.5 });
+      const innerWire = new THREE.Mesh(new THREE.IcosahedronGeometry(2.62, 2), wireMat);
+
+      const posAttr = innerWire.geometry.attributes.position;
+      const nodeGeo = new THREE.SphereGeometry(0.075, 12, 12);
+      const nodeMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+      const uniquePts = new Set();
+      for (let i = 0; i < posAttr.count; i++) {
+        const key = `${posAttr.getX(i).toFixed(2)},${posAttr.getY(i).toFixed(2)},${posAttr.getZ(i).toFixed(2)}`;
+        if (!uniquePts.has(key)) {
+          uniquePts.add(key);
+          const m = new THREE.Mesh(nodeGeo, nodeMat);
+          m.position.set(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i));
+          groups.ch1.add(m);
+        }
+      }
+      const ringGeo = new THREE.TorusGeometry(3.5, 0.025, 16, 100);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = Math.PI / 2.3;
+
+      groups.ch1.add(outerIce, innerWire, ringMesh);
+    }
+
+    // -------- [第 02 & 04 幕] 吉林省 DEM 三维地形沙盘 + 雪线 Shader + 黄金走廊 --------
+    let terrainUniforms;
+    const climateSubGroup = new THREE.Group();
+    {
+      terrainUniforms = {
+        uTime: { value: 0 },
+        uSnowline: { value: 0.36 },
+        uStressMode: { value: 0.0 }
+      };
+
+      const terrainGeo = new THREE.PlaneGeometry(11, 7.5, 180, 120);
+      const pos = terrainGeo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const normX = (x + 5.5) / 11.0;
+        const mountainPeak = Math.exp(-Math.pow(x - 3.2, 2) * 0.45 - Math.pow(y + 1.1, 2) * 0.45) * 2.7;
+        const centralHills = Math.exp(-Math.pow(x - 0.6, 2) * 0.35 - Math.pow(y - 0.3, 2) * 0.4) * 1.35;
+        const roughness = (Math.sin(x * 2.5) * Math.cos(y * 2.5) * 0.15 + Math.sin(x * 6.0 + y * 5.0) * 0.06) * normX;
+        const z = Math.max(0.05, normX * 0.65 + mountainPeak + centralHills + roughness);
+        pos.setZ(i, z);
+      }
+      terrainGeo.computeVertexNormals();
+
+      const terrainMat = new THREE.ShaderMaterial({
+        uniforms: terrainUniforms,
+        vertexShader: `
+          varying float vElev;
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            vElev = position.z / 3.4;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float uTime;
+          uniform float uSnowline;
+          uniform float uStressMode;
+          varying float vElev;
+          varying vec2 vUv;
+          void main() {
+            vec3 plainCol = vec3(0.03, 0.13, 0.28);
+            vec3 transCol = vec3(0.05, 0.42, 0.68);
+            vec3 snowCol  = vec3(0.92, 0.97, 1.00);
+
+            vec3 base = mix(plainCol, transCol, smoothstep(0.0, uSnowline, vElev));
+            float snowMask = smoothstep(uSnowline - 0.05, uSnowline + 0.08, vElev);
+            vec3 col = mix(base, snowCol, snowMask);
+
+            if (uStressMode > 0.5 && vElev < uSnowline) {
+              col = mix(col, vec3(0.85, 0.25, 0.15), 0.35 * (1.0 - vElev / uSnowline));
+            }
+
+            float contour = abs(fract(vElev * 16.0) - 0.5);
+            if (contour < 0.035) col += vec3(0.15, 0.75, 1.0) * 0.4;
+
+            if (abs(vElev - uSnowline) < 0.012) {
+              col = vec3(1.0, 0.68, 0.1);
+            }
+            gl_FragColor = vec4(col, 0.94);
+          }
+        `,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+
+      const terrainMesh = new THREE.Mesh(terrainGeo, terrainMat);
+      groups.ch2_4.add(terrainMesh);
+
+      const grid = new THREE.GridHelper(13, 26, 0x38bdf8, 0x0f294a);
+      grid.rotation.x = Math.PI / 2;
+      grid.position.z = -0.05;
+      groups.ch2_4.add(grid);
+
+      // 五大国家级滑雪场高程光柱
+      const resorts = [
+        { name: "长春冰雪新天地/莲花山", pos: [-0.8, 0.8, 0.6], h: 0.9, color: 0x38bdf8 },
+        { name: "北大湖滑雪度假区 (870m)", pos: [0.4, 0.4, 1.45], h: 1.8, color: 0xf59e0b },
+        { name: "万科松花湖度假区 (605m)", pos: [0.9, 0.1, 1.35], h: 1.5, color: 0xf59e0b },
+        { name: "通化万峰滑雪场", pos: [1.5, -1.6, 1.1], h: 1.2, color: 0x38bdf8 },
+        { name: "长白山万达度假区 (438m)", pos: [2.7, -0.8, 2.2], h: 1.6, color: 0x10b981 },
+        { name: "长白山主峰 (2,691m)", pos: [3.2, -1.1, 2.95], h: 2.2, color: 0xffffff }
+      ];
+
+      resorts.forEach(r => {
+        const pillarGeo = new THREE.CylinderGeometry(0.08, 0.08, r.h, 16);
+        pillarGeo.translate(0, r.h / 2, 0);
+        const pillar = new THREE.Mesh(pillarGeo, new THREE.MeshBasicMaterial({ color: r.color }));
+        pillar.rotation.x = Math.PI / 2;
+        pillar.position.set(r.pos[0], r.pos[1], r.pos[2]);
+        groups.ch2_4.add(pillar);
+      });
+
+      // 冰雪黄金走廊飞线
+      const curvePts = [
+        new THREE.Vector3(-0.8, 0.8, 1.1),
+        new THREE.Vector3(0.4, 0.4, 2.5),
+        new THREE.Vector3(0.9, 0.1, 2.3),
+        new THREE.Vector3(2.7, -0.8, 3.1),
+        new THREE.Vector3(3.2, -1.1, 3.8)
+      ];
+      const corridorCurve = new THREE.CatmullRomCurve3(curvePts);
+      const tubeGeo = new THREE.TubeGeometry(corridorCurve, 64, 0.055, 12, false);
+      groups.ch2_4.add(new THREE.Mesh(tubeGeo, new THREE.MeshBasicMaterial({ color: 0xf59e0b })));
+
+      // 第 04 幕湿球温度包络与水库调水粒子流
+      const envGeo = new THREE.PlaneGeometry(11, 7.5, 40, 30);
+      const envPos = envGeo.attributes.position;
+      for (let i = 0; i < envPos.count; i++) {
+        const x = envPos.getX(i), y = envPos.getY(i);
+        envPos.setZ(i, 1.65 + Math.sin(x * 0.7) * 0.25 + Math.cos(y * 0.7) * 0.2);
+      }
+      climateSubGroup.add(new THREE.Mesh(envGeo, new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.35 })));
+
+      const waterArc1 = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(1.1, -0.2, 1.2),
+        new THREE.Vector3(0.7, 0.2, 3.2),
+        new THREE.Vector3(0.4, 0.4, 1.8)
+      );
+      const waterArc2 = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(2.1, -0.9, 1.5),
+        new THREE.Vector3(2.5, -0.8, 3.5),
+        new THREE.Vector3(2.7, -0.8, 2.5)
+      );
+      const waterMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      climateSubGroup.add(
+        new THREE.Mesh(new THREE.TubeGeometry(waterArc1, 32, 0.07, 8, false), waterMat),
+        new THREE.Mesh(new THREE.TubeGeometry(waterArc2, 32, 0.07, 8, false), waterMat)
+      );
+      groups.ch2_4.add(climateSubGroup);
+    }
+
+    // -------- [第 03 幕] 3D 分形六方冰晶 + 85% 空隙率微观体素盒 --------
+    {
+      const crystal = new THREE.Group();
+      crystal.position.set(-2.3, 0, 0);
+
+      const core = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.22, 6), icePBRMaterial);
+      core.rotation.x = Math.PI / 2;
+      crystal.add(core);
+
+      for (let i = 0; i < 6; i++) {
+        const branch = new THREE.Group();
+        branch.rotation.z = (i * Math.PI) / 3;
+
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 3.3, 6), icePBRMaterial);
+        stem.position.y = 1.65;
+        branch.add(stem);
+
+        [1.0, 1.8, 2.55].forEach((posY, idx) => {
+          const len = [1.25, 0.95, 0.6][idx];
+          [-1, 1].forEach(dir => {
+            const sub = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.055, len, 6), icePBRMaterial);
+            sub.position.set(
+              dir * Math.sin(Math.PI / 3) * (len / 2),
+              posY + Math.cos(Math.PI / 3) * (len / 2),
+              idx % 2 === 0 ? 0.06 : -0.06
+            );
+            sub.rotation.z = -dir * (Math.PI / 3);
+            branch.add(sub);
+          });
+        });
+        crystal.add(branch);
+      }
+      groups.ch3.add(crystal);
+
+      // 右侧：85% 空隙率多孔体素盒
+      const voxelBox = new THREE.Group();
+      voxelBox.position.set(2.5, -0.2, 0);
+      const boxFrame = new THREE.BoxHelper(new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.8, 2.8)), 0x38bdf8);
+      voxelBox.add(boxFrame);
+
+      const grainGeo = new THREE.OctahedronGeometry(0.11, 0);
+      for (let i = 0; i < 140; i++) {
+        const grain = new THREE.Mesh(grainGeo, icePBRMaterial);
+        grain.position.set(
+          (Math.random() - 0.5) * 2.5,
+          (Math.random() - 0.5) * 2.5,
+          (Math.random() - 0.5) * 2.5
+        );
+        voxelBox.add(grain);
+      }
+      groups.ch3.add(voxelBox);
+    }
+
+    // -------- [第 05 幕] 政策三大刚性指标六棱柱矩阵 --------
+    {
+      const baseGrid = new THREE.GridHelper(11, 22, 0x38bdf8, 0x112240);
+      baseGrid.rotation.x = Math.PI / 2;
+      groups.ch5.add(baseGrid);
+
+      const pillars = [
+        { x: -3.2, h: 3.4, color: 0x38bdf8 },
+        { x: 0.0,  h: 4.5, color: 0xf59e0b },
+        { x: 3.2,  h: 2.6, color: 0x10b981 }
+      ];
+      pillars.forEach(p => {
+        const geo = new THREE.CylinderGeometry(0.85, 0.85, p.h, 6);
+        geo.translate(0, p.h / 2, 0);
+        const mat = new THREE.MeshPhysicalMaterial({
+          color: p.color, transparent: true, opacity: 0.78,
+          roughness: 0.15, metalness: 0.2, emissive: p.color, emissiveIntensity: 0.3
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.rotation.x = Math.PI / 2;
+        mesh.position.set(p.x, 0, 0);
+        groups.ch5.add(mesh);
+
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(1.15, 0.03, 12, 6),
+          new THREE.MeshBasicMaterial({ color: p.color })
+        );
+        ring.position.set(p.x, 0, p.h + 0.25);
+        groups.ch5.add(ring);
+      });
+    }
+
+    // -------- [第 06 幕] 战略双阶段跃升全息双子塔 --------
+    {
+      const grid = new THREE.GridHelper(11, 22, 0xf59e0b, 0x112240);
+      grid.rotation.x = Math.PI / 2;
+      groups.ch6.add(grid);
+
+      const t1_visitor = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 2.8), new THREE.MeshPhongMaterial({ color: 0x0284c7 }));
+      t1_visitor.position.set(-2.8, 0, 1.4);
+      const t1_spend = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 3.6), new THREE.MeshPhongMaterial({ color: 0x38bdf8 }));
+      t1_spend.position.set(-1.3, 0, 1.8);
+
+      const t2_visitor = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 3.7), new THREE.MeshPhongMaterial({ color: 0xd97706 }));
+      t2_visitor.position.set(1.3, 0, 1.85);
+      const t2_spend = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 4.7), new THREE.MeshPhongMaterial({ color: 0xf59e0b }));
+      t2_spend.position.set(2.8, 0, 2.35);
+
+      const bridgeCurve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(-1.3, 0, 3.6),
+        new THREE.Vector3(0.75, 0, 5.4),
+        new THREE.Vector3(2.8, 0, 4.7)
+      );
+      const bridgeMesh = new THREE.Mesh(new THREE.TubeGeometry(bridgeCurve, 40, 0.08, 12, false), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+
+      groups.ch6.add(t1_visitor, t1_spend, t2_visitor, t2_spend, bridgeMesh);
+    }
+
+    // -------- [第 07 幕] 列昂惕夫 1:3.82 投入产出引力轨道 --------
+    {
+      const core = new THREE.Mesh(new THREE.SphereGeometry(0.95, 32, 32), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
+      groups.ch7.add(core);
+
+      const sectors = [
+        { r: 2.1, tube: 0.11, color: 0x38bdf8, tiltX: 0.35, tiltY: 0.2 },
+        { r: 2.9, tube: 0.09, color: 0xf59e0b, tiltX: -0.4, tiltY: 0.3 },
+        { r: 3.7, tube: 0.075, color: 0x10b981, tiltX: 0.25, tiltY: -0.4 },
+        { r: 4.4, tube: 0.06, color: 0xa855f7, tiltX: -0.2, tiltY: -0.25 }
+      ];
+      sectors.forEach(s => {
+        const orbitGroup = new THREE.Group();
+        const torus = new THREE.Mesh(
+          new THREE.TorusGeometry(s.r, s.tube, 16, 100),
+          new THREE.MeshBasicMaterial({ color: s.color, transparent: true, opacity: 0.85 })
+        );
+        const sat = new THREE.Mesh(new THREE.SphereGeometry(s.tube * 2.4, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        sat.position.set(s.r, 0, 0);
+        orbitGroup.add(torus, sat);
+        orbitGroup.rotation.set(s.tiltX, s.tiltY, 0);
+        groups.ch7.add(orbitGroup);
+      });
+    }
+
+    // -------- [第 08 幕] 3D 回归空间响应曲面 (OLS R²=0.9137) + 95% 置信包络体 --------
+    {
+      const size = 5.6, seg = 36;
+      function makeSurface(zOffset, opacity, isWire) {
+        const geo = new THREE.PlaneGeometry(size, size, seg, seg);
+        const pos = geo.attributes.position;
+        const colors = [];
+        const c = new THREE.Color();
+        for (let i = 0; i < pos.count; i++) {
+          const x1 = pos.getX(i), x2 = pos.getY(i);
+          const z = 0.36 * x1 + 0.41 * x2 + 0.045 * x1 * x2 + zOffset;
+          pos.setZ(i, z);
+          const t = THREE.MathUtils.clamp((z + 2.5) / 5.0, 0, 1);
+          c.setHSL(0.56 - t * 0.44, 0.92, 0.52);
+          colors.push(c.r, c.g, c.b);
+        }
+        geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        geo.computeVertexNormals();
+        return new THREE.Mesh(
+          geo,
+          new THREE.MeshPhongMaterial({
+            vertexColors: true, transparent: true, opacity, wireframe: isWire, side: THREE.DoubleSide
+          })
+        );
+      }
+
+      const mainSurf = makeSurface(0, 0.88, false);
+      const upperCI  = makeSurface(0.65, 0.28, true);
+      const lowerCI  = makeSurface(-0.65, 0.28, true);
+      const bbox = new THREE.BoxHelper(new THREE.Mesh(new THREE.BoxGeometry(size, size, 5.2)), 0x38bdf8);
+
+      for (let i = 0; i < 20; i++) {
+        const x1 = (Math.random() - 0.5) * 4.6;
+        const x2 = (Math.random() - 0.5) * 4.6;
+        const zFit = 0.36 * x1 + 0.41 * x2 + 0.045 * x1 * x2;
+        const zObs = zFit + (Math.random() - 0.5) * 0.9;
+        const pt = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        pt.position.set(x1, x2, zObs);
+        groups.ch8.add(pt);
+      }
+
+      groups.ch8.add(mainSurf, upperCI, lowerCI, bbox);
+    }
+
+    // ==================== 5. 章节切换与相机过渡 ====================
+    let currentChapter = 1;
+    const targetCamPos = new THREE.Vector3(0, 2, 13);
+    const targetLookAt = new THREE.Vector3(0, 0, 0);
+
+    function switchChapter(chId) {
+      currentChapter = chId;
+      const ch = CHAPTERS.find(c => c.id === chId);
+
+      document.getElementById('scene-indicator').textContent = `${ch.code} ${ch.name}`;
+      document.getElementById('hud-content').innerHTML = `
+        <div class="hud-tag">${ch.tag}</div>
+        <div class="hud-title">${ch.title}</div>
+        <div class="hud-subtitle">${ch.subtitle}</div>
+        ${ch.html}
+      `;
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.dataset.id) === chId);
+      });
+
+      targetCamPos.set(...ch.camPos);
+      targetLookAt.set(...ch.target);
+
+      Object.values(groups).forEach(g => {
+        g.visible = false;
+        g.position.set(0, 0, 0);
+        g.scale.set(1, 1, 1);
+      });
+
+      if (chId === 1) groups.ch1.visible = true;
+      if (chId === 2) {
+        groups.ch2_4.visible = true;
+        climateSubGroup.visible = false;
+        terrainUniforms.uStressMode.value = 0.0;
+        terrainUniforms.uSnowline.value = 0.32;
+      }
+      if (chId === 3) groups.ch3.visible = true;
+      if (chId === 4) {
+        groups.ch2_4.visible = true;
+        climateSubGroup.visible = true;
+        terrainUniforms.uStressMode.value = 1.0;
+        terrainUniforms.uSnowline.value = 0.46;
+        bindElNinoSlider();
+      }
+      if (chId === 5) groups.ch5.visible = true;
+      if (chId === 6) groups.ch6.visible = true;
+      if (chId === 7) groups.ch7.visible = true;
+      if (chId === 8) groups.ch8.visible = true;
+      if (chId === 9) {
+        groups.ch2_4.visible = true;
+        climateSubGroup.visible = true;
+        groups.ch1.visible = true; groups.ch1.position.set(-7.5, 4.5, 2.5); groups.ch1.scale.setScalar(0.55);
+        groups.ch3.visible = true; groups.ch3.position.set(7.5, 4.5, 2.5);  groups.ch3.scale.setScalar(0.5);
+        groups.ch7.visible = true; groups.ch7.position.set(-7.5, -4.5, 2.5); groups.ch7.scale.setScalar(0.5);
+        groups.ch8.visible = true; groups.ch8.position.set(7.5, -4.5, 2.5);  groups.ch8.scale.setScalar(0.55);
+      }
+    }
+
+    function bindElNinoSlider() {
+      const slider = document.getElementById('elnino-slider');
+      if (!slider) return;
+      slider.addEventListener('input', (e) => {
+        const dt = parseFloat(e.target.value);
+        document.getElementById('temp-label').textContent = `+${dt.toFixed(1)} °C`;
+        terrainUniforms.uSnowline.value = 0.28 + dt * 0.1;
+        const days = Math.round(96 - dt * 6.1);
+        const water = (1.05 + dt * 0.11).toFixed(2);
+        const res = (0.945 - dt * 0.029).toFixed(3);
+        document.getElementById('val-window').textContent = `≥ ${days} 天`;
+        document.getElementById('val-water').textContent = `${water} 亿m³`;
+        document.getElementById('val-resilience').textContent = res;
+      });
+    }
+
+    // 初始化导航
+    const navContainer = document.getElementById('nav-tabs');
+    CHAPTERS.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-btn';
+      btn.dataset.id = ch.id;
+      btn.textContent = ch.code + ' ' + ch.name.split(' · ')[1];
+      btn.onclick = () => switchChapter(ch.id);
+      navContainer.appendChild(btn);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') switchChapter(currentChapter < 9 ? currentChapter + 1 : 1);
+      if (e.key === 'ArrowLeft')  switchChapter(currentChapter > 1 ? currentChapter - 1 : 9);
+    });
+
+    switchChapter(1);
+
+    // ==================== 6. GLTF (.glb) 模型导出器 ====================
+    document.getElementById('btn-export-glb').onclick = () => {
+      const exporter = new GLTFExporter();
+      const currentGroup = Object.values(groups).find(g => g.visible) || scene;
+      exporter.parse(
+        currentGroup,
+        (gltf) => {
+          const blob = new Blob([gltf], { type: 'application/octet-stream' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `雪线之上_第0${currentChapter}幕_三维模型.glb`;
+          link.click();
+        },
+        (error) => {
+          console.error('Export error:', error);
+          alert('导出失败: ' + error);
+        },
+        { binary: true }
+      );
+    };
+
+    // ==================== 7. 60 FPS 渲染循环 ====================
+    let lastTime = performance.now(), frames = 0;
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+      terrainUniforms.uTime.value = elapsed;
+
+      frames++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        document.getElementById('fps-counter').textContent = `LIVE ${Math.min(60, frames)} FPS VR TELEMETRY`;
+        frames = 0; lastTime = now;
+      }
+
+      const posArr = snowGeo.attributes.position.array;
+      for (let i = 2; i < posArr.length; i += 3) {
+        posArr[i] -= 0.035;
+        if (posArr[i] < -15) posArr[i] = 15;
+      }
+      snowGeo.attributes.position.needsUpdate = true;
+
+      if (groups.ch1.visible) {
+        groups.ch1.rotation.y = elapsed * 0.28;
+        groups.ch1.rotation.x = Math.sin(elapsed * 0.4) * 0.15;
+      }
+      if (groups.ch3.visible) {
+        groups.ch3.children[0].rotation.z = elapsed * 0.25;
+        groups.ch3.children[0].rotation.y = Math.sin(elapsed * 0.5) * 0.35;
+        groups.ch3.children[1].rotation.y = -elapsed * 0.3;
+      }
+      if (groups.ch7.visible) {
+        groups.ch7.rotation.z = elapsed * 0.35;
+      }
+      if (groups.ch8.visible && currentChapter === 8) {
+        groups.ch8.rotation.z = Math.sin(elapsed * 0.25) * 0.22;
+      }
+
+      camera.position.lerp(targetCamPos, 0.045);
+      controls.target.lerp(targetLookAt, 0.045);
+      controls.update();
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
