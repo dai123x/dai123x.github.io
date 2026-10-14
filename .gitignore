@@ -28,3 +28,8 @@ venv/
 
 # 本地辅助脚本（审计/图片处理），不入库不部署
 *.py
+
+# Video binaries
+*.mp4
+*.webm
+
