@@ -1,0 +1,45 @@
+1
+00:00:00,000 --> 00:00:13,000
+北纬42度世界冰雪黄金纬度带，长春工业大学深度求索队带来《雪线之上·吉林冰雪经济目标规划与虚拟现实系统》。
+At the 42°N golden snow latitude, Team DeepSeek presents Above the Snowline: Jilin Ice & Snow VR Twin.
+
+2
+00:00:13,000 --> 00:00:27,000
+系统构筑全省18.74万平方公里高精高程沙盘，标定九市州清晰行政边界，流光贯通四大黄金冰雪文旅大通道。
+High-precision 3D elevation sandbox across 187,400 km² outlines 9 cities and connects 4 golden corridors.
+
+3
+00:00:27,000 --> 00:00:40,000
+吉林粉雪含水率8%至12%，空隙率85%。系统三维解构六方晶格，纵向对比各大雪场硬核垂直落差。
+With 8%-12% moisture and 85% porosity, powder snow crystal geometry pairs with vertical resort elevation profiles.
+
+4
+00:00:40,000 --> 00:00:54,000
+面对暖冬升温1.8度极值考验，造雪湿球窗口仍超85天。生态调水实时调度响应，以高韧性筑牢雪场运营底线。
+Under a +1.8°C warming stress-test, the 85-day snowmaking window and ecological water dispatch safeguard operations.
+
+5
+00:00:54,000 --> 00:01:07,000
+严格对标吉办发16号文刚性部署：年均300项赛事、500块冰场、100家乐园全量达标，推动冰雪进校园、进社区。
+Aligned with Policy Doc No.16: 300 annual events, 500 rinks, and 100 parks drive mass public winter sports adoption.
+
+6
+00:01:07,000 --> 00:01:20,000
+双阶段战略双子塔跃升：从2028雪季2.3亿人次、4200亿花费，跨越至2030雪季3亿人次、5400亿元万亿总目标。
+Two-stage growth leap: from 230M visits and 420B RMB in 2028 to 300M visits and 540B RMB by 2030.
+
+7
+00:01:20,000 --> 00:01:34,000
+列昂惕夫1比3.82投入产出引力轨道：每1元冰雪产出撬动3.82元关联消费，带动全产业链协同与装备制造突破。
+Leontief 1:3.82 multiplier: every 1 RMB output drives 3.82 RMB upstream value, fueling gear manufacturing breakthroughs.
+
+8
+00:01:34,000 --> 00:01:48,000
+构建空间计量OLS回归曲面与残差垂线。一万次蒙特卡洛预测显示，2030年万亿目标达成置信度达88.7%。
+3D OLS regression surface with residual stalks; 10,000 Monte Carlo runs confirm an 88.7% target attainment rate.
+
+9
+00:01:48,000 --> 00:02:00,000
+系统支持决策专报与全景虚拟现实交互，零依赖单文件运行，深度求索队感谢各位评委专家指导。
+Zero-dependency single-file architecture with VR twin; Team DeepSeek sincerely thanks all judges and experts.
+
