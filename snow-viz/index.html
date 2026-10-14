@@ -6265,14 +6265,14 @@ async function initWebXRSession(gl) {
             <div class="da3d-stage">
               <canvas id="da3dPlane" class="da3d-cv" role="img" tabindex="0" aria-label="三维回归散点图：9 个市州按地区生产总值、年积雪日数与冰雪指数三维定位，叠加模型 D 拟合平面与样本内残差垂线。等价数据见上方系数表与随附 CSV 底表。"></canvas>
             </div>
-            <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放</span><span>垂线 = 样本内残差</span></div>
+            <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放 · 悬停看数值</span><span>垂线 = 样本内残差</span></div>
           </div>
           <div class="da3d-card">
             <div class="da3d-h"><span class="da3d-no">②</span><span>三维柱状沙盘</span></div>
             <div class="da3d-stage">
               <canvas id="da3dBar" class="da3d-cv" role="img" tabindex="0" aria-label="三维柱状沙盘：9 个市州按真实经纬度铺排，柱体高度表示冰雪指数。等价数据见上方供给端核验表与随附 CSV 底表。"></canvas>
             </div>
-            <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放</span><span>柱高 = 冰雪指数</span></div>
+            <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放 · 悬停看数值</span><span>柱高 = 冰雪指数</span></div>
           </div>
         </div>
         <div class="da3d-ctl">
@@ -6307,7 +6307,7 @@ async function initWebXRSession(gl) {
           <div class="da3d-stage">
             <canvas id="ned3Cv" class="da3d-cv ned3-cv" role="img" tabindex="0" aria-label="东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域质心经纬度在经纬网上落位，柱底面积按陆域面积缩放、柱高为 2024—2025 冰雪季接待游客量同比增速；地面标注哈尔滨、亚布力、中国雪乡、长春、北大湖、长白山、沈阳、大连等核心目的地。等价数据见下方数据来源说明。"></canvas>
           </div>
-          <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放 · 方向键微调</span><span>柱高 = 冰雪季客流同比增速</span></div>
+          <div class="da3d-hint"><span>🖱️ 拖拽旋转 · 滚轮缩放 · 悬停看数值</span><span>柱高 = 冰雪季客流同比增速</span></div>
         </div>
         <div class="da3d-ctl">
           <span class="da3d-ctl-label">视角：</span>
@@ -14619,6 +14619,7 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
      纯 Canvas 2D；中文标签交给全站 i18n 引擎在绘制期即时翻译。
      ================================================================ -->
 <script id="sv3dEngine">
+
 (function () {
   'use strict';
   var planeCv = document.getElementById('da3dPlane');
@@ -14690,6 +14691,11 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     return { X: cam.cx + x1 * s, Y: cam.cy - y2 * s, s: s, z: z2 };
   }
 
+  /* ---------- 交互悬停状态 ---------- */
+  var hoverCity = null;
+  var activeCanvas = null; // 'plane' or 'bar'
+  var hoverPos = null;     // { x, y } in local canvas coordinates
+
   /* ---------- 绘图基元 ---------- */
   function seg(ctx, cam, p, q, color, lw, dash) {
     var A = proj(p, cam), B = proj(q, cam);
@@ -14727,19 +14733,14 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
   function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
   /* ---------- 标签避让：先量后放，重叠时逐条下移 ---------- */
-  /* ⚠️ SnowVizI18N.t() 是「纯查表」，永远返回英文；必须先用 isEN() 判语言，
-     否则中文模式下画布也会输出英文。 */
   function disp(s) {
     var I = window.SnowVizI18N;
     return (I && I.isEN && I.isEN() && I.t) ? I.t(s) : s;
   }
   function place(ctx, list, maxY, maxX) {
     var boxes = [], i, j, g;
-    /* 水平留白：地理上紧邻的两市（如四平/辽源）标签会首尾相贴，纯盒子相交测不出，
-       加 4px 余量后才会被判定为冲突并逐条下移。 */
     var PADX = 4;
     var lo = 10, hi = (maxY || 1e6) - 12;
-    /* 左右边界：窄屏（390px）下最左/最右的点标签会被画布裁掉，必须横向也夹住 */
     var EDGE = 3, xhi = (maxX || 1e6) - EDGE;
     function hits(bx, w, by) {
       for (var q = 0; q < boxes.length; q++) {
@@ -14755,9 +14756,7 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       var bx = it.align === 'right' ? it.x - w : (it.align === 'center' ? it.x - w / 2 : it.x);
       bx = Math.min(Math.max(bx, EDGE), Math.max(EDGE, xhi - w));
       var start = it.y - 6, by = start;
-      /* 先向下找空位（符合「标签落在锚点附近」的直觉） */
       for (g = 0; g < 40 && hits(bx, w, by); g++) by += 6;
-      /* 下边放不下（会被顶出画布）→ 改为向上找，别把标签推到离锚点很远的位置 */
       if (by + 6 > hi) {
         by = start;
         while (by - 6 >= lo - 6 && hits(bx, w, by)) by -= 6;
@@ -14765,7 +14764,6 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       }
       boxes.push({ x: bx, y: by, w: w, h: 12 });
       it.fy = clamp(by + 6, lo, hi);
-      /* 横向夹住后的实际落笔点（供 fillText 与引线共用） */
       it.fx = it.align === 'right' ? bx + w : (it.align === 'center' ? bx + w / 2 : bx);
     }
     for (i = 0; i < list.length; i++) {
@@ -14773,7 +14771,6 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       ctx.font = L.font;
       ctx.textAlign = L.align;
       ctx.textBaseline = 'middle';
-      /* 浅色主题下先描一圈底色光晕：标签压到柱面/平面网格上时仍可读 */
       ctx.lineJoin = 'round';
       ctx.lineWidth = 3;
       ctx.strokeStyle = 'rgba(248,250,252,0.92)';
@@ -14781,6 +14778,129 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       ctx.fillStyle = L.color;
       ctx.fillText(L.text, dx, L.fy, MAXW);
     }
+  }
+
+  /* ---------- 深色科技感悬停浮层 (HUD Tooltip) ---------- */
+  function drawCityTooltip(ctx, x, y, city, w, h) {
+    var isEN = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+    var title = disp(city.n) + (isEN ? ' City' : '市');
+    var badge = isEN ? 'OBSERVED' : '样本观测点';
+
+    var gdpStr = fmt(city.gdp) + (isEN ? ' 100M' : ' 亿元');
+    var snowStr = city.snow + (isEN ? ' d' : ' 天');
+    var iceStr = city.ice + (isEN ? ' pt' : ' 分');
+    var fitStr = city.fit.toFixed(1);
+    var resSign = city.res >= 0 ? '+' : '';
+    var resStr = resSign + city.res.toFixed(1);
+    var resVerdict = city.res >= 0
+      ? (isEN ? 'Observed > Fitted (Residual +)' : '实测 > 拟合（正残差 · 实际超出预期）')
+      : (isEN ? 'Observed < Fitted (Residual -)' : '实测 < 拟合（负残差 · 转化潜力待释）');
+
+    var rows = [
+      { k: isEN ? 'GDP' : '地区生产总值 (GDP)', v: gdpStr, c: '#f8fafc' },
+      { k: isEN ? 'Snow Days' : '年均积雪日数 (Snow)', v: snowStr, c: '#38bdf8' },
+      { k: isEN ? 'Observed / Fitted' : '实测值 / 拟合值', v: iceStr + ' / ' + fitStr, c: '#f59e0b' },
+      { k: isEN ? 'Residual (e = y - ŷ)' : '样本内残差 (e = y - ŷ)', v: resStr, c: city.res >= 0 ? '#10b981' : '#f43f5e' }
+    ];
+
+    ctx.save();
+    var pad = 12;
+    var tw = isEN ? 240 : 252;
+    var th = 138;
+
+    // 自适应避让视口边界
+    var tx = x + 16;
+    var ty = y - 24;
+    if (tx + tw > w - 10) tx = x - tw - 16;
+    if (tx < 10) tx = 10;
+    if (ty + th > h - 10) ty = h - th - 10;
+    if (ty < 10) ty = 10;
+
+    // 阴影与深色科技感卡片底衬
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = 'rgba(7, 20, 42, 0.94)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.lineWidth = 1.2;
+
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(tx, ty, tw, th, 6);
+    } else {
+      ctx.rect(tx, ty, tw, th);
+    }
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.stroke();
+
+    // 左侧彩色状态竖条
+    ctx.fillStyle = city.res >= 0 ? '#10b981' : '#f59e0b';
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(tx, ty + 6, 3.5, th - 12, [2, 0, 0, 2]);
+    } else {
+      ctx.rect(tx, ty + 6, 3.5, th - 12);
+    }
+    ctx.fill();
+
+    // 标题
+    ctx.font = '700 13px ' + MONO;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, tx + pad + 3, ty + pad);
+
+    // 顶部小标签
+    var bw = isEN ? 84 : 70;
+    var bx = tx + tw - pad - bw;
+    var by = ty + pad - 2;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.16)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(bx, by, bw, 18, 3);
+    } else {
+      ctx.rect(bx, by, bw, 18);
+    }
+    ctx.fill(); ctx.stroke();
+    ctx.font = '600 9px ' + MONO;
+    ctx.fillStyle = '#38bdf8';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badge, bx + bw / 2, by + 9);
+
+    // 分割线
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(tx + pad, ty + 33);
+    ctx.lineTo(tx + tw - pad, ty + 33);
+    ctx.stroke();
+
+    // 数据列表
+    var curY = ty + 42;
+    for (var r = 0; r < rows.length; r++) {
+      ctx.font = '400 10.5px ' + MONO;
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(rows[r].k, tx + pad + 3, curY);
+
+      ctx.font = '700 11px ' + MONO;
+      ctx.fillStyle = rows[r].c;
+      ctx.textAlign = 'right';
+      ctx.fillText(rows[r].v, tx + tw - pad, curY);
+      curY += 17;
+    }
+
+    // 底部残差判定释义
+    ctx.font = '600 9px ' + MONO;
+    ctx.fillStyle = city.res >= 0 ? '#34d399' : '#f87171';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(resVerdict, tx + pad + 3, curY + 2);
+
+    ctx.restore();
   }
 
   /* ================= ① 回归散点 × 拟合平面 ================= */
@@ -14861,27 +14981,53 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       items.push({ c: c, tp: tp, bp: bp, z: pp.z });
     }
     items.sort(function (a, b) { return b.z - a.z; });
+
+    /* 绘制垂线（若悬停对应散点，加粗高亮） */
     for (i = 0; i < items.length; i++) {
+      var isH = (hoverCity && hoverCity.n === items[i].c.n);
       seg(ctx, cam, items[i].tp, items[i].bp,
-        items[i].c.res >= 0 ? C.mint : C.coral, 1.5, [3, 3]);
+        items[i].c.res >= 0 ? (isH ? '#10b981' : C.mint) : (isH ? '#f43f5e' : C.coral),
+        isH ? 2.8 : 1.5, isH ? [4, 2] : [3, 3]);
     }
+
     var plab = [];
     for (i = 0; i < items.length; i++) {
       var it = items[i], P = proj(it.tp, cam);
+      var isHovered = (hoverCity && hoverCity.n === it.c.n);
       var r = clamp(P.s * 0.095, 3.8, 9);
+      if (isHovered) r += 2.0;
+
       var gr = ctx.createRadialGradient(P.X - r * 0.34, P.Y - r * 0.34, r * 0.12, P.X, P.Y, r);
-      gr.addColorStop(0, '#e0f2fe');
-      gr.addColorStop(0.5, C.iceLite);
-      gr.addColorStop(1, C.ice);
+      if (isHovered) {
+        gr.addColorStop(0, '#fef08a');
+        gr.addColorStop(0.5, '#f59e0b');
+        gr.addColorStop(1, '#d97706');
+      } else {
+        gr.addColorStop(0, '#e0f2fe');
+        gr.addColorStop(0.5, C.iceLite);
+        gr.addColorStop(1, C.ice);
+      }
       ctx.beginPath(); ctx.arc(P.X, P.Y, r, 0, Math.PI * 2);
       ctx.fillStyle = gr; ctx.fill();
-      ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(255,255,255,0.92)'; ctx.stroke();
+      ctx.lineWidth = isHovered ? 2.5 : 1.2;
+      ctx.strokeStyle = isHovered ? '#f59e0b' : 'rgba(255,255,255,0.92)';
+      ctx.stroke();
+
+      /* 悬停光晕 */
+      if (isHovered) {
+        ctx.beginPath(); ctx.arc(P.X, P.Y, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.0; ctx.stroke();
+        ctx.beginPath(); ctx.arc(P.X, P.Y, r + 8, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.38)'; ctx.lineWidth = 1.2; ctx.stroke();
+      }
+
       plab.push({ x: P.X + r + 5, y: P.Y - 4, text: disp(it.c.n) + ' ' + it.c.ice,
-        color: C.ink, font: '700 10px ' + MONO, align: 'left',
+        color: isHovered ? '#b45309' : C.ink, font: (isHovered ? '800 11px ' : '700 10px ') + MONO, align: 'left',
         ax: P.X, ay: P.Y, dotR: r, lead: true });
     }
     place(ctx, labs.concat(plab), h, w);
-    /* 点标签被避让推开时补一条细引线，指明它属于哪个散点 */
+
+    /* 点标签引线 */
     for (i = 0; i < plab.length; i++) {
       var L = plab[i];
       if (L.fy == null || Math.abs(L.fy - L.y) < 3) continue;
@@ -14894,6 +15040,11 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       ctx.lineTo(L.fx == null ? L.x : L.fx, L.fy);
       ctx.stroke();
       ctx.restore();
+    }
+
+    /* 悬停深色浮层 */
+    if (hoverCity && activeCanvas === 'plane' && hoverPos) {
+      drawCityTooltip(ctx, hoverPos.x, hoverPos.y, hoverCity, w, h);
     }
   }
 
@@ -14913,7 +15064,6 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     for (i = 0; i < CITIES.length; i++) {
       var c = CITIES[i];
       var cx = bx(c.lon), cz = bz(c.lat);
-      /* 柱高再压到 84%，给「柱顶 + 标签」留出上边距，避免最高柱的标签顶到画布外 */
       var yt = y0 + (wy(c.ice) - y0) * BS;
       var mid = proj({ x: cx, y: (y0 + yt) / 2, z: cz }, cam);
       if (!mid) continue;
@@ -14941,12 +15091,13 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       }
     }
 
-    /* 柱体：远 → 近。顶面按指数高低呈现冰金/青冰色谱，侧面带环境光泽 */
+    /* 柱体：远 → 近。顶面按指数高低呈现冰金/青冰色谱，悬停时高亮琥珀金 */
     for (i = 0; i < items.length; i++) {
       var it = items[i], x = it.x, z = it.z, yt = it.yt, s = HS;
-      var topCol = it.c.ice >= 80 ? '#f59e0b' : (it.c.ice >= 60 ? '#38bdf8' : '#0284c7');
-      var sideZCol = it.c.ice >= 80 ? '#b45309' : '#075985';
-      var sideXCol = it.c.ice >= 80 ? '#d97706' : '#0369a1';
+      var isHBar = (hoverCity && hoverCity.n === it.c.n);
+      var topCol = isHBar ? '#f59e0b' : (it.c.ice >= 80 ? '#f59e0b' : (it.c.ice >= 60 ? '#38bdf8' : '#0284c7'));
+      var sideZCol = isHBar ? '#b45309' : (it.c.ice >= 80 ? '#b45309' : '#075985');
+      var sideXCol = isHBar ? '#d97706' : (it.c.ice >= 80 ? '#d97706' : '#0369a1');
       var faces = [
         { p: [{ x: x - s, y: yt, z: z - s }, { x: x + s, y: yt, z: z - s }, { x: x + s, y: yt, z: z + s }, { x: x - s, y: yt, z: z + s }], col: topCol, isTop: true },
         { p: [{ x: x - s, y: y0, z: z - s }, { x: x + s, y: y0, z: z - s }, { x: x + s, y: yt, z: z - s }, { x: x - s, y: yt, z: z - s }], col: sideZCol },
@@ -14966,7 +15117,19 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       }
       fs.sort(function (a, b) { return b.d - a.d; });
       for (j = 0; j < fs.length; j++) {
-        poly(ctx, cam, fs[j].p, fs[j].col, fs[j].isTop ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.45)', fs[j].isTop ? 1.2 : 0.6);
+        var strokeC = isHBar && fs[j].isTop ? '#ffffff' : (fs[j].isTop ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.45)');
+        var strokeW = isHBar && fs[j].isTop ? 2.2 : (fs[j].isTop ? 1.2 : 0.6);
+        poly(ctx, cam, fs[j].p, fs[j].col, strokeC, strokeW);
+      }
+      /* 悬停柱顶高亮光圈 */
+      if (isHBar) {
+        var topPt = proj({ x: x, y: yt, z: z }, cam);
+        if (topPt) {
+          ctx.beginPath(); ctx.arc(topPt.X, topPt.Y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#fef08a'; ctx.fill();
+          ctx.beginPath(); ctx.arc(topPt.X, topPt.Y, 11, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.65)'; ctx.lineWidth = 1.8; ctx.stroke();
+        }
       }
     }
 
@@ -14977,15 +15140,16 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       labs.push({ x: P.X + dx, y: P.Y + dy, text: str, color: color, font: font, align: 'center',
                   ax: P.X, ay: P.Y, lead: !!lead });
     }
-    /* 名称与数值合到一行（与平面图一致），只留一个盒子 → 避让更干净 */
     for (i = 0; i < items.length; i++) {
       var it2 = items[i];
-      put({ x: it2.x, y: it2.yt, z: it2.z }, disp(it2.c.n) + ' ' + it2.c.ice, 0, -14, C.ink, '700 10px ' + MONO, true);
+      var isH2 = (hoverCity && hoverCity.n === it2.c.n);
+      put({ x: it2.x, y: it2.yt, z: it2.z }, disp(it2.c.n) + ' ' + it2.c.ice, 0, -14,
+        isH2 ? '#b45309' : C.ink, (isH2 ? '800 11px ' : '700 10px ') + MONO, true);
     }
     put({ x: 0, y: y0, z: bz(LAT0) + 0.34 }, disp('经度'), 0, 16, C.iceDark, '700 10px ' + MONO);
     put({ x: bx(LON0) - 0.34, y: y0, z: 0 }, disp('纬度'), 0, 0, C.iceDark, '700 10px ' + MONO);
     place(ctx, labs, h, w);
-    /* 标签被下移后补一条细引线，否则读不出它属于哪根柱 */
+
     for (i = 0; i < labs.length; i++) {
       var L = labs[i];
       if (!L.lead || L.fy == null || Math.abs(L.fy - L.y) < 3) continue;
@@ -14998,6 +15162,11 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       ctx.lineTo(L.fx == null ? L.x : L.fx, L.fy + 6);
       ctx.stroke();
       ctx.restore();
+    }
+
+    /* 悬停深色浮层 */
+    if (hoverCity && activeCanvas === 'bar' && hoverPos) {
+      drawCityTooltip(ctx, hoverPos.x, hoverPos.y, hoverCity, w, h);
     }
   }
 
@@ -15022,29 +15191,95 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     if (b) drawBar(b.ctx, b.w, b.h);
   }
 
-  /* ---------- 交互：拖拽 / 滚轮 / 方向键 ---------- */
+  /* ---------- 交互：拖拽 / 悬停 / 滚轮 / 方向键 ---------- */
   function markCustom() {
     var bs = document.querySelectorAll('[data-da3d-view]');
     for (var i = 0; i < bs.length; i++) bs[i].classList.remove('active');
   }
-  function bind(cv) {
+  function bind(cv, isBar) {
     var drag = false, lx = 0, ly = 0;
     cv.addEventListener('pointerdown', function (e) {
       drag = true; lx = e.clientX; ly = e.clientY;
+      hoverCity = null; hoverPos = null; activeCanvas = null;
       if (cv.setPointerCapture) { try { cv.setPointerCapture(e.pointerId); } catch (x) { } }
       cv.classList.add('grabbing');
     });
     cv.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      view.yaw += (e.clientX - lx) * 0.0075;
-      view.pitch = clamp(view.pitch - (e.clientY - ly) * 0.006, -0.12, 1.45);
-      lx = e.clientX; ly = e.clientY;
-      markCustom(); draw();
+      if (drag) {
+        view.yaw += (e.clientX - lx) * 0.0075;
+        view.pitch = clamp(view.pitch - (e.clientY - ly) * 0.006, -0.12, 1.45);
+        lx = e.clientX; ly = e.clientY;
+        hoverCity = null;
+        markCustom(); draw();
+        return;
+      }
+      var r = cv.getBoundingClientRect();
+      var mx = e.clientX - r.left;
+      var my = e.clientY - r.top;
+      var cam = camOf(r.width, r.height);
+      var hit = null;
+
+      if (!isBar) {
+        // 散点图：检测 9 个城市散点
+        var minD = 20;
+        for (var i = 0; i < CITIES.length; i++) {
+          var c = CITIES[i];
+          var tp = { x: wx(c.gdp), y: wy(c.ice), z: wz(c.snow) };
+          var P = proj(tp, cam);
+          if (!P) continue;
+          var d = Math.hypot(P.X - mx, P.Y - my);
+          if (d < minD) { minD = d; hit = c; }
+        }
+      } else {
+        // 柱状沙盘：检测柱顶与柱体
+        var HS = 0.105, BS = 0.84, y0 = wy(0);
+        var minD2 = 24;
+        for (var j = 0; j < CITIES.length; j++) {
+          var cb = CITIES[j];
+          var cx = bx(cb.lon), cz = bz(cb.lat);
+          var yt = y0 + (wy(cb.ice) - y0) * BS;
+          var Ptop = proj({ x: cx, y: yt, z: cz }, cam);
+          var Pbase = proj({ x: cx, y: y0, z: cz }, cam);
+          if (!Ptop) continue;
+          var dt = Math.hypot(Ptop.X - mx, Ptop.Y - my);
+          var inPillar = false;
+          if (Pbase) {
+            var yMin = Math.min(Ptop.Y, Pbase.Y) - 10, yMax = Math.max(Ptop.Y, Pbase.Y) + 10;
+            var xMin = Math.min(Ptop.X, Pbase.X) - 18, xMax = Math.max(Ptop.X, Pbase.X) + 18;
+            if (mx >= xMin && mx <= xMax && my >= yMin && my <= yMax) inPillar = true;
+          }
+          if (dt < minD2 || inPillar) {
+            minD2 = dt;
+            hit = cb;
+          }
+        }
+      }
+
+      if (hit !== hoverCity || (hit && (!hoverPos || Math.hypot(hoverPos.x - mx, hoverPos.y - my) > 3))) {
+        hoverCity = hit;
+        activeCanvas = hit ? (isBar ? 'bar' : 'plane') : null;
+        hoverPos = hit ? { x: mx, y: my } : null;
+        cv.style.cursor = hit ? 'pointer' : '';
+        draw();
+      }
     });
-    function end() { drag = false; cv.classList.remove('grabbing'); }
+    function end() {
+      drag = false;
+      cv.classList.remove('grabbing');
+      cv.style.cursor = hoverCity ? 'pointer' : '';
+    }
     cv.addEventListener('pointerup', end);
     cv.addEventListener('pointercancel', end);
-    cv.addEventListener('pointerleave', function () { if (drag) end(); });
+    cv.addEventListener('pointerleave', function () {
+      if (drag) end();
+      if (activeCanvas === (isBar ? 'bar' : 'plane')) {
+        hoverCity = null;
+        activeCanvas = null;
+        hoverPos = null;
+        cv.style.cursor = '';
+        draw();
+      }
+    });
     cv.addEventListener('wheel', function (e) {
       e.preventDefault();
       view.dist = clamp(view.dist + (e.deltaY > 0 ? 0.45 : -0.45), 4.2, 11);
@@ -15060,7 +15295,8 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       if (hit) { e.preventDefault(); e.stopPropagation(); markCustom(); draw(); }
     });
   }
-  bind(planeCv); bind(barCv);
+  bind(planeCv, false);
+  bind(barCv, true);
 
   /* ---------- 预设视角 / 复位 ---------- */
   var VIEWS = {
@@ -15121,6 +15357,7 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
      纯 Canvas 2D；中文标签交给全站 i18n 引擎在绘制期即时翻译。
      ================================================================ -->
 <script id="ned3Engine">
+
 (function () {
   'use strict';
   var cv = document.getElementById('ned3Cv');
@@ -15133,11 +15370,14 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
      全国/哈尔滨 —— 文化和旅游部 · 新华社 2025-03-24；白皮书 —— 伍斌《2024-2025 中国滑雪产业白皮书》 */
   var PROV = [
     { n: '黑龙江', en: 'Heilongjiang', lon: 128.0, lat: 47.5, area: 47.30, growth: 18.5,
-      abs: '1.35 亿人次 · 2,117 亿元', col: '#0284c7', colD: '#0369a1' },
+      abs: '1.35 亿人次 · 2,117 亿元', col: '#0284c7', colD: '#0369a1',
+      srcNote: '省文旅厅收官通报（含国内外游客）' },
     { n: '吉林', en: 'Jilin', lon: 126.0, lat: 43.7, area: 18.74, growth: 35.0,
-      abs: '1.70 亿人次 · 2,950 亿元', col: '#059669', colD: '#047857' },
+      abs: '1.70 亿人次 · 2,950 亿元', col: '#059669', colD: '#047857',
+      srcNote: '省文旅厅·银联大数据测算（国内游客）' },
     { n: '辽宁', en: 'Liaoning', lon: 123.0, lat: 41.5, area: 14.87, growth: 14.8,
-      abs: '绝对值未公布', col: '#d97706', colD: '#b45309' }
+      abs: '绝对值未公布', col: '#d97706', colD: '#b45309',
+      srcNote: '省文旅厅仅公布同比增速（未披露绝对值）' }
   ];
   var NODES = [
     { n: '哈尔滨', en: 'Harbin', lon: 126.53, lat: 45.80, lv: 1, tag: '9,035.7 万人次 / 1,372.2 亿元' },
@@ -15151,6 +15391,11 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
   ];
   /* 哈—长—沈冰雪走廊（按节点名索引） */
   var CORRIDOR = ['哈尔滨', '长春', '沈阳'];
+
+  /* ---------- 交互悬停状态 ---------- */
+  var nedHover = null;     // { x, y }
+  var hoveredNode = null;
+  var hoveredProv = null;
 
   /* ---------- 经纬域 → 世界坐标 ----------
      正北朝后：纬度越高 z 越负（屏幕上越靠上），与标准地图「上北下南」一致。
@@ -15182,8 +15427,7 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
   var view = { yaw: HOME.yaw, pitch: HOME.pitch, dist: HOME.dist };
   function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
 
-  /* 与 sv3dEngine 同款投影，但视场角按「版图包围盒 + 标签外扩」反解。
-     通栏画布宽高比可达 3.6:1，固定 fov 会让版图要么太小要么出画。 */
+  /* 视场角按「版图包围盒 + 标签外扩」反解 */
   function rawProj(p, cam) {
     var cy = Math.cos(view.yaw), sy = Math.sin(view.yaw);
     var x1 = p.x * cy - p.z * sy;
@@ -15195,14 +15439,9 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     var s = cam.fov / z2;
     return { X: cam.cx + x1 * s, Y: cam.cy - y2 * s, s: s, z: z2 };
   }
-  /* 标签外扩（屏幕 px）：柱顶省域标签在柱顶之上约 32px；经度轴名在前沿之下约 42px；
-     左侧纬度刻度与轴名伸出平面约 46px；右侧目的地标签伸出约 18px。
-     把这些外扩量折进包围盒再反解 fov，取景才会真正均衡——
-     否则会出现「几何居中但标签把下沿顶满」的偏心画面。 */
   var FIT_MARGIN = { t: 8, b: 58, l: 46, r: 18 };
   function camOf(w, h) {
     var cam = { cx: w / 2, cy: h * 0.56, fov: 1, dist: view.dist };
-    /* 采样：地面四角 + 三根柱顶 */
     var i, pts = [
       { x: -XH, y: 0, z: -ZH }, { x: XH, y: 0, z: -ZH },
       { x: -XH, y: 0, z: ZH }, { x: XH, y: 0, z: ZH }
@@ -15218,16 +15457,12 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       if (q.Y < y0) y0 = q.Y; if (q.Y > y1) y1 = q.Y;
     }
     if (x1 > x0 && y1 > y0) {
-      /* 记 u = x1/z2（与 cx、fov 无关）→ 屏幕 X = cx + u·fov。
-         fov=1 时测得包围盒宽 bw、高 bh；把屏幕像素外扩量换算成 u 单位要除以 fov，
-         而 fov 又依赖外扩量 → 先用不含外扩的 f0 估一次，再算最终 f。 */
       var bw = x1 - x0, bh = y1 - y0;
       var f0 = 1 / Math.max(bw / (w * 0.86), bh / (h * 0.78));
       var mL = FIT_MARGIN.l / f0, mR = FIT_MARGIN.r / f0;
       var mT = FIT_MARGIN.t / f0, mB = FIT_MARGIN.b / f0;
       var f = Math.min((w * 0.94) / (bw + mL + mR), (h * 0.94) / (bh + mT + mB));
       cam.fov = f;
-      /* 反解 cx/cy，使「含外扩」的包围盒中心落在画布中心 */
       var bcx = (x0 + x1) / 2 + (mR - mL) / 2;
       var bcy = (y0 + y1) / 2 + (mB - mT) / 2;
       cam.cx = w / 2 - f * (bcx - cam.cx);
@@ -15265,19 +15500,12 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     return out;
   }
 
-  /* ⚠️ SnowVizI18N.t() 是「纯查表」，永远返回英文；必须先用 isEN() 判语言，
-     否则中文模式下画布也会输出英文。（与 sv3dEngine 同一约定） */
   function disp(s) {
     var I = window.SnowVizI18N;
     return (I && I.isEN && I.isEN() && I.t) ? I.t(s) : s;
   }
-  /* 标签避让：把「名称 + 注释」当作一个整体块（block）来排版。
-     块内各行保持固定 13px 行距，块与块之间做自上而下的堆叠避让。
-     ⚠️ 反面教材：把每一行都当独立标签参与避让时，同一节点的「名称」与「注释」
-     会被别的标签插队拆散（排序键是 y，注释的 y 比下一个节点的名称还大），
-     而且每条都被 cursor 继续向下推 13px —— 16 条节点标签累计下漂近 200px，
-     最终被 hi 夹在画布底沿，观感就是「标签全糊在底部、还认不出属于哪个点」。
-     按块排版后：8 个目的地块 + 3 个省域块 = 11 块，最大累计漂移 ~140px。 */
+
+  /* 标签避让：按块排版 */
   var LINE_H = 13;
   function placeBlocks(ctx, blocks, maxY, maxX) {
     var i, j, g;
@@ -15291,7 +15519,6 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       }
       return false;
     }
-    /* 量宽（一次量完，避免 measureText 与绘制字号不一致） */
     for (i = 0; i < blocks.length; i++) {
       var blk = blocks[i], w2 = 0;
       for (j = 0; j < blk.lines.length; j++) {
@@ -15313,14 +15540,12 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       }
       boxes.push({ x: bx, y: cy - blk.h / 2, w: blk.w, h: blk.h });
     }
-    /* ① 优先块（省域标签）先落位，基本保持贴柱顶的理想位置 */
     for (i = 0; i < blocks.length; i++) {
       var pb = blocks[i];
       if (!pb.pri) continue;
       pb.cy = clamp(pb.y, lo + pb.h / 2, hi - pb.h / 2);
       lay(pb, pb.cy);
     }
-    /* ② 其余块：按锚点 y 自上而下堆叠，cursor 单调递增保证互不重叠 */
     var rest = [];
     for (i = 0; i < blocks.length; i++) if (!blocks[i].pri) rest.push(blocks[i]);
     rest.sort(function (a, b) { return a.y - b.y; });
@@ -15335,7 +15560,6 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       lay(b2, b2.cy);
       cursor = b2.cy + b2.h / 2 + 1;
     }
-    /* ③ 绘制 */
     for (i = 0; i < blocks.length; i++) {
       var B = blocks[i];
       for (j = 0; j < B.lines.length; j++) {
@@ -15351,6 +15575,265 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
         ctx.fillText(L.text, L.fx, L.fy, MAXW);
       }
     }
+  }
+
+  /* ---------- 右上角指北针：随相机旋转实时响应 (3D Telemetry Compass) ---------- */
+  function drawCompass(ctx, w, h) {
+    var isEN = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+    var cx = w - 46, cy = 46, r = 24;
+
+    ctx.save();
+    // 暗色半透明毛玻璃表盘底衬
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = 'rgba(7, 20, 42, 0.82)';
+    ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)'; ctx.lineWidth = 1.2; ctx.stroke();
+
+    // 内部同心刻度环
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)'; ctx.lineWidth = 0.9;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.65, 0, Math.PI * 2); ctx.stroke();
+
+    // 8 向方位刻度
+    for (var a = 0; a < 8; a++) {
+      var rad = a * Math.PI / 4;
+      var tLen = (a % 2 === 0) ? 4 : 2;
+      ctx.strokeStyle = (a % 2 === 0) ? 'rgba(56, 189, 248, 0.65)' : 'rgba(56, 189, 248, 0.28)';
+      ctx.lineWidth = (a % 2 === 0) ? 1.2 : 0.8;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(rad) * (r + 1), cy + Math.sin(rad) * (r + 1));
+      ctx.lineTo(cx + Math.cos(rad) * (r + 1 - tLen), cy + Math.sin(rad) * (r + 1 - tLen));
+      ctx.stroke();
+    }
+
+    // 正北向量投影：世界坐标系中北方对应 -Z 轴
+    var dx = Math.sin(view.yaw);
+    var dy = -Math.cos(view.yaw) * Math.sin(view.pitch);
+    var len = Math.hypot(dx, dy) || 1e-5;
+    var nx = dx / len;
+    var ny = dy / len;
+    var px = -ny, py = nx; // 正交侧向向量
+
+    var nLen = r * 0.82;
+    var nTipX = cx + nx * nLen, nTipY = cy + ny * nLen;
+    var sTipX = cx - nx * nLen, sTipY = cy - ny * nLen;
+    var wingL = r * 0.28;
+    var wLx = cx + px * wingL, wLy = cy + py * wingL;
+    var wRx = cx - px * wingL, wRy = cy - py * wingL;
+
+    // 北极指尖：双色立体红橙
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath(); ctx.moveTo(nTipX, nTipY); ctx.lineTo(wLx, wLy); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#be123c';
+    ctx.beginPath(); ctx.moveTo(nTipX, nTipY); ctx.lineTo(wRx, wRy); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+
+    // 南极指尖：双色立体冰蓝
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath(); ctx.moveTo(sTipX, sTipY); ctx.lineTo(wLx, wLy); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath(); ctx.moveTo(sTipX, sTipY); ctx.lineTo(wRx, wRy); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+
+    // 指针中心轴心点
+    ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.fill();
+    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1; ctx.stroke();
+
+    // 指针北极顶端标注“北”/“N”字
+    var labelDist = r + 11;
+    var lx = cx + nx * labelDist;
+    var ly = cy + ny * labelDist;
+    ctx.font = '700 11px ' + MONO;
+    ctx.fillStyle = '#f59e0b';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(isEN ? 'N' : '北', lx, ly);
+
+    // 罗盘底标说明：“正北朝后”
+    ctx.font = '600 8.5px ' + MONO;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(isEN ? 'TRUE NORTH' : '正北朝后', cx, cy + r + 7);
+
+    ctx.restore();
+  }
+
+  /* ---------- 深色科技感悬停浮层：省域棱柱 ---------- */
+  function drawProvTooltip(ctx, x, y, prov, w, h) {
+    var isEN = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+    var title = disp(prov.n) + (isEN ? ' Province' : '省');
+    var badge = isEN ? 'PROVINCE' : '东三省冰雪版图';
+
+    var rows = [
+      { k: isEN ? 'Tourist Volume & Spend' : '冰雪季接待量与综合收入', v: disp(prov.abs), c: '#38bdf8' },
+      { k: isEN ? 'Land Area (Base Size)' : '省域陆域面积（柱底面积）', v: prov.area.toFixed(2) + (isEN ? ' 10K km²' : ' 万 km²'), c: '#f8fafc' },
+      { k: isEN ? 'YoY Tourist Growth (Height)' : '客流同比增速（柱体高度）', v: '+' + prov.growth.toFixed(1) + '%', c: '#f59e0b' },
+      { k: isEN ? 'Metric Methodology' : '统计与测算数据口径', v: disp(prov.srcNote), c: '#94a3b8' }
+    ];
+
+    ctx.save();
+    var pad = 12;
+    var tw = isEN ? 260 : 270;
+    var th = 138;
+
+    var tx = x + 16;
+    var ty = y - 24;
+    if (tx + tw > w - 10) tx = x - tw - 16;
+    if (tx < 10) tx = 10;
+    if (ty + th > h - 10) ty = h - th - 10;
+    if (ty < 10) ty = 10;
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = 'rgba(7, 20, 42, 0.94)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.lineWidth = 1.2;
+
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(tx, ty, tw, th, 6);
+    else ctx.rect(tx, ty, tw, th);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.stroke();
+
+    // 左侧标志色块
+    ctx.fillStyle = prov.col || '#0284c7';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(tx, ty + 6, 3.5, th - 12, [2, 0, 0, 2]);
+    else ctx.rect(tx, ty + 6, 3.5, th - 12);
+    ctx.fill();
+
+    // 标题
+    ctx.font = '700 13px ' + MONO;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, tx + pad + 3, ty + pad);
+
+    // 标签
+    var bw = isEN ? 86 : 94;
+    var bx = tx + tw - pad - bw;
+    var by = ty + pad - 2;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.16)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, by, bw, 18, 3);
+    else ctx.rect(bx, by, bw, 18);
+    ctx.fill(); ctx.stroke();
+    ctx.font = '600 9px ' + MONO;
+    ctx.fillStyle = '#38bdf8';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(badge, bx + bw / 2, by + 9);
+
+    // 分割线
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(tx + pad, ty + 33);
+    ctx.lineTo(tx + tw - pad, ty + 33);
+    ctx.stroke();
+
+    var curY = ty + 42;
+    for (var r = 0; r < rows.length; r++) {
+      ctx.font = '400 10.5px ' + MONO;
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(rows[r].k, tx + pad + 3, curY);
+
+      ctx.font = '700 11px ' + MONO;
+      ctx.fillStyle = rows[r].c;
+      ctx.textAlign = 'right';
+      ctx.fillText(rows[r].v, tx + tw - pad, curY);
+      curY += 21;
+    }
+    ctx.restore();
+  }
+
+  /* ---------- 深色科技感悬停浮层：目的地节点 ---------- */
+  function drawNodeTooltip(ctx, x, y, node, w, h) {
+    var isEN = window.SnowVizI18N && window.SnowVizI18N.isEN && window.SnowVizI18N.isEN();
+    var title = disp(node.n);
+    var isCorridor = (CORRIDOR.indexOf(node.n) !== -1);
+    var badge = node.lv === 1 ? (isEN ? 'PRIMARY HUB' : '核心走廊枢纽') : (isEN ? 'SCENIC RESORT' : '特色度假胜地');
+
+    var rows = [
+      { k: isEN ? 'Coordinates' : '空间地理坐标', v: node.lon.toFixed(2) + '°E, ' + node.lat.toFixed(2) + '°N', c: '#f8fafc' },
+      { k: isEN ? 'Highlights & Volume' : '核心客流与特色注释', v: disp(node.tag), c: '#f59e0b' },
+      { k: isEN ? 'Corridor Role' : '冰雪走廊空间定位', v: isCorridor ? (isEN ? 'Harbin-Changchun-Shenyang Axis' : '哈—长—沈走廊黄金中枢') : (isEN ? 'Ice & Snow Golden Belt' : '东北冰雪黄金走廊辐射节点'), c: '#38bdf8' }
+    ];
+
+    ctx.save();
+    var pad = 12;
+    var tw = isEN ? 250 : 265;
+    var th = 118;
+
+    var tx = x + 16;
+    var ty = y - 24;
+    if (tx + tw > w - 10) tx = x - tw - 16;
+    if (tx < 10) tx = 10;
+    if (ty + th > h - 10) ty = h - th - 10;
+    if (ty < 10) ty = 10;
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = 'rgba(7, 20, 42, 0.94)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+    ctx.lineWidth = 1.2;
+
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(tx, ty, tw, th, 6);
+    else ctx.rect(tx, ty, tw, th);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.stroke();
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(tx, ty + 6, 3.5, th - 12, [2, 0, 0, 2]);
+    else ctx.rect(tx, ty + 6, 3.5, th - 12);
+    ctx.fill();
+
+    ctx.font = '700 13px ' + MONO;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, tx + pad + 3, ty + pad);
+
+    var bw = isEN ? 92 : 88;
+    var bx = tx + tw - pad - bw;
+    var by = ty + pad - 2;
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.16)';
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, by, bw, 18, 3);
+    else ctx.rect(bx, by, bw, 18);
+    ctx.fill(); ctx.stroke();
+    ctx.font = '600 9px ' + MONO;
+    ctx.fillStyle = '#f59e0b';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(badge, bx + bw / 2, by + 9);
+
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(tx + pad, ty + 33);
+    ctx.lineTo(tx + tw - pad, ty + 33);
+    ctx.stroke();
+
+    var curY = ty + 42;
+    for (var r = 0; r < rows.length; r++) {
+      ctx.font = '400 10.5px ' + MONO;
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(rows[r].k, tx + pad + 3, curY);
+
+      ctx.font = '700 10.5px ' + MONO;
+      ctx.fillStyle = rows[r].c;
+      ctx.textAlign = 'right';
+      ctx.fillText(rows[r].v, tx + tw - pad, curY);
+      curY += 22;
+    }
+    ctx.restore();
   }
 
   /* ================= 主绘制 ================= */
@@ -15394,9 +15877,6 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       var x = mx(p.lon), z = mz(p.lat), s = gs(p.area), t = gy(p.growth);
       half.push(s); top.push(t);
       var mid = proj({ x: x, y: t / 2, z: z }, cam);
-      /* 顶面四角的投影：取最高点（min Y）与水平中心。
-         省域标签要挂在「顶面最高处之上」，不能挂在顶面中心 —— 顶面是斜的，
-         后沿比中心高出近一个棱柱半宽，挂中心会让标签压在柱顶面上。 */
       var tY = 1e9, tX = 0, tc = 0;
       for (k = 0; k < 4; k++) {
         var corner = [{ dx: -s, dz: -s }, { dx: s, dz: -s }, { dx: s, dz: s }, { dx: -s, dz: s }][k];
@@ -15413,6 +15893,8 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     items.sort(function (a, b) { return b.d - a.d; });
     for (i = 0; i < items.length; i++) {
       var it = items[i], x2 = it.x, z2 = it.z, s2 = it.s, t2 = it.t, col = it.p.col, colD = it.p.colD;
+      var isHProv = (hoveredProv && hoveredProv.n === it.p.n);
+
       var faces = [
         { q: [{ x: x2 - s2, y: t2, z: z2 - s2 }, { x: x2 + s2, y: t2, z: z2 - s2 }, { x: x2 + s2, y: t2, z: z2 + s2 }, { x: x2 - s2, y: t2, z: z2 + s2 }], f: 'top' },
         { q: [{ x: x2 - s2, y: 0, z: z2 - s2 }, { x: x2 + s2, y: 0, z: z2 - s2 }, { x: x2 + s2, y: t2, z: z2 - s2 }, { x: x2 - s2, y: t2, z: z2 - s2 }], f: 'back' },
@@ -15449,8 +15931,12 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       }
 
       for (j = 0; j < fs.length; j++) {
-        var fill = fs[j].f === 'top' ? col : (fs[j].f === 'back' || fs[j].f === 'left' ? colD : col);
-        poly(ctx, cam, fs[j].q, hexA(fill, fs[j].f === 'top' ? 0.82 : 0.58), fs[j].f === 'top' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.65)', fs[j].f === 'top' ? 1.4 : 0.8);
+        var isTop = (fs[j].f === 'top');
+        var fill = isTop ? col : (fs[j].f === 'back' || fs[j].f === 'left' ? colD : col);
+        var fAlpha = isTop ? (isHProv ? 0.95 : 0.82) : 0.58;
+        var fStroke = isHProv && isTop ? '#ffffff' : (isTop ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.65)');
+        var fLw = isHProv && isTop ? 2.5 : (isTop ? 1.4 : 0.8);
+        poly(ctx, cam, fs[j].q, hexA(isHProv && isTop ? '#f59e0b' : fill, fAlpha), fStroke, fLw);
       }
       // 柱身高度刻度环 (20% 与 30% 增速线)
       var yTick1 = gy(20.0), yTick2 = gy(30.0);
@@ -15461,33 +15947,59 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
         seg(ctx, cam, { x: x2 - s2, y: yTick2, z: z2 + s2 }, { x: x2 + s2, y: yTick2, z: z2 + s2 }, 'rgba(255,255,255,0.6)', 0.8, [2, 2]);
       }
       /* 顶面增速刻度短柱：把「+18.5%」也画成可读的长度 */
-      seg(ctx, cam, { x: x2, y: t2, z: z2 }, { x: x2, y: t2 + 0.18, z: z2 }, 'rgba(255,255,255,0.95)', 2.0);
+      seg(ctx, cam, { x: x2, y: t2, z: z2 }, { x: x2, y: t2 + 0.18, z: z2 },
+        isHProv ? '#fef08a' : 'rgba(255,255,255,0.95)', isHProv ? 2.5 : 2.0);
+
+      /* 悬停顶面光晕 */
+      if (isHProv) {
+        var topC = proj({ x: x2, y: t2, z: z2 }, cam);
+        if (topC) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(topC.X, topC.Y, clamp(topC.s * s2 * 0.45, 12, 36), 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.55)';
+          ctx.lineWidth = 2.4;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
     }
 
-    /* ④ 目的地节点（画在棱柱之上，保证不被玻璃柱吞掉）
-       名称 + 注释打包成一个块，保证两者永远相邻、不会被别的标签插队拆散 */
+    /* ④ 目的地节点（画在棱柱之上，保证不被玻璃柱吞掉） */
     var nblocks = [];
     for (i = 0; i < NODES.length; i++) {
       var nd = NODES[i];
       var np = { x: mx(nd.lon), y: 0, z: mz(nd.lat) };
       var P = proj(np, cam);
       if (!P) continue;
+      var isHNode = (hoveredNode && hoveredNode.n === nd.n);
       var r = clamp(P.s * 0.030, 2.6, 6.5);
-      /* 立杆：从地面抬起，避免和棱柱底边糊在一起 */
-      seg(ctx, cam, np, { x: np.x, y: 0.20 + (nd.lv === 1 ? 0.06 : 0), z: np.z }, 'rgba(2,132,199,0.45)', 1);
+      if (isHNode) r += 2.5;
+
+      seg(ctx, cam, np, { x: np.x, y: 0.20 + (nd.lv === 1 ? 0.06 : 0), z: np.z },
+        isHNode ? '#f59e0b' : 'rgba(2,132,199,0.45)', isHNode ? 2.2 : 1);
+
       ctx.beginPath(); ctx.arc(P.X, P.Y, r, 0, Math.PI * 2);
-      ctx.fillStyle = nd.lv === 1 ? C.ice : C.iceLite; ctx.fill();
-      ctx.lineWidth = 1.3; ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.stroke();
-      if (nd.lv === 1) {
+      ctx.fillStyle = isHNode ? '#f59e0b' : (nd.lv === 1 ? C.ice : C.iceLite); ctx.fill();
+      ctx.lineWidth = isHNode ? 2.5 : 1.3;
+      ctx.strokeStyle = isHNode ? '#ffffff' : 'rgba(255,255,255,0.95)'; ctx.stroke();
+
+      if (isHNode) {
+        ctx.beginPath(); ctx.arc(P.X, P.Y, r + 5, 0, Math.PI * 2);
+        ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2.0; ctx.stroke();
+        ctx.beginPath(); ctx.arc(P.X, P.Y, r + 10, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)'; ctx.lineWidth = 1.2; ctx.stroke();
+      } else if (nd.lv === 1) {
         ctx.beginPath(); ctx.arc(P.X, P.Y, r + 3.2, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(2,132,199,0.35)'; ctx.lineWidth = 1; ctx.stroke();
       }
+
       nblocks.push({
         align: 'left', x: P.X + r + 5, y: P.Y - 4,
         ax: P.X, ay: P.Y, lead: true,
         lines: [
-          { text: disp(nd.n), color: C.ink, font: (nd.lv === 1 ? '700 11px ' : '600 10px ') + MONO },
-          { text: disp(nd.tag), color: C.muted, font: '400 9.5px ' + MONO }
+          { text: disp(nd.n), color: isHNode ? '#b45309' : C.ink, font: (isHNode ? '800 12px ' : (nd.lv === 1 ? '700 11px ' : '600 10px ')) + MONO },
+          { text: disp(nd.tag), color: isHNode ? '#0369a1' : C.muted, font: '400 9.5px ' + MONO }
         ]
       });
     }
@@ -15513,28 +16025,26 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     put({ x: (mx(LON0) + mx(LON1)) / 2, y: y0, z: mz(LAT0) }, disp('经度'), 0, 34, C.iceDark, '700 10px ' + MONO);
     put({ x: mx(LON0), y: y0, z: (mz(LAT0) + mz(LAT1)) / 2 }, disp('纬度'), -46, 0, C.iceDark, '700 10px ' + MONO);
 
-    /* ⑥ 省域标签：柱顶名称 + 增速 + 绝对量（三行合一，避免互相压字）
-       pri=true → 进优先层，位置基本不动，其余标签绕着它避让 */
+    /* ⑥ 省域标签：柱顶名称 + 增速 + 绝对量 */
     var pblocks = [];
     for (i = 0; i < items.length; i++) {
       var pit = items[i];
       var T = proj({ x: pit.x, y: pit.t, z: pit.z }, cam);
       if (!T) continue;
+      var isH3 = (hoveredProv && hoveredProv.n === pit.p.n);
       pblocks.push({
         align: 'center', x: T.X, y: T.Y - 32, ax: T.X, ay: T.Y, lead: true, pri: true,
         lines: [
-          { text: disp(pit.p.n) + '  +' + pit.p.growth.toFixed(1) + '%', color: C.ink, font: '700 12px ' + MONO },
-          { text: disp(pit.p.abs), color: C.muted, font: '400 9.5px ' + MONO }
+          { text: disp(pit.p.n) + '  +' + pit.p.growth.toFixed(1) + '%', color: isH3 ? '#b45309' : C.ink, font: (isH3 ? '800 13px ' : '700 12px ') + MONO },
+          { text: disp(pit.p.abs), color: isH3 ? '#0369a1' : C.muted, font: '400 9.5px ' + MONO }
         ]
       });
     }
 
-    /* 省域 + 目的地标签参与避让；轴刻度/轴名沿平面边缘自然散开，
-       不参与避让（否则会被堆叠规则从边缘拽到中间）。 */
     placeBlocks(ctx, pblocks.concat(nblocks), h, w);
     drawAxisLabels(ctx, labs, h);
 
-    /* 被避让推开的块补引线：从锚点连到块内首行 */
+    /* 引线 */
     var allb = pblocks.concat(nblocks);
     for (i = 0; i < allb.length; i++) {
       var L2 = allb[i], f0 = L2.lines[0];
@@ -15549,8 +16059,20 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       ctx.stroke();
       ctx.restore();
     }
+
+    /* ⑦ 右上角指北针：随拖拽旋转实时指示正北 */
+    drawCompass(ctx, w, h);
+
+    /* ⑧ 悬停深色浮层：节点优先，省域次之 */
+    if (nedHover) {
+      if (hoveredNode) {
+        drawNodeTooltip(ctx, nedHover.x, nedHover.y, hoveredNode, w, h);
+      } else if (hoveredProv) {
+        drawProvTooltip(ctx, nedHover.x, nedHover.y, hoveredProv, w, h);
+      }
+    }
   }
-  /* 轴刻度/轴名：位置由投影决定，直接落笔不参与避让；仅做画布内夹取防裁切 */
+
   function drawAxisLabels(ctx, labs, maxY) {
     var lo = 8, hi = (maxY || 1e6) - 8;
     for (var i = 0; i < labs.length; i++) {
@@ -15567,7 +16089,7 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
       ctx.fillText(L.text, L.x, y);
     }
   }
-  /* '#0284c7' + alpha → rgba()，用于玻璃柱面 */
+
   function hexA(hex, a) {
     var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
     return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
@@ -15592,7 +16114,7 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     if (a) draw(a.ctx, a.w, a.h);
   }
 
-  /* ---------- 交互：拖拽 / 滚轮 / 方向键 ---------- */
+  /* ---------- 交互：拖拽 / 悬停 / 滚轮 / 方向键 ---------- */
   function markCustom() {
     var bs = document.querySelectorAll('[data-ned3-view]');
     for (var i = 0; i < bs.length; i++) bs[i].classList.remove('active');
@@ -15601,20 +16123,86 @@ P.push(["东三省冰雪三维示意图：黑龙江、吉林、辽宁按省域�
     var drag = false, lx = 0, ly = 0;
     cv.addEventListener('pointerdown', function (e) {
       drag = true; lx = e.clientX; ly = e.clientY;
+      nedHover = null; hoveredNode = null; hoveredProv = null;
       if (cv.setPointerCapture) { try { cv.setPointerCapture(e.pointerId); } catch (x) { } }
       cv.classList.add('grabbing');
     });
     cv.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      view.yaw += (e.clientX - lx) * 0.0075;
-      view.pitch = clamp(view.pitch - (e.clientY - ly) * 0.006, 0.06, 1.45);
-      lx = e.clientX; ly = e.clientY;
-      markCustom(); drawAll();
+      if (drag) {
+        view.yaw += (e.clientX - lx) * 0.0075;
+        view.pitch = clamp(view.pitch - (e.clientY - ly) * 0.006, 0.06, 1.45);
+        lx = e.clientX; ly = e.clientY;
+        nedHover = null;
+        markCustom(); drawAll();
+        return;
+      }
+      var r = cv.getBoundingClientRect();
+      var mx2 = e.clientX - r.left;
+      var my2 = e.clientY - r.top;
+      var cam = camOf(r.width, r.height);
+
+      // ① 优先检测 8 个目的地节点（较小，点吸附半径 18px）
+      var hitNode = null;
+      var minD = 18;
+      for (var i = 0; i < NODES.length; i++) {
+        var nd = NODES[i];
+        var np = { x: mx(nd.lon), y: 0, z: mz(nd.lat) };
+        var P = proj(np, cam);
+        if (!P) continue;
+        var d = Math.hypot(P.X - mx2, P.Y - my2);
+        if (d < minD) { minD = d; hitNode = nd; }
+      }
+
+      // ② 若未命中节点，检测 3 个省域棱柱
+      var hitProv = null;
+      if (!hitNode) {
+        var minProvD = 32;
+        for (var j = 0; j < PROV.length; j++) {
+          var p = PROV[j];
+          var px2 = mx(p.lon), pz2 = mz(p.lat), s = gs(p.area), t = gy(p.growth);
+          var T = proj({ x: px2, y: t, z: pz2 }, cam);
+          var B = proj({ x: px2, y: 0, z: pz2 }, cam);
+          if (!T) continue;
+          var dt = Math.hypot(T.X - mx2, T.Y - my2);
+          var inCol = false;
+          if (B) {
+            var yMin = Math.min(T.Y, B.Y) - 10, yMax = Math.max(T.Y, B.Y) + 10;
+            var colW = Math.max(22, T.s * s * 1.8);
+            var xMin = Math.min(T.X, B.X) - colW / 2, xMax = Math.max(T.X, B.X) + colW / 2;
+            if (mx2 >= xMin && mx2 <= xMax && my2 >= yMin && my2 <= yMax) inCol = true;
+          }
+          if (dt < minProvD || inCol) {
+            minProvD = dt;
+            hitProv = p;
+          }
+        }
+      }
+
+      var changed = (hitNode !== hoveredNode || hitProv !== hoveredProv);
+      hoveredNode = hitNode;
+      hoveredProv = hitProv;
+      nedHover = (hitNode || hitProv) ? { x: mx2, y: my2 } : null;
+      cv.style.cursor = (hitNode || hitProv) ? 'pointer' : '';
+
+      if (changed || nedHover) {
+        drawAll();
+      }
     });
-    function end() { drag = false; cv.classList.remove('grabbing'); }
+    function end() {
+      drag = false;
+      cv.classList.remove('grabbing');
+      cv.style.cursor = (hoveredNode || hoveredProv) ? 'pointer' : '';
+    }
     cv.addEventListener('pointerup', end);
     cv.addEventListener('pointercancel', end);
-    cv.addEventListener('pointerleave', function () { if (drag) end(); });
+    cv.addEventListener('pointerleave', function () {
+      if (drag) end();
+      nedHover = null;
+      hoveredNode = null;
+      hoveredProv = null;
+      cv.style.cursor = '';
+      drawAll();
+    });
     cv.addEventListener('wheel', function (e) {
       e.preventDefault();
       view.dist = clamp(view.dist + (e.deltaY > 0 ? 0.5 : -0.5), 4.0, 11);
