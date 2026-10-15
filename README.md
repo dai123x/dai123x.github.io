@@ -1,132 +1,89 @@
-# 🌐 戴璇 · 个人数字门户 (daixuan.cloud)
+# 戴璇 · 个人数字门户
 
-> 现代轻量化响应式个人主页 · 3D 图形交互与自媒体创作者作品集  
-> 专为 **GitHub Pages** 打造，内置自定义域名 `daixuan.cloud` 解析支持与 GitHub Actions 自动化部署。
+[访问站点](https://daixuan.cloud/) · [GitHub 仓库](https://github.com/dai123x/dai123x.github.io)
 
-[![GitHub Pages](https://img.shields.io/badge/Deployment-GitHub%20Pages-blue?logo=github)](https://daixuan.cloud)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](#)
-[![Pure Vanilla](https://img.shields.io/badge/Stack-HTML5%20%7C%20CSS3%20%7C%20VanillaJS-orange)](#)
+个人主页与作品集，集中展示应用统计案例、交互可视化、三维校园地图及前端工具。站点使用原生 HTML、CSS 和 JavaScript，保留各作品的独立页面与设计；无需安装 npm 依赖，也没有前端框架构建步骤。部分作品使用本地第三方库或在线资源。
 
----
+## 站点入口
 
-## ✨ 核心特性
+当前 `sitemap.xml` 收录以下 12 个页面：
 
-- ⚡ **零构建依赖 · 开箱即用**：纯原生 HTML5 / CSS3 / ES6+ 编写，无需安装 Node.js、Vite 或任何构建工具，本地双击 `index.html` 即可畅快预览。
-- 🌓 **双模式色彩自适应**：支持跟随系统主题自动切换浅色 / 深色（Dark/Light）模式，亦支持手动一键平滑切换，状态持久化至 `localStorage`。
-- 📱 **极致全端响应式**：精心优化的流式网关与 Bento-Grid 卡片排版，在手机、平板、高分屏桌面端均可完美呈现。
-- 🎨 **毛玻璃现代美学 (Glassmorphism)**：微弥散动态光晕、平滑过渡动画、卡片微动效与交互打字机效果。
-- 🏷️ **作品分类过滤**：精选项目支持按「全部 / 3D交互与开发 / 自媒体与创作」实时标签筛选。
-- 📬 **便捷互动体验**：邮箱点击一键复制并唤起轻量 Toast 提示、微信二维码交互弹窗、平滑锚点定位与回到顶部浮钮。
-- 🌐 **已就绪的 GitHub Pages 配置**：根目录内置 `CNAME`（指定 `daixuan.cloud`），并配备 `.github/workflows/deploy.yml` 自动化部署流。
+| 页面 | 内容 |
+| --- | --- |
+| [首页](https://daixuan.cloud/) | 个人介绍、作品分类与项目入口 |
+| [璇玑星海](https://daixuan.cloud/galaxy/) | 个人经历与作品的交互星系 |
+| [工大印记](https://daixuan.cloud/school/) | 长春工业大学主题页面 |
+| [智能制造案例](https://daixuan.cloud/case-studies/smart-manufacturing-takt-time-analysis.html) | 工序节拍分析与产线改善情景展示 |
+| [信用风险案例](https://daixuan.cloud/case-studies/applied-statistics-credit-risk.html) | 应用统计与信用风险分析展示 |
+| [全景立体校园地图](https://daixuan.cloud/campus-map/) | 校园空间示意、建筑检索与三维漫游 |
+| [雪线之上](https://daixuan.cloud/snow-viz/) | 吉林冰雪经济目标可视化交互系统 |
+| [雪线之上作品说明书](https://daixuan.cloud/snow-viz/documentation.html) | 作品方法、数据与交互说明 |
+| [统计游乐场](https://daixuan.cloud/stats-lab/) | 可交互的统计概念演示 |
+| [Aurora Chat · 极光](https://daixuan.cloud/aurora-chat/) | 浏览器端 AI 聊天工作台 |
+| [明史资料平台](https://daixuan.cloud/ming-history/) | 文献索引与研读工具 |
+| [简历](https://daixuan.cloud/resume/) | 在线简历与打印页面 |
 
----
+`snow-viz/vr_twin.html` 是冰雪作品的附属三维 / VR 页面；`404.html` 提供站点错误页。
 
-## 📁 目录结构
+## 目录与维护点
 
 ```text
-personal-portfolio/
-├── index.html                      # 网站主入口页面 (SEO 标签 / 语义化排版)
-├── CNAME                           # GitHub Pages 自定义域名配置 (daixuan.cloud)
-├── .gitignore                      # Git 忽略配置
-├── README.md                       # 项目说明与 GitHub 提交流程指南
-├── css/
-│   └── style.css                   # 核心设计系统与样式表 (双主题 / 响应式)
-├── js/
-│   └── main.js                     # 交互逻辑 (主题切换 / 筛选 / 弹窗 / Toast)
-├── assets/
-│   └── images/
-│       ├── favicon.svg             # 网站徽标 Favicon
-│       ├── avatar.svg              # 极客风格矢量头像 (可替换为您自己的照片)
-│       ├── project-3dmap.svg       # 长工大全景立体地图插画
-│       ├── project-cloud.svg       # 个人门户封面图
-│       ├── project-media.svg       # 自媒体视频矩阵插画
-│       └── project-study.svg       # 知识库与英语备考插画
-└── .github/
-    └── workflows/
-        └── deploy.yml              # GitHub Actions 自动化部署流水线
+.
+├── index.html                 # 首页内容、作品卡片和导航
+├── css/                       # 首页样式（style.css、refresh.css）
+├── js/                        # 首页交互与图片查看器
+├── assets/                    # 共享图片、图标和音频
+├── galaxy/                    # 星系页面及 comments.json
+├── school/                    # 学校主题页面
+├── case-studies/              # 两篇统计案例、说明与保存结果
+├── campus-map/                # 三维校园示意、模型数据和本地 Three.js
+├── snow-viz/                  # 冰雪作品、说明书、VR 页面及 CSV/JSON 数据
+├── stats-lab/                 # 统计演示、样式与中英文文案
+├── aurora-chat/               # 聊天工作台、本地第三方库及许可声明
+├── ming-history/              # 明史页面、交互逻辑及 data-*.js 资料
+├── resume/                    # 简历页面
+├── scripts/                   # 站点检查、部署打包及已有分析辅助文件
+├── .github/workflows/         # GitHub Actions 校验与部署
+├── sitemap.xml                # 公开页面索引
+├── robots.txt                 # 搜索引擎抓取配置
+├── site.webmanifest           # 站点名称、图标与显示配置
+├── CNAME                      # 自定义域名 daixuan.cloud
+├── 404.html
+└── LICENSE
 ```
 
----
+- 修改首页内容时同步检查 `index.html`、`css/` 和 `js/`；作品名称、封面和链接在首页与各作品页面之间保持一致。
+- 各作品的内容和交互主要位于对应目录。校园模型数据在 `campus-map/js/campus-data.js`，明史资料在 `ming-history/js/data-*.js`，统计游乐场的双语文案在 `stats-lab/js/i18n.js`。
+- 冰雪作品的数据、报告和页面同在 `snow-viz/`；案例保存结果位于 `case-studies/case_summary.json`。更新统计内容时核对数据来源、分析条件和页面数值，保留原有作者署名。
+- 新增或移除公开页面时，同时更新导航、页面的 canonical / 分享信息和 `sitemap.xml`。更换域名时同步检查 `CNAME`、`robots.txt` 与页面中的绝对地址。
 
-## 🚀 提交到 GitHub 并上线 GitHub Pages 完整指南
+## 本地预览与检查
 
-### 第一步：在 GitHub 上创建新仓库
-
-从您的仓库截图已知，您的 GitHub 用户名是 **`dai123x`**，目标仓库是 **`dai123x.github.io`**：
-1. 仓库名称：**`dai123x.github.io`**（作为 GitHub 用户专属 Pages 站点）
-2. 仓库属性：**Public**（公开）
-3. 远程地址：`https://github.com/dai123x/dai123x.github.io.git`
-
----
-
-### 第二步：在本地直接推送到 GitHub
-
-由于本地仓库已完成 `git init` 与初始提交，并已将远程分支设为您的仓库，您只需在终端（PowerShell 或 CMD）执行推送：
+在仓库根目录启动 HTTP 静态服务，例如使用已安装的 Python 3：
 
 ```bash
-cd "d:\自媒体\personal-portfolio"
-
-# 一键推送至 GitHub main 分支
-git push -u origin main
+python -m http.server 8000 --bind 127.0.0.1
 ```
 
-> 若尚未添加远程源或需重新配置，可运行：
-> ```bash
-> git remote add origin https://github.com/dai123x/dai123x.github.io.git
-> git push -u origin main
-> ```
+打开 [http://127.0.0.1:8000/](http://127.0.0.1:8000/)，即可沿首页链接访问各作品。使用 HTTP 预览，以便 JSON 请求、模块脚本和相对路径按网站方式加载。地图在线影像、VR 页面的 CDN 资源和聊天服务接口仍需要相应网络访问；Aurora Chat 提供无需配置服务接口的演示模式。
 
----
+站点维护脚本使用 Node.js 内置模块，无需运行 `npm install`：
 
-### 第三步：开启 GitHub Pages 静态托管
+```bash
+node scripts/check-site.mjs
+node scripts/build-site.mjs
+```
 
-推送完成后，前往您的 GitHub 仓库页面：
+第一条执行站点静态检查，第二条生成部署目录 `_site/`。如需核对部署包，可在 `_site/` 内启动同样的 HTTP 服务。静态检查通过后，仍应在浏览器查看桌面与手机宽度下的实际页面，并检查导航、主题切换及本次修改涉及的作品交互。
 
-1. 点击顶部的 **Settings** 选项卡。
-2. 在左侧菜单中找到 **Pages**（在 "Code and automation" 下方）。
-3. 在 **Build and deployment** 下的 **Source** 中：
-   - 选项 A（最简单）：选择 **Deploy from a branch**，并将 Branch 设置为 **`main`**，文件夹保持 **`/(root)`**，点击 **Save**。
-   - 选项 B：选择 **GitHub Actions**（仓库中已自带 `.github/workflows/deploy.yml`，推送后会自动运行部署）。
-4. 此时稍等 1~2 分钟，GitHub Pages 即可完成构建发布！
+## 部署
 
----
+站点由 [GitHub Actions 工作流](.github/workflows/)发布到 GitHub Pages：拉取请求执行校验，`main` 分支更新后检查并打包站点，将 `_site/` 作为部署产物发布。仓库的 **Settings → Pages → Build and deployment → Source** 应选择 **GitHub Actions**。
 
-### 第四步：配置 `daixuan.cloud` 域名 DNS 解析
+`CNAME` 记录自定义域名 `daixuan.cloud`；域名解析与 HTTPS 状态在域名服务商和 GitHub Pages 设置中管理。部署进度与失败原因以仓库 **Actions** 记录为准。
 
-由于项目中已包含 `CNAME` 文件并写入了 `daixuan.cloud`，GitHub 会自动识别您的自定义域名。
+## 许可证、素材与数据
 
-前往您的域名服务商（如腾讯云、阿里云、Cloudflare、Namesilo 等）的 **DNS 解析控制台**，为 `daixuan.cloud` 添加以下解析记录：
+根目录的 [MIT 许可证](LICENSE)说明本项目代码的使用条件。复用子项目时也需查看其单独声明：例如 [Aurora Chat 许可证](aurora-chat/LICENSE)与[第三方组件声明](aurora-chat/THIRD-PARTY-NOTICES.md)，以及[校园地图的用途与来源说明](campus-map/README.md)。
 
-| 记录类型 | 主机记录 | 记录值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| **CNAME** | `@` 或 `www` | `<您的GitHub用户名>.github.io.` | 指向 GitHub 提供的 Pages 节点 |
-
-> 💡 **备用方案（A 记录）**：  
-> 如果域名商的根域名 `@` 不允许添加 CNAME，可以添加 4 条 **A 记录**指向 GitHub Pages 官方 IP：
-> - `185.199.108.153`
-> - `185.199.109.153`
-> - `185.199.110.153`
-> - `185.199.111.153`
-
-解析生效后（通常 5~30 分钟），在 GitHub 仓库的 **Settings -> Pages** 中勾选 **Enforce HTTPS**，即可全自动获得免费的 SSL 证书，实现 `https://daixuan.cloud` 绿锁安全访问！
-
----
-
-## 🛠️ 自定义配置指南
-
-1. **更换真实头像**：
-   - 将你的真实头像图片放入 `assets/images/`，如命名为 `avatar.jpg`。
-   - 在 `index.html` 中搜索 `assets/images/avatar.svg`，替换为 `assets/images/avatar.jpg`。
-
-2. **更换微信二维码图片**：
-   - 将你的微信二维码图片保存为 `assets/images/wechat-qr.png`。
-   - 打开 `index.html` 中的微信模态框区域，将 SVG 占位图替换为 `<img src="assets/images/wechat-qr.png" width="180">` 即可。
-
-3. **修改个人链接与社交媒体**：
-   - 在 `index.html` 中搜索 `https://github.com`、`https://space.bilibili.com`、`contact@daixuan.cloud`，修改为你的实际账号地址或主页。
-
----
-
-## 📄 开源许可证
-
-本项目基于 [MIT License](LICENSE) 开源，您可以自由修改、定制与二次分发。
+第三方库保留各自的版权与许可证；图片、音频、地图服务、引用资料和外部数据依各自来源的授权条件使用，不能因其出现在本仓库就视为统一采用 MIT。复用或再分发前，应核对对应项目的来源说明与许可，并保留必要署名。作品中的统计案例、情景推演和校园空间示意，应连同页面说明的假设与适用范围一起理解。
