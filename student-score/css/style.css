@@ -665,6 +665,87 @@ textarea.code {
   input.num-cell-sm { width: 54px; }
 }
 
+/* ------------------------------ 批量打印全班学生报告单 ------------------------------ */
+.report-a4-sheet {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.report-header {
+  text-align: center;
+  border-bottom: 2px solid var(--border-2);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+.report-meta-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13.5px;
+  background: var(--surface-2);
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+.report-main-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+}
+@media (max-width: 820px) {
+  .report-main-grid { grid-template-columns: 1fr; }
+}
+.sec-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  padding-left: 6px;
+  border-left: 3px solid var(--accent);
+}
+.report-five-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.report-five-pill {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 6px;
+  text-align: center;
+  font-size: 12px;
+}
+.report-remark-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  min-height: 120px;
+}
+.report-receipt-box {
+  margin-top: 20px;
+  border: 1px dashed var(--border-2);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  background: var(--surface-2);
+}
+.receipt-cut-line {
+  font-size: 11px;
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
 /* ------------------------------ 打印 ------------------------------ */
 @media print {
   :root { --shadow: none; --shadow-sm: none; }
@@ -686,6 +767,22 @@ textarea.code {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+  .batch-reports-wrap { display: block !important; }
+  .report-a4-sheet {
+    page-break-after: always !important;
+    break-after: page !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 15mm 10mm !important;
+    margin: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .report-header { border-bottom-color: #333 !important; }
+  .report-meta-bar { background: #f6f6f6 !important; border-color: #ddd !important; }
+  .report-five-pill { background: #f8f8f8 !important; border-color: #ccc !important; }
+  .report-remark-box { background: #fafafa !important; border-color: #ccc !important; }
+  .report-receipt-box { background: #fdfdfd !important; border-color: #777 !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

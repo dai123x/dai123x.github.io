@@ -411,6 +411,7 @@ const TEACHER_NAV = [
   { key: 'grade', ico: '✎', name: '评分台' },
   { key: 'matrix', ico: '▦', name: '全班成绩大表' },
   { key: 'analytics', ico: '📈', name: '学情诊断大屏' },
+  { key: 'batchReports', ico: '🖨️', name: '全班报告单连续打印' },
   { key: 'board', ico: '▤', name: '班级榜单' },
   { key: 'roster', ico: '☰', name: '班级与学生' },
   { key: 'weights', ico: '⚖', name: '权重设置' },
@@ -1242,6 +1243,134 @@ function viewAnalytics() {
     `</div>` +
   `</div>`;
 }
+
+/* =====================================================================
+ * 7.3 全班综合素质评价报告单 · 批量连续打印引擎（Batch Reports Print View）
+ * ===================================================================== */
+function viewBatchReports() {
+  const cls = curClass();
+  if (!cls) return noClassHTML();
+  const cfg = store.getConfig();
+  const students = store.listStudents(cls.id);
+  const { results } = reportFor(cls.id, SOURCES.TEACHER);
+  const { rankMap } = rankBy(results, SCORE_OF.composite);
+  const sortedStudents = students.slice().sort((a, b) => (rankMap.get(a.id) || 999) - (rankMap.get(b.id) || 999));
+
+  return `<div class="stack">
+    <div class="card no-print" style="background:var(--surface)">
+      <div class="card-head" style="flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 style="margin:0;display:flex;align-items:center;gap:8px">
+            <span>🖨️ 全班综合素质评价报告单 · 批量连续打印</span>
+            <span class="tag tag-ok">共 ${students.length} 名学生</span>
+          </h1>
+          <p class="card-sub">标准 A4 规格双联排版，包含学期总评、五育量化、13 门单科成绩、班主任个性化评语及家长回执剪裁栏。按 Ctrl+P 或点击右侧按钮即可一键连续打印输出。</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn btn-primary" type="button" data-act="print">🖨️ 开始全班连续打印 (Ctrl+P)</button>
+          <button class="btn" type="button" data-act="nav" data-arg="matrix">← 返回成绩大表</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="batch-reports-wrap">
+      ${sortedStudents.map((stu) => {
+        const ev = results.find((r) => r.studentId === stu.id);
+        const rank = rankMap.get(stu.id) || '—';
+        const comp = ev && ev.composite ? ev.composite.score : null;
+        const gr = gradeOf(comp);
+        const f = ev && ev.fives ? ev.fives.fives : {};
+        const remark = localStorage.getItem('stu_remark_' + stu.id) || generateStudentRemark(stu, ev);
+        const subjRec = store.getSubjects(stu.id, SOURCES.TEACHER);
+        const subjScores = subjRec ? subjRec.scores : {};
+
+        return `
+        <div class="report-a4-sheet">
+          <div class="report-header">
+            <div style="font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">STUDENT COMPREHENSIVE REPORT CARD</div>
+            <h2 style="font-size:1.5rem;margin:6px 0 10px;letter-spacing:1px">${esc(cls.name)} · 学生综合素质与学业成长报告单</h2>
+            <div class="report-meta-bar">
+              <span>姓名：<strong>${esc(stu.name)}</strong></span>
+              <span>学号：<strong>${esc(stu.no)}</strong></span>
+              <span>全班排名：<strong>第 ${rank} 名</strong></span>
+              <span>综合总评：<strong style="color:var(--accent-2);font-size:1.1rem">${fmt1(comp)} 分</strong></span>
+              <span>等第：<strong class="tag ${gr.cls}">${gr.grade}（${gr.label}）</strong></span>
+            </div>
+          </div>
+
+          <div class="report-main-grid">
+            <!-- 左侧：五育与学科量化 -->
+            <div>
+              <div class="sec-title">一、五育发展量化水平</div>
+              <div class="report-five-grid">
+                ${FIVES.map((fItem) => `
+                  <div class="report-five-pill">
+                    <span style="color:${fItem.color};font-weight:700">${fItem.name}育</span>
+                    <strong style="font-family:var(--mono);display:block;margin-top:2px">${fmt1(f[fItem.key])}</strong>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="sec-title" style="margin-top:14px">二、学科期末学期总评</div>
+              <div class="table-wrap">
+                <table style="font-size:12px">
+                  <thead><tr>
+                    <th>学科</th><th class="center">平时</th><th class="center">期中</th><th class="center">期末</th><th class="center">学期总评</th>
+                  </tr></thead>
+                  <tbody>
+                    ${SUBJECTS.map((s) => {
+                      const sc = subjScores[s.key] || {};
+                      const term = termOf(sc, cfg.termWeights);
+                      return `<tr>
+                        <th style="text-align:left;font-weight:600">${esc(s.name)}</th>
+                        <td class="center font-mono">${fmt1(sc.usual)}</td>
+                        <td class="center font-mono">${fmt1(sc.mid)}</td>
+                        <td class="center font-mono">${fmt1(sc.final)}</td>
+                        <td class="center font-mono" style="font-weight:700;color:${gradeColor(term)}">${fmt1(term)}</td>
+                      </tr>`;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 右侧：日常表现与班主任综合评语 -->
+            <div style="display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div class="sec-title">三、班主任综合评语与发展建议</div>
+                <div class="report-remark-box">
+                  ${esc(remark)}
+                </div>
+                <div style="margin-top:10px;font-size:12px;color:var(--muted);text-align:right">
+                  班主任签名：____________________ &nbsp;&nbsp; 日期：2026年___月___日
+                </div>
+              </div>
+
+              <!-- 虚线回执条 -->
+              <div class="report-receipt-box">
+                <div class="receipt-cut-line">✂ ————————— 沿虚线剪下此联·签字后交回班主任留存 ————————— ✂</div>
+                <div style="font-weight:700;text-align:center;margin-bottom:8px;font-size:13px">${esc(cls.name)} · 家长意见与回执单</div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px">
+                  <span>学生：<strong>${esc(stu.name)}</strong> (${esc(stu.no)})</span>
+                  <span>学期等第：<strong>${gr.grade}</strong></span>
+                  <span>家长已阅确认：[ &nbsp; ]</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-2);margin-bottom:6px">家长寄语 / 假期规划反馈：</div>
+                <div style="height:34px;border-bottom:1px dashed var(--border-2);margin-bottom:10px"></div>
+                <div style="display:flex;justify-content:space-between;font-size:11.5px">
+                  <span>家长签名：________________</span>
+                  <span>联系电话：________________</span>
+                  <span>日期：2026年___月___日</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
 function viewBoard() {
   const cls = curClass();
   if (!cls) return noClassHTML();
@@ -1757,6 +1886,46 @@ function viewData() {
       </div>
     </div>
 
+    
+    <!-- 本地历史快照与防手抖存档 -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2 style="margin:0">本地历史快照与安全存档</h2>
+          <p class="card-sub">在进行大批量导入或学期封档前创建快照，随时一键安全回滚</p>
+        </div>
+        <button class="btn btn-sm btn-primary row-end" type="button" data-act="create-snapshot">📸 创建即时快照</button>
+      </div>
+      <div class="card-body tight">
+        ${(() => {
+          let list = [];
+          try { list = JSON.parse(localStorage.getItem('dx_snapshots') || '[]'); } catch (e) { list = []; }
+          if (!list.length) {
+            return '<div class="empty" style="padding:24px"><span class="empty-ico">📷</span><p>暂无快照。点击右上角“创建即时快照”随时保存当前完整数据版本。</p></div>';
+          }
+          return `<div class="table-wrap"><table>
+            <thead><tr>
+              <th>快照名称与时间</th>
+              <th class="center" style="width:140px">班级与学生</th>
+              <th class="center" style="width:160px">操作</th>
+            </tr></thead>
+            <tbody>
+              ${list.map((it) => `
+                <tr>
+                  <td><strong>${esc(it.name)}</strong><br><small style="color:var(--muted)">${esc(it.time)}</small></td>
+                  <td class="center font-mono">${it.data && it.data.classes ? it.data.classes.length : 0} 班 / ${it.data && it.data.students ? it.data.students.length : 0} 人</td>
+                  <td class="center">
+                    <button class="btn btn-xs" type="button" data-act="restore-snapshot" data-arg="${it.id}">↺ 恢复此快照</button>
+                    <button class="btn btn-xs btn-ghost btn-danger" type="button" data-act="delete-snapshot" data-arg="${it.id}">删除</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table></div>`;
+        })()}
+      </div>
+    </div>
+  
     <div class="card">
       <div class="card-head"><div><h2 style="margin:0">评分口径说明</h2>
         <p class="card-sub">这套系统怎么算分，写在这里，方便对家长和学生解释</p></div></div>
@@ -2242,6 +2411,7 @@ function mainHTML() {
     switch (state.tview) {
       case 'matrix': return viewMatrix();
       case 'analytics': return viewAnalytics();
+      case 'batchReports': return viewBatchReports();
       case 'board': return viewBoard();
       case 'roster': return viewRoster();
       case 'weights': return viewWeights();
@@ -2753,6 +2923,48 @@ function handleAction(act, arg, el) {
         fr.readAsText(file);
       });
       inp.click();
+      break;
+    }
+
+    case 'create-snapshot': {
+      const snap = store.snapshot();
+      let list = [];
+      try { list = JSON.parse(localStorage.getItem('dx_snapshots') || '[]'); } catch (e) { list = []; }
+      const cls = curClass();
+      const name = (cls ? cls.name : '全校数据') + ' - ' + snap.students.length + '人存档';
+      list.unshift({
+        id: 'snap_' + Date.now(),
+        time: new Date().toLocaleString(),
+        name,
+        data: snap
+      });
+      if (list.length > 8) list.pop();
+      localStorage.setItem('dx_snapshots', JSON.stringify(list));
+      toast('已成功创建当前数据快照 ✓', 'ok');
+      render();
+      break;
+    }
+
+    case 'restore-snapshot': {
+      let list = [];
+      try { list = JSON.parse(localStorage.getItem('dx_snapshots') || '[]'); } catch (e) { list = []; }
+      const item = list.find((x) => x.id === act.arg);
+      if (!item) { toast('未找到该快照', 'bad'); break; }
+      if (window.confirm('确定要将数据还原至【' + item.name + '】(' + item.time + ') 吗？当前未保存的修改将被覆盖。')) {
+        store.restore(item.data);
+        toast('已成功还原至历史快照 ✓', 'ok');
+        render();
+      }
+      break;
+    }
+
+    case 'delete-snapshot': {
+      let list = [];
+      try { list = JSON.parse(localStorage.getItem('dx_snapshots') || '[]'); } catch (e) { list = []; }
+      list = list.filter((x) => x.id !== act.arg);
+      localStorage.setItem('dx_snapshots', JSON.stringify(list));
+      toast('快照已删除', 'ok');
+      render();
       break;
     }
 

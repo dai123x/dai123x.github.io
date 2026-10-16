@@ -555,7 +555,8 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
     </div>
 
     <nav class="navlinks" aria-label="页面栏目">
-      <a href="#risk-tool" class="highlight">⚡ 风险自测</a>\n      <a href="#fingerprint-tool" class="highlight">🛡️ 指纹体检</a>
+      <a href="#risk-tool" class="highlight">⚡ 风险自测</a>
+      <a href="#fingerprint-tool" class="highlight">🛡️ 指纹体检</a>
       <a href="#action-checklist" class="highlight">✅ 实操打卡</a>
       <a href="#triage">故障分诊</a>
       <a href="#why">封号原因</a>
@@ -608,6 +609,7 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
         </h2>
         <p class="sub" style="margin:0">根据当前的网络节点、支付方式、设备指纹与操作习惯，实时测算账号风险水位与危险诱因。</p>
       </div>
+      <button class="copybtn" id="btn-export-risk-report">📄 导出体检诊断书 (.html)</button>
       <button class="copybtn" id="btn-copy-report">📋 复制体检诊断报告</button>
     </div>
 
@@ -1565,6 +1567,119 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
       <pre id="curl-check">curl -s https://ipinfo.io/json</pre>
     </div>
   </div>
+
+
+  <!-- ======================= 交互工具：Claude Code 终端代理配置生成器 ======================= -->
+  <div class="tool-banner" id="claude-code-generator" style="margin:28px 0;background:var(--surface)">
+    <div class="tool-header">
+      <div>
+        <h3 class="tool-title" style="margin-bottom:4px;font-size:18px">
+          💻 Claude Code 终端代理与环境变量一键生成器
+          <span class="badge-tool" style="background:var(--brand)">CLI Helper</span>
+        </h3>
+        <p class="sub" style="margin:0">解决终端命令绕过系统代理导致的掉线、超时与地区受限问题，一键生成 PowerShell、Bash/Zsh 与 CMD 配置。</p>
+      </div>
+      <button class="copybtn" id="btn-copy-cli-env">📋 复制终端命令</button>
+    </div>
+
+    <!-- 表单配置区 -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:16px">
+      <!-- 终端环境选择 -->
+      <div>
+        <label for="cliEnvOs" style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink)">终端环境 / Operating System</label>
+        <select id="cliEnvOs" style="width:100%;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:13.5px">
+          <option value="pwsh">Windows PowerShell ($env:...)</option>
+          <option value="bash">macOS / Linux (Bash &amp; Zsh export)</option>
+          <option value="cmd">Windows CMD (set ...)</option>
+          <option value="dotenv">项目 .env 配置文件 (Key=Val)</option>
+        </select>
+      </div>
+
+      <!-- 代理地址与常用端口快捷键 -->
+      <div>
+        <label for="cliEnvHost" style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink)">本地代理地址与端口</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="cliEnvHost" value="127.0.0.1:7890" style="flex:1;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:13.5px;font-family:var(--mono)">
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">
+          <button class="btn-preset btn-port-preset" type="button" data-port="7890" style="font-size:11px;padding:2px 6px">Clash (7890)</button>
+          <button class="btn-preset btn-port-preset" type="button" data-port="7897" style="font-size:11px;padding:2px 6px">Verge (7897)</button>
+          <button class="btn-preset btn-port-preset" type="button" data-port="10809" style="font-size:11px;padding:2px 6px">v2ray HTTP (10809)</button>
+          <button class="btn-preset btn-port-preset" type="button" data-port="10808" style="font-size:11px;padding:2px 6px">v2ray SOCKS (10808)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选项开关 -->
+    <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;font-size:13px">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="cliOptAllProxy" checked>
+        <span>包含 ALL_PROXY (SOCKS5 协议，底层长连接必备)</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="cliOptNoNoise" checked>
+        <span>禁止非必要遥测 (CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC)</span>
+      </label>
+    </div>
+
+    <!-- 生成的代码框 -->
+    <div style="position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 14px;background:var(--surface-3);border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-3)">
+        <span id="cliCodeLabel">PowerShell 粘贴执行：</span>
+        <span>临时生效（仅对当前终端窗口有效）</span>
+      </div>
+      <pre style="margin:0;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--ink)" id="cliCodeOutput"></pre>
+    </div>
+
+    <!-- 连通性测试命令条 -->
+    <div style="margin-top:12px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12.5px">
+      <div>
+        <strong style="color:var(--ok)">⚡ 终端连通性验证：</strong>
+        <code style="font-family:var(--mono);color:var(--ink-2)" id="cliTestCmd">curl.exe -I https://api.anthropic.com</code>
+      </div>
+      <button class="copybtn" id="btn-copy-test-cmd" style="padding:3px 8px;font-size:12px">复制测试命令</button>
+    </div>
+  </div>
+
+  <!-- ======================= 交互工具：全域 Anthropic 纯净分流规则生成器 ======================= -->
+  <div class="tool-banner" id="claude-rules-generator" style="margin:28px 0;background:var(--surface)">
+    <div class="tool-header">
+      <div>
+        <h3 class="tool-title" style="margin-bottom:4px;font-size:18px">
+          🔀 Claude / Anthropic 全域纯净分流规则生成器
+          <span class="badge-tool" style="background:var(--ok)">Rules Generator</span>
+        </h3>
+        <p class="sub" style="margin:0">防封关键一步：杜绝因部分遥测或鉴权域名直连而暴露国内 IP。一键导出覆盖全域的代理分流规则。</p>
+      </div>
+      <button class="copybtn" id="btn-copy-rules">📋 复制分流规则</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:14px">
+      <div>
+        <label for="ruleFormat" style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink)">目标客户端格式</label>
+        <select id="ruleFormat" style="width:100%;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:13.5px">
+          <option value="clash">Clash / Mihomo / Clash Verge (YAML)</option>
+          <option value="surge">Surge / Shadowrocket (Rule)</option>
+          <option value="quanx">Quantumult X (HOST-SUFFIX)</option>
+          <option value="raw">纯域名白名单 (Domain List / 路由器)</option>
+        </select>
+      </div>
+      <div>
+        <label for="rulePolicy" style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:var(--ink)">代理策略组名称 (Proxy Policy)</label>
+        <input type="text" id="rulePolicy" value="Claude" style="width:100%;padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:13.5px;font-family:var(--mono)">
+      </div>
+    </div>
+
+    <!-- 生成的分流规则展示 -->
+    <div style="position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 14px;background:var(--surface-3);border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-3)">
+        <span id="rulesCodeLabel">Clash YAML 规则片断：</span>
+        <span>包含 Web 前端、官方 API、Auth0 认证、Statsig 遥测全集</span>
+      </div>
+      <pre style="margin:0;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--ink)" id="rulesCodeOutput"></pre>
+    </div>
+  </div>
+
 
 <h3>6.4 KYC / 身份验证触发条件</h3>
   <p>2026 年起身份验证分批推行（详见第 5 节）。以下情况容易触发人工审核：</p>
@@ -2738,6 +2853,151 @@ if (btnCopyCustom) {
   btnCopyCustom.addEventListener('click', function() {
     var txt = document.getElementById('appealOutput')?.innerText || '';
     copyText(txt, btnCopyCustom, '申诉邮件已复制 ✓');
+  });
+}
+
+
+/* ===================================================================== *
+ * 10. 全域分流规则生成器与体检报告 HTML 导出
+ * ===================================================================== */
+var anthropicDomains = [
+  'claude.ai',
+  'anthropic.com',
+  'api.anthropic.com',
+  'auth.anthropic.com',
+  'statsig.anthropic.com',
+  'servicedx.anthropic.com',
+  'cdn.auth0.com',
+  'usefathom.com',
+  'intercom.io',
+  'statsigapi.net'
+];
+
+function updateRulesSnippet() {
+  var fmt = document.getElementById('ruleFormat')?.value || 'clash';
+  var policy = document.getElementById('rulePolicy')?.value.trim() || 'Claude';
+  var output = document.getElementById('rulesCodeOutput');
+  var label = document.getElementById('rulesCodeLabel');
+  if (!output) return;
+
+  var code = '';
+  if (fmt === 'clash') {
+    if (label) label.innerText = 'Clash / Mihomo / Clash Verge (YAML 规则)：';
+    var lines = ['# Claude & Anthropic 专用分流规则（请粘贴至 rules: 节点下）'];
+    anthropicDomains.forEach(function(d) {
+      lines.push('  - DOMAIN-SUFFIX,' + d + ',' + policy);
+    });
+    code = lines.join('\n');
+  } else if (fmt === 'surge') {
+    if (label) label.innerText = 'Surge / Shadowrocket (Rule 规则)：';
+    var lines = ['# Claude & Anthropic 分流规则'];
+    anthropicDomains.forEach(function(d) {
+      lines.push('DOMAIN-SUFFIX,' + d + ',' + policy);
+    });
+    code = lines.join('\n');
+  } else if (fmt === 'quanx') {
+    if (label) label.innerText = 'Quantumult X (HOST-SUFFIX 规则)：';
+    var lines = ['# Claude & Anthropic 分流规则'];
+    anthropicDomains.forEach(function(d) {
+      lines.push('HOST-SUFFIX,' + d + ',' + policy);
+    });
+    code = lines.join('\n');
+  } else {
+    if (label) label.innerText = '纯域名列表（每行一个）：';
+    code = anthropicDomains.join('\n');
+  }
+
+  output.innerText = code;
+}
+
+['ruleFormat', 'rulePolicy'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateRulesSnippet);
+});
+updateRulesSnippet();
+
+var btnCopyRules = document.getElementById('btn-copy-rules');
+if (btnCopyRules) {
+  btnCopyRules.addEventListener('click', function() {
+    var txt = document.getElementById('rulesCodeOutput')?.innerText || '';
+    copyText(txt, btnCopyRules, '分流规则已复制 ✓');
+  });
+}
+
+function exportRiskReportHTML() {
+  var scoreVal = document.getElementById('scoreValue')?.innerText || '0';
+  var scoreLevel = document.getElementById('scoreLevel')?.innerText || '安全评估';
+  var ipText = document.querySelector('input[name="q_ip"]:checked')?.parentElement?.innerText?.trim() || '';
+  var leakText = document.querySelector('input[name="q_leak"]:checked')?.parentElement?.innerText?.trim() || '';
+  var payText = document.querySelector('input[name="q_pay"]:checked')?.parentElement?.innerText?.trim() || '';
+  var envText = document.querySelector('input[name="q_env"]:checked')?.parentElement?.innerText?.trim() || '';
+  var actText = document.querySelector('input[name="q_act"]:checked')?.parentElement?.innerText?.trim() || '';
+  var tzVal = document.getElementById('fpTzValue')?.innerText || '';
+  var langVal = document.getElementById('fpLangValue')?.innerText || '';
+  var rtcVal = document.getElementById('fpRtcValue')?.innerText || '';
+  var drvVal = document.getElementById('fpDriverValue')?.innerText || '';
+  var stamp = new Date().toISOString().slice(0, 10);
+
+  var html = '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="utf-8">\n' +
+    '<title>Claude 账号风控指数与环境拟真体检报告 (' + stamp + ')</title>\n' +
+    '<style>\n' +
+    'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px; color: #1f2937; line-height: 1.6; }\n' +
+    'h1 { font-size: 24px; text-align: center; margin-bottom: 6px; }\n' +
+    '.meta { text-align: center; font-size: 13px; color: #6b7280; margin-bottom: 24px; }\n' +
+    '.score-card { text-align: center; background: #f3f4f6; border-radius: 12px; padding: 20px; margin-bottom: 24px; }\n' +
+    '.score-num { font-size: 48px; font-weight: 800; color: #e07a5f; }\n' +
+    '.section { margin-bottom: 24px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px; }\n' +
+    '.sec-title { font-weight: 700; font-size: 16px; margin-bottom: 12px; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px; }\n' +
+    'table { width: 100%; border-collapse: collapse; font-size: 13.5px; }\n' +
+    'td, th { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; }\n' +
+    'th { text-align: left; color: #4b5563; width: 140px; }\n' +
+    '@media print { button { display: none; } body { margin: 0; } }\n' +
+    '</style>\n</head>\n<body>\n' +
+    '<div style="text-align:right"><button onclick="window.print()" style="padding:6px 14px;cursor:pointer">🖨️ 打印诊断书</button></div>\n' +
+    '<h1>Claude 账号风控指数与环境体检报告</h1>\n' +
+    '<div class="meta">体检生成时间：' + stamp + ' · 依据标准：Anthropic 2026 最新官方风控模型与合规使用准则</div>\n' +
+    '<div class="score-card">\n' +
+      '<div>当前综合风控风险指数</div>\n' +
+      '<div class="score-num">' + scoreVal + ' <small style="font-size:16px">/ 100</small></div>\n' +
+      '<div style="font-weight:700;font-size:16px;color:#b45309">' + scoreLevel + '</div>\n' +
+    '</div>\n' +
+    '<div class="section">\n' +
+      '<div class="sec-title">一、问卷评估与自测参数</div>\n' +
+      '<table>\n' +
+        '<tr><th>节点与出口 IP</th><td>' + ipText + '</td></tr>\n' +
+        '<tr><th>DNS 与 IPv6 泄漏</th><td>' + leakText + '</td></tr>\n' +
+        '<tr><th>订阅充值与支付方式</th><td>' + payText + '</td></tr>\n' +
+        '<tr><th>登录设备与环境隔离</th><td>' + envText + '</td></tr>\n' +
+        '<tr><th>使用行为与提示词习惯</th><td>' + actText + '</td></tr>\n' +
+      '</table>\n' +
+    '</div>\n' +
+    '<div class="section">\n' +
+      '<div class="sec-title">二、浏览器实时指纹探测明细</div>\n' +
+      '<table>\n' +
+        '<tr><th>物理时区与偏移</th><td>' + tzVal + '</td></tr>\n' +
+        '<tr><th>浏览器首选语言</th><td>' + langVal + '</td></tr>\n' +
+        '<tr><th>WebRTC 穿透状态</th><td>' + rtcVal + '</td></tr>\n' +
+        '<tr><th>WebDriver 自动化驱动</th><td>' + drvVal + '</td></tr>\n' +
+      '</table>\n' +
+    '</div>\n' +
+    '<div class="section">\n' +
+      '<div class="sec-title">三、核心加固建议与整改防线</div>\n' +
+      '<ol style="font-size:13.5px;padding-left:20px">\n' +
+        '<li><b>保持出口固定：</b>长期锁定在同一个优质原生住宅 IP，避免多节点秒切。</li>\n' +
+        '<li><b>规避时区撕裂：</b>若使用海外住宅节点，请确保代理开启了时区伪装或分流规则完整。</li>\n' +
+        '<li><b>正规支付渠道：</b>优先选用 Apple App Store 官方内购或本人海外正规实体卡，彻底远离第三方代充与来路不明虚拟卡。</li>\n' +
+      '</ol>\n' +
+    '</div>\n' +
+    '</body>\n</html>';
+
+  download('Claude-账号健康体检诊断书-' + stamp + '.html', html, 'text/html;charset=utf-8');
+}
+
+var btnExportRisk = document.getElementById('btn-export-risk-report');
+if (btnExportRisk) {
+  btnExportRisk.addEventListener('click', function() {
+    exportRiskReportHTML();
+    copyText('', btnExportRisk, '诊断书已导出 ✓');
   });
 }
 
