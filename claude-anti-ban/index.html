@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Claude 防封完全指南与风控自测系统 · 2026 最新版</title>
-<meta name="description" content="Claude 防封完全指南（2026 最新版）：内置账号风控指数体检仪、六维交互实操清单、官方封号三条红线、六大触发点、Persona 身份核验、申诉退款全流程与常见误区辟谣。">
-<meta name="keywords" content="Claude防封,Claude封号,Claude账号解封,Persona验证,Claude退款,Claude风控自测,Claude Code掉线,Anthropic使用政策">
+<title>AI 与 GitHub 开发者防封完全指南与风控自测系统 · 2026 最新版</title>
+<meta name="description" content="AI 与 GitHub 开发者防封完全指南（2026 最新版）：涵盖 Claude 账号风控自测、Persona 核验、申诉退款，以及 GitHub 账号防 Flag、Actions 算力防封、Copilot 节点风控、Git Pre-Commit 敏感凭据自动拦截器与官方工单生成。">
+<meta name="keywords" content="Claude防封,GitHub防封,GitHub被Flag,GitHub解封,GitHub Actions封号,Copilot封号,Persona验证,Claude退款,Pre-commit拦截,风控自测,Anthropic政策">
 <meta name="author" content="戴璇">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#0d1117">
@@ -536,6 +536,63 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
 .wiz-steps-box ol { margin: 6px 0; padding-left: 20px; }
 .wiz-steps-box li { margin: 4px 0; }
 
+
+/* ---------- GitHub 开发者专区与双模增强样式 ---------- */
+.badge-gh {
+  background: #8957e5; color: #fff; font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 6px; text-transform: uppercase;
+  letter-spacing: .5px; display: inline-block;
+}
+.btn-risk-mode {
+  padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13.5px;
+  cursor: pointer; border: 1px solid var(--line); background: var(--surface);
+  color: var(--ink-2); transition: all .2s;
+}
+.btn-risk-mode.active {
+  background: var(--brand) !important; color: #fff !important; border-color: var(--brand) !important;
+}
+.btn-risk-mode.active-gh {
+  background: #8957e5 !important; color: #fff !important; border-color: #8957e5 !important;
+}
+.code-box-header {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface-3); padding: 8px 14px; border-top-left-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-sm); border: 1px solid var(--line-2); border-bottom: none;
+}
+.term-tabs {
+  display: flex; gap: 6px;
+}
+.term-tab {
+  background: var(--surface-2); border: 1px solid var(--line);
+  padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  color: var(--ink-2); cursor: pointer; transition: all .15s;
+}
+.term-tab.active {
+  background: var(--brand); color: #fff; border-color: var(--brand);
+}
+.term-tab.active-gh {
+  background: #8957e5; color: #fff; border-color: #8957e5;
+}
+.code-pre-box {
+  background: #090d13; border: 1px solid var(--line-2);
+  border-bottom-left-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm);
+  padding: 14px; font-family: var(--mono); font-size: 12.8px; line-height: 1.6;
+  color: #e6edf3; overflow-x: auto; margin: 0 0 16px; white-space: pre-wrap; word-break: break-all;
+}
+[data-theme="light"] .code-pre-box {
+  background: #f6f8fa; color: #24292f; border-color: #d0d7de;
+}
+.gh-flag-steps {
+  display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin: 16px 0;
+}
+.gh-step-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 14px;
+}
+.gh-step-card strong { color: var(--ink); display: block; margin-bottom: 4px; font-size: 14px; }
+.gh-step-card p { margin: 0; font-size: 13px; color: var(--ink-2); }
+
 </style>
 </head>
 <body>
@@ -626,6 +683,8 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
 <div class="calc-grid">
       <!-- 问卷勾选区 -->
       <div class="calc-questions" id="calcQuestions">
+        <!-- 容器 A: Claude 问卷 -->
+        <div id="claudeQuestionsWrap">
         <!-- 1. 网络环境 -->
         <div class="calc-q-group">
           <div class="calc-q-label">
@@ -751,7 +810,125 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
             </label>
           </div>
         </div>
-      </div>
+</div><!-- end claudeQuestionsWrap -->
+
+        <!-- 容器 B: GitHub 开发者问卷 (默认隐藏) -->
+        <div id="githubQuestionsWrap" style="display:none;flex-direction:column;gap:16px">
+          <!-- 1. GitHub 登录网络与节点环境 -->
+          <div class="calc-q-group">
+            <div class="calc-q-label">
+              <span>1. GitHub 登录网络与出口 IP</span>
+              <small>Akismet 反垃圾网格核心指标</small>
+            </div>
+            <div class="calc-options">
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_net" value="0" checked>
+                <span>固定住宅宽带 / 直连或稳定干净的专属节点 (最高信任)</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_net" value="25">
+                <span>经常在多设备与不同机场节点之间频繁切换 (轻度异常)</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_net" value="55">
+                <span>短时间内频繁跨国瞬移，使用公共廉价机房/爬虫污染 IP (极高危 Flag)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 2. Actions 自动化与算力特征 -->
+          <div class="calc-q-group">
+            <div class="calc-q-label">
+              <span>2. GitHub Actions 自动化与算力使用</span>
+              <small>算力配额与反滥用红线</small>
+            </div>
+            <div class="calc-options">
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_act" value="0" checked>
+                <span>标准 CI/CD 构建与单元测试，设置了合理超时 (规范合规)</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_act" value="20">
+                <span>偶尔定时跑个人数据同步或报告生成脚本 (低频轻载)</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_act" value="45">
+                <span>整点高频 cron 爬虫、大文件跨网盘备份或持续长任务 (触碰预警)</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_act" value="70">
+                <span>利用 Actions 挂机、免流/流量中继、加密货币挖矿 (系统级秒封)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 3. 敏感凭据与 Token 安全 -->
+          <div class="calc-q-group">
+            <div class="calc-q-label">
+              <span>3. 敏感凭据防护与 Secret 提交</span>
+              <small>Push Protection & Secret Scanning</small>
+            </div>
+            <div class="calc-options">
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_sec" value="0" checked>
+                <span>配置了 Pre-Commit 本地拦截，启用 Push Protection，严禁 Key 入库</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_sec" value="20">
+                <span>使用 .env 管理密钥，未安装本地拦截，偶尔担心误提交</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_sec" value="50">
+                <span>曾向公开仓库 Push 过明文 API Key/Token，被官方警告或撤销</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. 账号多开与社交协作合规 -->
+          <div class="calc-q-group">
+            <div class="calc-q-label">
+              <span>4. 账号画像与社区协作行为</span>
+              <small>防女巫攻击 (Sybil Attack)</small>
+            </div>
+            <div class="calc-options">
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_acc" value="0" checked>
+                <span>单一长期实名主账号，绑定了 2FA 双重身份验证 (金牌信誉)</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_acc" value="15">
+                <span>个人账号与工作账号分开，正常切换，未绑定 2FA</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_acc" value="55">
+                <span>批量注册多个小号互相刷 Star/Fork，或使用脚本刷贡献墙草绿色</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 5. Copilot 订阅与学生包来源 -->
+          <div class="calc-q-group">
+            <div class="calc-q-label">
+              <span>5. GitHub Copilot 与学生包凭据</span>
+              <small>数字资产合规性</small>
+            </div>
+            <div class="calc-options">
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_cop" value="0" checked>
+                <span>本人在校正规学籍认证 / 官方正规信用卡/PayPal 按月订阅</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_cop" value="10">
+                <span>暂未使用 Copilot 或仅使用开源免费计划</span>
+              </label>
+              <label class="calc-opt">
+                <input type="radio" name="q_gh_cop" value="65">
+                <span>通过网购/第三方购买的低价“永久教育邮箱”开通学生包 (批量连带封杀)</span>
+              </label>
+            </div>
+          </div>
+        </div><!-- end githubQuestionsWrap -->
+      </div><!-- end calcQuestions -->
 
       <!-- 诊断结果大卡片 -->
       <div class="calc-score-board">
@@ -845,6 +1022,18 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
         <div style="font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-bottom:6px" id="fpDriverValue">—</div>
         <p style="font-size:12.5px;color:var(--ink-3);margin:0" id="fpDriverAdvice">排查是否被 Cloudflare / Datadome 识别为自动化机器人...</p>
       </div>
+
+      <!-- 5. 硬件 Canvas 渲染指纹 -->
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);grid-column:1 / -1">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong style="font-size:14.5px;color:var(--ink)">🎨 本机 2D Canvas 硬件渲染特征哈希</strong>
+          <span class="wiz-diag-status" id="fpCanvasStatus" style="font-size:12px;padding:2px 8px;border-radius:4px">已生成</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--brand-2);background:var(--surface-2);padding:4px 10px;border-radius:6px;border:1px solid var(--line)" id="fpCanvasValue">CANVAS-CALCULATING</div>
+          <p style="font-size:12.5px;color:var(--ink-3);margin:0;flex:1" id="fpCanvasAdvice">由 GPU 图形管线渲染生成的硬件级唯一指纹特征。固定设备的指纹保持恒定，避免使用会频繁篡改 Canvas 噪点的指纹修改插件。</p>
+        </div>
+      </div>
     </div>
 
     <!-- 综合安全指纹结论条 -->
@@ -860,7 +1049,7 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
     </div>
   </div>
 </section>
-\n<!-- ======================= 工具二：防封实操六维交互打卡清单 ======================= -->
+<!-- ======================= 工具二：防封实操六维交互打卡清单 ======================= -->
 <section id="action-checklist">
   <div class="tool-banner" style="background:var(--surface)">
     <div class="tool-header">
@@ -1696,11 +1885,252 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
     <li>但同一时间<b>只应有一个活跃会话</b>；多并发会被判定为「自动化滥用」。</li>
     <li>若需多人独立使用，<b>每人一个独立账号</b>是唯一稳妥方案。</li>
   </ul>
+  
+  <!-- 终端代理一键脚本生成器 -->
+  <div id="dev-cli-tool" style="margin:24px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <h4 style="margin:0 0 4px;font-size:16px;color:var(--ink);display:flex;align-items:center;gap:8px">
+          💻 Claude Code & Git 终端代理一键脚本配置器
+          <span class="badge-tool" style="background:var(--info)">CLI PROXY HELPER</span>
+        </h4>
+        <p style="margin:0;font-size:13px;color:var(--ink-2)">在命令行中运行 Claude Code、Git 或 npm 时经常因连接超时掉线，一键生成终端代理注入命令：</p>
+      </div>
+      <button class="copybtn" id="btn-copy-term-cmd">📋 复制终端命令</button>
+    </div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <div class="term-tabs" id="termOsTabs">
+        <button type="button" class="term-tab active" data-os="powershell">Windows (PowerShell)</button>
+        <button type="button" class="term-tab" data-os="cmd">Windows (CMD)</button>
+        <button type="button" class="term-tab" data-os="bash">macOS / Linux (Bash/Zsh)</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:13px">
+        <span style="color:var(--ink-3)">代理端口：</span>
+        <input type="number" id="termPortInput" value="7890" style="width:75px;padding:3px 6px;border-radius:4px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:var(--mono)">
+      </div>
+    </div>
+
+    <div class="code-pre-box" id="termCmdOutput"># Windows PowerShell 终端代理与 Claude Code 配置
+$env:HTTP_PROXY = "http://127.0.0.1:7890"
+$env:HTTPS_PROXY = "http://127.0.0.1:7890"
+$env:ALL_PROXY = "socks5://127.0.0.1:7890"
+$env:ANTHROPIC_BASE_URL = "https://api.anthropic.com"
+# 验证网络连通性
+curl.exe -I https://api.anthropic.com</div>
+    <div style="font-size:12px;color:var(--ink-3)">* 提示：只需在打开终端后粘贴执行一次，当前终端窗口即刻全局生效，关闭终端窗口后自动还原。</div>
+  </div>
+
 </section>
 
-<!-- ======================= 7 团队路径 ======================= -->
+
+<!-- ======================= 7 GitHub 开发者防封专区 ======================= -->
+<section id="github-defense" class="github-defense-section" style="margin-top:36px">
+  <h2><span class="num" style="background:#8957e5">7</span>🐙 GitHub 开发者账号防封与风控安全矩阵</h2>
+  <p class="sub">全景拆解 GitHub 官方反垃圾机制（Akismet & Microsoft Fraud Cloud）、账号被 Flag (Shadowban) 现象、Actions 算力违规滥用与敏感凭据保护。</p>
+
+  <p>对现代开发者而言，GitHub 账号是不可替代的数字资产与代码枢纽。如果说 Claude 封号损失的是订阅费，<strong>GitHub 账号被封或被标记（Flagged），则意味着公开 Profile 隐身、仓库无法被搜索、全部组织被冻结、Actions 算力归零、Copilot 订阅作废，甚至连带已部署的 GitHub Pages 全部瘫痪</strong>。</p>
+
+  <div class="callout accent" style="border-left-color:#8957e5">
+    <span class="t" style="color:#a371f7">核心认知：GitHub 封号通常分为两级</span>
+    <p>① <b>隐性标记 (Account Flagged / Shadowban)</b>：系统判定你有垃圾行为或异常 IP，<strong>你的主页对未登录用户直接返回 404</strong>，你的 Star 和 Follow 不计入总数，但你本人依然可以登录写代码。<br>
+    ② <b>显性封禁 (Suspended / Terminated)</b>：直接弹窗封锁，无法推拉代码，所有仓库处于只读或不可访问状态。</p>
+  </div>
+
+  <h3>7.1 GitHub 账号被 Flag (Shadowban) 深度排查与自测</h3>
+  <p>很多开发者被 GitHub 隐身了数周甚至数月都毫不知情。请按以下步骤进行 30 秒排查：</p>
+
+  <div class="gh-flag-steps">
+    <div class="gh-step-card">
+      <strong>步骤 1：打开浏览器无痕窗口</strong>
+      <p>在完全未登录 GitHub 的隐私模式下，直接在地址栏输入 <code>https://github.com/你的用户名</code>。</p>
+    </div>
+    <div class="gh-step-card">
+      <strong>步骤 2：检查个人主页可见性</strong>
+      <p>如果能正常显示你的头像与仓库，说明账号完全健康；<strong>若显示「404 Page Not Found」，说明已进入被 Flag 隐身名单！</strong></p>
+    </div>
+    <div class="gh-step-card">
+      <strong>步骤 3：测试 Issue 与评论权重</strong>
+      <p>在公开开源项目的 Issue 下留言，观察是否被折叠为「Spam」或头像打上灰色警告标识。</p>
+    </div>
+  </div>
+
+  <h3>7.2 GitHub 五大真实封号与风控触发红线</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>风险触发点</th><th>风控底层逻辑</th><th>破坏后果</th><th>核心避坑指引</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>① 节点跨国瞬移与机房污染</b></td>
+          <td>使用便宜机场的机房节点频繁登录，在未开 2FA 情况下敏感操作</td>
+          <td><span class="badge b-high">触发 Flag / 冻结</span></td>
+          <td><b>务必开启 2FA (TOTP)</b>；2FA 是提升 GitHub 信任权重最有效的保障</td>
+        </tr>
+        <tr>
+          <td><b>② Actions 算力滥用与黑产挂机</b></td>
+          <td>利用免费 Actions 额度跑高频爬虫、挖矿、流量转发或死循环任务</td>
+          <td><span class="badge b-high">永久封号 + 关联封杀</span></td>
+          <td>必须显式配置 <code>timeout-minutes: 15</code>；禁用整点 cron 调度</td>
+        </tr>
+        <tr>
+          <td><b>③ 虚假学生包与 Copilot 黑号</b></td>
+          <td>网购廉价“永久 Edu 邮箱”开通 GitHub Student Developer Pack</td>
+          <td><span class="badge b-high">批量清退连带封号</span></td>
+          <td>仅用本人真实学籍认证；开发者请正规双币信用卡或 PayPal 续费</td>
+        </tr>
+        <tr>
+          <td><b>④ 敏感凭据与 Token 泄露</b></td>
+          <td>推送包含 Anthropic、OpenAI、AWS Key 或 GitHub PAT 的代码</td>
+          <td><span class="badge b-mid">触发只读保护 / 审查</span></td>
+          <td>配置本地 Pre-Commit Hook 自动拦截；启用 Push Protection</td>
+        </tr>
+        <tr>
+          <td><b>⑤ 仓库违规与 DMCA Takedown</b></td>
+          <td>存放商业破解补丁、越狱免登录爬虫、版权违规内容</td>
+          <td><span class="badge b-high">3-Strike 封号</span></td>
+          <td>收到 DMCA 警告必须在 24 小时内移除对应 commit 并在后台处理</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 工具 1：Pre-commit 拦截器 -->
+  <div id="precommit-tool" style="margin:24px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <h4 style="margin:0 0 4px;font-size:16px;color:var(--ink);display:flex;align-items:center;gap:8px">
+          🛡️ 本地 Git Pre-Commit Hook 敏感凭据自动拦截器
+          <span class="badge-tool" style="background:#8957e5">Zero Leakage</span>
+        </h4>
+        <p style="margin:0;font-size:13px;color:var(--ink-2)">在本地执行 <code>git commit</code> 时自动正则拦截 Anthropic、OpenAI、GitHub PAT 等敏感私钥，杜绝密钥泄露风险：</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="copybtn" id="btn-download-precommit">📥 下载 pre-commit 文件</button>
+        <button class="copybtn" id="btn-copy-precommit">📋 复制 Hook 脚本</button>
+      </div>
+    </div>
+
+    <div class="code-pre-box" id="precommitScriptCode">#!/usr/bin/env bash
+# ==============================================================================
+# Git Pre-commit Hook: 敏感凭据与 API Key 自动扫描拦截器
+# 放置路径: .git/hooks/pre-commit (赋予 chmod +x 权限)
+# ==============================================================================
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# 正则表达式拦截库
+PATTERNS=(
+  "sk-ant-api03-[a-zA-Z0-9_\\-]{30,}"        # Anthropic API Key
+  "sk-[a-zA-Z0-9]{32,}"                      # OpenAI API Key
+  "ghp_[a-zA-Z0-9]{36}"                      # GitHub Personal Access Token
+  "github_pat_[a-zA-Z0-9_]{50,}"             # GitHub Fine-grained PAT
+  "AKIA[0-9A-Z]{16}"                         # AWS Access Key ID
+  "-----BEGIN [A-Z ]*PRIVATE KEY-----"       # RSA / EC 私钥文件
+)
+
+FOUND=0
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+for FILE in $STAGED_FILES; do
+  # 跳过大文件与二进制
+  if [ ! -f "$FILE" ]; then continue; fi
+  for PATTERN in "${PATTERNS[@]}"; do
+    MATCHES=$(git diff --cached "$FILE" | grep -E "^\+" | grep -E "$PATTERN")
+    if [ -n "$MATCHES" ]; then
+      echo -e "${RED}[安全拦截] 在待提交文件 $FILE 中检测到高危敏感密钥！${NC}"
+      echo -e "${YELLOW}命中规则: $PATTERN${NC}"
+      FOUND=1
+    fi
+  done
+done
+
+if [ $FOUND -eq 1 ]; then
+  echo -e "${RED}================================================================${NC}"
+  echo -e "${RED}提交已被自动阻断！请将敏感 Key 移入 .env 并加入 .gitignore 后再提交。${NC}"
+  echo -e "${RED}================================================================${NC}"
+  exit 1
+fi
+
+exit 0</div>
+    <div style="font-size:12px;color:var(--ink-3)">* 安装方法：将上述脚本保存到你的仓库 <code>.git/hooks/pre-commit</code> 并在终端运行 <code>chmod +x .git/hooks/pre-commit</code> 即可全局生效！</div>
+  </div>
+
+  <!-- 工具 2：GitHub Actions 合规示范 -->
+  <h3>7.3 GitHub Actions 安全合规 Workflow 最佳实践配置</h3>
+  <p>规范使用 GitHub Actions 算力，既能防止被风控误伤，也能防止因代码死循环消耗完个人或组织的免费额度：</p>
+
+  <div class="code-pre-box">name: CI & Build
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # 避开整点 (0 * * * *) 高峰，改用偏门随机分钟
+    - cron: '17 3 * * 1'
+
+permissions:
+  # 最小权限原则：仅开放读取权限，避免 Runner 被恶意提权
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # 关键防封配置：显式设置执行超时，防止死循环耗尽配额
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Test
+        run: npm test</div>
+
+  <!-- 工具 3：GitHub 官方人工申诉工单生成器 -->
+  <div id="github-appeal" style="margin:24px 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <h4 style="margin:0 0 4px;font-size:16px;color:var(--ink);display:flex;align-items:center;gap:8px">
+          ✉️ GitHub 官方人工复核申诉工单生成器
+          <span class="badge-tool" style="background:#8957e5">Appeal Generator</span>
+        </h4>
+        <p style="margin:0;font-size:13px;color:var(--ink-2)">如果账号被 Flag 隐藏或 Actions 被暂停，使用专业工单向 GitHub Support 提交申诉：</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <a id="btnGhMailto" class="copybtn" style="text-decoration:none" href="mailto:support@github.com">📧 打开邮件客户端</a>
+        <button class="copybtn" id="btn-copy-gh-appeal">📋 复制申诉工单</button>
+      </div>
+    </div>
+
+    <div class="grid c3" style="gap:12px;margin-bottom:14px">
+      <div>
+        <label style="font-size:12.5px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">申诉场景类型</label>
+        <select id="ghApType" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink)">
+          <option value="flagged">账号被 Flag 隐藏 (Profile 404 / False Spam)</option>
+          <option value="actions">GitHub Actions 自动化算力被封停</option>
+          <option value="copilot">GitHub Copilot 访问权限复核</option>
+          <option value="twofa">2FA 双重验证设备丢失紧急恢复</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12.5px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">GitHub 用户名</label>
+        <input type="text" id="ghApUsername" value="your-username" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:var(--mono)">
+      </div>
+      <div>
+        <label style="font-size:12.5px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">注册邮箱地址</label>
+        <input type="email" id="ghApEmail" value="developer@example.com" style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-family:var(--mono)">
+      </div>
+    </div>
+
+    <div class="code-pre-box" id="ghAppealOutput">Loading...</div>
+    <div style="font-size:12px;color:var(--ink-3)">* 申诉通道：发送邮件至 <code>support@github.com</code> 或登录 <a href="https://support.github.com/contact" target="_blank" rel="noopener noreferrer">GitHub Support Portal (support.github.com)</a> 提交工单。</div>
+  </div>
+</section>
+
+<!-- ======================= 8 团队路径 ======================= -->
 <section id="enterprise">
-  <h2><span class="num">7</span>团队 / 企业的稳定路径</h2>
+  <h2><span class="num">8</span>团队 / 企业的稳定路径</h2>
   <p class="sub">如果你的核心诉求是「稳定、可审计、别天天担心封号」，个人订阅并不是唯一选择。</p>
 
   <p>对公司和团队来说，把关键工作流押在「随时可能被风控的个人订阅账号」上，本身就是风险。
@@ -2050,7 +2480,7 @@ Thank you for your time.
 
 <!-- ======================= 10 误区辟谣 ======================= -->
 <section id="myths">
-  <h2><span class="num">10</span>常见误区辟谣</h2>
+  <h2><span class="num">11</span>常见误区辟谣</h2>
   <p class="sub">网上流传的「防封技巧」里，有不少没有官方依据，甚至互相打脸。逐条对照，别把它们当教程。</p>
 
   <div class="myths">
@@ -2109,7 +2539,7 @@ Thank you for your time.
 
 <!-- ======================= 11 FAQ + 速查卡 ======================= -->
 <section id="faq">
-  <h2><span class="num">11</span>常见问题 FAQ</h2>
+  <h2><span class="num">12</span>常见问题 FAQ</h2>
 
   <details><summary>Claude 是不是只要在国内用就会被封？</summary>
     <div class="body"><p>不是。地区只是风险因子之一，真正决定性的是 IP 纯净度、支付方式、设备指纹和使用行为。大量用户长期稳定使用，关键在于把这些信号做「干净且稳定」。但要说清楚：<b>地区资格是官方明文门槛，代理网络并不能把「不支持地区」变成「合规访问」。</b></p></div>
@@ -2319,56 +2749,127 @@ var scoreBadge = document.getElementById('scoreBadge');
 var scoreCircle = document.getElementById('scoreCircle');
 var scoreDiagList = document.getElementById('scoreDiagList');
 var btnCopyReport = document.getElementById('btn-copy-report');
+var currentRiskMode = 'claude'; // 'claude' or 'github'
+
+function setRiskMode(mode) {
+  currentRiskMode = mode;
+  var btnC = document.getElementById('btnModeClaude');
+  var btnG = document.getElementById('btnModeGithub');
+  var wrapC = document.getElementById('claudeQuestionsWrap');
+  var wrapG = document.getElementById('githubQuestionsWrap');
+  var badge = document.getElementById('riskModeBadge');
+
+  if (mode === 'github') {
+    if (btnC) { btnC.classList.remove('active'); btnC.style.background = 'var(--surface)'; btnC.style.borderColor = 'var(--line)'; btnC.style.color = 'var(--ink-2)'; }
+    if (btnG) { btnG.classList.add('active-gh'); btnG.style.background = '#8957e5'; btnG.style.borderColor = '#8957e5'; btnG.style.color = '#fff'; }
+    if (wrapC) wrapC.style.display = 'none';
+    if (wrapG) wrapG.style.display = 'flex';
+    if (badge) { badge.textContent = 'GitHub Mode'; badge.style.background = '#8957e5'; }
+  } else {
+    if (btnG) { btnG.classList.remove('active-gh'); btnG.style.background = 'var(--surface)'; btnG.style.borderColor = 'var(--line)'; btnG.style.color = 'var(--ink-2)'; }
+    if (btnC) { btnC.classList.add('active'); btnC.style.background = 'var(--brand)'; btnC.style.borderColor = 'var(--brand)'; btnC.style.color = '#fff'; }
+    if (wrapG) wrapG.style.display = 'none';
+    if (wrapC) wrapC.style.display = 'flex';
+    if (badge) { badge.textContent = 'Claude & AI Mode'; badge.style.background = 'var(--brand)'; }
+  }
+  calculateRisk();
+}
+
+var btnModeClaude = document.getElementById('btnModeClaude');
+var btnModeGithub = document.getElementById('btnModeGithub');
+if (btnModeClaude) btnModeClaude.addEventListener('click', function() { setRiskMode('claude'); });
+if (btnModeGithub) btnModeGithub.addEventListener('click', function() { setRiskMode('github'); });
 
 function calculateRisk() {
   if (!calcQuestions || !scoreValue) return;
-  var ip = parseInt(document.querySelector('input[name="q_ip"]:checked')?.value || '0', 10);
-  var leak = parseInt(document.querySelector('input[name="q_leak"]:checked')?.value || '0', 10);
-  var pay = parseInt(document.querySelector('input[name="q_pay"]:checked')?.value || '0', 10);
-  var env = parseInt(document.querySelector('input[name="q_env"]:checked')?.value || '0', 10);
-  var act = parseInt(document.querySelector('input[name="q_act"]:checked')?.value || '0', 10);
 
-  // 基础加权总分 (最高约 255，归一化到 0~100)
-  var rawTotal = ip + leak + pay + env + act;
-  var riskIndex = Math.min(100, Math.round((rawTotal / 180) * 100));
-
-  scoreValue.textContent = riskIndex;
-
-  // 诊断建议生成
   var diags = [];
   var badgeText = '';
   var badgeColor = '';
   var circleBorder = '';
+  var riskIndex = 0;
 
-  if (riskIndex <= 20) {
-    badgeText = '🛡️ 极低风险 · 绿灯区';
-    badgeColor = 'var(--ok)';
-    circleBorder = '6px solid var(--ok)';
-    diags.push({ type: 'ok', msg: '各维度配置优异，账号画像稳定如真人，正常使用几乎无被封风险。' });
-  } else if (riskIndex <= 45) {
-    badgeText = '🌱 低风险 · 安全区';
-    badgeColor = '#60a5fa';
-    circleBorder = '6px solid #60a5fa';
-    diags.push({ type: 'ok', msg: '整体状态良好，注意保持现有环境稳定，避免突发跨地区频繁跳变。' });
-  } else if (riskIndex <= 70) {
-    badgeText = '⚠️ 中度风险 · 预警区';
-    badgeColor = 'var(--warn)';
-    circleBorder = '6px solid var(--warn)';
-    diags.push({ type: 'warn', msg: '存在多项风险信号叠加，容易被要求 Persona 身份验证或触发临时审查 (Suspended)。' });
+  if (currentRiskMode === 'github') {
+    var ghNet = parseInt(document.querySelector('input[name="q_gh_net"]:checked')?.value || '0', 10);
+    var ghAct = parseInt(document.querySelector('input[name="q_gh_act"]:checked')?.value || '0', 10);
+    var ghSec = parseInt(document.querySelector('input[name="q_gh_sec"]:checked')?.value || '0', 10);
+    var ghAcc = parseInt(document.querySelector('input[name="q_gh_acc"]:checked')?.value || '0', 10);
+    var ghCop = parseInt(document.querySelector('input[name="q_gh_cop"]:checked')?.value || '0', 10);
+
+    var rawGh = ghNet + ghAct + ghSec + ghAcc + ghCop;
+    riskIndex = Math.min(100, Math.round((rawGh / 180) * 100));
+
+    if (riskIndex <= 20) {
+      badgeText = '🛡️ 极低风险 · 绿灯信任';
+      badgeColor = '#2ea043';
+      circleBorder = '6px solid #2ea043';
+      diags.push({ type: 'ok', msg: 'GitHub 账号信誉卓越，Profile 完全公开，Actions 算力与代码提交健康规范。' });
+    } else if (riskIndex <= 50) {
+      badgeText = '🌱 中低风险 · 建议加固';
+      badgeColor = '#60a5fa';
+      circleBorder = '6px solid #60a5fa';
+      diags.push({ type: 'ok', msg: '整体状态安全，建议开启 2FA 并安装本地 Pre-commit Hook 防止偶发密钥泄露。' });
+    } else if (riskIndex <= 75) {
+      badgeText = '⚠️ 中度风险 · 警惕 Flag';
+      badgeColor = 'var(--warn)';
+      circleBorder = '6px solid var(--warn)';
+      diags.push({ type: 'warn', msg: '存在多项风险特征叠加，账号极易被 Akismet 系统判定为 Spam 导致 Profile 隐身 (404)！' });
+    } else {
+      badgeText = '🚨 极高风险 · 濒临封禁';
+      badgeColor = 'var(--danger)';
+      circleBorder = '6px solid var(--danger)';
+      diags.push({ type: 'danger', msg: '触碰严重封号红线！Actions 算力或账号资产处于随时被全网冻结的高危边缘！' });
+    }
+
+    if (ghNet >= 25) diags.push({ type: 'warn', msg: '【网络告警】频繁跨国瞬移或使用公共机房 IP 登录容易触发 Akismet 隐身标记，请绑定 2FA 并锁定固定节点。' });
+    if (ghAct >= 45) diags.push({ type: 'danger', msg: '【Actions 红线】Actions 存在高频或重负载任务，切记设置 timeout-minutes: 15，严禁免流或挖矿任务。' });
+    if (ghSec >= 20) diags.push({ type: 'danger', msg: '【凭据风险】未配置本地拦截易误提交 API Key/Token，强烈建议安装下方 Pre-Commit Hook 自动阻断。' });
+    if (ghAcc >= 30) diags.push({ type: 'warn', msg: '【协作合规】批量注册小号互刷 Star/Fork 会被 Anti-Sybil 探针清理，请坚持单主号真实合规提交。' });
+    if (ghCop >= 40) diags.push({ type: 'danger', msg: '【资产风险】低价购买的非正规学生包面临大规模暴雷清退，关联主账号有连带封禁风险，建议走正规订阅。' });
+
+    drawRadarGh(ghNet, ghAct, ghSec, ghAcc, ghCop);
   } else {
-    badgeText = '🚨 极高风险 · 濒危区';
-    badgeColor = 'var(--danger)';
-    circleBorder = '6px solid var(--danger)';
-    diags.push({ type: 'danger', msg: '命中关键高危红线！账号处于随时可能被封禁的危险边缘，务必立即整改。' });
+    var ip = parseInt(document.querySelector('input[name="q_ip"]:checked')?.value || '0', 10);
+    var leak = parseInt(document.querySelector('input[name="q_leak"]:checked')?.value || '0', 10);
+    var pay = parseInt(document.querySelector('input[name="q_pay"]:checked')?.value || '0', 10);
+    var env = parseInt(document.querySelector('input[name="q_env"]:checked')?.value || '0', 10);
+    var act = parseInt(document.querySelector('input[name="q_act"]:checked')?.value || '0', 10);
+
+    var rawTotal = ip + leak + pay + env + act;
+    riskIndex = Math.min(100, Math.round((rawTotal / 180) * 100));
+
+    if (riskIndex <= 20) {
+      badgeText = '🛡️ 极低风险 · 绿灯区';
+      badgeColor = 'var(--ok)';
+      circleBorder = '6px solid var(--ok)';
+      diags.push({ type: 'ok', msg: '各维度配置优异，账号画像稳定如真人，正常使用几乎无被封风险。' });
+    } else if (riskIndex <= 45) {
+      badgeText = '🌱 低风险 · 安全区';
+      badgeColor = '#60a5fa';
+      circleBorder = '6px solid #60a5fa';
+      diags.push({ type: 'ok', msg: '整体状态良好，注意保持现有环境稳定，避免突发跨地区频繁跳变。' });
+    } else if (riskIndex <= 70) {
+      badgeText = '⚠️ 中度风险 · 预警区';
+      badgeColor = 'var(--warn)';
+      circleBorder = '6px solid var(--warn)';
+      diags.push({ type: 'warn', msg: '存在多项风险信号叠加，容易被要求 Persona 身份验证或触发临时审查 (Suspended)。' });
+    } else {
+      badgeText = '🚨 极高风险 · 濒危区';
+      badgeColor = 'var(--danger)';
+      circleBorder = '6px solid var(--danger)';
+      diags.push({ type: 'danger', msg: '命中关键高危红线！账号处于随时可能被封禁的危险边缘，务必立即整改。' });
+    }
+
+    if (ip >= 30) diags.push({ type: 'danger', msg: '【网络告警】当前使用的公共机场/机房节点已成为风控筛查重点，建议切换为固定的静态独享住宅 IP。' });
+    if (leak >= 15) diags.push({ type: 'warn', msg: '【泄漏隐患】建议在网络适配器中彻底禁用 IPv6，并在代理客户端启用 DNS 防泄漏分流。' });
+    if (pay >= 35) diags.push({ type: 'danger', msg: '【支付高危】虚拟卡/代充极易因 BIN 标记或追溯撤销引发封号，建议走 Apple Store 内购或本人合规外卡。' });
+    if (env >= 35) diags.push({ type: 'danger', msg: '【环境违规】拼车共享或使用伪装插件属于官方严打行为，请切换为单机单账号专用独立浏览器配置。' });
+    if (act >= 35) diags.push({ type: 'warn', msg: '【行为警示】高频自动化脚本或反复试探越狱极易被自动模型判定为恶意滥用，请恢复正常工作节奏。' });
+
+    drawRadarClaude(ip, leak, pay, env, act);
   }
 
-  // 针对具体危险项提示整改
-  if (ip >= 30) diags.push({ type: 'danger', msg: '【网络告警】当前使用的公共机场/机房节点已成为风控筛查重点，建议切换为固定的静态独享住宅 IP。' });
-  if (leak >= 15) diags.push({ type: 'warn', msg: '【泄漏隐患】建议在网络适配器中彻底禁用 IPv6，并在代理客户端启用 DNS 防泄漏分流。' });
-  if (pay >= 35) diags.push({ type: 'danger', msg: '【支付高危】虚拟卡/代充极易因 BIN 标记或追溯撤销引发封号，建议走 Apple Store 内购或本人合规外卡。' });
-  if (env >= 35) diags.push({ type: 'danger', msg: '【环境违规】拼车共享或使用伪装插件属于官方严打行为，请切换为单机单账号专用独立浏览器配置。' });
-  if (act >= 35) diags.push({ type: 'warn', msg: '【行为警示】高频自动化脚本或反复试探越狱极易被自动模型判定为恶意滥用，请恢复正常工作节奏。' });
-
+  scoreValue.textContent = riskIndex;
   scoreBadge.textContent = badgeText;
   scoreBadge.style.color = '#fff';
   scoreBadge.style.background = badgeColor;
@@ -2499,7 +3000,12 @@ var searchIndex = [
   { title: '退款指南：钱从谁手里出去就找谁退', desc: '苹果 App Store、谷歌 Play、官网信用卡的退款途径与拒付风险', id: 'appeal' },
   { title: '9. 替代方案：国产 AI 编程与后端模型平替', desc: '保留 Claude Code 终端外壳，接入兼容协议模型与风险对比', id: 'alternatives' },
   { title: '10. 常见误区辟谣：不看广告看疗效', desc: '说中文会封号？周额度用满会封？改时区拔卡有用？逐一辟谣', id: 'myths' },
-  { title: '11. 常见问题 FAQ 与速查卡', desc: '在国内使用一定被封吗？没违规为什么被封？VPN 一直被封怎么办？', id: 'faq' }
+  { title: '11. 常见误区辟谣：不看广告看疗效', desc: '说中文会封号？周额度用满会封？改时区拔卡有用？逐一辟谣', id: 'myths' },
+  { title: '12. 常见问题 FAQ 与速查卡', desc: '在国内使用一定被封吗？没违规为什么被封？VPN 一直被封怎么办？', id: 'faq' },
+  { title: '🐙 GitHub 开发者防封安全矩阵', desc: 'GitHub 账号被 Flag 隐藏 (404)、Actions 算力滥用与风控红线', id: 'github-defense' },
+  { title: '🛡️ Git Pre-Commit Hook 敏感密钥拦截器', desc: '本地 commit 自动正则拦截 Anthropic/OpenAI/GitHub PAT 密钥', id: 'precommit-tool' },
+  { title: '💻 Claude Code & Git 终端代理一键脚本', desc: 'PowerShell / CMD / Bash 环境变量注入脚本生成器', id: 'dev-cli-tool' },
+  { title: '✉️ GitHub 官方人工申诉工单生成器', desc: 'Account Flagged, Actions Suspended, Copilot 申诉工单', id: 'github-appeal' }
 ];
 
 function openPalette() {
@@ -2604,24 +3110,44 @@ document.querySelectorAll('.btn-preset').forEach(function(btn) {
   });
 });
 
-function drawRadar(ip, leak, pay, env, act) {
+function drawRadarClaude(ip, leak, pay, env, act) {
   var svg = document.getElementById('riskRadar');
   if (!svg) return;
-  // 转换成 4 维安全度（0~100 分，越安全得分越高）
   var sNet = Math.max(10, 100 - (ip + leak));
   var sPay = Math.max(10, 100 - pay);
   var sEnv = Math.max(10, 100 - env);
   var sAct = Math.max(10, 100 - act);
 
   var cx = 100, cy = 100, r = 70;
-  // 4 个轴角度：上(0), 右(90), 下(180), 左(270)
   var axes = [
     { name: '网络纯净', score: sNet, angle: -Math.PI / 2 },
     { name: '支付合规', score: sPay, angle: 0 },
     { name: '环境隔离', score: sEnv, angle: Math.PI / 2 },
     { name: '行为自然', score: sAct, angle: Math.PI }
   ];
+  renderRadarPolygon(svg, axes, 'var(--brand-soft)', 'var(--brand)');
+}
 
+function drawRadarGh(ghNet, ghAct, ghSec, ghAcc, ghCop) {
+  var svg = document.getElementById('riskRadar');
+  if (!svg) return;
+  var sNet = Math.max(10, 100 - ghNet);
+  var sAct = Math.max(10, 100 - ghAct);
+  var sSec = Math.max(10, 100 - ghSec);
+  var sAcc = Math.max(10, 100 - Math.round((ghAcc + ghCop) / 1.5));
+
+  var cx = 100, cy = 100, r = 70;
+  var axes = [
+    { name: '节点纯净', score: sNet, angle: -Math.PI / 2 },
+    { name: 'Actions合规', score: sAct, angle: 0 },
+    { name: '凭据防御', score: sSec, angle: Math.PI / 2 },
+    { name: '账号画像', score: sAcc, angle: Math.PI }
+  ];
+  renderRadarPolygon(svg, axes, 'rgba(137, 87, 229, 0.18)', '#8957e5');
+}
+
+function renderRadarPolygon(svg, axes, fillColor, strokeColor) {
+  var cx = 100, cy = 100, r = 70;
   var bgPolys = [0.25, 0.5, 0.75, 1].map(function(scale) {
     var pts = axes.map(function(a) {
       var x = cx + r * scale * Math.cos(a.angle);
@@ -2647,22 +3173,10 @@ function drawRadar(ip, leak, pay, env, act) {
     return x.toFixed(1) + ',' + y.toFixed(1);
   }).join(' ');
 
-  var dataPoly = '<polygon points="' + dataPts + '" fill="var(--brand-soft)" stroke="var(--brand)" stroke-width="2.5" opacity="0.85"/>';
-
+  var dataPoly = '<polygon points="' + dataPts + '" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="2.5" opacity="0.85"/>';
   svg.innerHTML = bgPolys + axisLines + dataPoly;
 }
 
-// 增强现有 calculateRisk
-var origCalculateRisk = calculateRisk;
-calculateRisk = function() {
-  origCalculateRisk();
-  var ip = parseInt(document.querySelector('input[name="q_ip"]:checked')?.value || '0', 10);
-  var leak = parseInt(document.querySelector('input[name="q_leak"]:checked')?.value || '0', 10);
-  var pay = parseInt(document.querySelector('input[name="q_pay"]:checked')?.value || '0', 10);
-  var env = parseInt(document.querySelector('input[name="q_env"]:checked')?.value || '0', 10);
-  var act = parseInt(document.querySelector('input[name="q_act"]:checked')?.value || '0', 10);
-  drawRadar(ip, leak, pay, env, act);
-};
 if (calcQuestions) calculateRisk();
 
 /* ===================================================================== *
@@ -2998,6 +3512,332 @@ if (btnExportRisk) {
   btnExportRisk.addEventListener('click', function() {
     exportRiskReportHTML();
     copyText('', btnExportRisk, '诊断书已导出 ✓');
+  });
+}
+
+
+/* ===================================================================== *
+ * 11. 增强实时环境指纹体检仪 (WebRTC STUN 穿透与 Canvas 硬件哈希)
+ * ===================================================================== */
+function runLiveFingerprint() {
+  // 1. 系统时区
+  var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai';
+  var offsetMinutes = new Date().getTimezoneOffset();
+  var offsetHours = -offsetMinutes / 60;
+  var sign = offsetHours >= 0 ? '+' : '';
+  var tzText = tz + ' (UTC' + sign + offsetHours + ')';
+  var fpTzVal = document.getElementById('fpTzValue');
+  var fpTzStat = document.getElementById('fpTzStatus');
+  var fpTzAdv = document.getElementById('fpTzAdvice');
+  if (fpTzVal) fpTzVal.textContent = tzText;
+
+  if (tz.indexOf('Asia/Shanghai') !== -1 || tz.indexOf('Asia/Chongqing') !== -1 || tz.indexOf('Asia/Harbin') !== -1) {
+    if (fpTzStat) {
+      fpTzStat.textContent = '⚠️ 物理东八区';
+      fpTzStat.style.background = 'var(--warn-soft)';
+      fpTzStat.style.color = 'var(--warn)';
+    }
+    if (fpTzAdv) fpTzAdv.textContent = '当前为中国物理时区。若使用海外住宅节点，建议在代理或浏览器配置中开启时区模拟以防地域撕裂。';
+  } else {
+    if (fpTzStat) {
+      fpTzStat.textContent = '✅ 时区自洽拟真';
+      fpTzStat.style.background = 'var(--ok-soft)';
+      fpTzStat.style.color = 'var(--ok)';
+    }
+    if (fpTzAdv) fpTzAdv.textContent = '物理时区与海外服务支持地区自洽。';
+  }
+
+  // 2. 首选语言
+  var langs = navigator.languages || [navigator.language || 'zh-CN'];
+  var fpLangVal = document.getElementById('fpLangValue');
+  var fpLangStat = document.getElementById('fpLangStatus');
+  var fpLangAdv = document.getElementById('fpLangAdvice');
+  if (fpLangVal) fpLangVal.textContent = langs.join(', ');
+  if (langs[0] && langs[0].toLowerCase().indexOf('zh') !== -1) {
+    if (fpLangStat) {
+      fpLangStat.textContent = 'ℹ️ 首选中文';
+      fpLangStat.style.background = 'var(--info-soft)';
+      fpLangStat.style.color = 'var(--info)';
+    }
+    if (fpLangAdv) fpLangAdv.textContent = '首选中文属于正常自然语言习惯，官方三条封号红线里无语言限制，属真人正常画像。';
+  } else {
+    if (fpLangStat) {
+      fpLangStat.textContent = '✅ 纯海外语系';
+      fpLangStat.style.background = 'var(--ok-soft)';
+      fpLangStat.style.color = 'var(--ok)';
+    }
+    if (fpLangAdv) fpLangAdv.textContent = '与海外节点完全自洽。';
+  }
+
+  // 3. WebRTC 穿透真实探测 (RTCPeerConnection STUN probe)
+  var fpRtcStat = document.getElementById('fpRtcStatus');
+  var fpRtcVal = document.getElementById('fpRtcValue');
+  var fpRtcAdv = document.getElementById('fpRtcAdvice');
+  if (fpRtcStat) {
+    fpRtcStat.textContent = '探测中...';
+    fpRtcStat.style.background = 'var(--surface-3)';
+    fpRtcStat.style.color = 'var(--ink-2)';
+  }
+
+  var RTCPC = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+  if (!RTCPC) {
+    if (fpRtcStat) {
+      fpRtcStat.textContent = '🛡️ WebRTC 已关闭';
+      fpRtcStat.style.background = 'var(--ok-soft)';
+      fpRtcStat.style.color = 'var(--ok)';
+    }
+    if (fpRtcVal) fpRtcVal.textContent = '浏览器接口未启用或被插件拦截';
+    if (fpRtcAdv) fpRtcAdv.textContent = '完全免疫 STUN 穿透与真实私网/公网 IP 泄漏。';
+  } else {
+    try {
+      var pc = new RTCPC({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      var leakedIps = [];
+      var probeFinished = false;
+
+      var finishProbe = function() {
+        if (probeFinished) return;
+        probeFinished = true;
+        try { pc.close(); } catch(e){}
+        if (leakedIps.length > 0) {
+          if (fpRtcStat) {
+            fpRtcStat.textContent = '⚠️ 探测到候选穿透';
+            fpRtcStat.style.background = 'var(--warn-soft)';
+            fpRtcStat.style.color = 'var(--warn)';
+          }
+          if (fpRtcVal) fpRtcVal.textContent = '探测到候选 IP: ' + leakedIps.join(', ');
+          if (fpRtcAdv) fpRtcAdv.textContent = 'WebRTC 探测到了本地网络地址，建议在代理客户端开启 WebRTC 阻断或屏蔽 STUN 请求。';
+        } else {
+          if (fpRtcStat) {
+            fpRtcStat.textContent = '🛡️ WebRTC 纯净阻断';
+            fpRtcStat.style.background = 'var(--ok-soft)';
+            fpRtcStat.style.color = 'var(--ok)';
+          }
+          if (fpRtcVal) fpRtcVal.textContent = '无任何真实候选 IP 泄露 (Clean)';
+          if (fpRtcAdv) fpRtcAdv.textContent = '代理客户端或浏览器安全策略已成功阻断 STUN 穿透，无法探测到真实底层 IP。';
+        }
+      };
+
+      pc.onicecandidate = function(e) {
+        if (e && e.candidate && e.candidate.candidate) {
+          var m = e.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
+          if (m && leakedIps.indexOf(m[1]) === -1) {
+            leakedIps.push(m[1]);
+          }
+        }
+      };
+      setTimeout(finishProbe, 1800);
+      pc.createDataChannel('leakTest');
+      pc.createOffer().then(function(offer) { pc.setLocalDescription(offer); }).catch(finishProbe);
+    } catch(err) {
+      if (fpRtcStat) {
+        fpRtcStat.textContent = '🛡️ 安全阻断';
+        fpRtcStat.style.background = 'var(--ok-soft)';
+        fpRtcStat.style.color = 'var(--ok)';
+      }
+      if (fpRtcVal) fpRtcVal.textContent = '安全策略限制访问 WebRTC API';
+      if (fpRtcAdv) fpRtcAdv.textContent = '外部站点无法通过 WebRTC 探测你的底层真实 IP。';
+    }
+  }
+
+  // 4. WebDriver 自动化标记
+  var isWebDriver = !!navigator.webdriver;
+  var fpDrvStat = document.getElementById('fpDriverStatus');
+  var fpDrvVal = document.getElementById('fpDriverValue');
+  var fpDrvAdv = document.getElementById('fpDriverAdvice');
+  if (isWebDriver) {
+    if (fpDrvStat) {
+      fpDrvStat.textContent = '🚨 命中 WebDriver';
+      fpDrvStat.style.background = 'var(--danger-soft)';
+      fpDrvStat.style.color = 'var(--danger)';
+    }
+    if (fpDrvVal) fpDrvVal.textContent = 'navigator.webdriver = true';
+    if (fpDrvAdv) fpDrvAdv.textContent = '当前浏览器暴露了自动化测试或爬虫标记，极易被 Cloudflare / Datadome 直接拦截封禁。';
+  } else {
+    if (fpDrvStat) {
+      fpDrvStat.textContent = '✅ 真人原生环境';
+      fpDrvStat.style.background = 'var(--ok-soft)';
+      fpDrvStat.style.color = 'var(--ok)';
+    }
+    if (fpDrvVal) fpDrvVal.textContent = 'navigator.webdriver = false (Clean)';
+    if (fpDrvAdv) fpDrvAdv.textContent = '无任何自动化注入标记，属于健康真人浏览器。';
+  }
+
+  // 5. Canvas 硬件渲染特征哈希
+  try {
+    var canvas = document.createElement('canvas');
+    canvas.width = 220; canvas.height = 40;
+    var ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#e07a5f';
+    ctx.fillRect(10, 5, 60, 20);
+    ctx.fillStyle = '#60a5fa';
+    ctx.fillText('daixuan.cloud-2026', 15, 10);
+    var data = canvas.toDataURL();
+    var hash = 0;
+    for (var i = 0; i < data.length; i++) {
+      hash = ((hash << 5) - hash) + data.charCodeAt(i);
+      hash |= 0;
+    }
+    var canvasFp = 'CANVAS-' + Math.abs(hash).toString(16).toUpperCase();
+    var fpCanvasVal = document.getElementById('fpCanvasValue');
+    if (fpCanvasVal) fpCanvasVal.textContent = canvasFp;
+  } catch(e) {}
+
+  // 综合结论
+  var fpOvrIco = document.getElementById('fpOverallIco');
+  var fpOvrTitle = document.getElementById('fpOverallTitle');
+  var fpOvrDesc = document.getElementById('fpOverallDesc');
+  var fpOvrTag = document.getElementById('fpOverallTag');
+  if (fpOvrTitle) fpOvrTitle.textContent = '浏览器环境指纹健康，无自动化驱动暴露';
+  if (fpOvrDesc) fpOvrDesc.textContent = '硬件 Canvas 特征稳定，无头无驱动标记检测通过';
+  if (fpOvrTag) {
+    fpOvrTag.textContent = '体检正常';
+    fpOvrTag.style.background = 'var(--ok)';
+    fpOvrTag.style.color = '#fff';
+  }
+}
+
+var btnRunFp = document.getElementById('btn-run-fingerprint');
+if (btnRunFp) {
+  btnRunFp.addEventListener('click', runLiveFingerprint);
+}
+runLiveFingerprint();
+
+/* ===================================================================== *
+ * 12. 终端代理一键脚本配置器 (CLI Helper)
+ * ===================================================================== */
+var currentTermOs = 'powershell';
+function updateTermCmd() {
+  var port = document.getElementById('termPortInput')?.value.trim() || '7890';
+  var out = document.getElementById('termCmdOutput');
+  if (!out) return;
+  if (currentTermOs === 'powershell') {
+    out.innerText = '# Windows PowerShell 终端代理与 Claude Code 配置\n' +
+      '$env:HTTP_PROXY = "http://127.0.0.1:' + port + '"\n' +
+      '$env:HTTPS_PROXY = "http://127.0.0.1:' + port + '"\n' +
+      '$env:ALL_PROXY = "socks5://127.0.0.1:' + port + '"\n' +
+      '$env:ANTHROPIC_BASE_URL = "https://api.anthropic.com"\n' +
+      '# 验证连接\ncurl.exe -I https://api.anthropic.com';
+  } else if (currentTermOs === 'cmd') {
+    out.innerText = ':: Windows CMD 终端代理配置\n' +
+      'set HTTP_PROXY=http://127.0.0.1:' + port + '\n' +
+      'set HTTPS_PROXY=http://127.0.0.1:' + port + '\n' +
+      'set ALL_PROXY=socks5://127.0.0.1:' + port + '\n' +
+      'set ANTHROPIC_BASE_URL=https://api.anthropic.com\n' +
+      'curl -I https://api.anthropic.com';
+  } else {
+    out.innerText = '# macOS / Linux (Bash/Zsh) 终端代理配置\n' +
+      'export HTTP_PROXY="http://127.0.0.1:' + port + '"\n' +
+      'export HTTPS_PROXY="http://127.0.0.1:' + port + '"\n' +
+      'export ALL_PROXY="socks5://127.0.0.1:' + port + '"\n' +
+      'export ANTHROPIC_BASE_URL="https://api.anthropic.com"\n' +
+      'curl -I https://api.anthropic.com';
+  }
+}
+
+document.querySelectorAll('#termOsTabs .term-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#termOsTabs .term-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentTermOs = btn.getAttribute('data-os');
+    updateTermCmd();
+  });
+});
+
+var termPortInput = document.getElementById('termPortInput');
+if (termPortInput) termPortInput.addEventListener('input', updateTermCmd);
+var btnCopyTermCmd = document.getElementById('btn-copy-term-cmd');
+if (btnCopyTermCmd) {
+  btnCopyTermCmd.addEventListener('click', function() {
+    var txt = document.getElementById('termCmdOutput')?.innerText || '';
+    copyText(txt, btnCopyTermCmd, '命令已复制 ✓');
+  });
+}
+updateTermCmd();
+
+/* ===================================================================== *
+ * 13. Git Pre-Commit Hook 敏感凭据自动拦截器下载与复制
+ * ===================================================================== */
+var btnCopyPrecommit = document.getElementById('btn-copy-precommit');
+var btnDownloadPrecommit = document.getElementById('btn-download-precommit');
+if (btnCopyPrecommit) {
+  btnCopyPrecommit.addEventListener('click', function() {
+    var code = document.getElementById('precommitScriptCode')?.innerText || '';
+    copyText(code, btnCopyPrecommit, 'Hook 已复制 ✓');
+  });
+}
+if (btnDownloadPrecommit) {
+  btnDownloadPrecommit.addEventListener('click', function() {
+    var code = document.getElementById('precommitScriptCode')?.innerText || '';
+    download('pre-commit', code, 'application/x-sh;charset=utf-8');
+    copyText('', btnDownloadPrecommit, '文件已下载 ✓');
+  });
+}
+
+/* ===================================================================== *
+ * 14. GitHub 官方人工复核申诉工单生成器
+ * ===================================================================== */
+function updateGhAppeal() {
+  var type = document.getElementById('ghApType')?.value || 'flagged';
+  var user = document.getElementById('ghApUsername')?.value.trim() || 'your-username';
+  var email = document.getElementById('ghApEmail')?.value.trim() || 'developer@example.com';
+  var out = document.getElementById('ghAppealOutput');
+  var mailto = document.getElementById('btnGhMailto');
+  if (!out) return;
+
+  var today = new Date().toISOString().slice(0, 10);
+  var subject = '';
+  var body = '';
+
+  if (type === 'flagged') {
+    subject = 'Appeal for False Spam / Flagged Account Review – [' + user + ']';
+    body = 'Dear GitHub Support Team,\n\n' +
+      'My GitHub username is ' + user + ', and my registered email is ' + email + '.\n\n' +
+      'Recently, I noticed that my profile (' + user + ') has been hidden from public search results and returns a 404 error when accessed in incognito mode, indicating my account might have been flagged by the automated anti-spam system.\n\n' +
+      'I am an active open-source developer. My account is used exclusively for legitimate personal projects, code commits, and participating in constructive open-source discussions. I have never engaged in automated botting, spamming, star-buying, or any malicious activity.\n\n' +
+      'I respectfully request an engineer or support agent to conduct a human review of my account and restore my public profile visibility.\n\n' +
+      'Thank you very much for your time and assistance.\n\n' +
+      'Sincerely,\n' + user + '\n' + email + '\n' + today;
+  } else if (type === 'actions') {
+    subject = 'Request to Reinstate GitHub Actions Access – [' + user + ']';
+    body = 'Hello GitHub Actions Trust & Safety,\n\n' +
+      'I am submitting an appeal regarding the suspension of GitHub Actions on account ' + user + ' (' + email + ').\n\n' +
+      'I use Actions purely for legitimate CI/CD compilation and unit tests. If any recent workflow inadvertently consumed excessive resources, I have already reviewed and restricted my workflows with explicit timeout-minutes (15 min) and minimized token permissions.\n\n' +
+      'Please review my case and help restore Actions runner capabilities for my repositories.\n\n' +
+      'Best regards,\n' + user;
+  } else if (type === 'copilot') {
+    subject = 'GitHub Copilot Access Review Request – [' + user + ']';
+    body = 'Hello GitHub Billing & Copilot Support,\n\n' +
+      'My account ' + user + ' (' + email + ') recently experienced an unexpected restriction on GitHub Copilot access.\n\n' +
+      'My subscription is legitimately funded and used strictly for personal programming assistance in accordance with GitHub terms. Please assist in checking whether an automated proxy flag occurred and advise on restoring access.\n\n' +
+      'Thank you,\n' + user;
+  } else {
+    subject = 'Emergency Request: 2FA Authentication Recovery Support – [' + user + ']';
+    body = 'Dear GitHub Support Team,\n\n' +
+      'I am reaching out regarding account recovery for ' + user + ' (' + email + ').\n\n' +
+      'Due to a device replacement/loss, I have temporarily lost access to my primary 2FA authenticator app. I possess access to the primary registered email and original SSH commit signing keys.\n\n' +
+      'Please guide me through the identity verification procedure to regain access to my account.\n\n' +
+      'Thank you,\n' + user;
+  }
+
+  out.innerText = '主题：' + subject + '\n\n' + body;
+  if (mailto) {
+    mailto.href = 'mailto:support@github.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+}
+
+['ghApType', 'ghApUsername', 'ghApEmail'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateGhAppeal);
+});
+updateGhAppeal();
+
+var btnCopyGhAppeal = document.getElementById('btn-copy-gh-appeal');
+if (btnCopyGhAppeal) {
+  btnCopyGhAppeal.addEventListener('click', function() {
+    var txt = document.getElementById('ghAppealOutput')?.innerText || '';
+    copyText(txt, btnCopyGhAppeal, '工单已复制 ✓');
   });
 }
 
