@@ -271,6 +271,15 @@
       selectBook(book, { anchor: anchor });
       return;
     }
+    // 「这一年」：年号栏里的年份深链（#eras/yr-1644）
+    if (view === "eras" && anchor.indexOf("yr-") === 0) {
+      const y = parseInt(anchor.slice(3), 10);
+      const inp = $("#gzYear");
+      if (y && inp) { inp.value = String(y); updateGz(); }
+      const s = $("#gySlice");
+      if (s && !s.hidden) setTimeout(() => reveal(s), 30);
+      return;
+    }
     // 普通元素 id
     const el = document.getElementById(anchor);
     if (el) {
@@ -932,6 +941,122 @@
     return String(n);
   }
   const yearLabel = (n) => (n === 1 ? "元" : cnNum(n)) + "年";
+  /* 年号第几年。⚠️ n 是「年号年数」，from/to 是「触及的公元年」，两者对短年号不成线性：
+     绍武 from=1646 to=1647 但 n=1（存在仅月余，只有元年），直接 y-from+1 会在 1647 年
+     算出「绍武二年」这个并不存在的年号年。故按 n 截断——只截不补，绝不造出年号年。 */
+  const eraYear = (e, y) => Math.min(Math.max(y - e.from + 1, 1), e.n);
+
+  /* ---- 9b. 「这一年」：把散在四处的东西按同一年对齐 ----
+     换算器原先只回答「干支 + 年号」。但站内与「某一年」有关的记录其实分在四处：
+       ERAS（明代纪年）· RIVAL_ERAS（并世政权）· CHRONOLOGY（大事年表）· THINKERS（生卒）。
+     这里把它们按同一年对齐，每条都接回自己栏目的锚点 —— 年份于是成了一个横切入口，
+     而不只是一个换算结果。四路各自独立：哪一路没有就如实说没有，不凑数。
+     字段全部取自既有数据，本轮不新增任何史实。 */
+  const YEAR_MIN = 1, YEAR_MAX = 9999;
+
+  /* 「太祖 朱元璋」→ EMPERORS 的 no（用来跳「世系」栏）。接不到就不做链接。 */
+  function empNoOf(empStr) {
+    const s = String(empStr || "");
+    const hit = EMPERORS.find((e) => (e.name && s.indexOf(e.name) >= 0) || (e.temple && s.indexOf(e.temple) >= 0));
+    return hit ? hit.no : 0;
+  }
+
+  /* 生卒串「1310—1381」→ [1310, 1381]；解析不出返回 null，不猜。 */
+  function lifeSpan(life) {
+    const m = String(life || "").match(/(\d{3,4})\s*[—\-–~至]\s*(\d{3,4})/);
+    return m ? [+m[1], +m[2]] : null;
+  }
+
+  function yearSlice(y) {
+    const eras = ERAS.filter((e) => y >= e.from && y <= e.to);
+    const rivals = RIVAL_ERAS.filter((r) => y >= r.from && y <= r.to);
+    const events = [];
+    CHRONOLOGY.forEach((c, i) => { if (c.y === y) events.push({ c: c, i: i }); });
+    const alive = [];
+    (THINKERS.schools || []).forEach((s) => (s.thinkers || []).forEach((k) => {
+      const sp = lifeSpan(k.life);
+      if (sp && y >= sp[0] && y <= sp[1]) alive.push({ k: k, born: sp[0] });
+    }));
+    return { eras: eras, rivals: rivals, events: events, alive: alive };
+  }
+
+  /* 年表里离 y 最近的一年；dir 为 -1 往前、1 往后。没有就返回 0。 */
+  function nearestChronoYear(y, dir) {
+    let best = 0;
+    CHRONOLOGY.forEach((c) => {
+      if (dir < 0) { if (c.y < y && c.y > best) best = c.y; }
+      else if (c.y > y && (best === 0 || c.y < best)) best = c.y;
+    });
+    return best;
+  }
+
+  /* 跨栏目跳转的链接。锚点可能是中文（era-洪武）或带连字符，href 做编码、data 存原值。 */
+  function gyLink(view, anchor, text, label) {
+    return '<a class="gy-link" href="#' + view + "/" + encodeURIComponent(anchor) + '"' +
+      ' data-view="' + view + '" data-anchor="' + esc(anchor) + '"' +
+      ' title="' + esc(label || "") + '">' + esc(text) + "</a>";
+  }
+
+  function renderYearSlice(y) {
+    const host = $("#gySlice");
+    if (!host) return;
+    if (!y) { host.hidden = true; host.innerHTML = ""; return; }
+    host.hidden = false;
+    const s = yearSlice(y);
+
+    const sec = (k, body) => '<section class="gy-sec"><div class="gy-k">' + k + "</div>" + body + "</section>";
+
+    /* 纪年：明代年号（可跳年号栏与世系栏）+ 并世政权年号（无对应皇帝，只作对照） */
+    const eraItems = s.eras.map((e) => {
+      const no = empNoOf(e.emp);
+      return '<li class="gy-li">' +
+        gyLink("eras", "era-" + e.era, e.era + yearLabel(eraYear(e, y)), e.emp) +
+        '<span class="gy-sub">' + esc(e.emp) +
+        (no ? " · " + gyLink("lineage", "emp-" + no, "看世系", "跳到「世系」栏的" + e.emp) : "") +
+        "</span></li>";
+    }).concat(s.rivals.map((r) =>
+      '<li class="gy-li"><span class="gy-plain">' + esc(r.era) + '</span>' +
+      '<span class="gy-sub">' + esc(r.regime) + " · " + esc(r.leader) +
+      '<i class="gy-mark">并世</i></span></li>'
+    ));
+    const eraSec = sec("纪年 · " + (s.eras.length + s.rivals.length) + " 个政权",
+      eraItems.length ? '<ul class="gy-list">' + eraItems.join("") + "</ul>"
+        : '<p class="gy-none">公元 ' + y + ' 年不在本站收录的年号范围内（年号栏覆盖 1363—1683 年）。</p>');
+
+    /* 该年大事：接回年表条目 */
+    const evItems = s.events.map((x) =>
+      '<li class="gy-li">' + gyLink("chrono", "ce-" + x.i, x.c.t, x.c.y + " · " + (x.c.cat || "")) +
+      (x.c.cat ? '<span class="gy-sub">' + esc(x.c.cat) + "</span>" : "") + "</li>");
+    const evSec = sec("该年大事 · " + s.events.length + " 条",
+      evItems.length ? '<ul class="gy-list">' + evItems.join("") + "</ul>"
+        : '<p class="gy-none">年表未收录这一年。年表共 149 条，覆盖 1328—1683 年，中间有疏密。</p>');
+
+    /* 在世思想家：按生卒区间判定，顺带给出生年实算的年岁 */
+    const aliveItems = s.alive.map((a) =>
+      '<li class="gy-li">' + gyLink("thinkers", a.k.id, a.k.name, a.k.life + "　" + (a.k.title || "")) +
+      '<span class="gy-sub">' + esc(a.k.life) + "　时年 " + (y - a.born) + " 岁</span></li>");
+    const aliveSec = sec("在世思想家 · " + s.alive.length + " 位",
+      aliveItems.length ? '<ul class="gy-list">' + aliveItems.join("") + "</ul>"
+        : '<p class="gy-none">本站收录的 20 位思想家，生卒年都不覆盖这一年。</p>');
+
+    const prev = nearestChronoYear(y, -1), next = nearestChronoYear(y, 1);
+    const nav = '<div class="gy-nav">' +
+      '<button class="pill tiny" type="button" data-gy="-1"' + (prev ? "" : " disabled") +
+      ' title="' + (prev ? "跳到年表里上一个有记载的年份：" + prev + " 年" : "前面没有更早的记载年份") + '">‹ 上一记载年</button>' +
+      '<button class="pill tiny" type="button" data-gy="1"' + (next ? "" : " disabled") +
+      ' title="' + (next ? "跳到年表里下一个有记载的年份：" + next + " 年" : "后面没有更晚的记载年份") + '">下一记载年 ›</button>' +
+      "</div>";
+
+    host.innerHTML =
+      '<div class="gy-head">' +
+        '<div class="gy-title"><b>' + y + "</b><span class=\"gy-gz\">" + ganzhiOf(y) + "</span>" +
+        '<span class="gy-addr">#eras/yr-' + y + "</span></div>" + nav +
+      "</div>" +
+      '<div class="gy-cols">' + eraSec + evSec + aliveSec + "</div>" +
+      '<p class="gy-foot">数据来自本站既有的年号、年表与思想界三栏，未新增史实；' +
+      "「时年」按公元生年实算，与旧史惯用的虚岁相差一岁。这一年的固定地址是 " +
+      '<b>#eras/yr-' + y + "</b>，可直接分享或收藏。</p>";
+  }
 
   function eraRow(e, withHouse) {
     return `<article class="era-row" id="era-${esc(e.era)}">
@@ -962,31 +1087,63 @@
 
     const quick = [1368, 1402, 1421, 1449, 1521, 1567, 1581, 1619, 1644, 1662, 1683];
     $("#gzQuick").innerHTML = quick.map((y) => `<button class="pill tiny" data-y="${y}" type="button">${y}</button>`).join("");
-    $("#gzYear").addEventListener("input", updateGz);
+    $("#gzYear").addEventListener("input", () => updateGz(true));
     updateGz();
   }
 
   function initEras() {
     delegate($("#gzQuick"), "click", ".pill", (p) => {
       $("#gzYear").value = p.dataset.y;
-      updateGz();
+      updateGz(true);
+    });
+    /* 「这一年」里的每一条都接回它自己的栏目。站内跳转必须自己走路由：
+       原生 fragment 跳转不一定触发 popstate，路由器收不到就会停在原地。
+       href 仍保留，好让中键 / 复制链接可用。 */
+    delegate($("#gySlice"), "click", "a.gy-link", (a, e) => {
+      const v = a.dataset.view, anc = a.dataset.anchor;
+      if (!v || !anc) return;
+      e.preventDefault();
+      go(v, { anchor: anc });
+      live("已跳到「" + (($("#tab-" + v) || {}).textContent || v) + "」栏的对应条目");
+    });
+    /* 上一 / 下一个「有记载的年份」：年表 149 条只落在 145 个年份上，
+       逐年前后翻多半会翻到空年，所以这里按「有记载」跳。 */
+    delegate($("#gySlice"), "click", "button[data-gy]", (b) => {
+      const cur = parseInt($("#gzYear").value, 10);
+      const nxt = nearestChronoYear(cur || 1368, +b.dataset.gy);
+      if (!nxt) return;
+      $("#gzYear").value = String(nxt);
+      updateGz(true);
+      live("已跳到年表里" + (+b.dataset.gy > 0 ? "下一个" : "上一个") + "有记载的年份：" + nxt + " 年");
     });
   }
 
-  function updateGz() {
+  /* fromUser 只由用户操作传 true：renderEras() 在空闲预渲染时也会走到这里，
+     若那时写地址栏，会把用户当前所在的 #overview 直接顶掉。 */
+  function updateGz(fromUser) {
     const raw = parseInt($("#gzYear").value, 10);
     const out = $("#gzOut");
-    if (!raw || raw < 1 || raw > 9999) { out.innerHTML = '<span class="gz-hint">请输入 1—9999 之间的公元年份。</span>'; return; }
+    if (!raw || raw < YEAR_MIN || raw > YEAR_MAX) {
+      out.innerHTML = '<span class="gz-hint">请输入 1—9999 之间的公元年份。</span>';
+      renderYearSlice(0);
+      return;
+    }
     const hits = ERAS.filter((e) => raw >= e.from && raw <= e.to);
     out.innerHTML = `
       <div class="gz-main">
         <div class="gz-big"><span class="gz-y">${raw}</span><span class="gz-gz">${ganzhiOf(raw)}</span></div>
         <div class="gz-era">
-          ${hits.length ? hits.map((e) => `<div class="gz-hit"><b>${esc(e.era)}${yearLabel(raw - e.from + 1)}</b><span>${esc(e.emp)}</span></div>`).join("")
+          ${hits.length ? hits.map((e) => `<div class="gz-hit"><b>${esc(e.era)}${yearLabel(eraYear(e, raw))}</b><span>${esc(e.emp)}</span></div>`).join("")
             : '<div class="gz-hit muted"><b>不在明代年号范围内</b><span>该年无明代年号与之对应</span></div>'}
         </div>
       </div>
       <p class="gz-formula">换算：(公元年 − 4) mod 10 得天干，mod 12 得地支。本例 (${raw} − 4) = ${raw - 4}，${raw - 4} mod 10 = ${(((raw - 4) % 10) + 10) % 10} → ${GAN[(((raw - 4) % 10) + 10) % 10]}；${raw - 4} mod 12 = ${(((raw - 4) % 12) + 12) % 12} → ${ZHI[(((raw - 4) % 12) + 12) % 12]}。</p>`;
+
+    renderYearSlice(raw);
+
+    /* 用户真的改过年份后，把这一年写进地址栏（replaceState，不往历史里堆）。
+       这样每一年都是一个可分享 / 可收藏的稳定地址，与站内其它深链一个规矩。 */
+    if (fromUser && curView === "eras") setHash("eras", "yr-" + raw, true);
   }
 
   /* ==================== 10. 官僚体系 ==================== */

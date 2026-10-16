@@ -2027,3 +2027,59 @@ a.chip-ref:focus-visible { outline: 2px solid var(--accent-primary); outline-off
   .gx-seg, .gx-cell, .gx-pin.link { box-shadow: none; transform: none; filter: none; }
   .gx-tick.link { color: var(--text-secondary); border-bottom: 0; }
 }
+
+/* ==========================================================================
+   V12 精修层 · 年号栏「这一年」年份横切（整块可单独回滚）
+   配色全部走主题变量，深浅两套自动成立；只用已有类名（.pill/.card）打底。
+   ========================================================================== */
+.gy { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 18px; }
+.gy[hidden] { display: none; }
+
+.gy-head { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: baseline; justify-content: space-between; }
+.gy-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.gy-title b { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--text-primary); letter-spacing: 0.04em; }
+.gy-gz { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 700; color: var(--accent-primary); }
+.gy-addr {
+  font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-full); padding: 2px 9px;
+}
+.gy-nav { display: flex; gap: 6px; }
+.gy-nav .pill[disabled] { opacity: 0.45; cursor: not-allowed; }
+.gy-nav .pill[disabled]:hover { border-color: var(--border-color); color: var(--text-secondary); }
+
+.gy-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
+.gy-sec {
+  border: 1px solid var(--border-color); background: var(--bg-secondary);
+  border-radius: var(--radius-md); padding: 12px 14px; min-width: 0;
+}
+.gy-k { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 9px; }
+.gy-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.gy-li { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gy-link { color: var(--accent-primary); text-decoration: none; font-size: 0.9rem; line-height: 1.5; border-bottom: 1px solid transparent; }
+.gy-link:hover, .gy-link:focus-visible { border-bottom-color: currentColor; }
+.gy-plain { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+.gy-sub { font-size: 0.74rem; color: var(--text-muted); line-height: 1.6; }
+.gy-sub .gy-link { font-size: 0.74rem; }
+.gy-mark {
+  font-style: normal; margin-left: 6px; font-size: 0.66rem;
+  border: 1px solid var(--border-color); border-radius: var(--radius-full);
+  padding: 0 6px; color: var(--text-muted); white-space: nowrap;
+}
+.gy-none { margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.75; }
+.gy-foot { margin: 14px 0 0; font-size: 0.74rem; color: var(--text-muted); line-height: 1.85; }
+.gy-foot b { font-family: var(--font-mono); color: var(--text-secondary); }
+
+@media (max-width: 900px) { .gy-cols { grid-template-columns: 1fr; } }
+@media (max-width: 420px) {
+  .gy-head { flex-direction: column; align-items: flex-start; }
+  .gy-title b { font-size: 1.3rem; }
+  .gy-cols { gap: 10px; }
+}
+
+/* 打印：横切结果本身就是可读的文本块，去掉底色与按钮即可 */
+@media print {
+  .gy-nav { display: none; }
+  .gy-sec { background: transparent; }
+  .gy-foot { display: none; }
+}
