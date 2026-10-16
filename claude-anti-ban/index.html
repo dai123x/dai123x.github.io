@@ -489,6 +489,53 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
   section { break-inside: avoid; }
   a { color: inherit !important; }
 }
+
+/* 典型场景预设按钮 */
+.btn-preset {
+  font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2);
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.btn-preset:hover {
+  background: var(--brand-soft); border-color: var(--brand); color: var(--brand-2);
+}
+
+/* 异常排查向导 */
+.wizard-grid {
+  display: grid; gap: 20px; grid-template-columns: 1fr; margin-top: 16px;
+}
+@media (min-width: 768px) {
+  .wizard-grid { grid-template-columns: 0.9fr 1.1fr; }
+}
+.wizard-triggers {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.wiz-btn {
+  text-align: left; padding: 11px 14px; border-radius: var(--radius-sm);
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2);
+  cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 10px;
+  font-family: inherit; font-size: 13.5px; font-weight: 600;
+}
+.wiz-btn:hover { background: var(--surface-3); color: var(--ink); border-color: var(--line-2); }
+.wiz-btn.active {
+  background: var(--brand-soft); border-color: var(--brand); color: var(--brand-2);
+}
+.wiz-num {
+  font-size: 14px; font-weight: 800; color: var(--brand); flex: none;
+}
+.wizard-card {
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 20px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.wiz-diag-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+.wiz-diag-status { font-weight: 800; font-size: 16px; }
+.wiz-steps-box { margin: 12px 0; font-size: 14px; line-height: 1.6; }
+.wiz-steps-box ol { margin: 6px 0; padding-left: 20px; }
+.wiz-steps-box li { margin: 4px 0; }
+
 </style>
 </head>
 <body>
@@ -564,7 +611,17 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
       <button class="copybtn" id="btn-copy-report">📋 复制体检诊断报告</button>
     </div>
 
-    <div class="calc-grid">
+    
+    <!-- 一键场景预设切换 -->
+    <div class="preset-row" style="margin-bottom:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:700;color:var(--ink-2);margin-right:4px">⚡ 典型场景预设：</span>
+      <button class="btn-preset" type="button" data-preset="safe">🌱 新手合规标杆 (极低风险)</button>
+      <button class="btn-preset" type="button" data-preset="danger">🚨 常见踩坑高危 (频遭封禁)</button>
+      <button class="btn-preset" type="button" data-preset="dev">💻 Claude Code 极客 (开发者)</button>
+      <button class="btn-preset" type="button" data-preset="team">🏢 团队/企业合规 (API解耦)</button>
+    </div>
+
+<div class="calc-grid">
       <!-- 问卷勾选区 -->
       <div class="calc-questions" id="calcQuestions">
         <!-- 1. 网络环境 -->
@@ -703,6 +760,14 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
             <span class="score-lbl">风控风险指数</span>
           </div>
           <div class="score-status-badge" id="scoreBadge">极低风险 · 绿灯区</div>
+        </div>
+
+        <!-- 四维安全雷达图 -->
+        <div style="margin:14px auto 8px;width:100%;max-width:220px;text-align:center">
+          <div style="font-size:11.5px;font-weight:700;color:var(--ink-3);margin-bottom:6px;letter-spacing:.5px">四维安全指数分布</div>
+          <svg id="riskRadar" viewBox="0 0 200 200" width="100%" height="190" style="overflow:visible">
+            <!-- 动态生成雷达网格与数据层 -->
+          </svg>
         </div>
 
         <div style="margin-top:14px">
@@ -900,6 +965,55 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
 </section>
 
 <!-- ======================= 1 故障分诊 ======================= -->
+
+<!-- ======================= 交互工具三：30秒异常排查向导 ======================= -->
+<section id="wizard-sec" style="padding-top:24px">
+  <div class="tool-banner" style="background:var(--surface)">
+    <div class="tool-header">
+      <div>
+        <h2 class="tool-title" style="margin-bottom:4px">
+          🧭 账号异常 30 秒自诊分诊向导
+          <span class="badge-tool" style="background:var(--info)">Troubleshoot</span>
+        </h2>
+        <p class="sub" style="margin:0">遇到页面异常或无法连接？点击你当前遭遇的现象，3 秒给出准确定位与黄金处置方案，避免误操作加重风控。</p>
+      </div>
+    </div>
+
+    <div class="wizard-grid">
+      <div class="wizard-triggers" id="wizardTriggers">
+        <button class="wiz-btn active" type="button" data-wiz="loading">
+          <span class="wiz-num">①</span>
+          <span class="wiz-txt">网页一直转圈 / 504 / 打不开</span>
+        </button>
+        <button class="wiz-btn" type="button" data-wiz="region">
+          <span class="wiz-num">②</span>
+          <span class="wiz-txt">提示 "App not available in your region"</span>
+        </button>
+        <button class="wiz-btn" type="button" data-wiz="persona">
+          <span class="wiz-num">③</span>
+          <span class="wiz-txt">弹出 Persona 身份验证 (证件核验)</span>
+        </button>
+        <button class="wiz-btn" type="button" data-wiz="suspended">
+          <span class="wiz-num">④</span>
+          <span class="wiz-txt">明确提示 "Account disabled / suspended"</span>
+        </button>
+        <button class="wiz-btn" type="button" data-wiz="banned">
+          <span class="wiz-num">⑤</span>
+          <span class="wiz-txt">明确提示 "Account has been banned"</span>
+        </button>
+        <button class="wiz-btn" type="button" data-wiz="code">
+          <span class="wiz-num">⑥</span>
+          <span class="wiz-txt">Claude Code 终端频繁掉线 (网页正常)</span>
+        </button>
+      </div>
+
+      <div class="wizard-card" id="wizardContent">
+        <!-- 动态渲染诊断结果与操作方案 -->
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="triage">
   <h2><span class="num">1</span>故障分诊：先别急着说「被封了」</h2>
   <p class="sub">网页转圈、回答中断、Claude Code 连不上，都先别给账号「办后事」——Anthropic 自己也会故障。</p>
@@ -1353,7 +1467,35 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
     <b>建议先把 Claude 完全退出再断</b>，避免出口突变发生在会话进行中。</p>
   </div>
 
-  <h3>6.4 KYC / 身份验证触发条件</h3>
+  
+  <div class="callout ok" style="margin:24px 0">
+    <span class="t">🌐 网络环境与泄漏在线检测工具箱（自查必备）</span>
+    <p>配置完网络后，请花 2 分钟逐项对照，确认你的出口节点没有在裸奔：</p>
+    <div class="grid c2" style="margin-top:10px;gap:10px">
+      <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px">
+        <a href="https://ipinfo.io" target="_blank" rel="noopener noreferrer" style="font-weight:700">🔍 ipinfo.io</a>
+        <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink-3)">检查 IP 归属地与 <code>asn.type</code>（isp/residential 为优质，hosting 为机房）。</p>
+      </div>
+      <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px">
+        <a href="https://browserleaks.com/webrtc" target="_blank" rel="noopener noreferrer" style="font-weight:700">🛡️ browserleaks.com/webrtc</a>
+        <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink-3)">检查浏览器 WebRTC 是否把你的局域网或公网真实 IP 暴露给网页。</p>
+      </div>
+      <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px">
+        <a href="https://whoer.net" target="_blank" rel="noopener noreferrer" style="font-weight:700">🕵️ whoer.net 伪装度检测</a>
+        <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink-3)">检查时区、DNS 与 IP 归属地是否自洽（达到 90%+ 即可，切忌拔卡修改）。</p>
+      </div>
+      <div style="padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:6px">
+        <a href="https://dnsleaktest.com" target="_blank" rel="noopener noreferrer" style="font-weight:700">📡 dnsleaktest.com</a>
+        <p style="margin:4px 0 0;font-size:12.5px;color:var(--ink-3)">运行 Standard Test，确认 DNS 解析服务器不属于你国内的本地运营商。</p>
+      </div>
+    </div>
+    <div class="codebox" style="margin-top:10px">
+      <div class="cb-head"><span>终端一行命令检测出口 IP 与 ASN</span><button class="copybtn" data-copy="curl-check">复制</button></div>
+      <pre id="curl-check">curl -s https://ipinfo.io/json</pre>
+    </div>
+  </div>
+
+<h3>6.4 KYC / 身份验证触发条件</h3>
   <p>2026 年起身份验证分批推行（详见第 5 节）。以下情况容易触发人工审核：</p>
   <ul>
     <li>新账号 24 小时内高频调用 / 高 Token 用量。</li>
@@ -1512,7 +1654,73 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
     未来用同一支付方式也可能受影响。请先走正常退款渠道、给足处理时间；只有在正常渠道明确拒绝、且金额值得时，再把它当最后手段。</p>
   </div>
 
-  <h3>申诉信模板（可直接复制修改）</h3>
+  
+    <!-- 智能申诉邮件定制生成器 -->
+    <div class="tool-banner" style="margin:28px 0 20px;background:var(--surface-2)">
+      <div class="tool-header">
+        <div>
+          <h3 style="margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px">
+            ✉️ 申诉邮件定制生成器
+            <span class="badge b-info" style="font-size:11px">Smart Appeal Builder</span>
+          </h3>
+          <p class="sub" style="margin:0">填写你的使用场景与封禁提示，实时生成符合官方人工审核规范的高说服力申诉邮件文本。</p>
+        </div>
+        <button class="copybtn" id="btn-copy-custom-appeal">📋 复制定制申诉邮件</button>
+      </div>
+
+      <div class="appeal-grid" style="display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
+        <div class="appeal-inputs" style="display:flex;flex-direction:column;gap:12px">
+          <div>
+            <label style="font-size:13px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">申诉类型：</label>
+            <select id="apType" style="width:100%;padding:8px 12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:13.5px">
+              <option value="suspended" selected>临时暂停 (Suspended / Automatic Review)</option>
+              <option value="banned">永久封禁 (Banned / Usage Policy)</option>
+              <option value="api">API 账号停用 (API Disabled / Key Revoked)</option>
+              <option value="refund">退款申请 (Billing / Subscription Refund)</option>
+            </select>
+          </div>
+
+          <div style="display:grid;gap:10px;grid-template-columns:1fr 1fr">
+            <div>
+              <label style="font-size:13px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">你的姓名 / 称呼：</label>
+              <input type="text" id="apName" value="Alex" style="width:100%;padding:8px 10px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:13.5px">
+            </div>
+            <div>
+              <label style="font-size:13px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">注册绑定邮箱：</label>
+              <input type="email" id="apEmail" value="user@example.com" style="width:100%;padding:8px 10px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:13.5px">
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:13px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">主要正常用途：</label>
+            <select id="apUsage" style="width:100%;padding:8px 12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:13.5px">
+              <option value="coding" selected>软件工程研发与代码审查 (Coding &amp; Software Dev)</option>
+              <option value="academic">学术科研与论文润色 (Academic &amp; Research)</option>
+              <option value="translation">专业文档翻译与写作 (Translation &amp; Creative Writing)</option>
+              <option value="study">日常编程学习与数据分析 (Data Analysis &amp; Self-learning)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size:13px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:4px">语言输出版本：</label>
+            <div style="display:flex;gap:14px;font-size:13px">
+              <label><input type="radio" name="apLang" value="en" checked> 官方英文版 (推荐，优先审核)</label>
+              <label><input type="radio" name="apLang" value="zh"> 中文清晰版</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="appeal-preview">
+          <label style="font-size:13px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span>实时生成预览：</span>
+            <a href="mailto:support@anthropic.com" id="btnMailto" style="font-size:12px;color:var(--brand-2);font-weight:600">✉️ 调起邮件客户端</a>
+          </label>
+          <pre id="appealOutput" style="margin:0;padding:12px 14px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--ink);height:210px;overflow-y:auto;white-space:pre-wrap;word-break:break-word"></pre>
+        </div>
+      </div>
+    </div>
+
+<h3>申诉信模板（可直接复制修改）</h3>
 
   <div class="codebox">
     <div class="cb-head"><span>模板 A · 临时暂停 suspended（中文）</span><button class="copybtn" data-copy="tpl-a">复制</button></div>
@@ -2185,6 +2393,283 @@ window.addEventListener('keydown', function(e) {
     closePalette();
   }
 });
+
+/* ===================================================================== *
+ * 5. 增强功能：场景预设与四维雷达图绘制
+ * ===================================================================== */
+var presets = {
+  safe: { ip: 0, leak: 0, pay: 0, env: 0, act: 0 },
+  danger: { ip: 50, leak: 35, pay: 55, env: 55, act: 35 },
+  dev: { ip: 10, leak: 15, pay: 0, env: 0, act: 15 },
+  team: { ip: 0, leak: 0, pay: 10, env: 0, act: 0 }
+};
+
+document.querySelectorAll('.btn-preset').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var pKey = btn.getAttribute('data-preset');
+    var p = presets[pKey];
+    if (!p) return;
+    document.querySelector('input[name="q_ip"][value="' + p.ip + '"]').checked = true;
+    document.querySelector('input[name="q_leak"][value="' + p.leak + '"]').checked = true;
+    document.querySelector('input[name="q_pay"][value="' + p.pay + '"]').checked = true;
+    document.querySelector('input[name="q_env"][value="' + p.env + '"]').checked = true;
+    document.querySelector('input[name="q_act"][value="' + p.act + '"]').checked = true;
+    calculateRisk();
+  });
+});
+
+function drawRadar(ip, leak, pay, env, act) {
+  var svg = document.getElementById('riskRadar');
+  if (!svg) return;
+  // 转换成 4 维安全度（0~100 分，越安全得分越高）
+  var sNet = Math.max(10, 100 - (ip + leak));
+  var sPay = Math.max(10, 100 - pay);
+  var sEnv = Math.max(10, 100 - env);
+  var sAct = Math.max(10, 100 - act);
+
+  var cx = 100, cy = 100, r = 70;
+  // 4 个轴角度：上(0), 右(90), 下(180), 左(270)
+  var axes = [
+    { name: '网络纯净', score: sNet, angle: -Math.PI / 2 },
+    { name: '支付合规', score: sPay, angle: 0 },
+    { name: '环境隔离', score: sEnv, angle: Math.PI / 2 },
+    { name: '行为自然', score: sAct, angle: Math.PI }
+  ];
+
+  var bgPolys = [0.25, 0.5, 0.75, 1].map(function(scale) {
+    var pts = axes.map(function(a) {
+      var x = cx + r * scale * Math.cos(a.angle);
+      var y = cy + r * scale * Math.sin(a.angle);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+    return '<polygon points="' + pts + '" fill="none" stroke="var(--line-2)" stroke-width="1" stroke-dasharray="2,2"/>';
+  }).join('');
+
+  var axisLines = axes.map(function(a) {
+    var x = cx + r * Math.cos(a.angle);
+    var y = cy + r * Math.sin(a.angle);
+    var lx = cx + (r + 18) * Math.cos(a.angle);
+    var ly = cy + (r + 18) * Math.sin(a.angle);
+    return '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="var(--line-2)" stroke-width="1"/>' +
+      '<text x="' + lx + '" y="' + (ly + 4) + '" font-size="10.5" font-weight="700" fill="var(--ink-3)" text-anchor="middle">' + a.name + '</text>';
+  }).join('');
+
+  var dataPts = axes.map(function(a) {
+    var scale = a.score / 100;
+    var x = cx + r * scale * Math.cos(a.angle);
+    var y = cy + r * scale * Math.sin(a.angle);
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  }).join(' ');
+
+  var dataPoly = '<polygon points="' + dataPts + '" fill="var(--brand-soft)" stroke="var(--brand)" stroke-width="2.5" opacity="0.85"/>';
+
+  svg.innerHTML = bgPolys + axisLines + dataPoly;
+}
+
+// 增强现有 calculateRisk
+var origCalculateRisk = calculateRisk;
+calculateRisk = function() {
+  origCalculateRisk();
+  var ip = parseInt(document.querySelector('input[name="q_ip"]:checked')?.value || '0', 10);
+  var leak = parseInt(document.querySelector('input[name="q_leak"]:checked')?.value || '0', 10);
+  var pay = parseInt(document.querySelector('input[name="q_pay"]:checked')?.value || '0', 10);
+  var env = parseInt(document.querySelector('input[name="q_env"]:checked')?.value || '0', 10);
+  var act = parseInt(document.querySelector('input[name="q_act"]:checked')?.value || '0', 10);
+  drawRadar(ip, leak, pay, env, act);
+};
+if (calcQuestions) calculateRisk();
+
+/* ===================================================================== *
+ * 6. 交互工具 C：30秒异常排查向导
+ * ===================================================================== */
+var wizardData = {
+  loading: {
+    status: '📶 本地网络或代理拦截（非封号）',
+    color: 'var(--info)',
+    reason: '绝大多数是本地代理的 TUN/系统代理未接管 Claude 域名，或者 Cloudflare 504 Gateway Timeout。',
+    steps: [
+      '先查阅官方状态页 <code>status.claude.com</code> 确认服务是否正常。',
+      '检查代理客户端分流规则，确保 <code>*.claude.ai</code> 与 <code>*.anthropic.com</code> 均走代理出口。',
+      '清空浏览器关于 claude.ai 的本地 Cookie 或尝试隐私模式打开。'
+    ],
+    actionText: '查看第 1 节故障分诊表',
+    actionHref: '#triage'
+  },
+  region: {
+    status: '🌍 地区不受支持提示（非封号）',
+    color: 'var(--warn)',
+    reason: '当前出口节点的 IP 被判定不在 Anthropic 官方支持地区内，或 DNS 泄露回了国内运营商。',
+    steps: [
+      '切勿在当前节点下连续更换邮箱重复注册！容易引发关联批量拦截。',
+      '在终端运行 <code>curl -s https://ipinfo.io/json</code> 检查出口真实归属地。',
+      '切换至固定纯净的美国/日本/新加坡等官方支持地区住宅节点。'
+    ],
+    actionText: '查看支持地区与网络配置',
+    actionHref: '#dev'
+  },
+  persona: {
+    status: '🪪 平台完整性/身份验证核验',
+    color: '#e07a5f',
+    reason: '账号触发了例行合规抽检或风控信号叠加（如虚拟卡充值、新号多开），要求上传本人证件与人脸。',
+    steps: [
+      '务必使用本人真实有效的实体证件（护照/驾照/身份证），确保光线良好、四角完整。',
+      '严禁找任何第三方“花钱代过”，轻则被骗资金与隐私，重则账号被永久注销。',
+      '若多次重试因光线问题失败，通过页面支持表单联系官方客服复核。'
+    ],
+    actionText: '查看 Persona 验证保姆级攻略',
+    actionHref: '#persona'
+  },
+  suspended: {
+    status: '⚠️ 账号临时暂停审查 (Suspended)',
+    color: 'var(--warn)',
+    reason: '自动审查模型 (Automatic Review) 监测到异常行为或叠加信号，暂时冻结了账号访问权限。',
+    steps: [
+      '保存页面上的停用提示英文原文和截图（遮挡卡号与密钥）。',
+      '使用下方智能申诉邮件生成器，生成标准的请求人工复核工单。',
+      '使用注册邮箱向 <code>support@anthropic.com</code> 发信，申诉期间切勿注册新号。'
+    ],
+    actionText: '立即定制生成申诉邮件',
+    actionHref: '#appeal'
+  },
+  banned: {
+    status: '🚨 账号正式封禁 (Banned / Terminated)',
+    color: 'var(--danger)',
+    reason: '判定严重或反复违反使用政策（违规越狱提示词、账号倒卖拼车、高危代充黑卡等）。',
+    steps: [
+      '若有未消费的月订阅费，立即找付款渠道退款（App Store 找苹果，Google Play 找谷歌）。',
+      '使用申诉信模板 B 诚恳说明情况，争取最后一次人工推翻判定的机会。',
+      '做好 Plan B 准备，评估官方 API 或国内合规替代模型。'
+    ],
+    actionText: '查看退款与申诉指引',
+    actionHref: '#appeal'
+  },
+  code: {
+    status: '💻 Claude Code 掉线（网络环境问题）',
+    color: 'var(--info)',
+    reason: 'Claude Code 依赖长期稳定的长连接，网络微小抖动或 IPv6/DNS 泄漏会导致终端频繁断连。',
+    steps: [
+      '彻底在系统网络适配器中关闭 IPv6 协议。',
+      '在代理客户端中开启 TUN 虚拟网卡模式，接管全局终端流量。',
+      '将 <code>claude.ai</code> 与 <code>api.anthropic.com</code> 绑定至同一个静态代理节点。'
+    ],
+    actionText: '查看 Claude Code 关键配置表',
+    actionHref: '#dev'
+  }
+};
+
+function renderWizard(key) {
+  var content = document.getElementById('wizardContent');
+  if (!content) return;
+  var d = wizardData[key] || wizardData.loading;
+  content.innerHTML = '<div class="wiz-diag-head">' +
+    '<span class="wiz-diag-status" style="color:' + d.color + '">' + d.status + '</span>' +
+    '<a href="' + d.actionHref + '" style="font-size:12.5px;font-weight:700;color:var(--brand-2)">' + d.actionText + ' →</a>' +
+  '</div>' +
+  '<p style="margin:0 0 10px;font-size:13.5px;color:var(--ink-2)"><b>根因诊断：</b>' + d.reason + '</p>' +
+  '<div class="wiz-steps-box">' +
+    '<strong>建议应对步骤：</strong>' +
+    '<ol>' + d.steps.map(function(s) { return '<li>' + s + '</li>'; }).join('') + '</ol>' +
+  '</div>';
+}
+
+document.querySelectorAll('#wizardTriggers .wiz-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#wizardTriggers .wiz-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderWizard(btn.getAttribute('data-wiz'));
+  });
+});
+renderWizard('loading');
+
+/* ===================================================================== *
+ * 7. 增强功能：申诉邮件定制生成器
+ * ===================================================================== */
+function updateAppealLetter() {
+  var apType = document.getElementById('apType')?.value || 'suspended';
+  var apName = document.getElementById('apName')?.value.trim() || 'Alex';
+  var apEmail = document.getElementById('apEmail')?.value.trim() || 'user@example.com';
+  var apUsage = document.getElementById('apUsage')?.value || 'coding';
+  var apLang = document.querySelector('input[name="apLang"]:checked')?.value || 'en';
+  var output = document.getElementById('appealOutput');
+  var mailto = document.getElementById('btnMailto');
+  if (!output) return;
+
+  var usageMap = {
+    coding: { en: 'software engineering, code debugging and automated unit test authoring', zh: '日常软件开发、代码调试与单元测试编写' },
+    academic: { en: 'academic literature review, data visualization and research paper refinement', zh: '学术文献研读、统计数据分析与论文润色' },
+    translation: { en: 'cross-language technical document translation and technical writing', zh: '跨语言技术文档翻译与专业内容编写' },
+    study: { en: 'programming self-learning, algorithm study and statistical modeling', zh: '个人编程学习、算法研读与统计建模' }
+  };
+
+  var today = new Date().toISOString().slice(0, 10);
+  var subject = '';
+  var body = '';
+
+  if (apLang === 'en') {
+    if (apType === 'suspended') {
+      subject = 'Appeal for Account Review – Suspended Account [' + apEmail + ']';
+      body = 'Dear Anthropic Support Team,\n\n' +
+        'My name is ' + apName + ', and my registered account is ' + apEmail + '. On ' + today + ', I noticed that my account was disabled with a notice indicating an automatic review.\n\n' +
+        'I primarily use Claude as an essential productivity tool for ' + usageMap[apUsage].en + '. I have always maintained a stable, legitimate environment, and I have never engaged in bulk automation, jailbreak prompts, or multi-account abuse.\n\n' +
+        'If this temporary suspension was triggered by an automated screening anomaly, I kindly request a human agent to review my account status and restore access. I remain fully committed to adhering to Anthropic\'s Terms of Service and Usage Policy.\n\n' +
+        'Thank you for your time and assistance.\n\n' +
+        'Sincerely,\n' + apName + '\n' + apEmail + '\n' + today;
+    } else if (apType === 'banned') {
+      subject = 'Request for Reconsideration and Human Review – [' + apEmail + ']';
+      body = 'Dear Anthropic Trust & Safety Team,\n\n' +
+        'I am writing to respectfully appeal the decision regarding account ' + apEmail + ', which was recently terminated.\n\n' +
+        'I have used Claude solely for legitimate personal and professional tasks in ' + usageMap[apUsage].en + '. To the best of my knowledge, I have not intentionally violated any safety guidelines. If any unintended activity was flagged, I sincerely apologize and would welcome any guidance to ensure full compliance.\n\n' +
+        'I would be deeply grateful if you could conduct an additional human review of my case.\n\n' +
+        'Best regards,\n' + apName + '\n' + apEmail;
+    } else if (apType === 'api') {
+      subject = 'Anthropic API Account Access Appeal – [' + apEmail + ']';
+      body = 'Hello Anthropic API Support,\n\n' +
+        'My developer account ' + apEmail + ' recently encountered an API restriction notice.\n\n' +
+        'Application Context: Used exclusively for ' + usageMap[apUsage].en + '.\n' +
+        'Security Measures Taken:\n' +
+        '1. Verified that API keys were never committed to any public repositories.\n' +
+        '2. Rotated and revoked all previous keys.\n' +
+        '3. Reviewed recent query volume to ensure strict compliance with rate limits.\n\n' +
+        'Please advise on next steps to restore API functionality. Thank you!\n\n' + apName;
+    } else {
+      subject = 'Refund Request for Subscription Fee – [' + apEmail + ']';
+      body = 'Dear Anthropic Billing Support,\n\n' +
+        'My account ' + apEmail + ' was recently disabled shortly after renewal. As I am unable to access the subscription services, I kindly request a prorated or full refund of my recent subscription charge.\n\n' +
+        'Account Email: ' + apEmail + '\nDate: ' + today + '\n\nThank you for processing my request,\n' + apName;
+    }
+  } else {
+    // 中文版
+    subject = 'Claude 账号人工复核申诉 – [' + apEmail + ']';
+    body = 'Anthropic 客户支持团队：\n\n' +
+      '您好！我是 ' + apName + '，我的注册邮箱是 ' + apEmail + '。\n\n' +
+      '我的账号于 ' + today + ' 收到系统自动审查（Automatic Review）停用提示。该账号为本人长期正规使用，主要用于' + usageMap[apUsage].zh + '。我一直在稳定的网络环境下工作，从未进行任何批量抓取、越狱测试或多账号滥用。\n\n' +
+      '若本次停用系自动化风控模型误判，恳请协助安排人工复核并恢复访问权限。我将一如既往严格遵守 Anthropic 的服务条款与使用政策。\n\n' +
+      '感谢您的协助！\n\n' + apName + '\n' + apEmail + '\n' + today;
+  }
+
+  output.innerText = '主题：' + subject + '\n\n' + body;
+  if (mailto) {
+    mailto.href = 'mailto:support@anthropic.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+}
+
+['apType', 'apName', 'apEmail', 'apUsage'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateAppealLetter);
+});
+document.querySelectorAll('input[name="apLang"]').forEach(function(r) {
+  r.addEventListener('change', updateAppealLetter);
+});
+updateAppealLetter();
+
+var btnCopyCustom = document.getElementById('btn-copy-custom-appeal');
+if (btnCopyCustom) {
+  btnCopyCustom.addEventListener('click', function() {
+    var txt = document.getElementById('appealOutput')?.innerText || '';
+    copyText(txt, btnCopyCustom, '申诉邮件已复制 ✓');
+  });
+}
+
 </script>
 </body>
 </html>

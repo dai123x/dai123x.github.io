@@ -88,6 +88,9 @@ const state = {
   boardDim: 'composite',      // 榜单按哪个维度排
   boardSource: SOURCES.TEACHER,
   showBannerDetail: false,
+  matrixSortKey: 'rank',
+  matrixSortAsc: true,
+  matrixQuery: '',
 };
 
 try {
@@ -392,6 +395,7 @@ function bannerHTML() {
 
 const TEACHER_NAV = [
   { key: 'grade', ico: '✎', name: '评分台' },
+  { key: 'matrix', ico: '▦', name: '全班成绩大表' },
   { key: 'board', ico: '▤', name: '班级榜单' },
   { key: 'roster', ico: '☰', name: '班级与学生' },
   { key: 'weights', ico: '⚖', name: '权重设置' },
@@ -731,6 +735,156 @@ function gradePreviewHTML(ev) {
 /* ===================================================================== *
  * 7. 教师端 · 班级榜单
  * ===================================================================== */
+
+
+/* ===================================================================== *
+ * 7.1 全班成绩总览大表（Matrix View）
+ * ===================================================================== */
+
+function viewMatrix() {
+  const cls = curClass();
+  if (!cls) return noClassHTML();
+  const cfg = store.getConfig();
+  const students = store.listStudents(cls.id);
+  const { results } = reportFor(cls.id, SOURCES.TEACHER);
+  const { rankMap } = rankBy(results, SCORE_OF.composite);
+
+  let rows = students.map((stu) => {
+    const ev = results.find((r) => r.studentId === stu.id);
+    const fScores = ev && ev.fives ? ev.fives.fives : {};
+    return {
+      stu,
+      studentId: stu.id,
+      no: stu.no || '',
+      name: stu.name || '',
+      rank: rankMap.get(stu.id) || 999,
+      composite: ev ? ev.composite.score : null,
+      fives: ev ? ev.fives.score : null,
+      de: fScores.de ?? null,
+      zhi: fScores.zhi ?? null,
+      ti: fScores.ti ?? null,
+      mei: fScores.mei ?? null,
+      lao: fScores.lao ?? null,
+      subject: ev ? ev.subject.score : null,
+      daily: ev ? ev.daily.score : null,
+      grade: gradeOf(ev ? ev.composite.score : null)
+    };
+  });
+
+  const q = (state.matrixQuery || '').trim().toLowerCase();
+  if (q) {
+    rows = rows.filter((r) => r.name.toLowerCase().includes(q) || r.no.toLowerCase().includes(q));
+  }
+
+  const sk = state.matrixSortKey || 'rank';
+  const asc = state.matrixSortAsc !== false;
+  rows.sort((a, b) => {
+    let va = a[sk];
+    let vb = b[sk];
+    if (va == null) va = asc ? 999999 : -999999;
+    if (vb == null) vb = asc ? 999999 : -999999;
+    if (typeof va === 'string') return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return asc ? (va - vb) : (vb - va);
+  });
+
+  const sortArrow = (k) => (state.matrixSortKey === k ? (state.matrixSortAsc ? ' ▲' : ' ▼') : '');
+
+  const heatBg = (v) => {
+    if (!isNum(v)) return '';
+    if (v >= 90) return 'background:var(--ok-soft);color:var(--ok)';
+    if (v >= 80) return 'background:var(--accent-soft);color:var(--accent-2)';
+    if (v >= 60) return '';
+    return 'background:var(--bad-soft);color:var(--bad)';
+  };
+
+  return `<div class="card">
+    <div class="card-head" style="flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 style="margin:0;display:flex;align-items:center;gap:8px">
+          <span>全班成绩总览大表 · ${esc(cls.name)}</span>
+          <span class="tag tag-accent">${rows.length}/${students.length} 人</span>
+        </h1>
+        <p class="card-sub">点击表头快速升降序排布、支持模糊搜索、直观色彩热力染色</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <input type="search" id="matrixSearchInp" placeholder="搜索学号或姓名..." value="${esc(state.matrixQuery || '')}"
+          style="padding:6px 12px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:.85rem;width:170px">
+        <button class="btn btn-sm" type="button" data-act="export-csv">📥 导出 Excel CSV</button>
+        <button class="btn btn-sm" type="button" data-act="print">🖨️ 打印表格</button>
+      </div>
+    </div>
+
+    <div class="card-body tight">
+      <div class="table-wrap" style="max-height:68vh;overflow:auto">
+        <table style="font-size:.84rem;min-width:880px">
+          <thead style="position:sticky;top:0;z-index:3;background:var(--surface)">
+            <tr>
+              <th scope="col" style="cursor:pointer;white-space:nowrap" data-act="matrix-sort" data-arg="rank">排名${sortArrow('rank')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap" data-act="matrix-sort" data-arg="no">学号${sortArrow('no')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap" data-act="matrix-sort" data-arg="name">姓名${sortArrow('name')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap" data-act="matrix-sort" data-arg="composite">综合总分${sortArrow('composite')}</th>
+              <th scope="col" class="center">等级</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap;color:var(--five-de)" data-act="matrix-sort" data-arg="de">德育${sortArrow('de')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap;color:var(--five-zhi)" data-act="matrix-sort" data-arg="zhi">智育${sortArrow('zhi')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap;color:var(--five-ti)" data-act="matrix-sort" data-arg="ti">体育${sortArrow('ti')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap;color:var(--five-mei)" data-act="matrix-sort" data-arg="mei">美育${sortArrow('mei')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap;color:var(--five-lao)" data-act="matrix-sort" data-arg="lao">劳育${sortArrow('lao')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap" data-act="matrix-sort" data-arg="subject">学科总分${sortArrow('subject')}</th>
+              <th scope="col" style="cursor:pointer;white-space:nowrap" data-act="matrix-sort" data-arg="daily">日常表现${sortArrow('daily')}</th>
+              <th scope="col" class="center no-print">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.length ? rows.map((r) => `
+              <tr>
+                <td class="center"><strong style="font-family:var(--mono);color:${r.rank <= 3 ? 'var(--warn)' : 'inherit'}">${r.rank <= 900 ? r.rank : '—'}</strong></td>
+                <td style="font-family:var(--mono)">${esc(r.no)}</td>
+                <td><strong>${esc(r.name)}</strong></td>
+                <td class="center" style="font-family:var(--mono);font-weight:700;${heatBg(r.composite)}">${fmt1(r.composite)}</td>
+                <td class="center"><span class="badge-grade ${r.grade.cls}">${r.grade.grade}</span></td>
+                <td class="center num" style="${heatBg(r.de)}">${fmt1(r.de)}</td>
+                <td class="center num" style="${heatBg(r.zhi)}">${fmt1(r.zhi)}</td>
+                <td class="center num" style="${heatBg(r.ti)}">${fmt1(r.ti)}</td>
+                <td class="center num" style="${heatBg(r.mei)}">${fmt1(r.mei)}</td>
+                <td class="center num" style="${heatBg(r.lao)}">${fmt1(r.lao)}</td>
+                <td class="center num" style="${heatBg(r.subject)}">${fmt1(r.subject)}</td>
+                <td class="center num" style="${heatBg(r.daily)}">${fmt1(r.daily)}</td>
+                <td class="center no-print" style="white-space:nowrap">
+                  <button class="btn btn-xs" type="button" data-act="goto-grade" data-arg="${r.studentId}">打分</button>
+                  <button class="btn btn-xs btn-ghost" type="button" data-act="view-student-report" data-arg="${r.studentId}">成绩单</button>
+                </td>
+              </tr>
+            `).join('') : `
+              <tr><td colspan="13" style="text-align:center;padding:32px;color:var(--muted)">没有找到符合条件的学生</td></tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function generateStudentRemark(stu, ev) {
+  if (!ev || !ev.composite || !isNum(ev.composite.score)) {
+    return '该生本学期正在全面发展中，期待在后续的素质教育与学业学习中取得更优异的表现！';
+  }
+  const f = ev.fives ? ev.fives.fives : {};
+  const traits = [];
+  if (isNum(f.de) && f.de >= 85) traits.push('遵纪守法、集体责任感强');
+  if (isNum(f.zhi) && f.zhi >= 85) traits.push('学习刻苦、善于思辨');
+  if (isNum(f.ti) && f.ti >= 85) traits.push('热爱体育锻炼、体魄强健');
+  if (isNum(f.mei) && f.mei >= 85) traits.push('具有良好审美素养与艺术表现力');
+  if (isNum(f.lao) && f.lao >= 85) traits.push('劳动观念强、动手实践能力扎实');
+
+  const strength = traits.length ? traits.join('，且') : '品行端正、勤勉好学';
+  const cScore = ev.composite.score;
+  let levelWord = '综合表现十分优秀';
+  if (cScore >= 90) levelWord = '各方面均表现卓越，五育并举协调发展';
+  else if (cScore >= 80) levelWord = '综合素质优良，学业与行为习惯表现扎实';
+  else if (cScore >= 70) levelWord = '表现稳中有进，具备良好发展潜能';
+
+  return `【综合评语】${esc(stu.name)}同学在校${strength}。本学期${levelWord}（综合评估总分 ${fmt1(cScore)}，评定等级为 ${gradeOf(cScore).grade}）。望戒骄戒躁，勇攀高峰！`;
+}
 
 function viewBoard() {
   const cls = curClass();
@@ -1121,6 +1275,7 @@ function viewData() {
         <button class="btn btn-primary btn-sm" type="button" data-act="export-json">导出备份（JSON）</button>
         <button class="btn btn-sm" type="button" data-act="import-json">导入备份</button>
         <button class="btn btn-sm" type="button" data-act="export-csv">导出成绩表（CSV）</button>
+        <button class="btn btn-sm" type="button" data-act="download-csv-template">📥 下载导入空白模板（CSV）</button>
         <button class="btn btn-sm" type="button" data-act="print">打印 / 存 PDF</button>
         <span class="row-end"></span>
         <button class="btn btn-sm" type="button" data-act="load-demo">重新载入演示数据</button>
@@ -1339,6 +1494,32 @@ function viewReport() {
           })()}
         </div>
       </div>
+      
+      <!-- 成绩单智能评语与回执区 -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-head">
+          <div>
+            <h2 style="margin:0">期末综合素质发展评语与家长回执</h2>
+            <p class="card-sub">智能分析五育优长项，支持教师个性化润色，打印时完整留存</p>
+          </div>
+          <button class="btn btn-xs btn-ghost row-end no-print" type="button" data-act="regen-remark">✨ 重新生成建议</button>
+        </div>
+        <div class="card-body">
+          <div style="margin-bottom:12px">
+            <textarea id="studentReportRemark" rows="3" style="width:100%;padding:10px 12px;border-radius:var(--r);background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:.88rem;line-height:1.6">${esc(localStorage.getItem('stu_remark_' + stu.id) || generateStudentRemark(stu, ev))}</textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:6px" class="no-print">
+              <button class="btn btn-xs btn-primary" type="button" data-act="save-remark">保存评语</button>
+            </div>
+          </div>
+          <!-- 打印回执栏 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;border-top:1px dashed var(--border);padding-top:14px;font-size:.82rem;color:var(--muted)">
+            <div>班主任签名：__________________</div>
+            <div>家长查阅签名：__________________</div>
+            <div>评定日期：2026 年 ___ 月 ___ 日</div>
+          </div>
+        </div>
+      </div>
+    
       ${selfEv ? `<div class="card-foot">
         <span class="hint">你在「我的自评」里给自己打的分是 ${fmt1(selfEv.composite.score)}，
           与老师的 ${fmt1(ev.composite.score)} 相差 ${fmt1(selfEv.composite.score - ev.composite.score)} 分。</span>
@@ -1543,6 +1724,7 @@ function mainHTML() {
   if (!store.listClasses().length) return noClassHTML();
   if (state.role === 'teacher') {
     switch (state.tview) {
+      case 'matrix': return viewMatrix();
       case 'board': return viewBoard();
       case 'roster': return viewRoster();
       case 'weights': return viewWeights();
@@ -1919,6 +2101,59 @@ function handleAction(act, arg, el) {
       break;
     }
 
+    
+    case 'matrix-sort': {
+      if (state.matrixSortKey === arg) {
+        state.matrixSortAsc = !state.matrixSortAsc;
+      } else {
+        state.matrixSortKey = arg;
+        state.matrixSortAsc = true;
+      }
+      render();
+      break;
+    }
+
+    case 'view-student-report':
+      state.studentId = arg;
+      state.role = 'student';
+      state.sview = 'report';
+      render();
+      break;
+
+    case 'regen-remark': {
+      const stu = curStudent();
+      const cls = curClass();
+      if (stu && cls) {
+        const { byId } = reportFor(cls.id, SOURCES.TEACHER);
+        const remark = generateStudentRemark(stu, byId.get(stu.id));
+        const el = document.getElementById('studentReportRemark');
+        if (el) el.value = remark;
+        localStorage.setItem('stu_remark_' + stu.id, remark);
+        toast('已重新生成并填入评语', 'ok');
+      }
+      break;
+    }
+
+    case 'save-remark': {
+      const stu = curStudent();
+      const el = document.getElementById('studentReportRemark');
+      if (stu && el) {
+        localStorage.setItem('stu_remark_' + stu.id, el.value);
+        toast('评语已保存', 'ok');
+      }
+      break;
+    }
+
+    case 'download-csv-template': {
+      const tpl = '学号,姓名,德育,智育,体育,美育,劳育,语文,数学,英语,物理,化学,生物,道德与法治,历史,地理,体育与健康,音乐,美术,信息科技,日常表现分\r\n' +
+        '202601,张晓明,92,95,88,86,90,92,98,90,88,85,90,92,88,85,90,85,88,95,108\r\n' +
+        '202602,李晨,88,82,96,80,85,84,80,82,78,75,80,85,82,80,95,80,82,88,102\r\n' +
+        '202603,王芳,96,90,84,95,92,95,88,94,82,85,88,94,92,90,85,96,92,90,112';
+      download('学生综合评分导入模板.csv', '\uFEFF' + tpl, 'text/csv;charset=utf-8');
+      toast('标准导入模板已下载', 'ok');
+      break;
+    }
+  
     case 'export-json': {
       const snap = store.snapshot();
       const stamp = new Date().toISOString().slice(0, 10);
