@@ -28,6 +28,9 @@ venv/
 
 # 本地辅助脚本（审计/图片处理），不入库不部署
 *.py
+!scripts/reproduce_montecarlo.py
+!scripts/verify_deployment.py
+!url-manager/server.py
 
 # Video binaries
 *.mp4

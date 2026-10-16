@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_url" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#080e1e"/>
+    </linearGradient>
+    <linearGradient id="blue_cyan_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="purple_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="card_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#111827" stop-opacity="0.98"/>
+    </linearGradient>
+    <filter id="glow_url" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景画布 -->
+  <rect width="600" height="360" fill="url(#bg_url)"/>
+
+  <!-- 背景微网格 -->
+  <pattern id="grid_url" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+    <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(59, 130, 246, 0.06)" stroke-width="1"/>
+  </pattern>
+  <rect width="600" height="360" fill="url(#grid_url)"/>
+
+  <!-- 背景科技光晕 -->
+  <circle cx="130" cy="110" r="120" fill="url(#blue_cyan_grad)" opacity="0.15" filter="url(#glow_url)"/>
+  <circle cx="480" cy="240" r="110" fill="url(#purple_grad)" opacity="0.12" filter="url(#glow_url)"/>
+
+  <!-- 模拟系统主窗口 -->
+  <g transform="translate(45, 36)">
+    <!-- 窗口底板 -->
+    <rect width="510" height="288" rx="14" fill="#0f172a" stroke="rgba(59, 130, 246, 0.28)" stroke-width="1.2"/>
+    
+    <!-- 窗口顶部导航栏 -->
+    <rect width="510" height="42" rx="14" fill="#1e293b" fill-opacity="0.9"/>
+    <rect y="26" width="510" height="16" fill="#1e293b" fill-opacity="0.9"/>
+    <line x1="0" y1="42" x2="510" y2="42" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1"/>
+
+    <!-- 窗口三色按钮 -->
+    <circle cx="22" cy="21" r="5" fill="#f87171" opacity="0.85"/>
+    <circle cx="38" cy="21" r="5" fill="#fbbf24" opacity="0.85"/>
+    <circle cx="54" cy="21" r="5" fill="#34d399" opacity="0.85"/>
+
+    <!-- 导航栏标题与状态微标 -->
+    <text x="76" y="25" font-family="'Segoe UI', 'PingFang SC', sans-serif" font-size="12" font-weight="700" fill="#f1f5f9">🚀 个人专属网址预存管理系统</text>
+    
+    <!-- 实时同步小圆点 -->
+    <circle cx="430" cy="21" r="3.5" fill="#10b981"/>
+    <text x="440" y="24" font-family="'Segoe UI', 'PingFang SC', sans-serif" font-size="10.5" font-weight="500" fill="#94a3b8">本地实时同步</text>
+
+    <!-- 顶栏模拟搜索框 -->
+    <g transform="translate(24, 54)">
+      <rect width="462" height="30" rx="8" fill="#1e293b" stroke="rgba(59, 130, 246, 0.25)" stroke-width="1"/>
+      <text x="14" y="19" font-family="'Segoe UI', sans-serif" font-size="11" fill="#64748b">🔍  搜索高频网址、工具站点、说明备忘... (按 / 聚焦)</text>
+      <rect x="432" y="6" width="18" height="18" rx="4" fill="#334155"/>
+      <text x="441" y="19" font-family="sans-serif" font-size="10" font-weight="700" fill="#cbd5e1" text-anchor="middle">/</text>
+    </g>
+
+    <!-- 分类胶囊标签栏 -->
+    <g transform="translate(24, 96)">
+      <!-- 全部 -->
+      <rect width="52" height="24" rx="12" fill="#3b82f6"/>
+      <text x="26" y="16" font-family="sans-serif" font-size="11" font-weight="600" fill="#ffffff" text-anchor="middle">🌐 全部</text>
+
+      <!-- 常用推荐 -->
+      <g transform="translate(60, 0)">
+        <rect width="78" height="24" rx="12" fill="#1e293b" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <text x="39" y="16" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">⭐ 常用推荐</text>
+      </g>
+
+      <!-- 实用工具 -->
+      <g transform="translate(146, 0)">
+        <rect width="78" height="24" rx="12" fill="#1e293b" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <text x="39" y="16" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">🛠️ 实用工具</text>
+      </g>
+
+      <!-- 编程开发 -->
+      <g transform="translate(232, 0)">
+        <rect width="78" height="24" rx="12" fill="#1e293b" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <text x="39" y="16" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">💻 编程开发</text>
+      </g>
+
+      <!-- 资讯媒体 -->
+      <g transform="translate(318, 0)">
+        <rect width="86" height="24" rx="12" fill="#1e293b" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <text x="43" y="16" font-family="sans-serif" font-size="11" fill="#cbd5e1" text-anchor="middle">📰 资讯与媒体</text>
+      </g>
+    </g>
+
+    <!-- 卡片网格展示 (2列 x 2行) -->
+    <g transform="translate(24, 132)">
+      <!-- 卡片 1: GitHub -->
+      <g transform="translate(0, 0)">
+        <rect width="224" height="66" rx="10" fill="url(#card_grad)" stroke="rgba(59, 130, 246, 0.2)" stroke-width="1"/>
+        <!-- 渐变首字母图标 -->
+        <rect x="12" y="12" width="34" height="34" rx="8" fill="url(#purple_grad)"/>
+        <text x="29" y="34" font-family="sans-serif" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">G</text>
+        <!-- 标题与域名 -->
+        <text x="56" y="26" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#f8fafc">GitHub</text>
+        <text x="56" y="42" font-family="'Segoe UI', sans-serif" font-size="10" fill="#64748b">github.com</text>
+        <!-- 标签 -->
+        <rect x="162" y="12" width="50" height="16" rx="4" fill="rgba(99, 102, 241, 0.15)"/>
+        <text x="187" y="24" font-family="sans-serif" font-size="9" fill="#a5b4fc" text-anchor="middle">💻 开发</text>
+        <text x="12" y="58" font-family="sans-serif" font-size="9" fill="#94a3b8">全球开源代码托管与协作平台</text>
+      </g>
+
+      <!-- 卡片 2: 谷歌二次验证工具 -->
+      <g transform="translate(238, 0)">
+        <rect width="224" height="66" rx="10" fill="url(#card_grad)" stroke="rgba(59, 130, 246, 0.2)" stroke-width="1"/>
+        <!-- 渐变首字母图标 -->
+        <rect x="12" y="12" width="34" height="34" rx="8" fill="url(#blue_cyan_grad)"/>
+        <text x="29" y="34" font-family="sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">2F</text>
+        <text x="56" y="26" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#f8fafc">谷歌二次验证工具</text>
+        <text x="56" y="42" font-family="'Segoe UI', sans-serif" font-size="10" fill="#64748b">2fa.run</text>
+        <rect x="162" y="12" width="50" height="16" rx="4" fill="rgba(59, 130, 246, 0.15)"/>
+        <text x="187" y="24" font-family="sans-serif" font-size="9" fill="#93c5fd" text-anchor="middle">🛠️ 工具</text>
+        <text x="12" y="58" font-family="sans-serif" font-size="9" fill="#94a3b8">在线生成动态 2FA 一次性口令验证码</text>
+      </g>
+
+      <!-- 卡片 3: Google 搜索 -->
+      <g transform="translate(0, 76)">
+        <rect width="224" height="66" rx="10" fill="url(#card_grad)" stroke="rgba(59, 130, 246, 0.2)" stroke-width="1"/>
+        <rect x="12" y="12" width="34" height="34" rx="8" fill="#10b981"/>
+        <text x="29" y="34" font-family="sans-serif" font-size="16" font-weight="700" fill="#fff" text-anchor="middle">G</text>
+        <text x="56" y="26" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#f8fafc">Google</text>
+        <text x="56" y="42" font-family="'Segoe UI', sans-serif" font-size="10" fill="#64748b">google.com</text>
+        <rect x="162" y="12" width="50" height="16" rx="4" fill="rgba(16, 185, 129, 0.15)"/>
+        <text x="187" y="24" font-family="sans-serif" font-size="9" fill="#6ee7b7" text-anchor="middle">⭐ 常用</text>
+        <text x="12" y="58" font-family="sans-serif" font-size="9" fill="#94a3b8">全球知名搜索引擎与全套数字生态</text>
+      </g>
+
+      <!-- 卡片 4: 接码平台 -->
+      <g transform="translate(238, 76)">
+        <rect width="224" height="66" rx="10" fill="url(#card_grad)" stroke="rgba(59, 130, 246, 0.2)" stroke-width="1"/>
+        <rect x="12" y="12" width="34" height="34" rx="8" fill="#f59e0b"/>
+        <text x="29" y="34" font-family="sans-serif" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">接</text>
+        <text x="56" y="26" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#f8fafc">国外接码平台</text>
+        <text x="56" y="42" font-family="'Segoe UI', sans-serif" font-size="10" fill="#64748b">hero-sms.com</text>
+        <rect x="162" y="12" width="50" height="16" rx="4" fill="rgba(245, 158, 11, 0.15)"/>
+        <text x="187" y="24" font-family="sans-serif" font-size="9" fill="#fcd34d" text-anchor="middle">🛠️ 工具</text>
+        <text x="12" y="58" font-family="sans-serif" font-size="9" fill="#94a3b8">接收国外手机号码与验证码短信平台</text>
+      </g>
+    </g>
+  </g>
+</svg>

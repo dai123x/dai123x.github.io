@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-10-16T09:04:19.240Z",
+  "categories": [
+    {
+      "id": "cat_daily",
+      "name": "常用推荐",
+      "icon": "⭐",
+      "order": 1
+    },
+    {
+      "id": "cat_tools",
+      "name": "实用工具",
+      "icon": "🛠️",
+      "order": 2
+    },
+    {
+      "id": "cat_dev",
+      "name": "编程开发",
+      "icon": "💻",
+      "order": 3
+    },
+    {
+      "id": "cat_media",
+      "name": "资讯与媒体",
+      "icon": "📰",
+      "order": 4
+    }
+  ],
+  "items": [
+    {
+      "id": "item_mvaqr4135f3lh",
+      "categoryId": "cat_tools",
+      "title": "谷歌二次验证工具",
+      "url": "https://2fa.run/",
+      "description": "",
+      "icon": "",
+      "visitCount": 0,
+      "createdAt": "2026-10-16T09:04:19.239Z"
+    },
+    {
+      "id": "item_mvaqppedtzp69",
+      "categoryId": "cat_tools",
+      "title": "接码平台",
+      "url": "https://hero-sms.com/",
+      "description": "接收国外手机号码的验证码",
+      "icon": "",
+      "visitCount": 0,
+      "createdAt": "2026-10-16T09:03:13.621Z"
+    },
+    {
+      "id": "item_mvaqkst4u549i",
+      "categoryId": "cat_tools",
+      "title": "星维VPN",
+      "url": "https://xinweicloud.com/",
+      "description": "这是一个好用的梯子",
+      "icon": "",
+      "visitCount": 0,
+      "createdAt": "2026-10-16T08:59:24.760Z"
+    },
+    {
+      "id": "item_mvaqhn5vh3pb0",
+      "categoryId": "cat_tools",
+      "title": "账号星球",
+      "url": "http://accboy7techlife.acceboy.com/",
+      "description": "可以购买谷歌账号",
+      "icon": "",
+      "visitCount": 0,
+      "createdAt": "2026-10-16T08:56:57.475Z"
+    },
+    {
+      "id": "item_002",
+      "categoryId": "cat_daily",
+      "title": "Google",
+      "url": "https://www.google.com",
+      "description": "全球知名搜索引擎",
+      "icon": "",
+      "visitCount": 0,
+      "createdAt": "2026-10-16T14:15:00Z"
+    },
+    {
+      "id": "item_005",
+      "categoryId": "cat_dev",
+      "title": "GitHub",
+      "url": "https://github.com",
+      "description": "全球开源代码托管与协作平台",
+      "icon": "",
+      "visitCount": 0,
+      "createdAt": "2026-10-16T14:15:00Z"
+    }
+  ]
+}
