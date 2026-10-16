@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Claude 防封完全指南与风控自测系统 · 2026 最新版</title>
+<meta name="description" content="Claude 防封完全指南（2026 最新版）：内置账号风控指数体检仪、六维交互实操清单、官方封号三条红线、六大触发点、Persona 身份核验、申诉退款全流程与常见误区辟谣。">
+<meta name="keywords" content="Claude防封,Claude封号,Claude账号解封,Persona验证,Claude退款,Claude风控自测,Claude Code掉线,Anthropic使用政策">
+<meta name="author" content="戴璇">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0d1117">
+<link rel="canonical" href="https://daixuan.cloud/claude-anti-ban/">
+
+<!-- Open Graph / Social Media Cards -->
+<meta property="og:title" content="Claude 防封完全指南与风控自测系统 · 2026 版">
+<meta property="og:description" content="内置 Claude 账号风控指数自测仪与六维交互实操清单，一站式解决封号分诊、申诉退款与稳定使用策略。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://daixuan.cloud/claude-anti-ban/">
+<meta property="og:site_name" content="戴璇 · daixuan.cloud">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Claude 防封完全指南与风控自测系统 · 2026 版">
+<meta name="twitter:description" content="官方红线解读、真实触发点分诊、互动打卡清单与风控自测评估。">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c8613b'/%3E%3Cpath d='M8 16 Q16 8 24 16 T16 24 Z' fill='%23ffffff' opacity='0.9'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23c8613b'/%3E%3C/svg%3E">
+
+<script>
+/* 站点统一主题初始化：localStorage.dx_theme 优先，prefers-color-scheme 兜底 */
+(function() {
+  try {
+    var saved = localStorage.getItem('dx_theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+
+<style>
+:root {
+  --bg: #0f141c;
+  --surface: #171d26;
+  --surface-2: #1e2633;
+  --surface-3: #263142;
+  --ink: #f0f4f8;
+  --ink-2: #cbd5e1;
+  --ink-3: #94a3b8;
+  --line: #2b3544;
+  --line-2: #3b485c;
+  --brand: #e07a5f;
+  --brand-2: #f28b6d;
+  --brand-soft: rgba(224, 122, 95, 0.15);
+  --ok: #34d399;
+  --ok-soft: rgba(52, 211, 153, 0.14);
+  --warn: #fbbf24;
+  --warn-soft: rgba(251, 191, 36, 0.14);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.15);
+  --info: #60a5fa;
+  --info-soft: rgba(96, 165, 250, 0.15);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f8f6f2;
+  --surface: #ffffff;
+  --surface-2: #fbfaf7;
+  --surface-3: #f1ede6;
+  --ink: #1f1d1b;
+  --ink-2: #4a4642;
+  --ink-3: #7c756e;
+  --line: #e6e0d7;
+  --line-2: #d8d0c3;
+  --brand: #c8613b;
+  --brand-2: #a94d2c;
+  --brand-soft: #fdf1ec;
+  --ok: #2f7d5b;
+  --ok-soft: #eaf5ef;
+  --warn: #b7791f;
+  --warn-soft: #fdf6e7;
+  --danger: #c0392b;
+  --danger-soft: #fdecea;
+  --info: #2f6fb0;
+  --info-soft: #eaf2fa;
+  --shadow: 0 1px 2px rgba(31,29,27,.04), 0 8px 24px -12px rgba(31,29,27,.14);
+  --shadow-sm: 0 1px 3px rgba(31,29,27,.06);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 86px; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.78;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .25s ease, color .25s ease;
+}
+a { color: var(--brand-2); text-decoration: none; transition: color .15s; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 22px; }
+
+/* ---------- 阅读进度条 ---------- */
+.readbar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--brand), #fbbf24);
+  z-index: 100; transition: width .1s ease-out;
+}
+
+/* ---------- 顶栏 Topbar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: saturate(180%) blur(14px);
+  background: rgba(15, 20, 28, 0.88);
+  border-bottom: 1px solid var(--line);
+  transition: background-color .25s;
+}
+[data-theme="light"] .topbar {
+  background: rgba(248, 246, 242, 0.88);
+}
+.topbar-inner {
+  max-width: 960px; margin: 0 auto; padding: 10px 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.brand-group {
+  display: flex; align-items: center; gap: 12px; flex: none;
+}
+.back-home {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 13px; font-weight: 600; color: var(--ink-2);
+}
+.back-home:hover {
+  background: var(--brand-soft); border-color: var(--brand);
+  color: var(--brand-2); text-decoration: none;
+}
+.site-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 15px; letter-spacing: .2px; white-space: nowrap;
+}
+.site-brand .dot {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: linear-gradient(135deg, var(--brand), #f28b6d); display: inline-block;
+}
+.navlinks {
+  display: flex; gap: 4px; overflow-x: auto; font-size: 13px;
+  scrollbar-width: none; mask-image: linear-gradient(90deg, #000 95%, transparent);
+}
+.navlinks::-webkit-scrollbar { display: none; }
+.navlinks a {
+  color: var(--ink-2); padding: 5px 10px; border-radius: 999px;
+  white-space: nowrap; font-weight: 500;
+}
+.navlinks a:hover {
+  background: var(--surface-2); color: var(--ink); text-decoration: none;
+}
+.navlinks a.highlight {
+  background: var(--brand-soft); color: var(--brand-2); font-weight: 600;
+}
+.topbar-actions {
+  display: flex; align-items: center; gap: 8px; flex: none;
+}
+.btn-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--ink-2); cursor: pointer; transition: all .2s; font-size: 14px;
+}
+.btn-icon:hover {
+  background: var(--surface-3); color: var(--ink); border-color: var(--line-2);
+}
+
+/* ---------- Hero ---------- */
+.hero { padding: 46px 0 28px; border-bottom: 1px solid var(--line); }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px;
+  font-weight: 600; letter-spacing: .6px; color: var(--brand-2);
+  background: var(--brand-soft); border: 1px solid rgba(224, 122, 95, 0.3);
+  padding: 4px 12px; border-radius: 999px;
+}
+h1 {
+  font-size: clamp(28px, 5vw, 44px); line-height: 1.2;
+  margin: 16px 0 12px; letter-spacing: -.5px; font-weight: 800;
+}
+h1 .hl {
+  background: linear-gradient(180deg, transparent 65%, rgba(224, 122, 95, 0.35) 65%);
+}
+.lede { font-size: 17px; color: var(--ink-2); max-width: 760px; margin: 0 0 20px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--ink-3); }
+.meta b { color: var(--ink-2); font-weight: 600; }
+
+/* ---------- 交互工具模块专用样式 ---------- */
+.tool-banner {
+  margin: 28px 0; border: 1px solid var(--line); border-radius: var(--radius);
+  background: linear-gradient(145deg, var(--surface), var(--surface-2));
+  padding: 24px; box-shadow: var(--shadow);
+}
+.tool-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+}
+.tool-title {
+  display: flex; align-items: center; gap: 10px; font-size: 20px;
+  font-weight: 800; color: var(--ink); margin: 0;
+}
+.tool-title span.badge-tool {
+  font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+  background: var(--brand); color: #fff; text-transform: uppercase;
+}
+
+/* 风险体检仪面板 */
+.calc-grid {
+  display: grid; gap: 20px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .calc-grid { grid-template-columns: 1.15fr 0.85fr; }
+}
+.calc-questions { display: flex; flex-direction: column; gap: 16px; }
+.calc-q-group {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+}
+.calc-q-label {
+  font-weight: 700; font-size: 14.5px; color: var(--ink);
+  margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+}
+.calc-q-label small { font-weight: 400; color: var(--ink-3); font-size: 12px; }
+.calc-options { display: flex; flex-direction: column; gap: 8px; }
+.calc-opt {
+  display: flex; align-items: center; gap: 10px; font-size: 14px;
+  cursor: pointer; padding: 7px 10px; border-radius: 6px;
+  background: var(--surface-2); border: 1px solid transparent; transition: all .15s;
+}
+.calc-opt:hover { border-color: var(--line-2); background: var(--surface-3); }
+.calc-opt input { accent-color: var(--brand); cursor: pointer; }
+
+/* 诊断大仪表板 */
+.calc-score-board {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 20px; text-align: center;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.score-circle {
+  width: 130px; height: 130px; border-radius: 50%; margin: 10px auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 6px solid var(--ok); box-shadow: 0 0 24px rgba(52, 211, 153, 0.2);
+  transition: all .3s ease;
+}
+.score-val { font-size: 38px; font-weight: 900; line-height: 1; color: var(--ink); }
+.score-lbl { font-size: 11px; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+.score-status-badge {
+  display: inline-block; font-size: 15px; font-weight: 800;
+  padding: 6px 16px; border-radius: 999px; margin-top: 10px;
+}
+.score-diag-list {
+  text-align: left; margin: 16px 0; font-size: 13.5px; line-height: 1.6;
+  max-height: 220px; overflow-y: auto; padding-right: 4px;
+}
+.diag-item {
+  padding: 6px 10px; margin-bottom: 6px; border-radius: 6px;
+  background: var(--surface-2); border-left: 3px solid var(--line);
+}
+.diag-item.danger { border-left-color: var(--danger); background: var(--danger-soft); }
+.diag-item.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.diag-item.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+
+/* 交互打卡清单 Checklist */
+.chk-container { margin: 16px 0; }
+.chk-progress-wrap {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+}
+.chk-bar {
+  flex: 1; height: 10px; border-radius: 999px; background: var(--surface-3);
+  overflow: hidden; border: 1px solid var(--line);
+}
+.chk-bar-fill {
+  height: 100%; width: 0%; background: linear-gradient(90deg, var(--brand), var(--ok));
+  transition: width .25s ease;
+}
+.chk-stats { font-size: 13.5px; font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.chk-grid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+.chk-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+  transition: all .15s;
+}
+.chk-card:hover { border-color: var(--brand); transform: translateY(-1px); }
+.chk-card.done { border-color: rgba(52, 211, 153, 0.4); background: var(--ok-soft); }
+.chk-card input { margin-top: 3.5px; accent-color: var(--ok); cursor: pointer; }
+.chk-card-text { font-size: 13.5px; line-height: 1.5; color: var(--ink); }
+.chk-card-text small { display: block; color: var(--ink-3); margin-top: 2px; }
+
+/* 搜索命令面板 Modal */
+.pal-modal {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 12vh 20px 20px; opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.pal-modal.active { opacity: 1; pointer-events: auto; }
+.pal-box {
+  width: 100%; max-width: 620px; background: var(--surface);
+  border: 1px solid var(--line-2); border-radius: var(--radius);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.pal-in {
+  display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+  border-bottom: 1px solid var(--line); background: var(--surface-2);
+}
+.pal-in input {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  font-size: 16px; color: var(--ink); font-family: inherit;
+}
+.pal-in kbd {
+  font-size: 11px; padding: 2px 6px; border-radius: 4px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--ink-3);
+}
+.pal-results {
+  max-height: 380px; overflow-y: auto; padding: 8px;
+}
+.pal-item {
+  padding: 10px 14px; border-radius: 8px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px; transition: background .15s;
+}
+.pal-item:hover, .pal-item.selected {
+  background: var(--surface-3);
+}
+.pal-item-title { font-weight: 700; font-size: 14.5px; color: var(--ink); }
+.pal-item-snippet { font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
+
+/* 基础通用样式保持与增强 */
+section { padding: 42px 0; border-bottom: 1px solid var(--line); }
+section:last-of-type { border-bottom: 0; }
+h2 {
+  font-size: clamp(21px, 3.4vw, 28px); line-height: 1.3;
+  margin: 0 0 6px; letter-spacing: -.3px; font-weight: 800;
+  display: flex; align-items: center; gap: 12px;
+}
+h2 .num {
+  flex: none; width: 34px; height: 34px; border-radius: 10px;
+  background: var(--brand); color: #fff; font-size: 15px;
+  display: grid; place-items: center; font-weight: 800;
+}
+h3 { font-size: 18.5px; margin: 28px 0 8px; font-weight: 700; color: var(--ink); }
+h4 { font-size: 15.5px; margin: 18px 0 6px; font-weight: 700; color: var(--ink); }
+p { margin: 10px 0; }
+.sub { color: var(--ink-3); font-size: 14.5px; margin: 0 0 18px; }
+ul, ol { margin: 10px 0; padding-left: 22px; }
+li { margin: 6px 0; }
+strong { font-weight: 700; }
+code {
+  font-family: var(--mono); font-size: .88em;
+  background: var(--surface-3); border: 1px solid var(--line-2);
+  padding: 1.5px 6px; border-radius: 6px; color: var(--brand-2);
+  white-space: normal; overflow-wrap: break-word;
+}
+.callout {
+  border: 1px solid var(--line); border-left: 4px solid var(--ink-3);
+  background: var(--surface); border-radius: var(--radius-sm);
+  padding: 14px 16px; margin: 18px 0; font-size: 14.5px; box-shadow: var(--shadow-sm);
+}
+.callout .t { font-weight: 700; display: block; margin-bottom: 4px; font-size: 14px; letter-spacing: .2px; }
+.callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.callout.danger { border-left-color: var(--danger); background: var(--danger-soft); }
+.callout.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+.callout.info { border-left-color: var(--info); background: var(--info-soft); }
+.callout.accent { border-left-color: var(--brand); background: var(--brand-soft); }
+.callout p { margin: 4px 0; }
+
+.grid { display: grid; gap: 14px; }
+.grid.c2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.grid.c3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm);
+  position: relative; overflow: hidden;
+}
+.card h4 { margin-top: 0; display: flex; align-items: center; gap: 9px; font-size: 16px; }
+.card .ic {
+  flex: none; width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center; font-size: 14px;
+  background: var(--brand-soft); color: var(--brand-2); font-weight: 800;
+}
+.card p { margin: 6px 0; font-size: 14.5px; color: var(--ink-2); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 12px;
+  font-weight: 700; padding: 2.5px 9px; border-radius: 999px;
+  letter-spacing: .2px; white-space: nowrap; vertical-align: middle;
+}
+.b-high { background: var(--danger-soft); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.4); }
+.b-mid { background: var(--warn-soft); color: var(--warn); border: 1px solid rgba(251, 191, 36, 0.4); }
+.b-low { background: var(--ok-soft); color: var(--ok); border: 1px solid rgba(52, 211, 153, 0.4); }
+.b-info { background: var(--info-soft); color: var(--info); border: 1px solid rgba(96, 165, 250, 0.4); }
+
+.dd { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin: 14px 0; }
+.dd-col { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 14px 16px; }
+.dd-col h4 { margin: 0 0 8px; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+.dd-col.do { border-top: 3px solid var(--ok); }
+.dd-col.dont { border-top: 3px solid var(--danger); }
+.dd-col ul { list-style: none; padding: 0; margin: 0; }
+.dd-col li { position: relative; padding-left: 24px; font-size: 14.5px; color: var(--ink-2); }
+.dd-col.do li::before { content: "✓"; position: absolute; left: 2px; color: var(--ok); font-weight: 800; }
+.dd-col.dont li::before { content: "✕"; position: absolute; left: 2px; color: var(--danger); font-weight: 800; }
+
+.tbl-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 520px; }
+th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--surface-2); font-weight: 700; font-size: 13.5px; color: var(--ink-2); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--surface-2); }
+
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 18px 0; }
+.steps>li { counter-increment: s; position: relative; padding: 2px 0 18px 46px; border-left: 2px solid var(--line); margin-left: 15px; }
+.steps>li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.steps>li::before {
+  content: counter(s); position: absolute; left: -16px; top: 0; width: 30px; height: 30px;
+  border-radius: 50%; background: var(--brand); color: #fff; font-weight: 800;
+  font-size: 14px; display: grid; place-items: center; box-shadow: 0 0 0 4px var(--bg);
+}
+.steps>li h4 { margin: 3px 0 4px; }
+.steps>li p { margin: 4px 0; font-size: 14.5px; color: var(--ink-2); }
+
+.codebox { position: relative; margin: 14px 0; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); overflow: hidden; }
+.codebox .cb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: var(--surface-3); border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
+.codebox pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+.copybtn { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 999px; cursor: pointer; transition: .15s; font-family: inherit; }
+.copybtn:hover { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-2); }
+.copybtn.done { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+
+.myths { display: grid; gap: 12px; margin: 16px 0; }
+.myth { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+.myth .claim { font-weight: 700; font-size: 15px; display: flex; gap: 9px; align-items: flex-start; line-height: 1.5; color: var(--ink); }
+.myth .claim .mk { flex: none; width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--danger-soft); color: var(--danger); font-weight: 800; font-size: 13px; margin-top: 2px; }
+.myth .verdict { margin: 8px 0 0; padding-left: 31px; font-size: 14.5px; color: var(--ink-2); }
+.myth .verdict .badge { margin-right: 6px; }
+
+.stat-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); margin: 20px 0; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; text-align: center; }
+.stat .n { font-size: 26px; font-weight: 800; color: var(--brand-2); line-height: 1.1; }
+.stat .l { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
+.src { font-size: 12.5px; color: var(--ink-3); margin-top: 12px; line-height: 1.7; }
+.src b { color: var(--ink-2); }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 0 16px; margin: 10px 0; box-shadow: var(--shadow-sm); }
+details summary { cursor: pointer; font-weight: 600; padding: 13px 0; font-size: 15px; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::after { content: "＋"; color: var(--ink-3); font-weight: 700; flex: none; }
+details[open] summary::after { content: "－"; }
+details .body { padding: 0 0 14px; font-size: 14.5px; color: var(--ink-2); }
+details .body p:first-child { margin-top: 0; }
+
+.totop {
+  position: fixed; bottom: 28px; right: 28px; z-index: 40;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--brand); color: #fff; border: 0;
+  display: grid; place-items: center; font-size: 18px; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35); opacity: 0; pointer-events: none;
+  transition: all .2s;
+}
+.totop.show { opacity: 1; pointer-events: auto; }
+.totop:hover { transform: translateY(-2px); }
+
+footer { padding: 48px 0 64px; color: var(--ink-3); font-size: 13.5px; border-top: 1px solid var(--line); }
+footer .foot-links { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+footer .foot-links a { color: var(--brand-2); font-weight: 600; }
+
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+  .hero { padding: 34px 0 18px; }
+  section { padding: 30px 0; }
+  .tool-banner { padding: 18px 14px; }
+  .topbar-inner { padding: 8px 14px; }
+}
+@media print {
+  .topbar, .copybtn, .totop, .pal-modal, .readbar, .tool-banner { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  section { break-inside: avoid; }
+  a { color: inherit !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="readbar" id="readbar" aria-hidden="true"></div>
+
+<!-- 顶栏导航 -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand-group">
+      <a href="../index.html" class="back-home" title="返回主站 daixuan.cloud">
+        <span aria-hidden="true">←</span> 主页
+      </a>
+      <div class="site-brand">
+        <span class="dot"></span> Claude 防封
+      </div>
+    </div>
+
+    <nav class="navlinks" aria-label="页面栏目">
+      <a href="#risk-tool" class="highlight">⚡ 风险自测</a>
+      <a href="#action-checklist" class="highlight">✅ 实操打卡</a>
+      <a href="#triage">故障分诊</a>
+      <a href="#why">封号原因</a>
+      <a href="#types">封禁类型</a>
+      <a href="#checklist">防封清单</a>
+      <a href="#persona">身份验证</a>
+      <a href="#dev">开发者</a>
+      <a href="#appeal">申诉退款</a>
+      <a href="#alternatives">替代方案</a>
+      <a href="#myths">误区辟谣</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="topbar-actions">
+      <button class="btn-icon" id="btn-search" title="全站检索 (Ctrl+K)" aria-label="全站检索">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+      <button class="btn-icon" id="btn-theme" title="切换深浅主题" aria-label="切换深浅主题">☀</button>
+    </div>
+  </div>
+</header>
+
+<!-- 网页大标题 Hero -->
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">2026 最新增强版 · 内置风控自测仪 · 个人 + 开发者 + 团队</span>
+    <h1>Claude <span class="hl">防封</span>完全指南</h1>
+    <p class="lede">账号为什么被封？打不开到底是故障还是封号？如何自测当前账号的风控危险指数？
+    这份指南将官方明文红线、六类真实触发点、可交互实操清单、身份核验、申诉退款与
+    <b>误区辟谣</b>系统讲透——提供在线风控体检仪与逐项打卡工具，合规优先、稳定为王。</p>
+    <div class="meta">
+      <span>最后更新：<b>2026 年 10 月</b></span>
+      <span>作者：<b>戴璇 (daixuan.cloud)</b></span>
+      <span>覆盖：<b>Web / 客户端 / Claude Code / API</b></span>
+      <span>原则：<b>合规自洽、干净单一、长期稳定</b></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ======================= 工具一：Claude 账号风控指数自测仪 ======================= -->
+<section id="risk-tool" style="padding-top:28px">
+  <div class="tool-banner">
+    <div class="tool-header">
+      <div>
+        <h2 class="tool-title" style="margin-bottom:4px">
+          ⚡ Claude 账号风控风险指数自测体检仪
+          <span class="badge-tool">Interactive</span>
+        </h2>
+        <p class="sub" style="margin:0">根据当前的网络节点、支付方式、设备指纹与操作习惯，实时测算账号风险水位与危险诱因。</p>
+      </div>
+      <button class="copybtn" id="btn-copy-report">📋 复制体检诊断报告</button>
+    </div>
+
+    <div class="calc-grid">
+      <!-- 问卷勾选区 -->
+      <div class="calc-questions" id="calcQuestions">
+        <!-- 1. 网络环境 -->
+        <div class="calc-q-group">
+          <div class="calc-q-label">
+            <span>1. 节点与出口 IP 属性</span>
+            <small>决定基准信任度</small>
+          </div>
+          <div class="calc-options">
+            <label class="calc-opt">
+              <input type="radio" name="q_ip" value="0" checked>
+              <span>固定原生住宅 IP / 纯净小众独享 (极低风险)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_ip" value="10">
+              <span>固定独享 VPS (单人使用，机房 ASN，轻微预警)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_ip" value="30">
+              <span>知名商业 VPN / 常见机场节点 (中度高频共享)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_ip" value="50">
+              <span>万人骑免费节点 / 频繁跨国瞬移跳变 (极高危)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. DNS 与 IPv6 泄漏 -->
+        <div class="calc-q-group">
+          <div class="calc-q-label">
+            <span>2. DNS 与 IPv6 防泄漏处理</span>
+            <small>避免真身暴露</small>
+          </div>
+          <div class="calc-options">
+            <label class="calc-opt">
+              <input type="radio" name="q_leak" value="0" checked>
+              <span>已彻底关闭系统 IPv6，DNS 全程走代理防泄漏 (完美自洽)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_leak" value="15">
+              <span>未专门配置，偶尔使用直连或国内 DNS (存在隐患)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_leak" value="35">
+              <span>开启了 IPv6，DNS 常泄露至本地运营商 (高危直通)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. 支付方式 -->
+        <div class="calc-q-group">
+          <div class="calc-q-label">
+            <span>3. 订阅扣费渠道</span>
+            <small>资金链路反欺诈核心</small>
+          </div>
+          <div class="calc-options">
+            <label class="calc-opt">
+              <input type="radio" name="q_pay" value="0" checked>
+              <span>Apple App Store 官方内购 / 本人海外正规实体卡 (最高权重)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_pay" value="10">
+              <span>纯免费使用，暂未绑定任何支付卡</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_pay" value="35">
+              <span>常见平台虚拟卡 / 一次性充值卡 (容易连坐标记)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_pay" value="55">
+              <span>第三方代充代付 / 发卡网 / 来源不明的黑卡 (极度高危)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. 环境与设备隔离 -->
+        <div class="calc-q-group">
+          <div class="calc-q-label">
+            <span>4. 登录设备与浏览器环境</span>
+            <small>设备指纹关联</small>
+          </div>
+          <div class="calc-options">
+            <label class="calc-opt">
+              <input type="radio" name="q_env" value="0" checked>
+              <span>单机单号专用 Chrome/Edge 独立配置，不频繁切号</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_env" value="15">
+              <span>同电脑多个浏览器，偶尔登录 2 个账号</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_env" value="35">
+              <span>使用指纹伪装/修改工具编造时区指纹 (被查易升级为欺诈)</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_env" value="55">
+              <span>多人拼车共享 / 提取 Cookie 挂载第三方反代 (违反 ToS 必封)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 5. 提示词与使用节奏 -->
+        <div class="calc-q-group">
+          <div class="calc-q-label">
+            <span>5. 使用行为与提示词习惯</span>
+            <small>内容安全红线</small>
+          </div>
+          <div class="calc-options">
+            <label class="calc-opt">
+              <input type="radio" name="q_act" value="0" checked>
+              <span>日常编程写作学习，自然频率输入，无自动化脚本</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_act" value="15">
+              <span>使用 Claude Code 编写代码，偶尔并发跑长任务</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_act" value="35">
+              <span>短时间内大批量请求，规律自动化调用网页版接口</span>
+            </label>
+            <label class="calc-opt">
+              <input type="radio" name="q_act" value="65">
+              <span>频繁调试越狱 Jailbreak Prompt、探索敏感禁止话题</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 诊断结果大卡片 -->
+      <div class="calc-score-board">
+        <div>
+          <span style="font-size:13px;font-weight:700;color:var(--ink-3);letter-spacing:1px">RISK INDEX</span>
+          <div class="score-circle" id="scoreCircle">
+            <span class="score-val" id="scoreValue">0</span>
+            <span class="score-lbl">风控风险指数</span>
+          </div>
+          <div class="score-status-badge" id="scoreBadge">极低风险 · 绿灯区</div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div style="font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:6px;text-align:left">
+            🔍 智能诊断建议：
+          </div>
+          <div class="score-diag-list" id="scoreDiagList">
+            <!-- 动态生成诊断条目 -->
+          </div>
+        </div>
+
+        <div style="font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
+          * 打分基于 Anthropic 2026 公开规则与社区反欺诈模型加权计算，仅供自查预防。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 工具二：防封实操六维交互打卡清单 ======================= -->
+<section id="action-checklist">
+  <div class="tool-banner" style="background:var(--surface)">
+    <div class="tool-header">
+      <div>
+        <h2 class="tool-title" style="margin-bottom:4px">
+          ✅ 防封实操六维交互打卡清单
+          <span class="badge-tool" style="background:var(--ok)">Checklist</span>
+        </h2>
+        <p class="sub" style="margin:0">对照 12 项实操要点打钩自查，进度实时保存在本地，帮你在日常使用中筑牢安全防线。</p>
+      </div>
+      <button class="copybtn" id="btn-reset-checklist">重置清单</button>
+    </div>
+
+    <div class="chk-container">
+      <div class="chk-progress-wrap">
+        <div class="chk-bar"><div class="chk-bar-fill" id="chkBarFill"></div></div>
+        <div class="chk-stats" id="chkStatsText">0 / 12 (0%)</div>
+      </div>
+
+      <div class="chk-grid" id="chkGrid">
+        <label class="chk-card" data-chk-id="ip_static">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>IP 选用固定住宅出口</strong>
+            <small>长期稳定在同一城市，避免公共数据中心共享 IP</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="ip_leak">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>全面关闭 IPv6 与 DNS 泄漏</strong>
+            <small>检查 whoer / ipinfo，确认真实运营商未透传</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="ip_rule">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>Claude 全域名统一分流</strong>
+            <small>claude.ai 与 api.anthropic.com 强制走同一节点</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="pay_legit">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>正规一致的支付渠道</strong>
+            <small>优先 Apple Store 内购或本人合规外卡，拒绝代充</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="pay_novirtual">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>避开已被批量标记的虚拟卡</strong>
+            <small>拒用一次性卡，防止追溯撤销引发连带封禁</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="env_single">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>单设备单账号专用环境</strong>
+            <small>专用的浏览器 Profile，不频繁登出登入与多开</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="env_noshare">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>拒绝任何形式的拼车抽 Cookie</strong>
+            <small>不在第三方工具挂载会话，严防账号倒卖判定</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="reg_clean">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>独立高信誉邮箱注册</strong>
+            <small>真实邮箱 + 正常手机号，不用一次性临时邮箱</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="warm_up">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>前 72 小时温和养号观察期</strong>
+            <small>新号注册/充值头三天低频自然使用，逐步爬坡</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="act_natural">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>自然的使用节奏与时间段</strong>
+            <small>不跑无抖动的机械式脚本，长任务合理分段</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="content_safe">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>坚守内容安全政策底线</strong>
+            <small>不反复尝试越狱提示词，不触碰违规禁区</small>
+          </div>
+        </label>
+
+        <label class="chk-card" data-chk-id="triage_first">
+          <input type="checkbox">
+          <div class="chk-card-text">
+            <strong>异常时先查分诊再动作</strong>
+            <small>掉线先查 status.claude.com，不盲目换号重注</small>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<!-- ======================= 0 核心认知 ======================= -->
+<section id="core">
+  <h2><span class="num">0</span>先建立一个正确认知</h2>
+  <p class="sub">把这一条想通，后面所有操作才不会走偏。</p>
+
+  <div class="callout accent">
+    <span class="t">风控判断的不是「你有没有干坏事」，而是「你像不像一个正常、稳定、长期的真人用户」。</span>
+    <p>很多人的第一反应是「我什么都没干，怎么就被封了」。但事实是：风控是一个持续打分的模型，综合评估你的
+    <b>IP、支付、设备、行为节奏、内容</b> 等多维信号。<b>单一信号通常不会致命，但多个风险信号叠加、越过阈值，账号就会被暂停或封禁。</b></p>
+  </div>
+
+  <p>所以「防封」不是找某个黑科技或秘籍，而是一套<b>把所有风险信号同时压低</b>的系统工程。核心只有一句话：
+  <b>干净、稳定、单一、自然</b>——干净的 IP、稳定的支付、单一的环境、自然的使用节奏。</p>
+
+  <h3>官方写死的三条封号理由</h3>
+  <p>与其在各种传闻里猜，不如先看官方口径。Anthropic 帮助中心（2026 年 7 月更新）给出的封号理由，本质上只有三条：</p>
+  <div class="grid c3">
+    <div class="card"><h4><span class="ic">1</span>反复违反使用政策</h4><p>注意是「<b>反复</b>」。单次被拦通常只是拒答或降级，持续试探才会累积成封号。</p></div>
+    <div class="card"><h4><span class="ic">2</span>从不支持的地区创建账号</h4><p>地区资格是硬门槛。<b>用代理并不能把「不支持地区」变成「合规访问」。</b></p></div>
+    <div class="card"><h4><span class="ic">3</span>违反服务条款</h4><p>分享登录信息 / API Key、拼车、把账号接进第三方工具等，都落在这条里。</p></div>
+  </div>
+  <div class="callout info">
+    <span class="t">一个容易被忽略的细节</span>
+    <p>安全检查不只看你「刚打的那句话」——它还会结合<b>记忆、连接器、网页搜索结果和文件</b>一起判断。
+    网络攻防、生物、模型蒸馏这类请求，可能被拦住，也可能从高配模型降级到低配模型。
+    <b>被拦 ≠ 马上封号；反复踩，才是官方写的那条「反复违反」。</b></p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n">≈1140 万</div><div class="l">2026 上半年被封账号（公开报道）</div></div>
+    <div class="stat"><div class="n">≈39.8 万</div><div class="l">同期收到的申诉次数</div></div>
+    <div class="stat"><div class="n">≈4.2 万</div><div class="l">申诉后被推翻恢复</div></div>
+    <div class="stat"><div class="n">≈10%</div><div class="l">申诉翻案率（据此推算）</div></div>
+  </div>
+  <p class="sub" style="margin-top:-4px">数据来自公开报道，用于说明趋势：<b>申诉翻案率极低，事前防封远比事后申诉重要。</b></p>
+
+  <div class="callout warn">
+    <span class="t">2026 年风控的三个新变化</span>
+    <p>① 风控从「只查注册环节」升级为<b>注册、订阅、登录、使用全程持续打分</b>；
+    ② 全面铺开 <b>KYC / 身份验证</b>（Persona 证件核验，2026 年 7 月起分批推行）；
+    ③ 新增使用政策：<b>持续、无端辱骂或「虐待」模型</b> 也可能被限流乃至封号（2026 年 11 月 12 日起生效）。</p>
+  </div>
+
+  <div class="callout info">
+    <span class="t">关于合规：请先读这一条</span>
+    <p>本指南面向「想合规、稳定使用 Claude 的正常用户」，核心是<b>帮助你遵守官方服务条款与使用政策</b>，而不是教你钻空子。
+    请勿使用盗刷银行卡、伪造身份材料、批量注册小号、代过人脸等手段——这些既违反 ToS，也可能触犯法律。
+    <b>如果你的所在地不在 Anthropic 官方支持范围内，代理网络并不能把访问「变成合规」</b>；请通过官方渠道了解可用性，
+    或考虑本指南第 7、9 节给出的合规路径（官方 API、云厂商托管、国产替代），并遵守当地法律法规。</p>
+  </div>
+</section>
+
+<!-- ======================= 1 故障分诊 ======================= -->
+<section id="triage">
+  <h2><span class="num">1</span>故障分诊：先别急着说「被封了」</h2>
+  <p class="sub">网页转圈、回答中断、Claude Code 连不上，都先别给账号「办后事」——Anthropic 自己也会故障。</p>
+
+  <p>社区里最容易出错的一步，是把<b>地区提示、身份验证、付款失败、账号暂停、普通连接故障</b>混成同一个问题。
+  判断错了，后面越操作离解决越远。遇到异常时，对着页面原文找最接近的一项：</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>页面现象</th><th>通常要查什么</th><th>建议先做的事</th></tr></thead>
+      <tbody>
+        <tr><td>提示所在国家或地区不受支持</td><td>官方支持地区 + 当前网络出口</td><td>查看官方支持地区，<b>不要连续注册新账号</b></td></tr>
+        <tr><td>要求完成身份验证</td><td>平台完整性、安全或合规检查</td><td>准备<b>本人有效实体证件</b> + 摄像头</td></tr>
+        <tr><td>证件照片或自拍无法通过</td><td>证件、光线、清晰度或设备故障</td><td>检查证件有效期，改善拍摄条件后重试</td></tr>
+        <tr style="background:var(--danger-soft)"><td><b>明确提示账号暂停或终止</b></td><td>服务条款、使用政策、地区或年龄</td><td><b>保存通知，登录原账号提交申诉</b></td></tr>
+        <tr><td>Claude Code 频繁掉线，Claude.ai 仍能登录</td><td>服务状态、本地网络或客户端配置</td><td>先看官方状态页，再查自己的连接</td></tr>
+        <tr><td>订阅付款失败，账号仍可登录</td><td>账单资料或支付渠道</td><td>核对真实账单信息，联系官方支持</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout danger">
+    <span class="t">六种现象里，只有一种能直接称为「账号被封」</span>
+    <p>就是上面高亮的那一行——<b>明确提示账号暂停或终止</b>。其余五种都不是封号。
+    尤其「Claude Code 掉线但网页还能登录」，绝大多数是网络或客户端问题，不是风控。</p>
+  </div>
+
+  <h3>出问题时，按这个顺序处理</h3>
+  <ol class="steps">
+    <li><h4>记下页面原文</h4><p>先分清是地区提示、Persona 验证、付款失败、账号暂停，还是连接故障——五者的处理方式完全不同。</p></li>
+    <li><h4>看官方状态与支持地区</h4><p>先确认是不是 Anthropic 自己的故障（官方状态页），再确认自己是否落在支持地区内。</p></li>
+    <li><h4>核对账号、付款、证件资料是否属于本人且真实有效</h4><p>资料互相打架，是后续复核最麻烦的事。</p></li>
+    <li><h4>自动化任务改用官方 API</h4><p>不要把网页账号当接口跑批，也不要共享账号和密钥。</p></li>
+    <li><h4>Persona 失败时先改善拍摄条件</h4><p>用完页面给的多次重试机会，仍然失败再联系官方支持。</p></li>
+    <li><h4>确属账号暂停，再登录原账号提交申诉</h4><p>不要急着换邮箱批量注册新号。</p></li>
+  </ol>
+
+  <div class="callout ok">
+    <span class="t">官方入口（建议收藏）</span>
+    <p><b>服务状态：</b>status.claude.com　·　<b>支持地区：</b>anthropic.com/supported-countries　·　<b>使用政策：</b>anthropic.com/legal/aup　·　<b>个人条款：</b>anthropic.com/legal/consumer-terms　·　<b>帮助与申诉：</b>support.claude.com</p>
+  </div>
+</section>
+
+<!-- ======================= 2 封号原因 ======================= -->
+<section id="why">
+  <h2><span class="num">2</span>六大真实封号原因</h2>
+  <p class="sub">对照自查——大多数人能在下面找到 1~2 条命中。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>触发点</th><th>典型信号</th><th>风险</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>IP 与网络节点</b></td><td>共享/万人骑 IP、机房 IP、频繁跨地区跳变</td><td><span class="badge b-high">头号</span></td></tr>
+        <tr><td>2</td><td><b>支付方式</b></td><td>虚拟卡 / 一次性卡、代充代付、支付地与登录地不一致</td><td><span class="badge b-high">高危</span></td></tr>
+        <tr><td>3</td><td><b>多账号 / 多设备 / 拼车</b></td><td>同设备同 IP 多开、账号共享拼车、多机并发</td><td><span class="badge b-high">高危</span></td></tr>
+        <tr><td>4</td><td><b>违规内容</b></td><td>反复越狱提示词、生成明令禁止内容、恶意用途</td><td><span class="badge b-high">直接永久封</span></td></tr>
+        <tr><td>5</td><td><b>注册环节隐患</b></td><td>虚拟手机号、一次性邮箱、脏 IP 上注册后立刻猛用</td><td><span class="badge b-mid">中高</span></td></tr>
+        <tr><td>6</td><td><b>自动化 / API 滥用</b></td><td>请求频率异常规律、会话过长、高频替换 system prompt</td><td><span class="badge b-mid">中高</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>① IP 与网络节点 —— 头号原因</h3>
+  <p>问题从来不在「用没用代理」，而在代理 IP 的<b>质量</b>。风控会拿请求 IP 做 ASN 归属与信誉检查。什么样的 IP 算「干净」？大致要同时满足：</p>
+  <ul>
+    <li><b>类型上是住宅 IP</b>，而非机房 / 数据中心 IP——后者更容易被直接打上「非真人」标签。</li>
+    <li><b>稳定性上相对固定</b>，登录地长期稳定在同一城市 / 地区，不频繁跳变。</li>
+    <li><b>共享程度上独享或低共享</b>，而不是几十上百个账号挤在一起。</li>
+    <li><b>历史上没被标记</b>为代理 / VPN，也没关联大量账号。</li>
+  </ul>
+  <div class="callout">
+    <span class="t">自查信号</span>
+    <p>如果你用的是几块钱一个月的「机场」节点、多人合用的代理，且短期内换过多个地区 / 城市，IP 极可能就是主因。
+    用之前花两分钟查一下：IP 类型是 residential 还是 datacenter、是否被标注为 proxy/VPN、登录地是否稳定。
+    另外别忘了 <b>DNS 与 IPv6</b>——DNS 漏到本地运营商、IPv6 绕过代理，都会暴露真实归属。</p>
+  </div>
+
+  <h3>② 支付方式 —— 第二大原因</h3>
+  <p>支付环节是另一个高频翻车点。核心原则只有一句：<b>让付款人、付款地、账号使用地尽量保持一致</b>。</p>
+  <ul>
+    <li><b>虚拟卡 / 一次性卡：</b>部分卡 BIN 段已被批量标记为高风险，不仅会拒付，已支付成功的也可能被<b>追溯撤销</b>并连带封号。</li>
+    <li><b>代充、代付平台：</b>付款人与账号使用者不一致，付款地和使用地往往也对不上，风险很高。</li>
+    <li><b>支付与登录地不一致：</b>用美国卡却从其他地区登录使用，风控看到的是「付款地说你在美国、登录 IP 说你在别处」的矛盾信号。</li>
+  </ul>
+  <div class="callout ok">
+    <span class="t">相对更稳的做法</span>
+    <p>优先使用<b>与登录地一致的正规实体支付渠道</b>（例如在有 iPhone/iPad 时走 App Store 官方内购通道，支付链路独立、规范）。
+    关键不在卡多「高级」，而在<b>付款与使用环境是否自洽、来源是否正规</b>。切勿使用来源不明的卡或代充服务。</p>
+  </div>
+
+  <h3>③ 多账号 / 多设备 / 拼车</h3>
+  <p>风控会通过设备指纹、Cookie、IP 把多个账号关联起来，这一类最容易引发「连坐」：</p>
+  <ul>
+    <li><b>同设备 / 同 IP 注册多个账号</b>（尤其为薅免费额度批量注册）→ 判定滥用，关联账号一起封。</li>
+    <li><b>多设备同时登录 + 跨境 IP 切换</b> → 触发反欺诈判定。</li>
+    <li><b>账号共享 / 拼车 / 抽 Cookie：</b>多人登录地和设备五花八门，一旦判定「账号倒卖」往往<b>全员一起封</b>。</li>
+    <li><b>把网页订阅的登录态接进第三方客户端</b>：这本身就是条款里明确禁止的行为。</li>
+  </ul>
+  <div class="callout warn">
+    <span class="t">社区里一个反复被提到的细节</span>
+    <p>有用户反馈，真正致命的往往不是「用了某个反代工具」，而是<b>同一个会话被负载均衡分到了不同账号</b>上。
+    这条是用户实测、不是官方原文，但方向与官方条款一致：<b>串号、拼车、抽会话，都在不让做的范围里。</b></p>
+  </div>
+
+  <h3>④ 违规内容 —— 最容易直接永久封禁</h3>
+  <p>这是唯一一类经常<b>直接导致永久封禁（permanent ban）、且申诉成功率最低</b>的原因。风险最高的几类行为：</p>
+  <ul>
+    <li><b>反复、系统性地越狱：</b>偶尔被拒答很正常；但反复改写提示词试图绕过安全拒绝，会快速累积风险。</li>
+    <li><b>要求生成明确被禁止的内容：</b>一旦被识别，可能直接触发封禁，基本没有申诉余地。</li>
+    <li><b>大规模抓取 / 自动化滥用：</b>用脚本对 Claude 做高频批量调用，超出正常人类使用模式。</li>
+    <li><b>生成恶意代码：</b>恶意软件、攻击工具等，属于明确禁止范畴。</li>
+  </ul>
+  <p>此外，2026 年 11 月 12 日起，<b>持续、无端地辱骂或「虐待」模型</b>也可能被限流乃至封号。</p>
+  <div class="callout danger">
+    <span class="t">红线提醒</span>
+    <p>内容类严重违规通常是自动化判定、态度强硬，申诉很难翻案。<b>把账号当成正常的工作 / 学习工具用，远比任何防封技巧都重要。</b></p>
+  </div>
+  <div class="callout ok">
+    <span class="t">正当用途被误拦怎么办</span>
+    <p>写小说涉及暴力情节、做安全研究、讨论敏感但合法的话题，偶尔触发安全策略是可能的。几条实用做法：
+    <b>不刻意试探边界</b>（被拒答时换个正当表达说明真实用途，而不是反复硬刚）；<b>表述清晰、给足上下文</b>；
+    <b>不自动化高频滥用</b>；<b>敏感话题就事论事</b>。
+    一个朴素但有效的自检：<b>「这个请求，我敢不敢实名、当着客服的面提出来？」</b>如果心里发虚，那大概率就在红线附近。</p>
+  </div>
+
+  <h3>⑤ 注册环节就埋下隐患</h3>
+  <ul>
+    <li>用 <b>VoIP / 虚拟手机号</b> 注册（风控已能较准识别，验证失败率高，即便成功也可能留风险标记）。</li>
+    <li>用被滥用严重的<b>一次性 / 临时邮箱</b>。</li>
+    <li>在<b>被污染的 IP</b> 上注册，且注册后立刻高频使用——<b>新号前几天最脆弱</b>。</li>
+    <li>用<b>来源不明的「成品号」</b>：账号历史、注册环境都不在你掌控中，随时可能被连坐。</li>
+  </ul>
+
+  <h3>⑥ 自动化 / API 滥用</h3>
+  <p>风控会通过会话节奏、请求模式、Token 速率识别「非人类行为」：</p>
+  <ul>
+    <li>过快的连续 prompt 切换（间隔 &lt; 200ms）。</li>
+    <li>过于规律的请求间隔（如每 10 秒一次，无任何抖动）。</li>
+    <li>单次会话过长（连续数小时不间断）、高频替换 system prompt。</li>
+  </ul>
+  <p>高频批量任务请使用<b>官方 API 且遵守服务条款</b>允许的方式，并控制合理频率。</p>
+
+  <div class="callout warn">
+    <span class="t">关于「地区政策」：它是放大器，不是唯一开关</span>
+    <p>自 2025 年 9 月起 Anthropic 收紧了地区限制政策，来自未支持地区的账号整体风险水位偏高。这一项你无法直接控制，
+    但它会<b>放大</b>前面几类信号的权重。要强调的是：<b>地区资格是官方明文门槛，代理网络改变的是「连接经过哪里」，改变不了「用户要遵守的地区政策」。</b></p>
+  </div>
+</section>
+
+<!-- ======================= 3 封禁类型 ======================= -->
+<section id="types">
+  <h2><span class="num">3</span>先分清：临时暂停 还是 永久封禁</h2>
+  <p class="sub">被封后第一步不是重注册，而是看清类型——两类申诉空间完全不同。</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>类型</th><th>常见提示关键词</th><th>多数成因</th><th>申诉空间</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>临时暂停</b><br><span class="badge b-mid">suspended</span></td>
+          <td><code>suspended</code>、<code>temporarily</code>、<code>under review</code>、<code>disabled</code></td>
+          <td>触发安全策略 / 风控信号叠加</td>
+          <td><span class="badge b-low">恢复概率相对较高</span></td>
+        </tr>
+        <tr>
+          <td><b>永久封禁</b><br><span class="badge b-high">banned</span></td>
+          <td><code>banned</code>、<code>permanently</code>、<code>terminated</code>、<code>violation of Usage Policy</code></td>
+          <td>严重或反复违反使用政策</td>
+          <td><span class="badge b-high">成功率较低</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info">
+    <span class="t">最常见的一条英文提示</span>
+    <p><code>Your account has been disabled after an automatic review of your recent activities.</code></p>
+    <p>关键词是 <b>“automatic review”（自动审查）</b>——说明是风控系统自动触发、而非人工逐条审核。这类<b>自动审查触发的停用，恰恰申诉空间较大</b>：你要做的是说明真实使用场景，让人工复核推翻自动判定。同类提示还有 <code>account flagged for review</code>、<code>suspicious activity detected</code> 等。</p>
+  </div>
+
+  <div class="callout ok">
+    <span class="t">官方申诉入口</span>
+    <p>普通账号：<code>support@anthropic.com</code>　·　API / 开发者：<code>api-support@anthropic.com</code>　·　安全相关警告：<code>usersafety@anthropic.com</code>　·　在线表单：<code>support.claude.com</code></p>
+    <p><b>务必用注册时绑定的邮箱发信</b>，否则对方难以把邮件和账号对上。</p>
+  </div>
+</section>
+
+<!-- ======================= 4 防封清单 ======================= -->
+<section id="checklist">
+  <h2><span class="num">4</span>防封清单：六个维度逐项执行</h2>
+  <p class="sub">优先级：<b>IP &gt; 支付 &gt; 单账号单环境 &gt; 注册质量 &gt; 养号节奏 &gt; 日常习惯</b>。前两项做对，能挡掉大半风险。</p>
+
+  <h3>① IP 与网络节点（最优先）</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li>用<b>住宅 IP</b>，且尽量<b>固定</b>，让登录地长期稳定在同一城市/地区</li>
+        <li>注册与日常使用尽量走<b>同一个出口 IP</b>，减少跨地区跳变</li>
+        <li>使用前先<b>自查 IP 是否干净</b>（类型、是否被标记、是否高共享）</li>
+        <li>让 <b>DNS 也走代理</b>，并<b>关闭 IPv6</b>，避免泄漏真实归属</li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别用几块钱一个月、多人合用的廉价「机场」节点</li>
+        <li>别今天美国、明天日本地频繁换地区</li>
+        <li>别用纯机房 / 数据中心 IP 直连</li>
+        <li>别让 <code>claude.ai</code> 与 <code>api.anthropic.com</code> 走不同出口</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>② 支付方式（第二优先）</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li>优先使用<b>与登录地一致的正规实体支付渠道</b></li>
+        <li>有 Apple 设备时，走 <b>App Store 官方内购</b>通常更稳</li>
+        <li>保持付款人、付款地、使用地<b>三者一致</b></li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别用 BIN 段已被批量标记的虚拟卡 / 一次性卡</li>
+        <li>别用代充、代付（付款人与使用者不一致）</li>
+        <li>别出现「美国卡 + 其它地区登录」这种组合</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>③ 设备与环境隔离</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li><b>单账号单环境</b>：一个账号固定在一套设备 / 浏览器 / IP 上</li>
+        <li>确需多账号时，做好<b>环境隔离</b></li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别在同一设备、同一 IP 上注册或登录多个账号</li>
+        <li>别多人拼车共享一个账号、别把登录态交给别人</li>
+        <li>别在多台机器上同时登录、还配合跨境 IP 切换</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="t">边界要清楚</span>
+    <p>环境隔离工具只解决「同一台机器上的隔离」，<b>不能替代干净的 IP</b>，也<b>不能用来编造地区 / 设备信息</b>（那属于官方明确不允许的做法）。IP 脏，再好的环境也救不回来。</p>
+  </div>
+
+  <h3>④ 注册环节</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li>用<b>真实、可正常收发</b>的邮箱（独立邮箱 + 独立强密码）</li>
+        <li>用<b>可正常接收验证</b>的手机号</li>
+        <li>在一个<b>干净稳定的 IP</b> 上完成注册，全程别切节点</li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别用 VoIP / 虚拟手机号、公共接码号注册</li>
+        <li>别用被滥用严重的一次性邮箱</li>
+        <li>别注册完立刻高频猛用</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>⑤ 养号节奏（新号前几天最脆弱）</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li>前几天<b>低频、温和</b>使用，像真人一样慢慢上手</li>
+        <li>使用强度<b>逐步爬坡</b>，给账号建立信任的过程</li>
+        <li>保持和注册时一致的环境（同一 IP、同一套设备/浏览器）</li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别新号当天就开满 Claude Code、批量跑长任务</li>
+        <li>别注册完晾着不用、过几天突然爆发式使用</li>
+        <li>别马上在新号上多设备、多地区来回登录</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>⑥ 日常使用习惯</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li>保持<b>规律、可预期</b>的使用模式，时段 / 地点大致固定</li>
+        <li>把 Claude 当<b>正常的工作 / 学习工具</b>用</li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别反复测试越狱提示词、别要求生成明令禁止的内容</li>
+        <li>别频繁切换登录环境制造无谓的异常波动</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>「24–72 小时观察期」——新号最危险的窗口</h3>
+  <p>实测：刚注册 / 充值后的 <b>24–72 小时</b>是风控集中观察期，会重点检查以下信号：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>观察信号</th><th>风险权重</th></tr></thead>
+      <tbody>
+        <tr><td>注册 IP 地理位置</td><td><span class="badge b-high">高</span></td></tr>
+        <tr><td>充值卡 BIN 段</td><td><span class="badge b-high">高</span></td></tr>
+        <tr><td>24h 内 Token 用量</td><td><span class="badge b-high">高</span></td></tr>
+        <tr><td>邮箱质量</td><td><span class="badge b-high">高</span></td></tr>
+        <tr><td>注册到充值的时间间隔（太快疑似机器人）</td><td><span class="badge b-mid">中</span></td></tr>
+        <tr><td>24h 内对话数</td><td><span class="badge b-mid">中</span></td></tr>
+        <tr><td>24h 内 system prompt 替换次数</td><td><span class="badge b-mid">中</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout ok">
+    <span class="t">实战建议</span>
+    <p>刚注册 + 充值后的头 3 天，<b>少量使用、稳定 IP、自然节奏</b>；过了观察期再逐步开重度任务。</p>
+  </div>
+</section>
+
+<!-- ======================= 5 身份验证 ======================= -->
+<section id="persona">
+  <h2><span class="num">5</span>身份验证（Persona）怎么过</h2>
+  <p class="sub">2026 年 7 月 8 日起分批推行。它不是「全员强制」，而是风控觉得某个账号可疑时才弹出。</p>
+
+  <div class="callout danger">
+    <span class="t">先记住两条底线</span>
+    <p>① <b>是否上传证件 / 人脸由你自己谨慎决定</b>——这是隐私与账号安全的权衡，本指南不提供任何「规避官方验证」的手段。<br>
+    ② <b>验证只在 Claude 官方界面内完成</b>；任何在官方之外向你索要证件、人脸、验证码的「代验证 / 代解封」，<b>默认都是诈骗</b>。</p>
+  </div>
+
+  <h3>它到底在验证什么</h3>
+  <p>Persona 身份验证会出现在部分功能、例行平台完整性检查，以及其他安全或合规场景中。官方没有公布触发分数，也没有写「切换几次 IP、什么时间登录就一定触发」。</p>
+  <ul>
+    <li>验证前需要准备<b>本人持有的有效实体政府证件</b>，以及一台带摄像头的手机或电脑。</li>
+    <li>官方称整个过程通常<b>少于五分钟</b>。</li>
+    <li>常见可接受证件：护照、驾照、州 / 省级身份证件、国民身份证等——以你当次看到的验证页面为准。</li>
+    <li><b>不接受</b>：截图、扫描件、复印件、临时纸质证件、非政府证件。</li>
+  </ul>
+  <p class="src">⚠️ 网上有教程写「中国大陆身份证绝对不能用」，但官方帮助文档<b>没有</b>这句话——它说的是接受大多数国家签发的实体政府证件。具体能选哪一种，以你当次看到的页面为准，不要轻信二手断言。</p>
+
+  <h3>谁更容易被弹到验证</h3>
+  <p>触发逻辑和封号高度重叠——以下信号越多，被要求核验的概率越高：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>信号</th><th>为什么可疑</th></tr></thead>
+      <tbody>
+        <tr><td>共享 / 机房 / 频繁跳变的 IP</td><td>头号可疑信号</td></tr>
+        <tr><td>虚拟卡 / 代充支付</td><td>付款人与使用者不一致</td></tr>
+        <tr><td>同设备 / 同 IP 多账号</td><td>典型滥用特征，易连坐</td></tr>
+        <tr><td>短时间跨地区跳变</td><td>「今天美国明天日本」是异常行为</td></tr>
+        <tr><td>刚注册就高强度使用</td><td>不像正常真人的养号节奏</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout accent">
+    <span class="t">核心逻辑</span>
+    <p>身份验证的触发，和封号看的是<b>同一批信号</b>。所以「怎么降低被验证概率」的答案，就是「怎么防封」——把 IP、支付、设备、节奏做干净且稳定。</p>
+  </div>
+
+  <h3>被要求验证了，怎么办</h3>
+  <p>你其实只有三条路，没有「安全绕过官方」这第四条：</p>
+  <ol class="steps">
+    <li><h4>按官方流程完成验证</h4><p>在官方界面内，自行评估后决定是否提供材料。用自己的证件、说真实的信息。</p></li>
+    <li><h4>不验证、接受功能受限</h4><p>账号相关功能可能被限制或暂停，直到核验通过。</p></li>
+    <li><h4>转向替代方案</h4><p>降低对单一易封账号的依赖，见第 9 节。</p></li>
+  </ol>
+
+  <div class="callout warn">
+    <span class="t">验证失败先别慌</span>
+    <p>照片模糊、证件反光、边缘没拍全、证件过期、摄像头故障，都会导致失败——官方流程提供多次尝试。
+    改善拍摄条件后重试，或改用本人另一种有效证件；仍然失败，再通过页面里的支持表单联系官方。</p>
+  </div>
+
+  <div class="callout danger">
+    <span class="t">关于「花钱代验证」</span>
+    <p>声称「花钱就能帮你过验证」的服务，要么是骗你的证件和钱，要么是拿你的资料完成验证后<b>反手控制你的账号</b>。
+    把身份证件、人脸交给陌生第三方，是这波封号潮里最危险的操作之一——<b>没有任何例外值得冒这个险</b>。
+    这里有条朴素的边界：<b>用自己的证件，说真实的信息。</b>借证件、修图、关定位、用工具编造地区和设备信息，
+    都会让问题从「验证没通过」升级成「资料无法解释」——账号以后真被误封，申诉也很难写清。</p>
+  </div>
+</section>
+
+<!-- ======================= 6 开发者专章 ======================= -->
+<section id="dev">
+  <h2><span class="num">6</span>开发者专章：API / Claude Code 防风控</h2>
+  <p class="sub">开发者场景的信号更密集：请求频率、Key 安全、多机并发、DNS / IPv6 泄漏都要管起来。</p>
+
+  <h3>6.1 API Key 安全</h3>
+  <ul>
+    <li><b>绝不公开存储：</b>不要把 Key 提交到 GitHub 等公开平台，用环境变量或密钥管理服务。</li>
+    <li><b>权限隔离：</b>按项目 / 用途分配不同的 Key，避免一个 Key 全权限。</li>
+    <li><b>定期轮换与巡检：</b>定期检查调用量，发现异常请求立即吊销并重建 Key。</li>
+    <li><b>泄露即处理：</b>一旦确认 Key 泄露，先撤销旧 Key、重新生成，再排查调用记录。</li>
+  </ul>
+
+  <h3>6.2 调用行为规范</h3>
+  <ul>
+    <li>控制请求频率（建议每分钟远低于 10 次），避免机械式高频。</li>
+    <li>加入<b>随机抖动</b>，避免固定周期请求。</li>
+    <li>单次会话不宜过长，长任务拆分为合理批次。</li>
+    <li>高频 / 批量任务走<b>官方 API 且符合服务条款</b>，不要用订阅账号跑自动化脚本。</li>
+  </ul>
+  <div class="callout danger">
+    <span class="t">重点提醒</span>
+    <p>官方条款明确禁止「通过未经授权的自动化脚本、第三方工具、中转服务调用订阅账号」，也禁止分享登录信息与 API 密钥。
+    <b>即使是付费用户，用第三方工具接入订阅账号也可能直接封号且不予退款。</b>
+    网页服务要用程序访问，请走<b>官方 API</b>——拿浏览器账号去模拟接口，省下的是一点配置时间，留下的却是一堆很难解释的登录和调用记录。</p>
+  </div>
+
+  <h3>6.3 Claude Code 稳定运行的关键配置</h3>
+  <p>Claude Code 频繁掉线 / 被风控，绝大多数根因<b>不在工具本身，而在网络环境不干净或不稳定</b>。以下 10 项逐条对照：</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>设置项</th><th>要点</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>固定干净的住宅 IP</td><td>机房 IP、共享节点是头号诱因</td></tr>
+        <tr><td>2</td><td>DNS 走代理</td><td>DNS 漏到本地运营商 = 暴露真实地区</td></tr>
+        <tr><td>3</td><td>关闭 IPv6</td><td>IPv6 常绕过代理、泄漏真实归属</td></tr>
+        <tr><td>4</td><td>Anthropic 域名统一分流</td><td><code>claude.ai</code> 与 <code>api.anthropic.com</code> 走同一节点</td></tr>
+        <tr><td>5</td><td>客户端开全局 / TUN</td><td>杜绝遥测域名漏真实 IP</td></tr>
+        <tr><td>6</td><td>支付渠道一致</td><td>避开虚拟卡、代充；支付地与登录地一致</td></tr>
+        <tr><td>7</td><td>单设备单号</td><td>不要多开，避免指纹关联连坐</td></tr>
+        <tr><td>8</td><td>稳定使用时段与地点</td><td>像正常真人一样规律</td></tr>
+        <tr><td>9</td><td>不频繁换 IP / 跨地区</td><td>固定一个干净 IP 长期用，比频繁换更安全</td></tr>
+        <tr><td>10</td><td>配完逐项实测</td><td>别靠猜：验 IP 信誉、DNS 一致性、实际出口</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <span class="t">掉线 ≠ 封号</span>
+    <p>Claude Code 跑长任务时中途重连很烦，但这通常只是连接问题。遇到掉线先看<b>官方状态页</b>再查自己的网络，
+    别急着换客户端、换配置——更别急着认为账号被封。另外，如果确实需要断网 / 切换网络，
+    <b>建议先把 Claude 完全退出再断</b>，避免出口突变发生在会话进行中。</p>
+  </div>
+
+  <h3>6.4 KYC / 身份验证触发条件</h3>
+  <p>2026 年起身份验证分批推行（详见第 5 节）。以下情况容易触发人工审核：</p>
+  <ul>
+    <li>新账号 24 小时内高频调用 / 高 Token 用量。</li>
+    <li>使用低质量邮箱（一次性邮箱）。</li>
+    <li>IP 在多个国家 / 时区之间跳变。</li>
+    <li>账号行为与「自然用户」画像差异过大。</li>
+  </ul>
+
+  <h3>6.5 多设备使用的边界</h3>
+  <ul>
+    <li>官方允许同一账号在<b>多设备登录</b>（手机 + 笔记本 + 公司电脑）。</li>
+    <li>但同一时间<b>只应有一个活跃会话</b>；多并发会被判定为「自动化滥用」。</li>
+    <li>若需多人独立使用，<b>每人一个独立账号</b>是唯一稳妥方案。</li>
+  </ul>
+</section>
+
+<!-- ======================= 7 团队路径 ======================= -->
+<section id="enterprise">
+  <h2><span class="num">7</span>团队 / 企业的稳定路径</h2>
+  <p class="sub">如果你的核心诉求是「稳定、可审计、别天天担心封号」，个人订阅并不是唯一选择。</p>
+
+  <p>对公司和团队来说，把关键工作流押在「随时可能被风控的个人订阅账号」上，本身就是风险。
+  更稳的思路是把<b>「模型能力」和「个人账号」解耦</b>，走官方面向开发者的产品线：</p>
+
+  <div class="grid c3">
+    <div class="card"><h4><span class="ic">A</span>官方 Claude API</h4><p>按量付费、有正式的开发者支持与账单体系，相对不受个人订阅账号风控直接影响。</p></div>
+    <div class="card"><h4><span class="ic">B</span>AWS Bedrock</h4><p>在 AWS 上调用托管版 Claude，走云厂商的合规与计费通道。</p></div>
+    <div class="card"><h4><span class="ic">C</span>Google Cloud Vertex AI</h4><p>在 Google Cloud 上调用托管版 Claude，同样属于企业级通道。</p></div>
+  </div>
+
+  <div class="callout warn">
+    <span class="t">两个必须知道的前提</span>
+    <p>① 这三条路<b>不等于「个人订阅就不会被封」</b>——它们是另一条产品线，合规与使用政策依然适用。<br>
+    ② 官方对<b>企业用户的所有权</b>有明确限制：<b>由中国实体控股 50% 及以上的公司不在官方服务支持范围内</b>。
+    符合服务地区要求、且非中国控制的企业，可通过官方渠道正常申请企业版服务。请以官方条款与支持地区页面为准。</p>
+  </div>
+
+  <div class="callout info">
+    <span class="t">还有一条更省心的路：把模型换掉，壳保留</span>
+    <p>如果你已经习惯了 Claude Code 的终端工作流，可以把<b>接入点</b>换成国产模型的兼容接口——保留工具习惯，但不再依赖 Claude 个人账号。
+    部分国产厂商提供<b>原生兼容 Anthropic 协议</b>的接口，通常只需设置两个环境变量（<code>ANTHROPIC_BASE_URL</code> 与 <code>ANTHROPIC_API_KEY</code>）即可接入，国内网络直连。
+    需要协议转换的则配合转换工具使用。详见第 9 节。</p>
+  </div>
+</section>
+
+<!-- ======================= 8 申诉 + 退款 ======================= -->
+<section id="appeal">
+  <h2><span class="num">8</span>已经被封：申诉全流程 + 退款</h2>
+  <p class="sub">先判断类型 → 再写申诉信 → 顺带处理退款 → 最后决定去留。别急着重注册。</p>
+
+  <ol class="steps">
+    <li>
+      <h4>确认封禁类型</h4>
+      <p>看登录页 / 邮件提示是 <code>suspended</code>（临时暂停，恢复概率较高）还是 <code>banned</code> / <code>permanently</code>（永久封禁，成功率较低）。若提示为 <code>API Disabled</code>，先检查 Key 是否失效、是否曾泄露、近期调用量是否异常。</p>
+    </li>
+    <li>
+      <h4>准备申诉资料</h4>
+      <p>注册邮箱、账号创建时间、最近一次正常登录时间、封禁提示截图、账号主要使用场景。API 账号另附项目用途、调用方式、Key 状态。<b>截图请遮住证件号、付款信息和 API 密钥。</b></p>
+    </li>
+    <li>
+      <h4>提交官网申诉 / 邮件</h4>
+      <p>用绑定邮箱发送，说明账号被限制时间、提示信息、真实使用场景，并表明愿意遵守平台政策、请求人工复核。语气诚恳、简洁。</p>
+    </li>
+    <li>
+      <h4>等待审核（数天到数周）</h4>
+      <p>期间<b>不要反复重发</b>、不要频繁切换登录环境、不要用同一 IP 或同一支付信息注册新号——这些都会加重风控风险。</p>
+    </li>
+    <li>
+      <h4>决定去留 / 止损</h4>
+      <p>若是永久封禁且一两轮申诉无进展，建议一边申诉一边准备 Plan B（合规的替代工具），不要让一个账号绑架效率。重开新号前，务必先把 IP、支付、设备、注册四项基础风险清理干净。</p>
+    </li>
+  </ol>
+
+  <h3>申诉信怎么写才有效</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 这样做</h4>
+      <ul>
+        <li>诚恳、简洁，几句话说清你是谁、怎么用、希望恢复</li>
+        <li>说明<b>真实</b>使用场景（编程、翻译、写作、学习），越具体越可信</li>
+        <li>语气是「请求复核」而非「指责对方」</li>
+        <li>用注册邮箱发送，一封即可</li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别这样</h4>
+      <ul>
+        <li>别编造用途、别长篇控诉喊冤</li>
+        <li>别质疑、攻击或威胁对方的判断</li>
+        <li>别群发、别一天发好几封（可能被判骚扰）</li>
+        <li>别用其它邮箱发信</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>申诉时效与成功率（说实话版）</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>账号状态</th><th>回复时效预期</th><th>恢复相对难度</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>suspended（临时暂停）</td><td>相对较快</td><td><span class="badge b-low">相对较低</span></td><td>多为风控触发或疑似误判，说明清楚后相对容易恢复</td></tr>
+        <tr><td>banned（正式封禁）</td><td>相对较慢</td><td><span class="badge b-high">相对较高</span></td><td>通常涉及明确违规，处理更慎重，可能维持原判</td></tr>
+        <tr><td>API 账号问题</td><td>视情况而定</td><td><span class="badge b-mid">视情况</span></td><td>与计费、用量、政策相关，需按具体工单沟通</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <span class="t">别信「几天必解封」</span>
+    <p>官方对申诉<b>既没有承诺时效，也没有公开成功率</b>。所有「成功率 70%」这类确切数字都是编造的。
+    据用户反馈，回复时间从数天到数周不等，也存在石沉大海的情况。把预期放在「可能要等几周」，会比天天刷邮箱健康得多。</p>
+  </div>
+
+  <h3>等待期间：该做 / 不该做</h3>
+  <div class="dd">
+    <div class="dd-col do">
+      <h4>✓ 该做</h4>
+      <ul>
+        <li>耐心等待，给出合理等待时间（如 1–2 周）</li>
+        <li>保留好申诉记录：提交时间、内容、收到的任何回复</li>
+        <li>提前准备替代方案，别让工作停摆</li>
+      </ul>
+    </div>
+    <div class="dd-col dont">
+      <h4>✕ 别做</h4>
+      <ul>
+        <li>别短时间连发多封催邮件（可能被判骚扰，反而降优先级）</li>
+        <li>别用同一 IP / 同一支付信息注册新号（关联风险更高）</li>
+        <li>别在多个入口重复提交同一诉求</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>退款：钱从谁手里出去，就找谁退</h3>
+  <p>能不能退、找谁退，<b>只取决于你当初从哪个渠道付的款</b>——退款永远是找「实际收你钱的那一方」。</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>你当初怎么付的</th><th>退款找谁</th><th>大致空间</th></tr></thead>
+      <tbody>
+        <tr><td>iPhone/iPad <b>App Store</b> 订阅</td><td>苹果（不是 Anthropic）</td><td><span class="badge b-low">相对高</span></td></tr>
+        <tr><td>安卓 <b>Google Play</b> 订阅</td><td>谷歌（不是 Anthropic）</td><td><span class="badge b-mid">中等，48h 内更易</span></td></tr>
+        <tr><td>官网<b>信用卡 / 借记卡</b></td><td>Anthropic 账单支持</td><td><span class="badge b-mid">看个案，越近越有戏</span></td></tr>
+        <tr><td>官网<b>虚拟信用卡</b></td><td>Anthropic，但退到卡里后还要看卡商能否提现</td><td><span class="badge b-mid">看个案</span></td></tr>
+        <tr><td><b>找人代充 / 代付</b></td><td>只能找那个代充的人 / 商家</td><td><span class="badge b-high">完全看对方信誉</span></td></tr>
+        <tr><td><b>企业 / 团队版</b></td><td>工作区管理员 + Anthropic 账单</td><td><span class="badge b-info">按合同 / 周期</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li><b>App Store：</b>登录 <code>reportaproblem.apple.com</code>，找到对应订阅记录申请退款，原因如实写「服务无法使用 / 账号被停用」。</li>
+    <li><b>Google Play：</b>在订单历史里找到该笔扣费，选择「申请退款 / 报告问题」；48 小时内更可能走快速退款。</li>
+    <li><b>官网卡：</b>用注册邮箱发信到 <code>support@anthropic.com</code>，礼貌请求退还未使用部分。</li>
+  </ul>
+  <div class="callout danger">
+    <span class="t">慎用银行拒付（chargeback）</span>
+    <p>直接让银行把钱「扣回来」看似痛快，但风险很高：可能被判定为异常 / 争议行为，<b>导致账号永久无法恢复</b>，
+    未来用同一支付方式也可能受影响。请先走正常退款渠道、给足处理时间；只有在正常渠道明确拒绝、且金额值得时，再把它当最后手段。</p>
+  </div>
+
+  <h3>申诉信模板（可直接复制修改）</h3>
+
+  <div class="codebox">
+    <div class="cb-head"><span>模板 A · 临时暂停 suspended（中文）</span><button class="copybtn" data-copy="tpl-a">复制</button></div>
+    <pre id="tpl-a">主题：Appeal for account review – [注册邮箱]
+
+您好，
+
+我的 Claude 账号（注册邮箱：[注册邮箱]）于 [日期] 被提示停用，提示信息为 [粘贴原文提示]。
+
+该账号为本人长期正常使用，主要用于 [编程学习 / 工作写代码 / 文档翻译 等真实用途]。我近期一直在稳定的网络环境下使用，未进行任何批量或自动化操作。
+
+我理解平台需要保障服务安全，若本次为系统自动审查触发的误判，恳请您协助人工复核并恢复账号访问。我承诺继续遵守 Anthropic 的服务条款与使用政策。
+
+感谢您的时间。
+
+[你的名字]
+[注册邮箱]
+[日期]</pre>
+  </div>
+
+  <div class="codebox">
+    <div class="cb-head"><span>模板 B · 永久封禁 banned（英文，供参考）</span><button class="copybtn" data-copy="tpl-b">复制</button></div>
+    <pre id="tpl-b">Subject: Request for account review – [registered email]
+
+Hello,
+
+My Claude account (registered email: [email]) was disabled on [date]. The notice I received stated: "[paste exact notice]".
+
+I have used this account only for legitimate personal/professional purposes, primarily [coding / translation / writing]. I was not aware of any activity that would violate your Usage Policy, and I have not used any unauthorized automation or third-party tools.
+
+If this was triggered by an automatic review, I would be grateful if a human agent could re-examine my case. I am happy to provide any details needed to verify my normal usage, and I will continue to comply with Anthropic's Terms of Service and Usage Policy.
+
+Thank you for your time.
+
+[name]
+[registered email]
+[date]</pre>
+  </div>
+
+  <div class="codebox">
+    <div class="cb-head"><span>模板 C · API 账号 / Key 问题（中文）</span><button class="copybtn" data-copy="tpl-c">复制</button></div>
+    <pre id="tpl-c">主题：API 账号权限异常申诉 – [账号邮箱]
+
+您好，
+
+我的 Anthropic API 账号（[账号邮箱]）出现 [API Disabled / 调用被拒 等] 提示。
+
+项目用途：[简述你的应用 / 场景]。
+近期我已检查 Key 状态，并已完成以下处理：
+- 确认 Key 未公开存储于代码仓库；
+- 已删除可能暴露的旧 Key，并重新生成了新 Key；
+- 已核对近期调用量，未发现异常。
+
+恳请协助核查 API 权限状态。如需补充项目信息或调用记录，我会及时提供。感谢！
+
+[你的名字]
+[账号邮箱]
+[日期]</pre>
+  </div>
+
+  <div class="callout warn">
+    <span class="t">现实预期</span>
+    <p>永久封禁的申诉客观上更难翻案，没有人能承诺一定恢复。把申诉当作「争取一次复核的机会」，同时同步评估合规的替代方案。</p>
+  </div>
+</section>
+
+<!-- ======================= 9 替代方案 ======================= -->
+<section id="alternatives">
+  <h2><span class="num">9</span>替代方案与接入风险</h2>
+  <p class="sub">号反复被封、不想再折腾时，别死磕一个账号——但换之前，先看清每条路的代价。</p>
+
+  <h3>9.1 三大类替代方案</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>类别</th><th>代表</th><th>优势</th><th>取舍</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>国产 AI 编程</b><br>（开箱即用）</td>
+          <td>智谱 GLM Coding Plan、通义灵码、文心快码、DeepSeek、Kimi</td>
+          <td>国内直连、人民币正常支付、价格友好</td>
+          <td>超长上下文 / 复杂多文件重构与顶配仍有差距</td>
+        </tr>
+        <tr>
+          <td><b>海外 IDE / CLI</b><br>（能力强）</td>
+          <td>Cursor、OpenAI Codex、GitHub Copilot、Windsurf、Aider</td>
+          <td>模型能力与工程化体验第一梯队，生态成熟</td>
+          <td>多数仍需合规网络 + 海外支付，<b>换了平台不等于免疫账号风控</b></td>
+        </tr>
+        <tr>
+          <td><b>换接入方式</b><br>（继续用 Claude 能力）</td>
+          <td>官方 Claude API / AWS Bedrock / Google Cloud Vertex</td>
+          <td>把「模型能力」与「个人账号」解耦，企业级通道更稳</td>
+          <td>门槛与成本更高；地区与所有权限制依然适用</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>9.2 想保留 Claude Code 的使用习惯？换后端</h3>
+  <p>如果你已经熟悉 Claude Code 的操作逻辑、不想重新学一套工具，可以保留外壳、把后端模型换掉：</p>
+  <ul>
+    <li><b>原生兼容 Anthropic 协议的服务</b>：部分国产厂商提供兼容接口，通常只需设置两个环境变量（<code>ANTHROPIC_BASE_URL</code>、<code>ANTHROPIC_API_KEY</code>）即可接入，国内直连、无需额外工具。</li>
+    <li><b>兼容 OpenAI 协议的服务</b>：需要先通过协议转换工具（如 CC Switch、CLIProxyAPI 之类）中转，再把 Claude Code 指向本地转发地址。</li>
+  </ul>
+  <div class="callout warn">
+    <span class="t">两点注意</span>
+    <p>① <b>换后端模型不涉及 Claude 官方账号</b>，因此不存在「Claude 账号被封」的问题——但要甄别服务商的资质与数据安全能力，
+    避免使用无资质的个人中转。<br>
+    ② 第三方模型与 Claude 原生模型在能力上有差异，部分依赖 Claude 特定能力的功能可能无法完全兼容，建议先充分测试。</p>
+  </div>
+
+  <h3>9.3 接入方式的风险：镜像站 vs API 中转 vs 官方直连</h3>
+  <p>「镜像站」和「API 中转」常被混为一谈，它们的共同点是：<b>都多了一个第三方中间商，你的数据要从它手里过一遍。</b></p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>官方直连</th><th>镜像站</th><th>API 中转</th></tr></thead>
+      <tbody>
+        <tr><td>使用形态</td><td>官方网页 / App / API</td><td>第三方网页</td><td>自己的客户端 + 第三方地址</td></tr>
+        <tr><td>有无第三方中间商</td><td>无</td><td>有</td><td>有</td></tr>
+        <tr><td>谁能看到你的数据</td><td>仅 Anthropic</td><td><span class="badge b-high">镜像站可记录</span></td><td><span class="badge b-high">中转方可记录</span></td></tr>
+        <tr><td>跑路 / 关停风险</td><td>无（官方）</td><td>有</td><td>有（尤其预付费）</td></tr>
+        <tr><td>连带封号风险</td><td>看自身使用</td><td>有</td><td>有</td></tr>
+        <tr><td>数据可控性</td><td>高</td><td>低</td><td>低</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout danger">
+    <span class="t">无论用哪种第三方，都请守住底线</span>
+    <p>不要在镜像站或中转里输入<b>账号密码、身份信息、企业内部代码、商业机密</b>等敏感内容；
+    预付费时尽量<b>小额试水、不要一次性大额充值</b>；把这些服务当成「随时可能消失」的临时工具来对待。</p>
+  </div>
+
+  <h3>9.4 怎么选：按场景</h3>
+  <div class="grid c3">
+    <div class="card"><h4><span class="ic">1</span>重度编程</h4><p>有合规网络与海外卡 → 海外 IDE/CLI；不想折腾 → 国产编码订阅 + IDE 插件。</p></div>
+    <div class="card"><h4><span class="ic">2</span>日常对话 / 学习</h4><p>国产大模型已能覆盖绝大多数需求，国内直连、省心。</p></div>
+    <div class="card"><h4><span class="ic">3</span>团队 / 敏感数据</h4><p>优先官方 API 或云厂商托管通道，做好数据合规评估。</p></div>
+  </div>
+  <p class="src">没有放之四海皆准的「最优解」，只有最适合你<b>任务复杂度、网络条件和风险偏好</b>的那一个。各家产品价格与政策随时可能调整，下单前请以官方页面为准。</p>
+</section>
+
+<!-- ======================= 10 误区辟谣 ======================= -->
+<section id="myths">
+  <h2><span class="num">10</span>常见误区辟谣</h2>
+  <p class="sub">网上流传的「防封技巧」里，有不少没有官方依据，甚至互相打脸。逐条对照，别把它们当教程。</p>
+
+  <div class="myths">
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「固定一个美国 IP 就不会封号」</div>
+      <div class="verdict"><span class="badge b-mid">无官方依据</span>固定线路可以减少掉线和频繁重连，但账号是否可用，还受<b>支持地区、服务条款、使用政策、年龄和审核结果</b>影响。IP 只是其中一环，不是免死金牌。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「改系统时区 / 拔 SIM 卡 / 改浏览器指纹编造地区与设备信息」</div>
+      <div class="verdict"><span class="badge b-high">官方明确不允许</span>这类做法是在<b>编造用户画像</b>。一旦账号出问题，会从「资料对不上」升级成「资料无法解释」，申诉几乎写不下去。别做。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「老 Gmail、Apple 内购能提高账号权重」</div>
+      <div class="verdict"><span class="badge b-mid">无官方材料支持</span>它们可以是正常的注册或付款方式，但<b>不是官方公布的防封条件</b>。为了这些说法专门去买邮箱或支付账号，不值。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「按美国时间使用会更安全」</div>
+      <div class="verdict"><span class="badge b-mid">官方无此要求</span>用户会旅行、倒班、跨时区工作。刻意修改作息，替代不了地区资格与账号合规。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「说中文就会封号」</div>
+      <div class="verdict"><span class="badge b-mid">官方理由里没有「语言」</span>官方三条封号理由里没有语言这一条。有全程中文、用量很大的账号长期存活，也有中文号被封——别把语言当必要条件，该说中文就说中文。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「周额度用满就会被封」</div>
+      <div class="verdict"><span class="badge b-mid">案例互相打脸</span>有人用满还活着，有人没用满也被封。<b>额度是用量，不是官方公布的封号条件。</b></div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「先开 20 美元档，再升 200 美元档更安全」</div>
+      <div class="verdict"><span class="badge b-mid">无官方依据</span>档位本身不决定风控；先低后高反而等于接受<b>两次支付检查</b>。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「拼车、抽 Cookie、把网页订阅接进第三方客户端」</div>
+      <div class="verdict"><span class="badge b-high">违反服务条款</span>条款要求登录信息和 Key 不能分享。串号、拼车、抽会话，都在官方不让做的范围里，一旦判定「账号倒卖」往往<b>全员一起封</b>。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「代验证、代过人脸、买成品号、住宅代理批量注册」</div>
+      <div class="verdict"><span class="badge b-high">这不是防封，是欺诈</span>用他人证件冒充支持地区身份、买号池、批量注册、代过人脸——既违反条款也可能违法，且随时被官方识别清理。别碰。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「指纹浏览器 + 家宽 + 养号顺序 = 一套可以照抄的定律」</div>
+      <div class="verdict"><span class="badge b-mid">当参考，别当教程</span>这些说法传得很响，但社区案例互相矛盾。能确定的是：<b>官方写明的三条线别踩，一人一号、环境别跳、付款别错</b>——这几件做干净，比背一堆「技巧」有用得多。</div>
+    </div>
+    <div class="myth">
+      <div class="claim"><span class="mk">✕</span>「模型从 Opus 降级到别的模型，说明马上要封号了」</div>
+      <div class="verdict"><span class="badge b-info">两码事</span>官方写明，高风险请求会被降级或拦截，检查范围包括文件和搜索结果。被降级或拦截 ≠ 封号，改一下请求再试即可。</div>
+    </div>
+  </div>
+
+  <div class="callout accent">
+    <span class="t">一句话原则</span>
+    <p>没有人能保证「下一周一定不被封」——官方不公布自动审核的完整打分，社区案例又互相矛盾。
+    这份指南能帮你做的，是<b>少踩别人已经踩过的坑</b>，并把可控的信号做干净。</p>
+  </div>
+</section>
+
+<!-- ======================= 11 FAQ + 速查卡 ======================= -->
+<section id="faq">
+  <h2><span class="num">11</span>常见问题 FAQ</h2>
+
+  <details><summary>Claude 是不是只要在国内用就会被封？</summary>
+    <div class="body"><p>不是。地区只是风险因子之一，真正决定性的是 IP 纯净度、支付方式、设备指纹和使用行为。大量用户长期稳定使用，关键在于把这些信号做「干净且稳定」。但要说清楚：<b>地区资格是官方明文门槛，代理网络并不能把「不支持地区」变成「合规访问」。</b></p></div>
+  </details>
+
+  <details><summary>我什么违规的事都没做，为什么也被封？</summary>
+    <div class="body"><p>「没做违规内容」不等于「没有风险信号」。共享 IP 上已挂大量账号、虚拟卡支付、多设备登录等都会被风控计入。封号往往是这些信号叠加的结果，而不是单一违规。</p></div>
+  </details>
+
+  <details><summary>Claude 打不开，就是被封了吗？</summary>
+    <div class="body"><p>不一定。请先对照第 1 节的故障分诊表——地区提示、身份验证、付款失败、连接故障都不是封号，只有<b>明确提示账号暂停或终止</b>才是。Anthropic 自己也会有故障，先看官方状态页。</p></div>
+  </details>
+
+  <details><summary>哪类原因最容易导致永久封禁？</summary>
+    <div class="body"><p>严重违反使用政策的内容类违规（如反复越狱、生成明令禁止内容、恶意用途）最容易直接永久封禁；而 IP、支付、多开类问题更多触发临时暂停（suspended），相对更有申诉空间。</p></div>
+  </details>
+
+  <details><summary>用 VPN 一直被封怎么办？</summary>
+    <div class="body"><p>大概率是你在用<b>数据中心 ASN 的共享 VPN 出口</b>，这类 IP 被直接标记为高风险。方向是改用<b>固定、干净的住宅 IP</b>，并让 Claude 相关域名统一走同一出口，避免频繁跳变。同时别忘了 DNS 泄漏与 IPv6。</p></div>
+  </details>
+
+  <details><summary>Claude 要求 Persona 身份验证，是不是要封号了？</summary>
+    <div class="body"><p>不一定。官方把身份验证用于部分功能、平台完整性检查，以及其他安全或合规场景。账号被暂停时，页面或邮件通常会给出明确提示和申诉入口。具体怎么过、哪些事绝对不能做，见第 5 节。</p></div>
+  </details>
+
+  <details><summary>申诉一般多久回复？成功率高吗？</summary>
+    <div class="body"><p>官方<b>既没有承诺时效，也没有公开成功率</b>。据用户反馈，回复时间从数天到数周不等。公开报道显示，2026 上半年约 39.8 万次申诉中仅约 4.2 万次被推翻。临时暂停（suspended）成功率相对高，永久封禁（banned）较低。<b>事前防封远比事后申诉重要。</b></p></div>
+  </details>
+
+  <details><summary>号被封了，订阅费能退吗？</summary>
+    <div class="body"><p>只取决于你当初从哪个渠道付款：App Store 找苹果、Google Play 找谷歌、官网卡找 Anthropic 账单支持、代充的只能找代充方。退款不保证成功，越接近扣费、越明显没用过，空间越大。<b>慎用银行拒付</b>——可能让账号永久无法恢复。详见第 8 节。</p></div>
+  </details>
+
+  <details><summary>拼车省钱行不行？</summary>
+    <div class="body"><p>不行，风险很高。拼车意味着多人共用一个账号，登录地和设备五花八门，一旦判定「账号倒卖」往往全员一起封。而且出问题时，退款、申诉的链条都要经过中间人，维权非常被动。</p></div>
+  </details>
+
+  <details><summary>已经在用的老号，还能补救吗？</summary>
+    <div class="body"><p>可以。老号最值得做的是<b>把环境稳定下来</b>：固定一个干净 IP 别再乱跳、停止多设备频繁切换、不要临时换高危支付方式。突然的环境剧变本身就是风险信号，补救的关键是「稳」而不是「大改」。</p></div>
+  </details>
+
+  <details><summary>团队要稳定用，有没有比个人订阅更靠谱的路？</summary>
+    <div class="body"><p>有。可以把「模型能力」和「个人账号」解耦：走官方 Claude API、AWS Bedrock 或 Google Cloud Vertex。注意这是另一条产品线，<b>不等于个人订阅就不会被封</b>；且官方对企业所有权有限制（中国实体控股 50% 及以上不在服务范围内）。详见第 7 节。</p></div>
+  </details>
+
+  <details><summary>做到这些就一定不会被封吗？</summary>
+    <div class="body"><p>不能这么理解。没有任何方法能保证绝对安全——风控规则会调整、地区政策会收紧。这份清单能做的是<b>显著降低被风控盯上的概率</b>，把可控风险压到最低。心态上把它当正常工作工具用，而不是赌运气。</p></div>
+  </details>
+</section>
+
+<section id="cheatsheet">
+  <h2><span class="num">12</span>一页速查卡</h2>
+  <p class="sub">贴在心里，长期照做。</p>
+  <div class="grid c3">
+    <div class="card"><h4><span class="ic">1</span>IP</h4><p>住宅、固定、干净、DNS 不泄漏、关 IPv6、不跳地区。</p></div>
+    <div class="card"><h4><span class="ic">2</span>支付</h4><p>与登录地一致的正规渠道；拒绝虚拟卡与代充。</p></div>
+    <div class="card"><h4><span class="ic">3</span>环境</h4><p>单账号单环境；不拼车、不多开、不并发。</p></div>
+    <div class="card"><h4><span class="ic">4</span>注册</h4><p>真实邮箱 + 可靠手机号 + 干净 IP。</p></div>
+    <div class="card"><h4><span class="ic">5</span>养号</h4><p>头 3 天低频温和，强度逐步爬坡。</p></div>
+    <div class="card"><h4><span class="ic">6</span>习惯</h4><p>规律自然；不碰越狱与违规内容红线。</p></div>
+    <div class="card"><h4><span class="ic">7</span>出问题</h4><p>先看故障分诊表，别急着当「被封」处理。</p></div>
+    <div class="card"><h4><span class="ic">8</span>被封后</h4><p>先申诉 + 按渠道退款，别急着重注册。</p></div>
+    <div class="card"><h4><span class="ic">9</span>别信</h4><p>改时区、拔卡、编指纹、代验证——都不做。</p></div>
+  </div>
+  <div class="callout accent" style="margin-top:22px">
+    <span class="t">一句话总结</span>
+    <p>防封的本质，是让账号在风控眼里<b>像一个干净、稳定、长期的真人用户</b>——把 IP、支付、设备、行为四项信号同时压低，
+    别踩官方写明的三条线，其余交给规律使用和时间。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="padding:0">
+    <div class="disc">
+      <p><b>资料来源与时效：</b>本指南综合 Anthropic 官方帮助中心与支持文档（支持地区、使用政策、个人服务条款、身份验证说明、服务状态），
+      以及 2026 年公开的社区教程、媒体报道与用户实测反馈整理而成，最后更新于 2026 年 10 月。风控规则与地区政策可能随时变化，请以官方最新公告为准。</p>
+      <p><b>免责声明：</b>本指南与 Anthropic 无官方关联，不构成任何保证，也不推荐任何具体服务商、卡商或网络服务。文中引用的统计数据来自公开报道，仅供说明趋势。</p>
+      <p><b>合规提示：</b>请遵守 Anthropic 服务条款、使用政策及你所在地的法律法规。本指南不鼓励、不指导任何欺诈、盗刷、伪造身份、代过人脸或批量滥用行为。
+      若你所在地区不在官方支持范围内，代理网络并不能把访问「变成合规」——请通过官方渠道了解可用方案，或采用本指南给出的合规替代路径。</p>
+      <p style="color:var(--ink-3);margin-top:14px">Claude 与 Anthropic 是 Anthropic, PBC 的商标。本页仅用于信息分享。</p>
+    </div>
+  </div>
+</footer>
+
+
+
+</main>
+
+<!-- 全局检索命令面板 Modal -->
+<div class="pal-modal" id="palModal" role="dialog" aria-modal="true" aria-label="全站检索">
+  <div class="pal-box">
+    <div class="pal-in">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="palInput" type="search" placeholder="检索指南：输入退款、Persona、虚拟卡、Claude Code、申诉..." autocomplete="off">
+      <kbd>Esc</kbd>
+    </div>
+    <div class="pal-results" id="palResults">
+      <!-- 动态结果 -->
+    </div>
+  </div>
+</div>
+
+<!-- 返回顶部按钮 -->
+<button class="totop" id="btnToTop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="../index.html">← 返回戴璇主页 (daixuan.cloud)</a>
+      <a href="../student-score/">学生综合评分系统</a>
+      <a href="../aurora-chat/">Aurora Chat</a>
+      <a href="../ming-history/">明史资料平台</a>
+      <a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+    </div>
+    <div class="disc">
+      <p><b>资料来源与时效：</b>本指南综合 Anthropic 官方帮助中心与使用政策（支持地区、使用政策、个人服务条款、身份验证说明、服务状态），
+      以及 2026 年公开的社区技术报告、媒体披露与实际测试整理而成，最后更新于 2026 年 10 月。风控规则随时调整，请以官方最新公告为准。</p>
+      <p><b>免责声明：</b>本指南与 Anthropic 无官方关联，不提供任何破解或绕过官方安全审查的工具，也不推荐任何具体服务商或网络工具。
+      请自觉遵守相关法律法规与平台服务条款。</p>
+      <p style="color:var(--ink-3);margin-top:12px">© 2026 戴璇 · Dai Xuan (daixuan.cloud) 保留所有权利。Claude 与 Anthropic 是 Anthropic, PBC 的商标。</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ===================================================================== *
+ * 1. 基础功能：阅读进度条、复制、返回顶部、主题切换
+ * ===================================================================== */
+// 阅读进度条与返回顶部
+var readbar = document.getElementById('readbar');
+var btnToTop = document.getElementById('btnToTop');
+window.addEventListener('scroll', function() {
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  var pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+  if (readbar) readbar.style.width = pct + '%';
+  if (btnToTop) {
+    if (window.scrollY > 380) btnToTop.classList.add('show');
+    else btnToTop.classList.remove('show');
+  }
+}, { passive: true });
+
+if (btnToTop) {
+  btnToTop.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// 主题切换
+var btnTheme = document.getElementById('btn-theme');
+function updateThemeIcon() {
+  var t = document.documentElement.getAttribute('data-theme');
+  if (btnTheme) btnTheme.textContent = t === 'dark' ? '☀' : '☾';
+}
+updateThemeIcon();
+if (btnTheme) {
+  btnTheme.addEventListener('click', function() {
+    var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('dx_theme', next); } catch (e) {}
+    updateThemeIcon();
+  });
+}
+
+// 复制功能通用
+function copyText(text, btn, successText) {
+  var done = function() {
+    var original = btn.textContent;
+    btn.textContent = successText || '已复制 ✓';
+    btn.classList.add('done');
+    setTimeout(function() {
+      btn.textContent = original;
+      btn.classList.remove('done');
+    }, 1800);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(function() { fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+document.querySelectorAll('.copybtn').forEach(function(btn) {
+  var copyTarget = btn.getAttribute('data-copy');
+  if (copyTarget) {
+    btn.addEventListener('click', function() {
+      var el = document.getElementById(copyTarget);
+      if (!el) return;
+      copyText(el.innerText, btn, '已复制 ✓');
+    });
+  }
+});
+
+/* ===================================================================== *
+ * 2. 交互工具 A：风控自测评估仪
+ * ===================================================================== */
+var calcQuestions = document.getElementById('calcQuestions');
+var scoreValue = document.getElementById('scoreValue');
+var scoreBadge = document.getElementById('scoreBadge');
+var scoreCircle = document.getElementById('scoreCircle');
+var scoreDiagList = document.getElementById('scoreDiagList');
+var btnCopyReport = document.getElementById('btn-copy-report');
+
+function calculateRisk() {
+  if (!calcQuestions || !scoreValue) return;
+  var ip = parseInt(document.querySelector('input[name="q_ip"]:checked')?.value || '0', 10);
+  var leak = parseInt(document.querySelector('input[name="q_leak"]:checked')?.value || '0', 10);
+  var pay = parseInt(document.querySelector('input[name="q_pay"]:checked')?.value || '0', 10);
+  var env = parseInt(document.querySelector('input[name="q_env"]:checked')?.value || '0', 10);
+  var act = parseInt(document.querySelector('input[name="q_act"]:checked')?.value || '0', 10);
+
+  // 基础加权总分 (最高约 255，归一化到 0~100)
+  var rawTotal = ip + leak + pay + env + act;
+  var riskIndex = Math.min(100, Math.round((rawTotal / 180) * 100));
+
+  scoreValue.textContent = riskIndex;
+
+  // 诊断建议生成
+  var diags = [];
+  var badgeText = '';
+  var badgeColor = '';
+  var circleBorder = '';
+
+  if (riskIndex <= 20) {
+    badgeText = '🛡️ 极低风险 · 绿灯区';
+    badgeColor = 'var(--ok)';
+    circleBorder = '6px solid var(--ok)';
+    diags.push({ type: 'ok', msg: '各维度配置优异，账号画像稳定如真人，正常使用几乎无被封风险。' });
+  } else if (riskIndex <= 45) {
+    badgeText = '🌱 低风险 · 安全区';
+    badgeColor = '#60a5fa';
+    circleBorder = '6px solid #60a5fa';
+    diags.push({ type: 'ok', msg: '整体状态良好，注意保持现有环境稳定，避免突发跨地区频繁跳变。' });
+  } else if (riskIndex <= 70) {
+    badgeText = '⚠️ 中度风险 · 预警区';
+    badgeColor = 'var(--warn)';
+    circleBorder = '6px solid var(--warn)';
+    diags.push({ type: 'warn', msg: '存在多项风险信号叠加，容易被要求 Persona 身份验证或触发临时审查 (Suspended)。' });
+  } else {
+    badgeText = '🚨 极高风险 · 濒危区';
+    badgeColor = 'var(--danger)';
+    circleBorder = '6px solid var(--danger)';
+    diags.push({ type: 'danger', msg: '命中关键高危红线！账号处于随时可能被封禁的危险边缘，务必立即整改。' });
+  }
+
+  // 针对具体危险项提示整改
+  if (ip >= 30) diags.push({ type: 'danger', msg: '【网络告警】当前使用的公共机场/机房节点已成为风控筛查重点，建议切换为固定的静态独享住宅 IP。' });
+  if (leak >= 15) diags.push({ type: 'warn', msg: '【泄漏隐患】建议在网络适配器中彻底禁用 IPv6，并在代理客户端启用 DNS 防泄漏分流。' });
+  if (pay >= 35) diags.push({ type: 'danger', msg: '【支付高危】虚拟卡/代充极易因 BIN 标记或追溯撤销引发封号，建议走 Apple Store 内购或本人合规外卡。' });
+  if (env >= 35) diags.push({ type: 'danger', msg: '【环境违规】拼车共享或使用伪装插件属于官方严打行为，请切换为单机单账号专用独立浏览器配置。' });
+  if (act >= 35) diags.push({ type: 'warn', msg: '【行为警示】高频自动化脚本或反复试探越狱极易被自动模型判定为恶意滥用，请恢复正常工作节奏。' });
+
+  scoreBadge.textContent = badgeText;
+  scoreBadge.style.color = '#fff';
+  scoreBadge.style.background = badgeColor;
+  scoreCircle.style.border = circleBorder;
+
+  scoreDiagList.innerHTML = diags.map(function(d) {
+    return '<div class="diag-item ' + d.type + '">' + d.msg + '</div>';
+  }).join('');
+}
+
+if (calcQuestions) {
+  calcQuestions.addEventListener('change', calculateRisk);
+  calculateRisk();
+}
+
+if (btnCopyReport) {
+  btnCopyReport.addEventListener('click', function() {
+    var score = scoreValue ? scoreValue.textContent : '0';
+    var badge = scoreBadge ? scoreBadge.textContent : '';
+    var items = [];
+    document.querySelectorAll('#scoreDiagList .diag-item').forEach(function(el) {
+      items.push('- ' + el.innerText);
+    });
+    var report = '【Claude 账号风控自测报告 · 2026】\n' +
+      '风险指数：' + score + ' / 100\n' +
+      '安全状态：' + badge + '\n' +
+      '诊断与建议：\n' + items.join('\n') + '\n' +
+      '测评工具：https://daixuan.cloud/claude-anti-ban/';
+    copyText(report, btnCopyReport, '报告已复制 ✓');
+  });
+}
+
+/* ===================================================================== *
+ * 3. 交互工具 B：六维实操打卡清单
+ * ===================================================================== */
+var chkGrid = document.getElementById('chkGrid');
+var chkBarFill = document.getElementById('chkBarFill');
+var chkStatsText = document.getElementById('chkStatsText');
+var btnResetChecklist = document.getElementById('btn-reset-checklist');
+var CHK_STORAGE_KEY = 'claude_checklist_v1';
+
+function loadChecklist() {
+  if (!chkGrid) return;
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(CHK_STORAGE_KEY) || '{}'); } catch(e){}
+  var total = 0;
+  var done = 0;
+  chkGrid.querySelectorAll('.chk-card').forEach(function(card) {
+    total++;
+    var id = card.getAttribute('data-chk-id');
+    var input = card.querySelector('input');
+    if (saved[id]) {
+      input.checked = true;
+      card.classList.add('done');
+      done++;
+    } else {
+      input.checked = false;
+      card.classList.remove('done');
+    }
+  });
+  updateChecklistProgress(done, total);
+}
+
+function saveChecklist() {
+  if (!chkGrid) return;
+  var state = {};
+  var total = 0;
+  var done = 0;
+  chkGrid.querySelectorAll('.chk-card').forEach(function(card) {
+    total++;
+    var id = card.getAttribute('data-chk-id');
+    var input = card.querySelector('input');
+    if (input.checked) {
+      state[id] = true;
+      card.classList.add('done');
+      done++;
+    } else {
+      card.classList.remove('done');
+    }
+  });
+  try { localStorage.setItem(CHK_STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  updateChecklistProgress(done, total);
+}
+
+function updateChecklistProgress(done, total) {
+  var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  if (chkBarFill) chkBarFill.style.width = pct + '%';
+  if (chkStatsText) chkStatsText.textContent = done + ' / ' + total + ' (' + pct + '%)';
+}
+
+if (chkGrid) {
+  chkGrid.addEventListener('change', saveChecklist);
+  loadChecklist();
+}
+
+if (btnResetChecklist) {
+  btnResetChecklist.addEventListener('click', function() {
+    if (confirm('确定要重置打卡进度吗？')) {
+      try { localStorage.removeItem(CHK_STORAGE_KEY); } catch(e){}
+      loadChecklist();
+    }
+  });
+}
+
+/* ===================================================================== *
+ * 4. 全局检索命令面板 Modal (Ctrl+K)
+ * ===================================================================== */
+var btnSearch = document.getElementById('btn-search');
+var palModal = document.getElementById('palModal');
+var palInput = document.getElementById('palInput');
+var palResults = document.getElementById('palResults');
+
+// 提取可供检索的词库（各 section 的 h2, h3, h4, myth, details 等）
+var searchIndex = [
+  { title: '⚡ 风险体检仪：账号风控风险指数自测', desc: '根据网络、支付、设备指纹测算封号概率', id: 'risk-tool' },
+  { title: '✅ 实操打卡：六维度防封逐项打钩检查表', desc: 'IP、支付、环境、注册、养号与习惯 12 条准则', id: 'action-checklist' },
+  { title: '1. 故障分诊表：先别急着说“被封了”', desc: '地区不支持、Persona 验证、付款失败与账号终止的区分', id: 'triage' },
+  { title: '2. 六大真实封号原因及风控底层逻辑', desc: '住宅 IP、支付方式、拼车、违规内容、注册隐患与自动化滥用', id: 'why' },
+  { title: '3. 封禁类型：临时暂停 (Suspended) 与永久封禁 (Banned)', desc: 'automatic review 自动审查误判的申诉翻案空间', id: 'types' },
+  { title: '4. 防封清单：六个维度逐项落地执行', desc: '住宅 IP、Apple Store 内购、单机单环境、前三天养号观察期', id: 'checklist' },
+  { title: '5. 身份验证 (Persona) 怎么过与隐私底线', desc: '2026 年 KYC 核验触发条件、证件拍摄要求与防代过诈骗', id: 'persona' },
+  { title: '6. 开发者专章：API Key 与 Claude Code 稳定配置', desc: 'Claude Code 掉线排查、DNS/IPv6 泄漏防护、频率与批处理控制', id: 'dev' },
+  { title: '7. 团队与企业的稳定路径：解耦个人订阅', desc: '官方 Claude API、AWS Bedrock、Google Cloud Vertex', id: 'enterprise' },
+  { title: '8. 已经被封：申诉全流程与退款渠道攻略', desc: 'App Store / Google Play / 官方账单退款，中英文申诉信模板', id: 'appeal' },
+  { title: '申诉信模板 A：临时暂停 Suspended (中文可直接复制)', desc: '用于说明正常用途与稳定环境，请求人工复核', id: 'tpl-a' },
+  { title: '申诉信模板 B：永久封禁 Banned (英文版可复制)', desc: 'Request for account review 英文工单模板', id: 'tpl-b' },
+  { title: '申诉信模板 C：API 账号 / Key 权限异常申诉', desc: 'API Disabled 及密钥排查后的申诉模板', id: 'tpl-c' },
+  { title: '退款指南：钱从谁手里出去就找谁退', desc: '苹果 App Store、谷歌 Play、官网信用卡的退款途径与拒付风险', id: 'appeal' },
+  { title: '9. 替代方案：国产 AI 编程与后端模型平替', desc: '保留 Claude Code 终端外壳，接入兼容协议模型与风险对比', id: 'alternatives' },
+  { title: '10. 常见误区辟谣：不看广告看疗效', desc: '说中文会封号？周额度用满会封？改时区拔卡有用？逐一辟谣', id: 'myths' },
+  { title: '11. 常见问题 FAQ 与速查卡', desc: '在国内使用一定被封吗？没违规为什么被封？VPN 一直被封怎么办？', id: 'faq' }
+];
+
+function openPalette() {
+  if (!palModal) return;
+  palModal.classList.add('active');
+  if (palInput) {
+    palInput.value = '';
+    renderPaletteResults('');
+    setTimeout(function() { palInput.focus(); }, 50);
+  }
+}
+
+function closePalette() {
+  if (!palModal) return;
+  palModal.classList.remove('active');
+}
+
+function renderPaletteResults(query) {
+  if (!palResults) return;
+  var q = query.trim().toLowerCase();
+  var filtered = searchIndex;
+  if (q) {
+    filtered = searchIndex.filter(function(item) {
+      return item.title.toLowerCase().indexOf(q) !== -1 || item.desc.toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  if (filtered.length === 0) {
+    palResults.innerHTML = '<div style="padding:20px;text-align:center;color:var(--ink-3);font-size:14px">未找到匹配内容，请尝试换一个关键词</div>';
+    return;
+  }
+
+  palResults.innerHTML = filtered.map(function(item, idx) {
+    return '<div class="pal-item" data-target="' + item.id + '">' +
+      '<div class="pal-item-title">' + item.title + '</div>' +
+      '<div class="pal-item-snippet">' + item.desc + '</div>' +
+    '</div>';
+  }).join('');
+
+  palResults.querySelectorAll('.pal-item').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var targetId = el.getAttribute('data-target');
+      closePalette();
+      var targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        // 如果在 details 内部，自动展开
+        var parentDetails = targetEl.closest('details');
+        if (parentDetails) parentDetails.open = true;
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // 短暂高亮
+        targetEl.style.transition = 'outline .2s';
+        targetEl.style.outline = '3px solid var(--brand)';
+        setTimeout(function() { targetEl.style.outline = 'none'; }, 2000);
+      }
+    });
+  });
+}
+
+if (btnSearch) btnSearch.addEventListener('click', openPalette);
+if (palModal) {
+  palModal.addEventListener('click', function(e) {
+    if (e.target === palModal) closePalette();
+  });
+}
+if (palInput) {
+  palInput.addEventListener('input', function() {
+    renderPaletteResults(palInput.value);
+  });
+}
+
+window.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (palModal && palModal.classList.contains('active')) closePalette();
+    else openPalette();
+  } else if (e.key === 'Escape' && palModal && palModal.classList.contains('active')) {
+    closePalette();
+  }
+});
+</script>
+</body>
+</html>

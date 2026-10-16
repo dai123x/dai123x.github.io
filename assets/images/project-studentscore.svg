@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_score" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f1426"/>
+      <stop offset="100%" stop-color="#070a14"/>
+    </linearGradient>
+    <linearGradient id="indigo_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <filter id="glow_score" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="600" height="360" fill="url(#bg_score)"/>
+  
+  <!-- 网格 -->
+  <pattern id="grid_sc" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(99, 102, 241, 0.08)" stroke-width="1"/>
+  </pattern>
+  <rect width="600" height="360" fill="url(#grid_sc)"/>
+
+  <!-- 光晕 -->
+  <circle cx="160" cy="180" r="110" fill="url(#indigo_grad)" opacity="0.12" filter="url(#glow_score)"/>
+  <circle cx="450" cy="180" r="100" fill="#22c55e" opacity="0.08" filter="url(#glow_score)"/>
+
+  <!-- 主体卡片窗口 -->
+  <g transform="translate(60, 48)">
+    <rect width="480" height="264" rx="16" fill="#141a2e" fill-opacity="0.95" stroke="rgba(99, 102, 241, 0.3)" stroke-width="1.5"/>
+    <!-- 顶栏 -->
+    <rect width="480" height="38" rx="16" fill="#0d1120" fill-opacity="0.7"/>
+    <rect y="22" width="480" height="16" fill="#0d1120" fill-opacity="0.7"/>
+    <circle cx="22" cy="19" r="5" fill="#f2545b" opacity="0.8"/>
+    <circle cx="40" cy="19" r="5" fill="#f5a524" opacity="0.8"/>
+    <circle cx="58" cy="19" r="5" fill="#22c55e" opacity="0.8"/>
+    <text x="82" y="24" font-family="'Segoe UI', 'PingFang SC', sans-serif" font-size="12" font-weight="700" fill="#cbd5e1">学生综合评分系统 · 五育并举 / 学科成绩 / 日常积分</text>
+
+    <!-- 左侧雷达图示意 -->
+    <g transform="translate(90, 140)">
+      <!-- 五边形基底网格 -->
+      <polygon points="0,-60 57,-19 35,49 -35,49 -57,-19" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+      <polygon points="0,-40 38,-12 23,32 -23,32 -38,-12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <polygon points="0,-20 19,-6 12,16 -12,16 -19,-6" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+      
+      <!-- 五育轴线 -->
+      <line x1="0" y1="0" x2="0" y2="-65" stroke="rgba(255,255,255,0.2)"/>
+      <line x1="0" y1="0" x2="62" y2="-20" stroke="rgba(255,255,255,0.2)"/>
+      <line x1="0" y1="0" x2="38" y2="53" stroke="rgba(255,255,255,0.2)"/>
+      <line x1="0" y1="0" x2="-38" y2="53" stroke="rgba(255,255,255,0.2)"/>
+      <line x1="0" y1="0" x2="-62" y2="-20" stroke="rgba(255,255,255,0.2)"/>
+
+      <!-- 评分多边形数据填充 -->
+      <polygon points="0,-52 50,-15 30,42 -31,38 -48,-16" fill="rgba(99, 102, 241, 0.4)" stroke="#6366f1" stroke-width="2"/>
+      
+      <!-- 标签 -->
+      <text x="0" y="-72" font-family="sans-serif" font-size="11" font-weight="700" fill="#f2545b" text-anchor="middle">德</text>
+      <text x="74" y="-16" font-family="sans-serif" font-size="11" font-weight="700" fill="#3d7bfd" text-anchor="middle">智</text>
+      <text x="46" y="66" font-family="sans-serif" font-size="11" font-weight="700" fill="#16a97e" text-anchor="middle">体</text>
+      <text x="-46" y="66" font-family="sans-serif" font-size="11" font-weight="700" fill="#a355e8" text-anchor="middle">美</text>
+      <text x="-74" y="-16" font-family="sans-serif" font-size="11" font-weight="700" fill="#e08a1e" text-anchor="middle">劳</text>
+    </g>
+
+    <!-- 右侧评分列表与报表示意 -->
+    <g transform="translate(210, 56)">
+      <!-- 综合总分卡片 -->
+      <rect width="245" height="46" rx="8" fill="#1b233a" stroke="#2a375a"/>
+      <text x="14" y="22" font-family="sans-serif" font-size="11" fill="#8b98b8">班级第一名 · 综合评分</text>
+      <text x="14" y="38" font-family="sans-serif" font-size="14" font-weight="800" fill="#22c55e">94.8 分 · 等级 A+ (优秀)</text>
+      <rect x="180" y="13" width="52" height="20" rx="10" fill="#6366f1" opacity="0.25"/>
+      <text x="206" y="27" font-family="sans-serif" font-size="11" font-weight="700" fill="#818cf8" text-anchor="middle">Rank 1</text>
+
+      <!-- 三维条形统计 -->
+      <g transform="translate(0, 56)">
+        <text x="0" y="12" font-family="sans-serif" font-size="11" fill="#b6c1da">五育并举 (40%)</text>
+        <rect x="85" y="4" width="160" height="8" rx="4" fill="#263049"/>
+        <rect x="85" y="4" width="148" height="8" rx="4" fill="#6366f1"/>
+
+        <text x="0" y="32" font-family="sans-serif" font-size="11" fill="#b6c1da">学科成绩 (40%)</text>
+        <rect x="85" y="24" width="160" height="8" rx="4" fill="#263049"/>
+        <rect x="85" y="24" width="154" height="8" rx="4" fill="#3d7bfd"/>
+
+        <text x="0" y="52" font-family="sans-serif" font-size="11" fill="#b6c1da">日常积分 (20%)</text>
+        <rect x="85" y="44" width="160" height="8" rx="4" fill="#263049"/>
+        <rect x="85" y="44" width="135" height="8" rx="4" fill="#22c55e"/>
+      </g>
+
+      <!-- 快捷操作按钮群 -->
+      <g transform="translate(0, 128)">
+        <rect width="76" height="24" rx="12" fill="#212c46" stroke="#33405f"/>
+        <text x="38" y="16" font-family="sans-serif" font-size="10" font-weight="600" fill="#b6c1da" text-anchor="middle">🖨️ 成绩单</text>
+
+        <rect x="84" y="0" width="76" height="24" rx="12" fill="#212c46" stroke="#33405f"/>
+        <text x="122" y="16" font-family="sans-serif" font-size="10" font-weight="600" fill="#b6c1da" text-anchor="middle">📊 雷达图</text>
+
+        <rect x="168" y="0" width="76" height="24" rx="12" fill="#212c46" stroke="#33405f"/>
+        <text x="206" y="16" font-family="sans-serif" font-size="10" font-weight="600" fill="#b6c1da" text-anchor="middle">⚖️ 师生对比</text>
+      </g>
+
+      <g transform="translate(0, 164)">
+        <rect width="245" height="26" rx="6" fill="#131a2e" stroke="rgba(34, 197, 94, 0.3)"/>
+        <text x="12" y="17" font-family="sans-serif" font-size="10.5" fill="#22c55e">✓ 182 项计算自动化单元测试全覆盖</text>
+      </g>
+    </g>
+  </g>
+</svg>

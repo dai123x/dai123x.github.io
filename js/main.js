@@ -1167,6 +1167,8 @@
         keywords: 'resume cv jianli',
         items: [
           { icon: '📄', label: '在线简历（附 PDF 下载）', href: 'resume/', keywords: 'resume cv jianli 简历' },
+          { icon: '🛡️', label: 'Claude 防封完全指南 · 风控自测体检仪', href: 'claude-anti-ban/', keywords: 'claude anti ban 防封 账号 风控 申诉 退款 persona' },
+          { icon: '📊', label: '学生综合评分系统 · 五育并举/学科成绩/日常表现', href: 'student-score/', keywords: 'student score 学生评分 成绩 班级 五育 成绩单' },
           { icon: '🌌', label: 'Aurora Chat · 极光 AI 聊天工作台', href: 'aurora-chat/', keywords: 'aurora chat ai 聊天 大模型 glm deepseek arena 对比' },
           { icon: '✦', label: '璇玑星海 · 沉浸式记忆星系', href: 'galaxy/', keywords: 'galaxy 星海 星系 3d 粒子 彩蛋 沉浸 留言' },
           { icon: '🏫', label: '工大印记 · 长春工业大学', href: 'school/', keywords: 'school 工大 长春工业大学 ccut 校园 校训 足迹' },

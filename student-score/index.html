@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>学生综合评分系统 · 五育并举 / 学科成绩 / 日常表现</title>
+<meta name="description" content="面向中学的班级评分工具：五育并举、学科成绩、日常表现三维评分，支持教师评分与学生自评、班级排名、雷达图、成绩单导出与打印。">
+<meta name="author" content="戴璇">
+<link rel="canonical" href="https://daixuan.cloud/student-score/">
+<meta property="og:title" content="学生综合评分系统 · 五育并举 / 学科成绩 / 日常表现">
+<meta property="og:description" content="面向中学的班级评分工具：五育并举、学科成绩、日常表现三维评分，支持教师评分与学生自评、班级排名、雷达图、成绩单导出与打印。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://daixuan.cloud/student-score/">
+<meta property="og:site_name" content="戴璇 · daixuan.cloud">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236366f1'/%3E%3Ctext x='16' y='23' font-size='19' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3E%E8%AF%84%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css?v=2">
+<script>
+/* 主题：localStorage.dx_theme 优先，prefers-color-scheme 兜底（与站内其它页口径一致） */
+(function () {
+  try {
+    var t = localStorage.getItem('dx_theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#shell">跳到主内容</a>
+
+<div id="shell"></div>
+
+<noscript>
+  <div class="noscript">
+    <h1>需要启用 JavaScript</h1>
+    <p>本系统全部评分计算在浏览器本地完成，请启用 JavaScript 后重新打开本页。</p>
+  </div>
+</noscript>
+
+<script type="module" src="js/app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_claude" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141a24"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </linearGradient>
+    <linearGradient id="brand_claude" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e07a5f"/>
+      <stop offset="100%" stop-color="#c8613b"/>
+    </linearGradient>
+    <linearGradient id="shield_glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <filter id="glow_claude" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="600" height="360" fill="url(#bg_claude)"/>
+  
+  <!-- 网格纹理 -->
+  <pattern id="grid_cg" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(224, 122, 95, 0.08)" stroke-width="1"/>
+  </pattern>
+  <rect width="600" height="360" fill="url(#grid_cg)"/>
+
+  <!-- 光晕装饰 -->
+  <circle cx="160" cy="180" r="100" fill="url(#brand_claude)" opacity="0.12" filter="url(#glow_claude)"/>
+  <circle cx="440" cy="180" r="120" fill="url(#shield_glow)" opacity="0.08" filter="url(#glow_claude)"/>
+
+  <!-- 主体卡片窗口 -->
+  <g transform="translate(70, 48)">
+    <rect width="460" height="264" rx="16" fill="#182230" fill-opacity="0.95" stroke="rgba(224, 122, 95, 0.3)" stroke-width="1.5"/>
+    <!-- 顶栏 -->
+    <rect width="460" height="38" rx="16" fill="#0f1520" fill-opacity="0.7"/>
+    <rect y="22" width="460" height="16" fill="#0f1520" fill-opacity="0.7"/>
+    <circle cx="22" cy="19" r="5" fill="#f87171" opacity="0.8"/>
+    <circle cx="40" cy="19" r="5" fill="#fbbf24" opacity="0.8"/>
+    <circle cx="58" cy="19" r="5" fill="#34d399" opacity="0.8"/>
+    <text x="82" y="24" font-family="'Segoe UI', 'PingFang SC', sans-serif" font-size="12" font-weight="700" fill="#cbd5e1">Claude 防封指南与风控自测评估仪 · 2026</text>
+
+    <!-- 盾牌与仪表盘区域 -->
+    <g transform="translate(40, 65)">
+      <!-- 盾牌外轮廓 -->
+      <path d="M 60 10 Q 110 0 110 0 Q 110 60 60 120 Q 10 60 10 0 Q 10 0 60 10 Z" fill="none" stroke="url(#shield_glow)" stroke-width="4" filter="url(#glow_claude)"/>
+      <path d="M 60 22 Q 95 14 95 14 Q 95 58 60 105 Q 25 58 25 14 Q 25 14 60 22 Z" fill="url(#brand_claude)" opacity="0.2"/>
+      <path d="M 42 55 L 54 67 L 78 43" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="60" y="145" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#34d399" text-anchor="middle">安全合规基准</text>
+    </g>
+
+    <!-- 右侧指标与清单卡片 -->
+    <g transform="translate(195, 58)">
+      <!-- 风险自测结果指示 -->
+      <rect width="225" height="42" rx="8" fill="#1f2c3d" stroke="#2b3b52"/>
+      <text x="14" y="26" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#f0f4f8">风控风险指数：</text>
+      <rect x="135" y="12" width="76" height="20" rx="10" fill="#34d399" opacity="0.2"/>
+      <text x="173" y="26" font-family="'Segoe UI', sans-serif" font-size="11" font-weight="800" fill="#34d399" text-anchor="middle">98% 安全</text>
+
+      <!-- 六维实操清单项 -->
+      <g transform="translate(0, 52)">
+        <rect width="225" height="30" rx="6" fill="#141c27" stroke="rgba(52, 211, 153, 0.3)"/>
+        <text x="12" y="20" font-family="'Segoe UI', sans-serif" font-size="11" fill="#34d399">✓ 纯净静态独享住宅 IP</text>
+      </g>
+      <g transform="translate(0, 90)">
+        <rect width="225" height="30" rx="6" fill="#141c27" stroke="rgba(52, 211, 153, 0.3)"/>
+        <text x="12" y="20" font-family="'Segoe UI', sans-serif" font-size="11" fill="#34d399">✓ 关闭 IPv6 &amp; DNS 代理防漏</text>
+      </g>
+      <g transform="translate(0, 128)">
+        <rect width="225" height="30" rx="6" fill="#141c27" stroke="rgba(52, 211, 153, 0.3)"/>
+        <text x="12" y="20" font-family="'Segoe UI', sans-serif" font-size="11" fill="#34d399">✓ Apple 内购/正规外卡自洽</text>
+      </g>
+      <g transform="translate(0, 166)">
+        <rect width="225" height="30" rx="6" fill="#141c27" stroke="rgba(224, 122, 95, 0.4)"/>
+        <text x="12" y="20" font-family="'Segoe UI', sans-serif" font-size="11" fill="#e07a5f">⚡ 申诉中英文模板一键复制</text>
+      </g>
+    </g>
+  </g>
+</svg>
