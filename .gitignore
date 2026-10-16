@@ -33,3 +33,7 @@ venv/
 *.mp4
 *.webm
 
+# Static-site build output
+_site/
+.site-build-*/
+

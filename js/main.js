@@ -414,6 +414,42 @@
   /* --------------------------------------------------------------------------
      4. 复制到剪贴板 + Toast
      -------------------------------------------------------------------------- */
+  function copyWithSelectionFallback(text) {
+    const previousFocus = document.activeElement;
+    const inputSelection = typeof previousFocus?.selectionStart === 'number'
+      ? [previousFocus.selectionStart, previousFocus.selectionEnd, previousFocus.selectionDirection] : null;
+    const selection = document.getSelection();
+    const ranges = selection ? Array.from({ length: selection.rangeCount }, (_, i) => selection.getRangeAt(i).cloneRange()) : [];
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.tabIndex = -1;
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:0;font-size:16px;';
+
+    try {
+      // Keep the selection inside the active dialog so its focus guard cannot redirect it.
+      (activeDialog?.dialog || document.body).appendChild(ta);
+      ta.focus({ preventScroll: true });
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      if (!document.execCommand('copy')) throw new Error('copy-failed');
+    } finally {
+      ta.remove();
+      if (previousFocus?.isConnected && !previousFocus.closest('[hidden], [inert]')) {
+        previousFocus.focus({ preventScroll: true });
+      }
+      if (selection) {
+        selection.removeAllRanges();
+        ranges.forEach(range => {
+          if (range.startContainer.isConnected && range.endContainer.isConnected) selection.addRange(range);
+        });
+      }
+      if (inputSelection && document.activeElement === previousFocus) {
+        previousFocus.setSelectionRange(...inputSelection);
+      }
+    }
+  }
+
   function initClipboardToast() {
     document.querySelectorAll('[data-copy]').forEach(el => {
       if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
@@ -431,18 +467,12 @@
         }
 
         function fallback() {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.setAttribute('readonly', '');
-          ta.style.cssText = 'position:fixed;top:-9999px;opacity:0;';
-          document.body.appendChild(ta);
-          ta.select();
           try {
-            document.execCommand('copy') ? done() : fail();
+            copyWithSelectionFallback(text);
+            done();
           } catch (e) {
             fail();
           }
-          document.body.removeChild(ta);
         }
       };
 
@@ -1699,15 +1729,8 @@
     const copyText = (t) => {
       const legacy = () => new Promise((resolve, reject) => {
         try {
-          const ta = document.createElement('textarea');
-          ta.value = t;
-          ta.setAttribute('readonly', '');
-          ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
-          document.body.appendChild(ta);
-          ta.select();
-          const ok = document.execCommand('copy');
-          document.body.removeChild(ta);
-          ok ? resolve() : reject(new Error('copy-failed'));
+          copyWithSelectionFallback(t);
+          resolve();
         } catch (err) { reject(err); }
       });
       if (navigator.clipboard && navigator.clipboard.writeText) {
