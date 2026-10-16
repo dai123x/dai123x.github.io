@@ -257,6 +257,13 @@
   }
 
   function resolveAnchor(view, anchor) {
+    // 只指到某部书、不指章节（引用里只写了书名时走这条）
+    if (view === "index" && anchor.indexOf("bk:") === 0) {
+      selectBook(anchor.slice(3));
+      const p = document.getElementById("idxPanel");
+      if (p) setTimeout(() => reveal(p), 30);
+      return;
+    }
     // 章节 / 小节：需要先选中对应书目，再展开所属章
     if (view === "index" && (anchor.indexOf("ch:") === 0 || anchor.indexOf("sub:") === 0)) {
       const book = anchor.split(":")[1];
@@ -431,6 +438,121 @@
     syncStickyVars();
   }
 
+  /* ==================== 4c. 引用溯源 ==================== */
+  /* 全站 537 处引用（字段名有 refs 与 r 两种写法）都是「书名简称 + 定位」，
+     简称与 BOOKS 里的 b.short 一一对应 —— 实测 537 条无一例外，全部落在 7 部书内。
+     原先它们渲染成不可点的 <span class="chip">：读者既看不到书名全称，也点不开。
+     这里把简称接到已有的书目数据上：
+       · 悬停 / 读屏 → 完整书目（书名 · 编著 · 出版社）
+       · 点击        → 跳到「章节索引」的对应章，直接看到章名与小节
+     匹配不到的一律退回原来的纯文本，不假装成功。 */
+
+  /* 「第6、7章」「第1—3章」「第30、31章」这类多章引用只认第一章。 */
+  function cn2num(s) {
+    if (/^\d+$/.test(s)) return parseInt(s, 10);
+    const D = { "〇":0,"零":0,"一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,
+                "壹":1,"贰":2,"叁":3,"肆":4,"伍":5,"陆":6,"柒":7,"捌":8,"玖":9 };
+    let total = 0, cur = 0;
+    for (const ch of s) {
+      if (ch === "十") { cur = (cur || 1) * 10; total += cur; cur = 0; }
+      else if (ch === "百") { cur = (cur || 1) * 100; total += cur; cur = 0; }
+      else if (D[ch] != null) cur = D[ch];
+    }
+    return total + cur;
+  }
+
+  /* 把「第4章」「第三十一章」「第壹部」「引用书目」归一到同一个键。
+     书目数据里阿拉伯数字与中文数字混用（剑桥写「第4章」、南明史写「第三十一章」），
+     引用串里同样混用（「南明史 第31章」与「南明史 第一章」并存），所以两边都要归一。 */
+  function locKey(s) {
+    /* 目录里的小节名常带作者注（如「导论（崔瑞德、牟复礼）」），引用里不会带 —— 先削掉 */
+    const t = String(s == null ? "" : s).trim().replace(/[（(][^（()）]*[）)]\s*$/, "").trim();
+    const m = t.match(/^第([〇零一二三四五六七八九十百壹贰叁肆伍陆柒捌玖\d、,，—\-–~至\s]+?)([章编部篇])/);
+    if (!m) return t;
+    const first = m[1].split(/[、,，—\-–~至\s]+/).filter(Boolean)[0];
+    const n = cn2num(first);
+    return m[2] + ":" + (isNaN(n) ? first : n);
+  }
+
+  const REF_INDEX = { ready: false, byShort: Object.create(null), shorts: [] };
+
+  function ensureRefIndex() {
+    if (REF_INDEX.ready) return;
+    REF_INDEX.ready = true;
+    BOOKS.forEach((b) => {
+      const map = Object.create(null);
+      (b.chapters || []).forEach((c, ci) => {
+        const k = locKey(c.t);
+        if (map[k] == null) map[k] = ci;      // 同名章取第一个
+      });
+      REF_INDEX.byShort[b.short] = { book: b, map: map };
+    });
+    /* 简称之间目前互不为前缀，仍按长度倒序匹配，免得以后加书踩坑 */
+    REF_INDEX.shorts = Object.keys(REF_INDEX.byShort).sort((a, b) => b.length - a.length);
+  }
+
+  function refWork(r) {
+    ensureRefIndex();
+    const s = String(r == null ? "" : r);
+    for (const sh of REF_INDEX.shorts) {
+      if (s === sh) return { ent: REF_INDEX.byShort[sh], loc: "" };
+      if (s.indexOf(sh + " ") !== 0 && s.indexOf(sh + "　") !== 0) continue;
+      return { ent: REF_INDEX.byShort[sh], loc: s.slice(sh.length).trim() };
+    }
+    return null;
+  }
+
+  function refCite(ent) {
+    const b = ent.book;
+    return "《" + b.title + "》" + (b.editor ? "　" + b.editor : "") + (b.press ? "　" + b.press : "");
+  }
+
+  /* 目录用词与引用用词偶有出入（剑桥上卷目录作「导言」，引用写「导论」）。
+     只收「同义不同译」这一种情况；像「前言」这种目录里根本没有的部分不猜，
+     让它退到书的层级（见 refChip）。只在本节的章表里查，不会串到别的书。 */
+  const LOC_ALT = { "导论": ["导言"], "导言": ["导论"], "绪论": ["导论", "导言"] };
+  function locHit(ent, loc) {
+    const base = locKey(loc);
+    const cands = [base].concat(LOC_ALT[base] || []);
+    for (const k of cands) if (ent.map[k] != null) return ent.map[k];
+    return null;
+  }
+
+  /* cls 传 null = 沿用父容器的裸样式（.ce-refs / .gi .refs 是直接给 span 写的规则） */
+  function refChip(r, cls) {
+    const bare = cls === null;
+    const plain = "<span" + (bare ? "" : ' class="' + (cls || "chip") + '"') + ">" + esc(r) + "</span>";
+    const w = refWork(r);
+    if (!w || !w.ent) return plain;
+    const b = w.ent.book;
+    const cite = refCite(w.ent);
+    const ci = w.loc ? locHit(w.ent, w.loc) : -1;
+    /* 定位查不到时退到「这本书」一级，而不是把整条引用变成死文本；
+       aria-label 里如实说明没定位到具体章。 */
+    const hitCh = ci != null && ci >= 0;
+    const anchor = hitCh ? "ch:" + b.id + ":" + ci : "bk:" + b.id;
+    const chTitle = hitCh ? (((b.chapters || [])[ci] || {}).t || "") : "";
+    const linkCls = bare ? "chip-ref" : (cls || "chip") + " chip-ref";
+    const tail = hitCh ? "。跳到章节索引查看该章目录"
+      : (w.loc ? "。目录里没有这一部分，跳到章节索引查看该书目录" : "。跳到章节索引查看该书目录");
+    const label = r + "　——　" + cite + (chTitle ? "，" + chTitle : "") + tail;
+    return '<a class="' + linkCls + '" href="#index/' + anchor + '"' +
+      ' data-anchor="' + anchor + '"' +
+      ' title="' + esc(cite) + '" aria-label="' + esc(label) + '">' + esc(r) + "</a>";
+  }
+
+  function initRefs() {
+    /* 引用 chip 是站内跳转，必须自己走路由：原生 fragment 跳转不一定触发 popstate，
+       路由器就收不到，会停在原地。href 仍保留，好让中键/复制链接可用。 */
+    delegate(document.body, "click", "a.chip-ref", (a, e) => {
+      const anc = a.dataset.anchor;
+      if (!anc) return;
+      e.preventDefault();
+      go("index", { anchor: anc });
+      live("已跳到「章节索引」里的对应章");
+    });
+  }
+
   /* ==================== 5. 标签栏 ==================== */
   function initTabs() {
     const nav = $("#tabs");
@@ -522,7 +644,7 @@
       ${e.policy && e.policy.length ? `<h3>制度与政策</h3><ul class="compact">${e.policy.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
       ${e.reading ? `<div class="emp-reading"><b>读法提示 · </b>${esc(e.reading)}</div>` : ""}
       <h3>对应章节</h3>
-      <div class="emp-refs">${(e.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>`;
+      <div class="emp-refs">${(e.refs || []).map((r) => refChip(r)).join("")}</div>`;
   }
 
   /* 在位时间轴（V9 重做）。
@@ -731,7 +853,7 @@
         <div class="y">${c.y}<span class="era">${esc(c.era)}</span>${c.cat ? `<span class="cat-tag" data-cat="${esc(c.cat)}">${esc(c.cat)}</span>` : ""}</div>
         <h3>${esc(c.t)}${c.key ? ' <span class="chip key">节点</span>' : ""}</h3>
         <p>${esc(c.d)}</p>
-        ${c.refs && c.refs.length ? `<div class="ce-refs">${c.refs.map((r) => `<span>${esc(r)}</span>`).join("")}</div>` : ""}
+        ${c.refs && c.refs.length ? `<div class="ce-refs">${c.refs.map((r) => refChip(r, null)).join("")}</div>` : ""}
       </div>`;
 
     /* 149 条事件原先是「一条线拉到底」，19000px 里没有任何分段。
@@ -887,7 +1009,7 @@
       <div class="bz-field"><span class="bz-k">沿革</span><p>${esc(o.since)}</p></div>
       ${o.holders && o.holders.length ? `<div class="bz-field"><span class="bz-k">代表人物</span><div class="bz-tags">${o.holders.map((h) => `<span class="chip">${esc(h)}</span>`).join("")}</div></div>` : ""}
       ${o.note ? `<div class="bz-note"><b>读法提示 · </b>${esc(o.note)}</div>` : ""}
-      ${o.refs && o.refs.length ? `<div class="bz-refs">${o.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>` : ""}
+      ${o.refs && o.refs.length ? `<div class="bz-refs">${o.refs.map((r) => refChip(r)).join("")}</div>` : ""}
     </article>`;
   }
 
@@ -980,7 +1102,7 @@
       </div>
       ${k.works && k.works.length ? `<div class="tk-field"><span class="bz-k">代表著作</span><div class="bz-tags">${k.works.map((w) => `<span class="chip">${esc(w)}</span>`).join("")}</div></div>` : ""}
       ${k.legacy ? `<div class="tk-legacy"><b>影响 · </b>${esc(k.legacy)}</div>` : ""}
-      ${k.refs && k.refs.length ? `<div class="bz-refs">${k.refs.map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>` : ""}
+      ${k.refs && k.refs.length ? `<div class="bz-refs">${k.refs.map((r) => refChip(r)).join("")}</div>` : ""}
     </article>`;
   }
 
@@ -1016,7 +1138,7 @@
         <div class="deb-body-open">
           <div class="deb-sides">${(d.sides || []).map((x) => `<div class="deb-side"><div class="deb-side-name">${esc(x.name)}</div><p>${esc(x.view)}</p></div>`).join("")}</div>
           <div class="deb-status"><b>学界倾向 · </b>${esc(d.status)}</div>
-          <div class="deb-refs">${(d.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>
+          <div class="deb-refs">${(d.refs || []).map((r) => refChip(r)).join("")}</div>
         </div>
       </article>`).join("");
 
@@ -1559,7 +1681,7 @@
       <article class="gi" id="gl-${i}">
         <div class="top"><b>${hl(g.t)}</b>${g.e ? `<span class="e">${hl(g.e)}</span>` : ""}<span class="chip" style="margin-left:auto">${esc(g.c)}</span></div>
         <p>${hl(g.d)}</p>
-        <div class="refs">${g.r.map((r) => `<span>${esc(r)}</span>`).join("")}</div>
+        <div class="refs">${g.r.map((r) => refChip(r, null)).join("")}</div>
       </article>`;
 
     if (!list.length) {
@@ -1695,7 +1817,7 @@
             ${d.sides.map((s) => `<div class="deb-side"><div class="deb-side-name">${esc(s.name)}</div><p>${esc(s.view)}</p></div>`).join("")}
           </div>
           <div class="deb-status"><b>学界倾向 · </b>${esc(d.status)}</div>
-          <div class="deb-refs">${(d.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>
+          <div class="deb-refs">${(d.refs || []).map((r) => refChip(r)).join("")}</div>
         </div>
       </article>`).join("");
     delegate($("#debList"), "click", ".deb-head", (h) => {
@@ -3412,6 +3534,7 @@
   function boot() {
     initTheme();
     initToc();
+    initRefs();
     initTabs();
     initHoverPrefetch();
     initLineageMode();

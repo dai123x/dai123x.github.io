@@ -1884,3 +1884,17 @@ body.pal-open { overflow: hidden; }
 
 /* 5) 被页内目录指到的标题，滚动时留出两条 sticky 的高度，避免标题被压在栏下 */
 [data-toc] { scroll-margin-top: var(--sticky-h, 110px); }
+
+/* ---------------- 引用溯源（V10）：书名简称 → 可点的章节入口 ---------------- */
+a.chip-ref { text-decoration: none; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+a.chip-ref::after { content: "↗"; font-size: .82em; opacity: .5; margin-left: 3px; }
+a.chip-ref:hover { color: var(--text-primary); border-color: var(--border-hover); background: var(--bg-secondary); }
+a.chip-ref:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+/* 年表与词条里的引用原本是直接给 span 写样式，补上 a 版本，换成链接后外观不变 */
+.ce-refs a.chip-ref, .gi .refs a.chip-ref {
+  display: inline-flex; align-items: center;
+  font-size: .7rem; color: var(--text-muted);
+  border: 1px solid var(--border-color); border-radius: var(--radius-full); padding: 1px 9px;
+}
+/* 打印时箭头无意义，且外链标记会污染纸面 */
+@media print { a.chip-ref::after { content: ""; } }
