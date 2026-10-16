@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>工程实践案例：注塑厂房作业环境改善与离心式屋顶通风系统选型 · 戴璇</title>
+  <meta name="description" content="注塑车间作业环境改善复盘：VOCs、悬浮粉尘与一氧化碳浓度监测，扩散路径与气流死角识别，风量风压核算与离心式屋顶风机选型决策。作者：戴璇。">
+  <link rel="canonical" href="https://daixuan.cloud/case-studies/injection-molding-ventilation.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="工程实践案例：注塑厂房作业环境改善与离心式屋顶通风系统选型">
+  <meta property="og:description" content="VOCs / 粉尘 / CO 浓度监测 + 扩散路径分析 + 风量风压核算，进料口高架约束下的离心式屋顶风机选型决策。">
+  <meta property="og:url" content="https://daixuan.cloud/case-studies/injection-molding-ventilation.html">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="注塑厂房作业环境改善与离心式屋顶通风系统选型">
+  <meta name="twitter:description" content="作业环境浓度监测、气流死角识别与通风设备选型的工程实践复盘。">
+  <meta name="twitter:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
+
+  <meta name="theme-color" content="#0a0e17">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../css/style.css?v=20261013-3">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('dx_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = t === 'light' ? '#f8fafc' : '#0a0e17';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <style>
+    .case-container {
+      max-width: 1040px;
+      margin: 96px auto 60px;
+      padding: 0 24px;
+    }
+    .case-header {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .case-tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .case-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .case-subtitle {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .case-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+    .case-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .case-section {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      margin-bottom: 28px;
+      box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      line-height: 1.75;
+    }
+    .case-section h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .case-section h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      color: var(--accent-primary);
+    }
+    .case-section p {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .case-section ul {
+      margin-left: 20px;
+      font-size: 0.96rem;
+      color: var(--text-secondary);
+    }
+    .case-section li {
+      margin-bottom: 8px;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .kpi-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+    .kpi-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      font-feature-settings: "tnum";
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .kpi-sub {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .stat-table {
+      width: 100%;
+      margin: 16px 0 24px;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      display: block;
+    }
+    .stat-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .stat-table th, .stat-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .stat-table th {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .stat-table tr:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .stat-highlight {
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+    .stat-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-primary { background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #059669; }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+
+    .figure-showcase {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .figure-svg-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+    .figure-svg-wrapper svg {
+      display: block;
+      min-width: 620px;
+      margin: 0 auto;
+    }
+    .figure-caption {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .figure-insights {
+      margin-top: 14px;
+      padding: 14px 18px;
+      background: rgba(99, 102, 241, 0.06);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    /* 图表配色随主题切换，避免深色专用色值在浅色底上失效 */
+    :root {
+      --chart-muda: #fbbf24;
+      --chart-ok: #34d399;
+      --chart-bad: #f87171;
+      --chart-line: rgba(148, 163, 184, 0.28);
+    }
+    [data-theme="light"] {
+      --chart-muda: #b45309;
+      --chart-ok: #059669;
+      --chart-bad: #dc2626;
+      --chart-line: rgba(71, 85, 105, 0.25);
+    }
+    .chart-ink { fill: var(--text-secondary); }
+    .chart-ink-strong { fill: var(--text-primary); }
+    .chart-ink-muted { fill: var(--text-muted); }
+    .chart-grid { stroke: var(--chart-line); }
+    .chart-va { fill: var(--accent-primary); }
+    .chart-muda { fill: var(--chart-muda); }
+    .chart-ok { fill: var(--chart-ok); }
+    .chart-bad { fill: var(--chart-bad); }
+    /* fill 类不能用于 <line>：线条要的是 stroke，误用会让整条线不可见 */
+    .chart-stroke-ok { stroke: var(--chart-ok); }
+    .chart-stroke-bad { stroke: var(--chart-bad); }
+
+    .formula-box {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent-primary);
+      padding: 16px 20px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      color: var(--text-primary);
+      margin: 16px 0;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    .data-note {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+    .data-note strong { color: var(--text-primary); }
+
+    .code-container {
+      position: relative;
+      margin: 20px 0;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+    }
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-copy:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+    .code-block {
+      background: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .framework-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .flow-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      border-left: 3px solid var(--accent-primary);
+    }
+    .flow-box h3 {
+      font-size: 0.98rem;
+      color: var(--accent-primary);
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .flow-box ul {
+      margin-left: 18px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .flow-box li {
+      margin-bottom: 6px;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .related-card {
+      display: block;
+      text-decoration: none;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      transition: var(--transition);
+    }
+    .related-card:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+    .related-kicker {
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .related-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .related-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+    .btn-back:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.85rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      .case-container { padding: 0 16px; margin-top: 88px; }
+      .case-header { padding: 26px 20px; }
+      .case-section { padding: 24px 20px; }
+      .case-title { font-size: 1.55rem; }
+      .case-section h2 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header id="topbar" style="padding:14px 24px; border-bottom: 1px solid var(--border-color); background: var(--nav-bg); position:fixed; top:0; width:100%; z-index:100; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
+    <div style="max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+      <a href="../index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
+        <span class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:var(--on-accent); font-weight:800; font-size:0.95rem;">DX</span>
+        <span class="brand-text" style="color:var(--text-primary); font-size:1.15rem; font-weight:700;">戴璇 · <span style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">daixuan.cloud</span></span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="theme-toggle" class="btn-icon" aria-label="切换色彩主题" title="切换深色/浅色模式" style="width:36px; height:36px;">
+          <span id="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </span>
+        </button>
+        <a href="../index.html#projects" class="btn-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          <span>返回精选作品</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+  </div>
+
+  <main class="case-container">
+    <div class="case-header">
+      <div class="case-tag-group">
+        <span class="tag-badge">厂房工程企业实践</span>
+        <span class="tag-badge">作业环境监测</span>
+        <span class="tag-badge">VOCs 治理</span>
+        <span class="tag-badge">通风风量核算</span>
+        <span class="tag-badge">设备选型决策</span>
+      </div>
+      <h1 class="case-title">注塑厂房作业环境改善与离心式屋顶通风系统选型</h1>
+      <p class="case-subtitle">
+        针对大型注塑车间加热成型过程中散发的挥发性有机物 (VOCs)、投料破碎环节的悬浮粉尘与微量一氧化碳，开展系统性浓度监测与扩散路径分析；在「进料口高架布置、排风路径被结构遮挡」的空间约束下完成风量风压核算与设备比选，确定离心式屋顶风机集中排风方案。改善路径分「现状监测 → 死角识别 → 方案比选 → 合规验证」四步推进。
+      </p>
+      <div class="case-meta">
+        <span class="case-meta-item">🏭 <strong>实践单位</strong>：长春派格塑料技术有限公司</span>
+        <span class="case-meta-item">🧰 <strong>岗位</strong>：厂房工程 / 环境改善实习生</span>
+        <span class="case-meta-item">📅 <strong>周期</strong>：2024.09 – 2024.10</span>
+        <span class="case-meta-item">✍️ <strong>主研作者</strong>：戴璇</span>
+      </div>
+    </div>
+
+    <div class="data-note">
+      <strong>数据口径说明</strong>：本页污染物浓度、风量与换气次数均为<strong>基于实习期间现场监测与核算方法框架整理的脱敏标定值</strong>（情景推演口径），<strong>不代表企业真实监测数据</strong>。监测点位布设、核算公式与选型判据与现场做法保持一致；参照限值仅作量级比对之用，不构成任何合规判定结论。
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val">3 类</div>
+        <div class="kpi-label">监测污染物</div>
+        <div class="kpi-sub">VOCs · 悬浮粉尘 · 一氧化碳</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">-69.5%</div>
+        <div class="kpi-label">VOCs 浓度降幅</div>
+        <div class="kpi-sub">2.35× ➔ 0.72× 参照限值倍数</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">204,800</div>
+        <div class="kpi-label">系统总排风量 (m³/h)</div>
+        <div class="kpi-sub">6 台离心式屋顶风机</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">8.0 次/h</div>
+        <div class="kpi-label">车间换气次数</div>
+        <div class="kpi-sub">由 4.1 次/h 提升</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">+29 pp</div>
+        <div class="kpi-label">有效排风效率提升</div>
+        <div class="kpi-sub">62% ➔ 91% · 消除短路与死角</div>
+      </div>
+    </div>
+
+    <section class="case-section">
+      <h2><span>📌</span> 一、 现场命题：污染源分散 + 排风路径受限</h2>
+      <p>
+        注塑车间的作业环境问题有两个特殊性，决定了它不能简单套用「加几台风机」的通用做法。
+      </p>
+      <p>
+        <strong>第一，污染源是分散且非定点的。</strong>注塑机加热塑化环节会释放 VOCs，投料与破碎环节产生悬浮粉尘，设备燃烧与废气残留带来微量一氧化碳。这三类污染物的散发位置、散发高度与散发规律各不相同，用单点局部排风很难覆盖。
+      </p>
+      <p>
+        <strong>第二，车间空间结构限制了排风路径。</strong>进料口采用高架布置，料仓与输送结构占据了车间上部空间，导致靠侧墙布置的排风口被结构遮挡，气流无法顺畅抵达污染源上方 —— 这是本次改善最关键的现实约束，也是方案选型的决定性因素。
+      </p>
+
+      <div class="framework-flow">
+        <div class="flow-box">
+          <h3><span>🔬</span> 阶段 1：现状监测</h3>
+          <ul>
+            <li>按功能区布设监测点位，覆盖污染源与作业区</li>
+            <li>分时段采样，识别浓度峰值时段</li>
+            <li>与参照限值比对，判定超标项与超标幅度</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h3><span>🌀</span> 阶段 2：死角识别</h3>
+          <ul>
+            <li>绘制车间剖面气流组织示意</li>
+            <li>定位低矮死角区与排风短路路径</li>
+            <li>计算有效排风效率，量化气流损失</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h3><span>📐</span> 阶段 3：方案比选</h3>
+          <ul>
+            <li>按 Q = 3600·A·v 核算所需风量</li>
+            <li>换算车间换气次数并校验达标</li>
+            <li>轴流 / 离心 / 移动式三类方案对比</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h3><span>✅</span> 阶段 4：合规验证</h3>
+          <ul>
+            <li>复测三类污染物浓度，验证改善效果</li>
+            <li>核算排气筒排放是否满足环保要求</li>
+            <li>评估噪声对作业区的影响</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🔬</span> 二、 现状监测：污染物浓度谱与限值比对</h2>
+      <p>
+        按功能区划分，在注塑机作业带、投料破碎区与车间中部人行通道分别布点，连续采样后取作业时段（含浓度峰值时段）的加权均值作为监测结果：
+      </p>
+
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>污染物</th>
+              <th>主要散发环节</th>
+              <th>改善前监测值</th>
+              <th>改善后监测值</th>
+              <th>参照限值</th>
+              <th>改善前 / 限值</th>
+              <th>达标状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(239, 68, 68, 0.08);">
+              <td class="stat-highlight"><strong>VOCs（非甲烷总烃）</strong></td>
+              <td>注塑机加热塑化</td>
+              <td class="stat-highlight">28.2 mg/m³</td>
+              <td>8.6 mg/m³</td>
+              <td>12.0 mg/m³</td>
+              <td class="stat-highlight">2.35×</td>
+              <td><span class="stat-badge badge-danger">🚨 超标</span></td>
+            </tr>
+            <tr style="background: rgba(245, 158, 11, 0.08);">
+              <td class="stat-highlight"><strong>悬浮粉尘（总尘）</strong></td>
+              <td>投料 / 破碎</td>
+              <td class="stat-highlight">13.4 mg/m³</td>
+              <td>4.9 mg/m³</td>
+              <td>8.0 mg/m³</td>
+              <td class="stat-highlight">1.68×</td>
+              <td><span class="stat-badge badge-warning">超标</span></td>
+            </tr>
+            <tr>
+              <td><strong>一氧化碳 CO</strong></td>
+              <td>设备燃烧 / 废气残留</td>
+              <td>18.8 mg/m³</td>
+              <td>7.6 mg/m³</td>
+              <td>20.0 mg/m³</td>
+              <td>0.94×</td>
+              <td><span class="stat-badge badge-primary">临界未超</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        监测结果显示，<strong>VOCs 是超标幅度最大的一项（2.35 倍）</strong>，粉尘次之（1.68 倍），而 CO 虽未超标但已达限值的 94%，处于临界状态。这个结论直接决定了改善的优先级：<strong>以 VOCs 的排放控制作为方案设计的控制性指标</strong>，同时兼顾粉尘捕集与 CO 稀释。
+      </p>
+
+      <div class="figure-showcase">
+        <div class="figure-svg-wrapper">
+          <svg viewBox="0 0 860 316" width="100%" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family: var(--font-sans)">
+            <title>三类污染物相对参照限值的倍数对比</title>
+            <desc>横向条形图，纵轴为三类污染物，每类给出改善前与改善后的相对限值倍数，红色虚线为 1.0 倍限值线。VOCs 由 2.35 倍降至 0.72 倍，粉尘由 1.68 倍降至 0.61 倍，一氧化碳由 0.94 倍降至 0.38 倍。</desc>
+
+            <text x="40" y="30" class="chart-ink-strong" font-size="14" font-weight="500">污染物浓度相对参照限值的倍数（1.0 = 恰好达限）</text>
+
+            <line x1="200" y1="52" x2="200" y2="232" class="chart-grid" stroke-width="1"/>
+            <line x1="436" y1="52" x2="436" y2="232" class="chart-grid" stroke-width="1" stroke-dasharray="4,4"/>
+            <line x1="672" y1="52" x2="672" y2="232" class="chart-grid" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <text x="200" y="250" class="chart-ink-muted" font-size="11" text-anchor="middle">0</text>
+            <text x="436" y="250" class="chart-ink-muted" font-size="11" text-anchor="middle">1.0</text>
+            <text x="672" y="250" class="chart-ink-muted" font-size="11" text-anchor="middle">2.0</text>
+
+            <text x="192" y="85" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">VOCs</text>
+            <rect x="200" y="66" width="554.6" height="16" class="chart-bad" opacity="0.85"/>
+            <text x="762" y="74" class="chart-bad" font-size="11" dominant-baseline="central">2.35×</text>
+            <rect x="200" y="88" width="169.9" height="16" class="chart-ok" opacity="0.9"/>
+            <text x="377" y="96" class="chart-ok" font-size="11" dominant-baseline="central">0.72×</text>
+
+            <text x="192" y="145" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">悬浮粉尘</text>
+            <rect x="200" y="126" width="396.5" height="16" class="chart-muda" opacity="0.85"/>
+            <text x="604" y="134" class="chart-muda" font-size="11" dominant-baseline="central">1.68×</text>
+            <rect x="200" y="148" width="143.9" height="16" class="chart-ok" opacity="0.9"/>
+            <text x="351" y="156" class="chart-ok" font-size="11" dominant-baseline="central">0.61×</text>
+
+            <text x="192" y="205" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">一氧化碳</text>
+            <rect x="200" y="186" width="221.8" height="16" class="chart-va" opacity="0.75"/>
+            <text x="429" y="194" class="chart-ink" font-size="11" dominant-baseline="central">0.94×</text>
+            <rect x="200" y="208" width="89.7" height="16" class="chart-ok" opacity="0.9"/>
+            <text x="297" y="216" class="chart-ok" font-size="11" dominant-baseline="central">0.38×</text>
+
+            <line x1="436" y1="52" x2="436" y2="232" class="chart-stroke-bad" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="436" y="46" class="chart-bad" font-size="11" font-weight="500" text-anchor="middle">1.0× 参照限值</text>
+
+            <rect x="200" y="276" width="13" height="13" rx="3" class="chart-bad" opacity="0.85"/>
+            <text x="220" y="283" class="chart-ink" font-size="12" dominant-baseline="central">改善前</text>
+            <rect x="300" y="276" width="13" height="13" rx="3" class="chart-ok"/>
+            <text x="320" y="283" class="chart-ink" font-size="12" dominant-baseline="central">改善后</text>
+          </svg>
+        </div>
+        <div class="figure-caption">
+          <strong>图 1 · 三类污染物浓度相对参照限值的倍数：改善前后对比</strong>
+        </div>
+        <div class="figure-insights">
+          💡 <strong>监测洞察</strong>：三类污染物中只有 VOCs 显著超标（2.35 倍），但它同时也是<strong>最难用局部排风捕集的</strong> —— 因为它的散发面覆盖整条注塑机作业带，而非集中在某个点。这解释了为什么方案最终没有走「给每台注塑机加集气罩」的路线，而是转向<strong>全车间换气稀释 + 屋顶集中排放</strong>。
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🌀</span> 三、 死角识别：气流组织与排风短路</h2>
+      <p>
+        浓度超标只是结果，真正的原因在气流组织。把车间沿纵向剖开观察气流路径，可以看到两个典型的通风失效现象：
+      </p>
+      <p>
+        <strong>其一是排风短路。</strong>原方案的侧墙排风机位于下部，而污染源（注塑机加热区）散发的气流本身具有上升趋势。排风口位置低于热气流上升路径，导致大量空气直接从侧墙排风口被抽走，<strong>根本没有经过污染源上方</strong>，这部分风量在环境改善上是完全无效的。
+      </p>
+      <p>
+        <strong>其二是气流死角。</strong>高架进料口的料仓与输送结构占据了车间上部空间，在结构下方形成了明显的涡流滞止区。这个区域内的污染物无法被带走，浓度持续累积。
+      </p>
+
+      <div class="figure-showcase">
+        <div class="figure-svg-wrapper">
+          <svg viewBox="0 0 860 306" width="100%" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family: var(--font-sans)">
+            <title>车间剖面气流组织改善前后对比</title>
+            <desc>左图为改善前的侧墙排风，存在低矮死角区与屋顶排风短路；右图为改善后的离心式屋顶风机强制排风，气流自下而上贯通全车间。</desc>
+
+            <text x="40" y="34" class="chart-ink-strong" font-size="13" font-weight="500">改善前：侧墙排风 · 短路 + 死角</text>
+            <text x="450" y="34" class="chart-ink-strong" font-size="13" font-weight="500">改善后：屋顶离心风机强制排风</text>
+
+            <rect x="40" y="56" width="370" height="210" rx="12" class="chart-grid" fill="none" stroke-width="1"/>
+            <rect x="450" y="56" width="370" height="210" rx="12" class="chart-grid" fill="none" stroke-width="1"/>
+
+            <line x1="70" y1="72" x2="390" y2="72" class="chart-grid" stroke-width="1.5"/>
+            <line x1="70" y1="248" x2="390" y2="248" class="chart-grid" stroke-width="1.5"/>
+
+            <rect x="96" y="126" width="84" height="18" rx="3" class="chart-muda" opacity="0.25"/>
+            <rect x="96" y="126" width="84" height="18" rx="3" fill="none" stroke="#b45309" stroke-width="1"/>
+            <line x1="106" y1="144" x2="106" y2="248" class="chart-grid" stroke-width="1"/>
+            <line x1="170" y1="144" x2="170" y2="248" class="chart-grid" stroke-width="1"/>
+            <text x="138" y="118" class="chart-muda" font-size="11" text-anchor="middle">进料口 · 高架</text>
+
+            <rect x="248" y="186" width="110" height="62" rx="4" class="chart-va" opacity="0.18"/>
+            <rect x="248" y="186" width="110" height="62" rx="4" fill="none" stroke="#4f46e5" stroke-width="1"/>
+            <text x="303" y="212" class="chart-ink-strong" font-size="12" text-anchor="middle">注塑机</text>
+            <text x="303" y="232" class="chart-ink-muted" font-size="11" text-anchor="middle">污染源</text>
+
+            <line x1="278" y1="182" x2="278" y2="112" class="chart-stroke-bad" stroke-width="1.5"/>
+            <path d="M278 112 L274 120 L282 120 Z" class="chart-bad"/>
+            <line x1="318" y1="182" x2="318" y2="106" class="chart-stroke-bad" stroke-width="1.5"/>
+            <path d="M318 106 L314 114 L322 114 Z" class="chart-bad"/>
+
+            <ellipse cx="175" cy="196" rx="62" ry="26" fill="none" stroke="#dc2626" stroke-width="1" stroke-dasharray="5,4"/>
+            <text x="175" y="199" class="chart-bad" font-size="11" text-anchor="middle">气流死角区</text>
+
+            <line x1="352" y1="106" x2="368" y2="58" class="chart-stroke-bad" stroke-width="1.5" stroke-dasharray="5,4"/>
+            <path d="M368 58 L363 66 L371 66 Z" class="chart-bad"/>
+            <text x="386" y="92" class="chart-bad" font-size="11" text-anchor="end">排风短路</text>
+
+            <text x="225" y="286" class="chart-ink-muted" font-size="11" text-anchor="middle">污染物滞留于结构下方，无效排风占比 38%</text>
+
+            <line x1="480" y1="72" x2="800" y2="72" class="chart-grid" stroke-width="1.5"/>
+            <line x1="480" y1="248" x2="800" y2="248" class="chart-grid" stroke-width="1.5"/>
+
+            <rect x="606" y="50" width="46" height="22" rx="4" class="chart-ok" opacity="0.3"/>
+            <rect x="606" y="50" width="46" height="22" rx="4" fill="none" stroke="#059669" stroke-width="1"/>
+            <rect x="690" y="50" width="46" height="22" rx="4" class="chart-ok" opacity="0.3"/>
+            <rect x="690" y="50" width="46" height="22" rx="4" fill="none" stroke="#059669" stroke-width="1"/>
+            <text x="671" y="44" class="chart-ok" font-size="11" text-anchor="middle">离心式屋顶风机 × 6</text>
+
+            <rect x="506" y="126" width="84" height="18" rx="3" class="chart-muda" opacity="0.25"/>
+            <rect x="506" y="126" width="84" height="18" rx="3" fill="none" stroke="#b45309" stroke-width="1"/>
+            <line x1="516" y1="144" x2="516" y2="248" class="chart-grid" stroke-width="1"/>
+            <line x1="580" y1="144" x2="580" y2="248" class="chart-grid" stroke-width="1"/>
+            <text x="548" y="118" class="chart-muda" font-size="11" text-anchor="middle">进料口 · 高架</text>
+
+            <rect x="658" y="186" width="110" height="62" rx="4" class="chart-va" opacity="0.18"/>
+            <rect x="658" y="186" width="110" height="62" rx="4" fill="none" stroke="#4f46e5" stroke-width="1"/>
+            <text x="713" y="212" class="chart-ink-strong" font-size="12" text-anchor="middle">注塑机</text>
+            <text x="713" y="232" class="chart-ink-muted" font-size="11" text-anchor="middle">污染源</text>
+
+            <path d="M560 242 C556 170 590 96 606 76" fill="none" stroke="#059669" stroke-width="1.8" marker-end="url(#air-arrow)"/>
+            <path d="M700 182 C706 140 712 100 713 76" fill="none" stroke="#059669" stroke-width="1.8" marker-end="url(#air-arrow)"/>
+
+            <defs>
+              <marker id="air-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#059669" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+
+            <text x="640" y="286" class="chart-ink-muted" font-size="11" text-anchor="middle">气流自下而上贯通，死角与短路同时消除</text>
+          </svg>
+        </div>
+        <div class="figure-caption">
+          <strong>图 2 · 注塑车间剖面气流组织改善前后对比（沿纵向剖切）</strong>
+        </div>
+        <div class="figure-insights">
+          💡 <strong>气流组织洞察</strong>：原方案的问题不是「风量不够」，而是<strong>风量用错了地方</strong>。侧墙下部排风抽走的 38% 风量根本没接触污染源，这部分是纯粹的能耗浪费。把排风点从「侧墙下部」移到「屋顶高位」，等于让气流必须从污染源上方经过 —— 同样的风量，有效部分从 62% 提到 91%。
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>📐</span> 四、 方案比选：风量核算与设备选型</h2>
+      <h3>1. 风量核算与换气次数校验</h3>
+      <p>
+        车间尺寸为长 80 m × 宽 40 m × 平均净高 8 m，容积 25,600 m³。按目标换气次数反推所需总风量，再校验排风口风速是否落在合理区间：
+      </p>
+      <div class="formula-box">
+        车间容积：V = 80 &times; 40 &times; 8 = 25,600 m³<br><br>
+        目标换气次数：n = 8.0 次/h<br>
+        所需总风量：Q = n &times; V = 8.0 &times; 25,600 = 204,800 m³/h<br>
+        单台风机风量 = 204,800 / 6 ≈ 34,133 m³/h<br><br>
+        排风口风速校验：Q = 3600 &times; A &times; v&nbsp;&nbsp;&nbsp;&nbsp;(A = 有效排风面积 m²，v = 风速 m/s)<br>
+        取 A = 5.7 m²（6 个排风口）➔ v = 204,800 / (3600 &times; 5.7) = 9.98 m/s<br>
+        <strong>9.98 m/s 落在屋顶排风管道常用风速区间（8 ~ 12 m/s）内，核算通过</strong>
+      </div>
+
+      <h3>2. 四类通风方案比选</h3>
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>方案</th>
+              <th>系统总风量</th>
+              <th>系统全压</th>
+              <th>换气次数</th>
+              <th>噪声</th>
+              <th>空间适配性</th>
+              <th>结论</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A · 侧墙轴流排风机</strong></td>
+              <td>176,000 m³/h</td>
+              <td>210 Pa</td>
+              <td>6.9 次/h</td>
+              <td>74 dB(A)</td>
+              <td>受高架进料口遮挡，近端排风短路</td>
+              <td><span class="stat-badge badge-danger">排风效率低</span></td>
+            </tr>
+            <tr style="background: rgba(16, 185, 129, 0.08);">
+              <td class="stat-highlight"><strong>B · 离心式屋顶风机</strong></td>
+              <td class="stat-highlight">204,800 m³/h</td>
+              <td class="stat-highlight">620 Pa</td>
+              <td class="stat-highlight">8.0 次/h</td>
+              <td class="stat-highlight">69 dB(A)</td>
+              <td class="stat-highlight">屋顶集中排放，全压足以克服高架阻挡</td>
+              <td><span class="stat-badge badge-success">✅ 采纳</span></td>
+            </tr>
+            <tr>
+              <td><strong>C · 移动式净化机</strong></td>
+              <td>20,000 m³/h</td>
+              <td>—</td>
+              <td>0.8 次/h</td>
+              <td>66 dB(A)</td>
+              <td>仅覆盖局部工位，无法解决全车间</td>
+              <td><span class="stat-badge badge-warning">不满足需求</span></td>
+            </tr>
+            <tr>
+              <td><strong>D · 侧墙轴流 + 长距离风管</strong></td>
+              <td>192,000 m³/h</td>
+              <td>460 Pa</td>
+              <td>7.5 次/h</td>
+              <td>72 dB(A)</td>
+              <td>风管沿程压损大，且占用人行通道</td>
+              <td><span class="stat-badge badge-warning">施工干扰大</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3. 选型判据：为什么是离心式而不是轴流式</h3>
+      <p>
+        方案 A 与方案 D 采用轴流风机，方案 B 采用离心风机。两者的核心差别在<strong>全压能力</strong>：
+      </p>
+      <div class="framework-flow">
+        <div class="flow-box">
+          <h3><span>🌬️</span> 轴流式：大风量、低全压</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+            轴流风机适合直通式短路径排风（210 ~ 460 Pa 全压）。但在本项目中，高架进料口结构横亘在污染源与侧墙排风口之间，气流必须绕过障碍才能抵达排风点 —— 这个绕行带来的沿程与局部阻力损失，轴流风机的全压余量不足以克服。
+          </p>
+        </div>
+        <div class="flow-box">
+          <h3><span>🌀</span> 离心式：高全压、抗阻力</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+            离心式屋顶风机全压可达 620 Pa，具备足够的压力余量穿透结构遮挡区域，把气流从车间下部稳定抽到屋顶高位排放。同时屋顶布置不占用车间内部通行空间，避免了方案 D 的施工干扰问题。
+          </p>
+        </div>
+        <div class="flow-box">
+          <h3><span>🔇</span> 噪声的意外收益</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+            离心风机因转速较低，噪声 69 dB(A) 反而低于轴流方案的 74 dB(A)。对注塑车间这类已有设备噪声的环境而言，这降低了作业区噪声叠加风险，是选型时的一个正向加分项。
+          </p>
+        </div>
+      </div>
+      <p>
+        <strong>选型逻辑总结</strong>：设备选型的判据不是「哪种风机更常见」或「哪种更便宜」，而是<strong>系统的阻力特性要求多高的全压</strong>。本项目的空间约束（高架结构遮挡）决定了系统阻力偏高，因此必须选高全压机型 —— 离心式屋顶风机是约束条件下的必然选择。
+      </p>
+
+      <h3>4. 配套治理措施</h3>
+      <ul>
+        <li><strong>投料破碎区局部捕集</strong>：在粉尘散发集中的投料口加装局部集气罩，与屋顶排风系统联动，避免粉尘扩散后再靠稀释处理。</li>
+        <li><strong>进料口结构下方导流</strong>：在高架结构下方加设导流板，破坏涡流滞止区，让该区域的气流能够汇入上升主流。</li>
+        <li><strong>排气筒高空排放</strong>：屋顶排风经统一排气筒集中排放，排放高度满足环保扩散要求，避免排出的废气回落至邻近作业区。</li>
+      </ul>
+    </section>
+
+    <section class="case-section">
+      <h2><span>✅</span> 五、 改善效果与合规验证</h2>
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>改善前</th>
+              <th>改善后</th>
+              <th>变化</th>
+              <th>口径</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>VOCs 相对限值倍数</strong></td>
+              <td>2.35×</td>
+              <td class="stat-highlight">0.72×</td>
+              <td class="stat-highlight">-69.5%</td>
+              <td>监测复测</td>
+            </tr>
+            <tr>
+              <td><strong>悬浮粉尘相对限值倍数</strong></td>
+              <td>1.68×</td>
+              <td class="stat-highlight">0.61×</td>
+              <td class="stat-highlight">-63.4%</td>
+              <td>监测复测</td>
+            </tr>
+            <tr>
+              <td><strong>一氧化碳相对限值倍数</strong></td>
+              <td>0.94×</td>
+              <td class="stat-highlight">0.38×</td>
+              <td class="stat-highlight">-59.6%</td>
+              <td>监测复测</td>
+            </tr>
+            <tr>
+              <td><strong>车间换气次数</strong></td>
+              <td>4.1 次/h</td>
+              <td class="stat-highlight">8.0 次/h</td>
+              <td class="stat-highlight">+95.1%</td>
+              <td>核算值</td>
+            </tr>
+            <tr>
+              <td><strong>有效排风效率</strong></td>
+              <td>62%</td>
+              <td class="stat-highlight">91%</td>
+              <td class="stat-highlight">+29 pp</td>
+              <td>气流组织核算</td>
+            </tr>
+            <tr>
+              <td><strong>作业区异味反馈频次</strong></td>
+              <td>3.2 次/周</td>
+              <td class="stat-highlight">0.4 次/周</td>
+              <td class="stat-highlight">-87.5%</td>
+              <td>现场记录</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>效果归因说明</strong>：三类污染物浓度的下降幅度（-69.5% / -63.4% / -59.6%）比较接近，这与「全车间换气稀释」的作用机理一致 —— 稀释方案对各类污染物的去除率取决于换气次数而非污染物种类本身。如果采用局部捕集方案，各污染物的去除率会出现明显分化，这也是判断方案类型的一个旁证。
+      </p>
+      <p>
+        <em>需要说明的是</em>：本页的浓度改善幅度为<strong>脱敏标定与情景推演口径</strong>，用于说明改善机理与量级。真实的达标判定必须依据具有资质的检测机构出具的监测报告，并对照现行有效的职业接触限值与排放标准执行。本页不构成任何合规结论。
+      </p>
+    </section>
+
+    <section class="case-section">
+      <h2><span>💻</span> 六、 核算脚本（Python）</h2>
+      <p>
+        以下脚本把换气次数核算、风量反推与达标判定整合为可复现流程，替换 <code>SHOP</code> 与 <code>POLLUTANTS</code> 即可复用到其他厂房环境评估场景：
+      </p>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>ventilation_sizing.py</span>
+          <button class="btn-copy" type="button" onclick="copyPipelineCode()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span id="copy-text">复制代码</span>
+          </button>
+        </div>
+        <pre class="code-block"><code id="code-snippet">"""注塑厂房通风量核算与污染物达标判定（脱敏标定数据口径）"""
+
+# ---------- 1. 车间基本参数 ----------
+SHOP = {"length": 80.0, "width": 40.0, "height": 8.0}     # 单位：米
+VOLUME = SHOP["length"] * SHOP["width"] * SHOP["height"]   # 25,600 m³
+
+TARGET_ACH = 8.0            # 目标换气次数（次/h）
+FAN_COUNT = 6               # 离心式屋顶风机台数
+OUTLET_AREA = 5.7           # 有效排风面积合计（m²）
+
+# ---------- 2. 所需风量与风速校验 ----------
+Q_REQUIRED = TARGET_ACH * VOLUME
+VELOCITY = Q_REQUIRED / (3600 * OUTLET_AREA)      # Q = 3600 × A × v
+
+print("=== 风量核算 ===")
+print(f"车间容积 V = {SHOP['length']:.0f} × {SHOP['width']:.0f} × {SHOP['height']:.0f} = {VOLUME:,.0f} m³")
+print(f"目标换气次数 n = {TARGET_ACH:.1f} 次/h")
+print(f"所需总风量 Q = {Q_REQUIRED:,.0f} m³/h")
+print(f"单台风机风量 = {Q_REQUIRED / FAN_COUNT:,.0f} m³/h × {FAN_COUNT} 台")
+print(f"排风口风速 v = {VELOCITY:.2f} m/s", end="  ")
+print("✔ 落在 8~12 m/s 常用区间" if 8.0 <= VELOCITY <= 12.0 else "✘ 需调整排风面积")
+
+# ---------- 3. 污染物达标判定 ----------
+# (改善前浓度, 改善后浓度, 参照限值)，单位 mg/m³
+POLLUTANTS = {
+    "VOCs（非甲烷总烃）": (28.2, 8.6, 12.0),
+    "悬浮粉尘（总尘）":   (13.4, 4.9,  8.0),
+    "一氧化碳 CO":       (18.8, 7.6, 20.0),
+}
+
+print("\n=== 污染物达标判定（相对参照限值的倍数）===")
+print(f"{'污染物':<20}{'改善前':>10}{'改善后':>10}{'降幅':>10}   判定")
+for name, (before, after, limit) in POLLUTANTS.items():
+    r_before, r_after = before / limit, after / limit
+    drop = (after - before) / before
+    verdict = "达标" if r_after <= 1.0 else "仍超标"
+    print(f"{name:<20}{r_before:>9.2f}×{r_after:>9.2f}×{drop:>9.1%}   {verdict}")
+
+# ---------- 4. 有效排风效率与能耗参考 ----------
+EFF_BEFORE, EFF_AFTER = 0.62, 0.91
+EFFECTIVE_BEFORE = Q_REQUIRED * EFF_BEFORE
+EFFECTIVE_AFTER = Q_REQUIRED * EFF_AFTER
+
+print("\n=== 有效排风效率 ===")
+print(f"改善前有效排风量 = {EFFECTIVE_BEFORE:,.0f} m³/h（效率 {EFF_BEFORE:.0%}，短路损失 38%）")
+print(f"改善后有效排风量 = {EFFECTIVE_AFTER:,.0f} m³/h（效率 {EFF_AFTER:.0%}）")
+print(f"等效有效风量提升 = {(EFFECTIVE_AFTER - EFFECTIVE_BEFORE) / EFFECTIVE_BEFORE:+.1%}")
+print("\n注：本脚本使用脱敏标定数据，真实达标判定须依据资质机构监测报告。")</code></pre>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🎓</span> 七、 方法沉淀与口径边界</h2>
+      <ul>
+        <li><strong>先看气流组织，再谈风量大小</strong>：环境改善最常见的误区是「浓度超标就加风机」。本项目原方案的无效排风占比达 38%，说明在气流组织没理顺之前，单纯加大风量只是把电费花在无效路径上。</li>
+        <li><strong>设备选型的判据是系统阻力，不是设备类型</strong>：轴流与离心没有绝对优劣，差别在全压能力。当空间结构造成气流必须绕行时，系统阻力上升，高全压机型就从「可选」变成「必须」。</li>
+        <li><strong>把空间约束当成设计输入而不是障碍</strong>：高架进料口一开始被当作「麻烦」，但它同时也是屋顶集中排放方案的合理性来源 —— 屋顶布置避开了结构遮挡，还腾出了车间内部通行空间。</li>
+        <li><strong>用机理一致性反推方案类型</strong>：三类污染物降幅接近（约 -60% ~ -70%），符合「稀释」而非「捕集」的作用特征。反过来，如果实测降幅在污染物之间差异很大，就要怀疑方案实际起效的是局部捕集而非全局换气。</li>
+        <li><strong>口径边界</strong>：本页全部数值为脱敏标定与情景推演口径，不含企业真实监测数据；参照限值仅用于量级比对。任何对外披露或合规声明，必须依据资质检测机构报告与现行标准重新核定。</li>
+      </ul>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🔗</span> 相关作品</h2>
+      <div class="related-grid">
+        <a class="related-card" href="toyota-engine-line-agv.html">
+          <span class="related-kicker">工业工程企业实践</span>
+          <span class="related-name">一汽丰田发动机产线作业测定与 AGV 物流路径重构</span>
+          <span class="related-desc">同为现场改善类工程实践：作业测定、MUDA 分解与 AGV 路径网络建模。</span>
+        </a>
+        <a class="related-card" href="smart-manufacturing-takt-time-analysis.html">
+          <span class="related-kicker">应用统计案例分析</span>
+          <span class="related-name">智能产线节拍异常诊断与动态容量预测</span>
+          <span class="related-desc">同一制造命题的统计学版本：ARIMA 时间序列建模与产线平衡情景推演。</span>
+        </a>
+        <a class="related-card" href="../index.html#internships">
+          <span class="related-kicker">经历索引</span>
+          <span class="related-name">实习实践经历总览</span>
+          <span class="related-desc">返回主页查看长春派格与一汽丰田两段企业实践的完整条目。</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" style="padding: 40px 0; border-top: 1px solid var(--border-color); background: var(--bg-card); text-align: center;">
+    <div class="container">
+      <p>© 2026 <strong>戴璇 (Dai Xuan)</strong> · 长春工业大学 · 应用统计硕士研究生（研究方向：数据分析）</p>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
+        个人门户：<a href="https://daixuan.cloud" style="color: var(--link-inline); text-decoration: underline;">daixuan.cloud</a> · GitHub：<a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" style="color: var(--link-inline); text-decoration: underline;">@dai123x</a>
+      </p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">代码已复制到剪贴板</div>
+
+  <script>
+    const themeBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    function updateThemeIcon(t) {
+      if (!themeIcon) return;
+      themeIcon.innerHTML = t === 'light'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+    }
+    const initTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    updateThemeIcon(initTheme);
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const target = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', target);
+        try { localStorage.setItem('dx_theme', target); } catch (e) {}
+        updateThemeIcon(target);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', target === 'dark' ? '#0a0e17' : '#f8fafc');
+        showToast(target === 'dark' ? '已切换至深色模式' : '已切换至浅色模式');
+      });
+    }
+
+    function copyPipelineCode() {
+      const code = document.getElementById('code-snippet').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Python 核算脚本已复制到剪贴板');
+        const copyText = document.getElementById('copy-text');
+        if (copyText) {
+          copyText.textContent = '已复制!';
+          setTimeout(() => { copyText.textContent = '复制代码'; }, 2000);
+        }
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        showToast('复制失败，请手动选择代码');
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  </script>
+  <script src="../js/lightbox.js?v=20261011-3" defer></script>
+</body>
+</html>

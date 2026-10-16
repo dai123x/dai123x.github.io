@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>工程实践案例：一汽丰田发动机产线作业测定与 AGV 物流路径重构 · 戴璇</title>
+  <meta name="description" content="发动机装配线现场作业测定与精益改善复盘：秒表测时与 MOD 动作分解定位瓶颈工序，MUDA 非增值活动分解，AGV 物料配送路径网络建模与交叉干涉点简化。作者：戴璇。">
+  <link rel="canonical" href="https://daixuan.cloud/case-studies/toyota-engine-line-agv.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="工程实践案例：一汽丰田发动机产线作业测定与 AGV 物流路径重构">
+  <meta property="og:description" content="秒表测时 + MOD 动作分解 + MUDA 分解定位瓶颈，AGV 路径网络建模简化交叉干涉点，产线平衡率与物流周转节拍双改善。">
+  <meta property="og:url" content="https://daixuan.cloud/case-studies/toyota-engine-line-agv.html">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://daixuan.cloud/assets/images/og-case-smart-mfg.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="一汽丰田发动机产线作业测定与 AGV 物流路径重构">
+  <meta name="twitter:description" content="现场作业测定、MUDA 分解与 AGV 物流路径网络重构的精益改善复盘。">
+  <meta name="twitter:image" content="https://daixuan.cloud/assets/images/og-case-smart-mfg.jpg">
+
+  <meta name="theme-color" content="#0a0e17">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link rel="stylesheet" href="../css/style.css?v=20261013-3">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('dx_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.content = t === 'light' ? '#f8fafc' : '#0a0e17';
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <style>
+    .case-container {
+      max-width: 1040px;
+      margin: 96px auto 60px;
+      padding: 0 24px;
+    }
+    .case-header {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .case-tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .case-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .case-subtitle {
+      font-size: 1.02rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .case-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+    .case-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .case-section {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      margin-bottom: 28px;
+      box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      line-height: 1.75;
+    }
+    .case-section h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .case-section h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      color: var(--accent-primary);
+    }
+    .case-section p {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .case-section ul {
+      margin-left: 20px;
+      font-size: 0.96rem;
+      color: var(--text-secondary);
+    }
+    .case-section li {
+      margin-bottom: 8px;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .kpi-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+    .kpi-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      font-feature-settings: "tnum";
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .kpi-sub {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .stat-table {
+      width: 100%;
+      margin: 16px 0 24px;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      display: block;
+    }
+    .stat-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .stat-table th, .stat-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .stat-table th {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .stat-table tr:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .stat-table td.wrap {
+      white-space: normal;
+      min-width: 220px;
+      color: var(--text-secondary);
+    }
+    .stat-highlight {
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+    .stat-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-primary { background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); }
+    .badge-success { background: rgba(16, 185, 129, 0.15); color: #059669; }
+    .badge-warning { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+    .badge-danger { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+
+    .figure-showcase {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .figure-svg-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      border: 1px solid var(--border-color);
+    }
+    .figure-svg-wrapper svg {
+      display: block;
+      min-width: 620px;
+      margin: 0 auto;
+    }
+    .figure-caption {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .figure-insights {
+      margin-top: 14px;
+      padding: 14px 18px;
+      background: rgba(99, 102, 241, 0.06);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    /* 图表配色随主题切换，避免深色专用色值在浅色底上失效 */
+    :root {
+      --chart-muda: #fbbf24;
+      --chart-ok: #34d399;
+      --chart-bad: #f87171;
+      --chart-line: rgba(148, 163, 184, 0.28);
+    }
+    [data-theme="light"] {
+      --chart-muda: #b45309;
+      --chart-ok: #059669;
+      --chart-bad: #dc2626;
+      --chart-line: rgba(71, 85, 105, 0.25);
+    }
+    .chart-ink { fill: var(--text-secondary); }
+    .chart-ink-strong { fill: var(--text-primary); }
+    .chart-ink-muted { fill: var(--text-muted); }
+    .chart-grid { stroke: var(--chart-line); }
+    .chart-va { fill: var(--accent-primary); }
+    .chart-muda { fill: var(--chart-muda); }
+    .chart-ok { fill: var(--chart-ok); }
+    .chart-bad { fill: var(--chart-bad); }
+    /* fill 类不能用于 <line>：线条要的是 stroke，误用会让整条线不可见 */
+    .chart-stroke-ok { stroke: var(--chart-ok); }
+    .chart-stroke-bad { stroke: var(--chart-bad); }
+    .chart-node { fill: var(--bg-secondary); stroke: var(--accent-primary); }
+
+    .formula-box {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent-primary);
+      padding: 16px 20px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      color: var(--text-primary);
+      margin: 16px 0;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    .data-note {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+    .data-note strong { color: var(--text-primary); }
+
+    .code-container {
+      position: relative;
+      margin: 20px 0;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+    }
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-copy:hover {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+    .code-block {
+      background: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      padding: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .framework-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .flow-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      border-left: 3px solid var(--accent-primary);
+    }
+    .flow-box h3 {
+      font-size: 0.98rem;
+      color: var(--accent-primary);
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .flow-box ul {
+      margin-left: 18px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .flow-box li {
+      margin-bottom: 6px;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .related-card {
+      display: block;
+      text-decoration: none;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      transition: var(--transition);
+    }
+    .related-card:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+    .related-kicker {
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .related-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .related-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: var(--transition);
+    }
+    .btn-back:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-2px);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.85rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      .case-container { padding: 0 16px; margin-top: 88px; }
+      .case-header { padding: 26px 20px; }
+      .case-section { padding: 24px 20px; }
+      .case-title { font-size: 1.55rem; }
+      .case-section h2 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header id="topbar" style="padding:14px 24px; border-bottom: 1px solid var(--border-color); background: var(--nav-bg); position:fixed; top:0; width:100%; z-index:100; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
+    <div style="max-width: 1040px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+      <a href="../index.html" class="nav-brand" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
+        <span class="brand-icon" style="width:34px; height:34px; border-radius:10px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; color:var(--on-accent); font-weight:800; font-size:0.95rem;">DX</span>
+        <span class="brand-text" style="color:var(--text-primary); font-size:1.15rem; font-weight:700;">戴璇 · <span style="background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">daixuan.cloud</span></span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button id="theme-toggle" class="btn-icon" aria-label="切换色彩主题" title="切换深色/浅色模式" style="width:36px; height:36px;">
+          <span id="theme-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </span>
+        </button>
+        <a href="../index.html#projects" class="btn-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          <span>返回精选作品</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+  </div>
+
+  <main class="case-container">
+    <div class="case-header">
+      <div class="case-tag-group">
+        <span class="tag-badge">工业工程企业实践</span>
+        <span class="tag-badge">作业测定与时间研究</span>
+        <span class="tag-badge">MOD 动作分析</span>
+        <span class="tag-badge">MUDA 非增值分解</span>
+        <span class="tag-badge">AGV 物流路径规划</span>
+      </div>
+      <h1 class="case-title">一汽丰田发动机产线作业测定与 AGV 物流路径重构</h1>
+      <p class="case-subtitle">
+        在发动机装配车间开展标准化作业时间观测，以秒表测时与 MOD 模特法完成工序动作分解，用山积图与节拍平衡率定位全线瓶颈；针对物料配送环节，对 AGV 运行轨迹进行路径网络建模，识别并简化交叉干涉点。改善路径分「现场测定 → 瓶颈识别 → 方案比选 → 收益测算」四步推进。
+      </p>
+      <div class="case-meta">
+        <span class="case-meta-item">🏭 <strong>实践单位</strong>：一汽丰田发动机（长春）有限公司</span>
+        <span class="case-meta-item">🧰 <strong>岗位</strong>：工业工程 (IE) / 生产效率实习生</span>
+        <span class="case-meta-item">📅 <strong>周期</strong>：2024.09 – 2024.10</span>
+        <span class="case-meta-item">✍️ <strong>主研作者</strong>：戴璇</span>
+      </div>
+    </div>
+
+    <div class="data-note">
+      <strong>数据口径说明</strong>：本页工序工时、AGV 里程与改善收益均为<strong>基于实习期间现场作业测定方法框架整理的脱敏标定值</strong>（情景推演口径），<strong>不代表企业真实生产数据</strong>。指标定义、测定方法与测算公式与现场实际做法保持一致，用于说明改善路径与测算逻辑，不用于披露任何企业工艺参数。
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-val">6 工位</div>
+        <div class="kpi-label">标准化作业测定覆盖</div>
+        <div class="kpi-sub">秒表测时 + MOD 动作分解</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">-6.7 s</div>
+        <div class="kpi-label">瓶颈工序节拍收敛</div>
+        <div class="kpi-sub">58.7s ➔ 51.6s · 压降至客户节拍线以内</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">-3 处</div>
+        <div class="kpi-label">AGV 路径交叉干涉点</div>
+        <div class="kpi-sub">双向交叉网络 ➔ 单向环形回路</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">-11.4%</div>
+        <div class="kpi-label">物料配送单循环里程</div>
+        <div class="kpi-sub">套件前置化 + 路径去冗余</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-val">+8.2 pp</div>
+        <div class="kpi-label">产线平衡率 (LBE) 提升</div>
+        <div class="kpi-sub">79.3% ➔ 87.6%（情景测算）</div>
+      </div>
+    </div>
+
+    <section class="case-section">
+      <h2><span>📌</span> 一、 现场命题：串联流水线的瓶颈放大效应</h2>
+      <p>
+        发动机装配属于典型的<strong>高度专业化串联节奏流水线</strong>。在这种结构下，全线产出能力并不由平均工时决定，而是被耗时最长的工位（瓶颈工序）单向锁死 —— 这就是节拍管理中的木桶效应。
+      </p>
+      <p>
+        现场观察到的核心矛盾集中在两处：一是瓶颈工位的作业内容存在大量<strong>非增值活动（MUDA）</strong>，工人反复转身取件、翻找工具、等待物料到位，这些动作并不改变产品形态却实实在在地吃掉了节拍；二是<strong>物料配送与作业节拍失配</strong>，AGV 采用「按需呼叫」模式，多条双向路径在同一通道内交叉，一旦发生会让行，配送延迟就会传导为工位停工等待。
+      </p>
+
+      <div class="framework-flow">
+        <div class="flow-box">
+          <h3><span>⏱️</span> 阶段 1：现场作业测定</h3>
+          <ul>
+            <li>秒表连续测时法，按工位逐循环记录</li>
+            <li>MOD 模特法拆解到动作单元级别</li>
+            <li>剔除异常值并做评比系数修正</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h3><span>🔍</span> 阶段 2：瓶颈识别</h3>
+          <ul>
+            <li>山积图呈现各工位工时构成</li>
+            <li>MUDA 四类分解：等待 / 搬运 / 翻找 / 走动</li>
+            <li>与客户节拍线比对，锁定超线工位</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h3><span>🔀</span> 阶段 3：方案比选</h3>
+          <ul>
+            <li>AGV 路径网络建模，标注交叉干涉点</li>
+            <li>按需取件 / 定拍巡回 / 混合三种模式比选</li>
+            <li>从里程、等待率、实施成本三维打分</li>
+          </ul>
+        </div>
+        <div class="flow-box">
+          <h3><span>📈</span> 阶段 4：收益测算</h3>
+          <ul>
+            <li>平衡率与平衡损失率前后对比</li>
+            <li>物流周转节拍与单循环里程测算</li>
+            <li>产能释放的情景推演</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>⏱️</span> 二、 作业测定：工序工时谱与 MUDA 分解</h2>
+      <p>
+        对装配线 6 个关键工位开展连续循环测时，并将每个循环的工时拆分为<strong>增值作业时间</strong>与<strong>非增值活动时间</strong>两部分。增值部分指直接改变工件形态或装配状态的作业；非增值部分按 MUDA 口径细分为等待、搬运、翻找、走动四类。
+      </p>
+
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>工位</th>
+              <th>增值作业 (s)</th>
+              <th>非增值 MUDA (s)</th>
+              <th>实测总工时 (s)</th>
+              <th>非增值占比</th>
+              <th>节拍状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>OP10 缸体上线</strong></td>
+              <td>38.2</td>
+              <td>5.1</td>
+              <td>43.3</td>
+              <td>11.8%</td>
+              <td><span class="stat-badge badge-success">达标</span></td>
+            </tr>
+            <tr>
+              <td><strong>OP20 曲轴装配</strong></td>
+              <td>44.6</td>
+              <td>8.4</td>
+              <td>53.0</td>
+              <td>15.8%</td>
+              <td><span class="stat-badge badge-warning">临界超线</span></td>
+            </tr>
+            <tr style="background: rgba(239, 68, 68, 0.08);">
+              <td class="stat-highlight"><strong>OP30 活塞连杆</strong></td>
+              <td class="stat-highlight">46.8</td>
+              <td class="stat-highlight">11.9</td>
+              <td class="stat-highlight">58.7</td>
+              <td class="stat-highlight">20.3%</td>
+              <td><span class="stat-badge badge-danger">🚨 全线瓶颈</span></td>
+            </tr>
+            <tr>
+              <td><strong>OP40 缸盖气门</strong></td>
+              <td>41.5</td>
+              <td>6.7</td>
+              <td>48.2</td>
+              <td>13.9%</td>
+              <td><span class="stat-badge badge-success">达标</span></td>
+            </tr>
+            <tr>
+              <td><strong>OP50 总装终检</strong></td>
+              <td>35.4</td>
+              <td>4.6</td>
+              <td>40.0</td>
+              <td>11.5%</td>
+              <td><span class="stat-badge badge-primary">余量充足</span></td>
+            </tr>
+            <tr>
+              <td><strong>OP60 试漏检测</strong></td>
+              <td>33.0</td>
+              <td>3.2</td>
+              <td>36.2</td>
+              <td>8.8%</td>
+              <td><span class="stat-badge badge-primary">余量充足</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        一个容易被忽略的规律是：<strong>非增值占比与工位总工时高度正相关</strong>。OP30 的非增值时间达 11.9 秒，占比 20.3%，是全线最高；而工时最短的 OP60 非增值占比仅 8.8%。这说明瓶颈不是「工人手脚慢」，而是<strong>工位布置与物料供给方式</strong>让该工位被迫承担了最多的无效动作。
+      </p>
+
+      <div class="figure-showcase">
+        <div class="figure-svg-wrapper">
+          <svg viewBox="0 0 860 392" width="100%" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family: var(--font-sans)">
+            <title>发动机装配线各工位增值与非增值工时山积图</title>
+            <desc>六个工位的横向堆叠条形图，深色段为增值作业时间，琥珀色段为非增值 MUDA 时间，虚线为客户节拍 52 秒，OP30 活塞连杆总工时 58.7 秒超出节拍线成为瓶颈。</desc>
+
+            <text x="40" y="30" class="chart-ink-strong" font-size="14" font-weight="500">各工位工时构成（山积图）· 单位：秒</text>
+
+            <line x1="190" y1="52" x2="190" y2="322" class="chart-grid" stroke-width="1"/>
+            <line x1="386.8" y1="52" x2="386.8" y2="322" class="chart-grid" stroke-width="1" stroke-dasharray="4,4"/>
+            <line x1="583.6" y1="52" x2="583.6" y2="322" class="chart-grid" stroke-width="1" stroke-dasharray="4,4"/>
+            <line x1="780.2" y1="52" x2="780.2" y2="322" class="chart-grid" stroke-width="1" stroke-dasharray="4,4"/>
+
+            <text x="190" y="340" class="chart-ink-muted" font-size="11" text-anchor="middle">0</text>
+            <text x="386.8" y="340" class="chart-ink-muted" font-size="11" text-anchor="middle">20</text>
+            <text x="583.6" y="340" class="chart-ink-muted" font-size="11" text-anchor="middle">40</text>
+            <text x="780.2" y="340" class="chart-ink-muted" font-size="11" text-anchor="middle">60</text>
+
+            <text x="182" y="69" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">OP10 缸体上线</text>
+            <rect x="190" y="60" width="375.8" height="18" class="chart-va" opacity="0.9"/>
+            <rect x="565.8" y="60" width="50.2" height="18" class="chart-muda" opacity="0.9"/>
+            <text x="624" y="69" class="chart-ink-muted" font-size="11" dominant-baseline="central">43.3</text>
+
+            <text x="182" y="113" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">OP20 曲轴装配</text>
+            <rect x="190" y="104" width="438.8" height="18" class="chart-va" opacity="0.9"/>
+            <rect x="628.8" y="104" width="82.6" height="18" class="chart-muda" opacity="0.9"/>
+            <text x="719" y="113" class="chart-ink-muted" font-size="11" dominant-baseline="central">53.0</text>
+
+            <text x="182" y="157" class="chart-bad" font-size="12" font-weight="500" text-anchor="end" dominant-baseline="central">OP30 活塞连杆</text>
+            <rect x="190" y="148" width="460.5" height="18" class="chart-va" opacity="0.9"/>
+            <rect x="650.5" y="148" width="117.1" height="18" class="chart-muda" opacity="0.9"/>
+            <text x="775" y="157" class="chart-bad" font-size="11" font-weight="500" dominant-baseline="central">58.7</text>
+
+            <text x="182" y="201" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">OP40 缸盖气门</text>
+            <rect x="190" y="192" width="408.3" height="18" class="chart-va" opacity="0.9"/>
+            <rect x="598.3" y="192" width="65.9" height="18" class="chart-muda" opacity="0.9"/>
+            <text x="672" y="201" class="chart-ink-muted" font-size="11" dominant-baseline="central">48.2</text>
+
+            <text x="182" y="245" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">OP50 总装终检</text>
+            <rect x="190" y="236" width="348.3" height="18" class="chart-va" opacity="0.9"/>
+            <rect x="538.3" y="236" width="45.3" height="18" class="chart-muda" opacity="0.9"/>
+            <text x="592" y="245" class="chart-ink-muted" font-size="11" dominant-baseline="central">40.0</text>
+
+            <text x="182" y="289" class="chart-ink" font-size="12" text-anchor="end" dominant-baseline="central">OP60 试漏检测</text>
+            <rect x="190" y="280" width="324.7" height="18" class="chart-va" opacity="0.9"/>
+            <rect x="514.7" y="280" width="31.5" height="18" class="chart-muda" opacity="0.9"/>
+            <text x="554" y="289" class="chart-ink-muted" font-size="11" dominant-baseline="central">36.2</text>
+
+            <line x1="701.6" y1="52" x2="701.6" y2="322" class="chart-stroke-bad" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="701.6" y="46" class="chart-bad" font-size="11" font-weight="500" text-anchor="middle">客户节拍 52.0s</text>
+
+            <rect x="190" y="362" width="13" height="13" rx="3" class="chart-va"/>
+            <text x="210" y="369" class="chart-ink" font-size="12" dominant-baseline="central">增值作业时间</text>
+            <rect x="340" y="362" width="13" height="13" rx="3" class="chart-muda"/>
+            <text x="360" y="369" class="chart-ink" font-size="12" dominant-baseline="central">非增值 MUDA 时间</text>
+            <line x1="530" y1="368.5" x2="556" y2="368.5" class="chart-stroke-bad" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="564" y="369" class="chart-ink" font-size="12" dominant-baseline="central">客户需求节拍线</text>
+          </svg>
+        </div>
+        <div class="figure-caption">
+          <strong>图 1 · 发动机装配线 6 工位增值 / 非增值工时山积图与客户节拍比对</strong>
+        </div>
+        <div class="figure-insights">
+          💡 <strong>现场洞察</strong>：OP30 总工时 58.7 秒，超出客户节拍 52.0 秒达 6.7 秒；同时它的非增值时间 11.9 秒是全线最高。这意味着<strong>只要把 OP30 的非增值动作压掉一半以上，就能把它拉回节拍线以内</strong> —— 不需要动任何工艺参数或增加设备投入，改善目标由此明确。
+        </div>
+      </div>
+
+      <h3>非增值活动 (MUDA) 四类构成</h3>
+      <p>
+        对 OP30 的 11.9 秒非增值时间做进一步拆解，可以看清改善的着力点究竟在哪一类动作上：
+      </p>
+      <div class="formula-box">
+        OP30 非增值时间 = 11.9 s 的构成分解<br>
+        &nbsp;&nbsp;├─ 翻找与拿取工具（工具架布置不合理，需转身二次定位）&nbsp;&nbsp;4.6 s&nbsp;&nbsp;38.7%<br>
+        &nbsp;&nbsp;├─ 等待物料到位（AGV 配送延迟传导的停工等待）&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.4 s&nbsp;&nbsp;28.6%<br>
+        &nbsp;&nbsp;├─ 工件搬运与台面间转移&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.5 s&nbsp;&nbsp;21.0%<br>
+        &nbsp;&nbsp;└─ 工位内走动（跨台位取标准件）&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.4 s&nbsp;&nbsp;11.8%
+      </div>
+      <p>
+        翻找工具与等待物料两项合计占 67.3%，且都不属于「操作者技能」范畴，而是<strong>工装布置与物流供给方式</strong>导致的系统性浪费。改善方向因此收敛为两条：工位定置化管理 + 物料配送模式重构。
+      </p>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🔀</span> 三、 方案比选：AGV 物流路径网络重构</h2>
+      <p>
+        物料配送的等待问题，根因在多条 AGV 双向路径共用同一通道。把工位抽象为节点、AGV 行驶通道抽象为边，绘制路径网络后可以清晰看到：<strong>按需呼叫模式下的双向路径产生了 3 处交叉干涉点</strong>，每次会让行都会给配送引入随机延迟，而延迟又直接转化为瓶颈工位的停工等待。
+      </p>
+
+      <div class="figure-showcase">
+        <div class="figure-svg-wrapper">
+          <svg viewBox="0 0 860 300" width="100%" role="img" xmlns="http://www.w3.org/2000/svg" style="font-family: var(--font-sans)">
+            <title>AGV 路径网络改善前后对比</title>
+            <desc>左图为改善前的双向交叉路径网络，四条路径产生三处交叉干涉点；右图为改善后的单向环形回路，交叉干涉点降为零。</desc>
+
+            <text x="40" y="34" class="chart-ink-strong" font-size="14" font-weight="500">改善前：双向按需取件路径网络</text>
+            <text x="450" y="34" class="chart-ink-strong" font-size="14" font-weight="500">改善后：单向定拍巡回回路</text>
+
+            <rect x="40" y="48" width="370" height="222" rx="12" class="chart-grid" fill="none" stroke-width="1"/>
+            <rect x="450" y="48" width="370" height="222" rx="12" class="chart-grid" fill="none" stroke-width="1"/>
+
+            <line x1="70" y1="90" x2="330" y2="230" stroke="#dc2626" stroke-width="1.5" opacity="0.75"/>
+            <line x1="70" y1="160" x2="330" y2="90" stroke="#dc2626" stroke-width="1.5" opacity="0.75"/>
+            <line x1="70" y1="230" x2="330" y2="160" stroke="#dc2626" stroke-width="1.5" opacity="0.75"/>
+            <line x1="70" y1="90" x2="330" y2="160" stroke="#dc2626" stroke-width="1.5" opacity="0.75"/>
+
+            <circle cx="156.7" cy="136.7" r="11" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+            <line x1="151.2" y1="131.2" x2="162.2" y2="142.2" stroke="#dc2626" stroke-width="1.5"/>
+            <line x1="162.2" y1="131.2" x2="151.2" y2="142.2" stroke="#dc2626" stroke-width="1.5"/>
+
+            <circle cx="243.3" cy="183.3" r="11" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+            <line x1="237.8" y1="177.8" x2="248.8" y2="188.8" stroke="#dc2626" stroke-width="1.5"/>
+            <line x1="248.8" y1="177.8" x2="237.8" y2="188.8" stroke="#dc2626" stroke-width="1.5"/>
+
+            <circle cx="200" cy="125" r="11" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+            <line x1="194.5" y1="119.5" x2="205.5" y2="130.5" stroke="#dc2626" stroke-width="1.5"/>
+            <line x1="205.5" y1="119.5" x2="194.5" y2="130.5" stroke="#dc2626" stroke-width="1.5"/>
+
+            <circle cx="70" cy="90" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="70" cy="160" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="70" cy="230" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="330" cy="90" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="330" cy="160" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="330" cy="230" r="8" class="chart-node" stroke-width="1.5"/>
+
+            <text x="200" y="262" class="chart-bad" font-size="12" text-anchor="middle">4 条双向路径 · 3 处交叉干涉点</text>
+
+            <line x1="635" y1="80" x2="790" y2="158" class="chart-stroke-ok" stroke-width="1.5" marker-end="url(#agv-arrow)"/>
+            <line x1="790" y1="158" x2="635" y2="236" class="chart-stroke-ok" stroke-width="1.5" marker-end="url(#agv-arrow)"/>
+            <line x1="635" y1="236" x2="480" y2="158" class="chart-stroke-ok" stroke-width="1.5" marker-end="url(#agv-arrow)"/>
+            <line x1="480" y1="158" x2="635" y2="80" class="chart-stroke-ok" stroke-width="1.5" marker-end="url(#agv-arrow)"/>
+
+            <circle cx="635" cy="80" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="790" cy="158" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="635" cy="236" r="8" class="chart-node" stroke-width="1.5"/>
+            <circle cx="480" cy="158" r="8" class="chart-node" stroke-width="1.5"/>
+
+            <text x="635" y="262" class="chart-ok" font-size="12" text-anchor="middle">4 条单向回路 · 0 处交叉干涉点</text>
+
+            <defs>
+              <marker id="agv-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M2 1L8 5L2 9" fill="none" stroke="#059669" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+        <div class="figure-caption">
+          <strong>图 2 · AGV 物料配送路径网络改善前后对比（节点 = 装配工位，边 = AGV 行驶通道）</strong>
+        </div>
+        <div class="figure-insights">
+          💡 <strong>路径规划要点</strong>：改善的本质不是「把 AGV 开得更快」，而是<strong>把双向共用通道改为单向回路</strong>。单向化之后，路径之间不再存在需要会让行的交叉点，配送延迟从随机变量变为可预测的固定周期 —— 这才是定拍巡回能够成立的前提。
+        </div>
+      </div>
+
+      <h3>三种配送模式比选</h3>
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>配送模式</th>
+              <th>交叉干涉点</th>
+              <th>单循环里程 (m)</th>
+              <th>线旁齐套等待率</th>
+              <th>实施成本</th>
+              <th>综合评价</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>方案 A · 按需呼叫取件</strong><br><span style="color: var(--text-muted); font-size: 0.8rem;">（现场现状）</span></td>
+              <td>3</td>
+              <td>186</td>
+              <td>8.6%</td>
+              <td>基准</td>
+              <td><span class="stat-badge badge-danger">不可控延迟传导</span></td>
+            </tr>
+            <tr>
+              <td><strong>方案 B · 单台套箱定拍巡回</strong></td>
+              <td>0</td>
+              <td>164.8</td>
+              <td>0%</td>
+              <td>路径重划 + 料箱改造</td>
+              <td><span class="stat-badge badge-success">✅ 采纳</span></td>
+            </tr>
+            <tr>
+              <td><strong>方案 C · 混合（A + B）</strong></td>
+              <td>2</td>
+              <td>178</td>
+              <td>3.2%</td>
+              <td>路径重划</td>
+              <td><span class="stat-badge badge-warning">改造不彻底</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <strong>选型逻辑</strong>：方案 C 看似折中，但由于保留了部分按需呼叫路径，交叉干涉点只从 3 处降到 2 处，等待率仍达 3.2%，<strong>改善收益被「残余干涉」稀释</strong>。方案 B 虽然需要同步改造料箱（由零件箱改为单台套件箱），但一次性把干涉点清零，等待率归零，因此被采纳。
+      </p>
+
+      <h3>配套工位改善举措</h3>
+      <div class="framework-flow">
+        <div class="flow-box">
+          <h3><span>🧰</span> 1. 工位定置化管理</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+            按动作经济原则重新布置 OP30 活塞装配台的工具架，把高频取用工具移到双手自然作业域内，消除转身与二次定位，压缩「翻找与拿取」4.6 秒中的大部分。
+          </p>
+        </div>
+        <div class="flow-box">
+          <h3><span>🤖</span> 2. AGV 套件配送前置化</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+            曲轴轴瓦、活塞销等标准件由「按需取件」改为「单台套箱定拍巡回配送」，线旁齐套等待率由 8.6% 降为 0，直接消除「等待物料到位」的 3.4 秒。
+          </p>
+        </div>
+        <div class="flow-box">
+          <h3><span>⚖️</span> 3. 跨工位工步转移</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0;">
+            利用 OP60 试漏检测工位（36.2 秒，余量充足）吸收 OP30 的连杆螺栓二次标记工步，实现全线负荷平顺化，避免瓶颈改善后出现新的次瓶颈。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>📈</span> 四、 量化收益与产能释放测算</h2>
+      <p>
+        产线平衡率衡量的是各工位负荷的均衡程度，其定义为各工位工时之和与「工位数 × 瓶颈工时」之比：
+      </p>
+      <div class="formula-box">
+        产线平衡率 LBE = [ &Sigma; T_i / ( k &times; max(T_i) ) ] &times; 100%&nbsp;&nbsp;&nbsp;&nbsp;(k = 工位数 = 6)<br><br>
+        改善前：&Sigma;T_i = 279.4 s，max(T_i) = 58.7 s（OP30）<br>
+        &nbsp;&nbsp;LBE_before = 279.4 / (6 &times; 58.7) = 79.3%&nbsp;&nbsp;➔&nbsp;&nbsp;平衡损失率 20.7%<br><br>
+        改善后：&Sigma;T_i = 271.1 s，max(T_i) = 51.6 s（瓶颈已转移至 OP20）<br>
+        &nbsp;&nbsp;LBE_after = 271.1 / (6 &times; 51.6) = 87.6%&nbsp;&nbsp;➔&nbsp;&nbsp;平衡损失率 12.4%<br><br>
+        平衡率净跃升：+8.2 个百分点
+      </div>
+
+      <p>
+        <strong>一个值得记录的副产品 —— 瓶颈漂移</strong>：OP30 从 58.7 秒压到 47.6 秒之后，全线的约束点并没有停在 OP30，而是<strong>转移到了原本「临界超线」的 OP20（51.6 秒）</strong>。这说明改善不能只盯着当前瓶颈改：如果不把 OP20 一并纳入改善范围，OP30 压得再狠，产出也只会被 OP20 卡住。改善后新瓶颈 51.6 秒已进入客户节拍 52.0 秒以内，约束才真正解除。
+      </p>
+
+      <div class="stat-table">
+        <table>
+          <thead>
+            <tr>
+              <th>指标</th>
+              <th>改善前</th>
+              <th>改善后</th>
+              <th>变化</th>
+              <th>口径</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>瓶颈工序节拍</strong></td>
+              <td>58.7 s（OP30）</td>
+              <td class="stat-highlight">51.6 s（OP20）</td>
+              <td class="stat-highlight">-7.1 s (-12.1%)</td>
+              <td>实测均值</td>
+            </tr>
+            <tr>
+              <td><strong>产线平衡率 LBE</strong></td>
+              <td>79.3%</td>
+              <td class="stat-highlight">87.6%</td>
+              <td class="stat-highlight">+8.2 pp</td>
+              <td>情景测算</td>
+            </tr>
+            <tr>
+              <td><strong>AGV 交叉干涉点</strong></td>
+              <td>3 处</td>
+              <td class="stat-highlight">0 处</td>
+              <td class="stat-highlight">-3 处</td>
+              <td>路径网络拓扑</td>
+            </tr>
+            <tr>
+              <td><strong>物料单循环里程</strong></td>
+              <td>186 m</td>
+              <td class="stat-highlight">164.8 m</td>
+              <td class="stat-highlight">-11.4%</td>
+              <td>路径里程测算</td>
+            </tr>
+            <tr>
+              <td><strong>线旁齐套等待率</strong></td>
+              <td>8.6%</td>
+              <td class="stat-highlight">0%</td>
+              <td class="stat-highlight">-8.6 pp</td>
+              <td>现场抽样</td>
+            </tr>
+            <tr>
+              <td><strong>日理论装配产能</strong></td>
+              <td>约 429 台</td>
+              <td class="stat-highlight">约 488 台</td>
+              <td class="stat-highlight">+13.8%</td>
+              <td>情景推演</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        产能测算口径：单班有效工作时间 420 分钟（已扣除点检与休息），日理论产能 = 420 × 60 / 瓶颈节拍。改善前 420 × 60 / 58.7 ≈ 429 台；改善后 420 × 60 / 51.6 ≈ 488 台，<strong>日理论产能提升约 +13.8%</strong>。
+      </p>
+      <p>
+        <em>需要说明的是</em>：理论产能提升不等于实际产出提升。实际产出还受设备综合效率 (OEE)、换型频次、来料质量波动等因素制约。本页给出的产能数字是<strong>在瓶颈消除这一单一变量下的情景推演值</strong>，用于说明改善动作的量级，不能直接等同于现场实际产量增量。
+      </p>
+    </section>
+
+    <section class="case-section">
+      <h2><span>💻</span> 五、 测算脚本（Python）</h2>
+      <p>
+        以下脚本把平衡率计算、MUDA 分解与 AGV 路径里程测算整合为可复现流程，替换 <code>STATIONS</code> 与 <code>PATHS</code> 即可复用到其他产线场景：
+      </p>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>line_balance_agv.py</span>
+          <button class="btn-copy" type="button" onclick="copyPipelineCode()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span id="copy-text">复制代码</span>
+          </button>
+        </div>
+        <pre class="code-block"><code id="code-snippet">"""发动机装配线平衡率与 AGV 路径里程测算（脱敏标定数据口径）"""
+
+# ---------- 1. 工位工时谱：(增值作业, 非增值 MUDA) ----------
+STATIONS = {
+    "OP10 缸体上线": (38.2, 5.1),
+    "OP20 曲轴装配": (44.6, 8.4),
+    "OP30 活塞连杆": (46.8, 11.9),   # 瓶颈工位
+    "OP40 缸盖气门": (41.5, 6.7),
+    "OP50 总装终检": (35.4, 4.6),
+    "OP60 试漏检测": (33.0, 3.2),
+}
+TAKT = 52.0   # 客户需求节拍
+
+def total(t): return t[0] + t[1]
+
+print("=== 工序工时谱 ===")
+for op, (va, muda) in STATIONS.items():
+    tt = total((va, muda))
+    flag = "  <-- 超出节拍线" if tt > TAKT else ""
+    print(f"{op:<12} 增值 {va:>5.1f}s | MUDA {muda:>4.1f}s | 合计 {tt:>5.1f}s "
+          f"| 非增值占比 {muda / tt:>5.1%}{flag}")
+
+# ---------- 2. 产线平衡率 LBE = ΣT_i / (k × max T_i) ----------
+def lbe(stations):
+    times = [total(v) for v in stations.values()]
+    return sum(times) / (len(times) * max(times))
+
+before = lbe(STATIONS)
+
+# 改善情景：OP30 定置化 + 套件前置压缩非增值；OP20 同步微调；一个工步转移至 OP60
+after_stations = dict(STATIONS)
+after_stations["OP20 曲轴装配"] = (44.6, 7.0)   # MUDA 8.4 -> 7.0（临界超线一并处理）
+after_stations["OP30 活塞连杆"] = (42.6, 5.0)   # MUDA 11.9 -> 5.0，且转出 4.2s 工步
+after_stations["OP60 试漏检测"] = (37.2, 3.2)   # 吸收 OP30 转出的连杆螺栓二次标记工步
+after = lbe(after_stations)
+
+print(f"\n=== 产线平衡率 ===")
+print(f"改善前 LBE = {before:.2%} | 瓶颈节拍 = {max(total(v) for v in STATIONS.values()):.1f}s")
+print(f"改善后 LBE = {after:.2%} | 瓶颈节拍 = {max(total(v) for v in after_stations.values()):.1f}s")
+print(f"平衡率提升 +{(after - before) * 100:.1f} 个百分点")
+
+# 注意：改善后瓶颈由 OP30 转移到 OP20 —— 瓶颈漂移，说明不能只改当前瓶颈
+
+# ---------- 3. AGV 路径网络：交叉干涉点检测 ----------
+def seg_intersect(p1, p2, p3, p4):
+    """返回两线段交点（不含共端点情形），无交点返回 None"""
+    d1 = (p2[0] - p1[0], p2[1] - p1[1])
+    d2 = (p4[0] - p3[0], p4[1] - p3[1])
+    den = d1[0] * d2[1] - d1[1] * d2[0]
+    if abs(den) < 1e-9:
+        return None                       # 平行或共线
+    t = ((p3[0] - p1[0]) * d2[1] - (p3[1] - p1[1]) * d2[0]) / den
+    u = ((p3[0] - p1[0]) * d1[1] - (p3[1] - p1[1]) * d1[0]) / den
+    if 1e-6 < t < 1 - 1e-6 and 1e-6 < u < 1 - 1e-6:
+        return (p1[0] + t * d1[0], p1[1] + t * d1[1])
+    return None                           # 交点在端点 = 共用工位，不算干涉
+
+def count_crossings(paths):
+    hits, keys = [], list(paths)
+    for i in range(len(keys)):
+        for j in range(i + 1, len(keys)):
+            pt = seg_intersect(*paths[keys[i]], *paths[keys[j]])
+            if pt:
+                hits.append((keys[i], keys[j], tuple(round(v, 1) for v in pt)))
+    return hits
+
+# 平面坐标（无量纲，仅用于拓扑交叉检测，非厂区实测坐标）
+NODES = {"L1": (0, 0), "L2": (0, 40), "L3": (0, 80),
+         "R1": (52, 0), "R2": (52, 40), "R3": (52, 80)}
+
+PATHS_BEFORE = {
+    "L1->R3": (NODES["L1"], NODES["R3"]),
+    "L2->R1": (NODES["L2"], NODES["R1"]),
+    "L3->R2": (NODES["L3"], NODES["R2"]),
+    "L1->R2": (NODES["L1"], NODES["R2"]),
+}
+# 改善后：单向环形回路（每条边方向唯一，不再有对向交叉）
+PATHS_AFTER = {
+    "N1->N2": ((26, 0), (52, 20)),
+    "N2->N3": ((52, 20), (26, 40)),
+    "N3->N4": ((26, 40), (0, 20)),
+    "N4->N1": ((0, 20), (26, 0)),
+}
+
+print("\n=== AGV 路径网络（拓扑层）===")
+print(f"改善前交叉干涉点：{len(count_crossings(PATHS_BEFORE))} 处")
+for a, b, pt in count_crossings(PATHS_BEFORE):
+    print(f"   - {a} × {b} @ {pt}")
+print(f"改善后交叉干涉点：{len(count_crossings(PATHS_AFTER))} 处")
+
+# ---------- 4. 配送里程（现场路径实测，单位：米） ----------
+# 注意：里程不能由上面的无量纲坐标推算，必须用现场实测的路线距离
+ROUTE_BEFORE, ROUTE_AFTER = 186.0, 164.8
+print(f"\n=== 配送里程（实测口径）===")
+print(f"单循环里程：{ROUTE_BEFORE:.1f} m -> {ROUTE_AFTER:.1f} m "
+      f"({(ROUTE_AFTER - ROUTE_BEFORE) / ROUTE_BEFORE:+.1%})")</code></pre>
+      </div>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🎓</span> 六、 方法沉淀与口径边界</h2>
+      <ul>
+        <li><strong>先量化再动手</strong>：现场改善最容易犯的错是「凭感觉挑一个看起来最忙的工位改」。山积图把 6 个工位的工时同时摊开，瓶颈是哪一个是算出来的，不是看出来的。</li>
+        <li><strong>区分「人慢」与「布置差」</strong>：MUDA 分解的价值在于把非增值时间从「操作者技能」里剥离出来。OP30 的非增值占比 20.3% 说明问题在工装与物流，把责任归到工人身上既不公平也不会有效果。</li>
+        <li><strong>物流是产线的隐性节拍源</strong>：AGV 交叉干涉点带来的延迟是随机变量，而随机延迟会直接吃掉瓶颈工位的时间预算。把双向路径单向化，本质上是<strong>把物流从随机变量变成确定性周期</strong>。</li>
+        <li><strong>方案比选要看「残余量」</strong>：混合方案 C 常被认为「风险最低」，但残余的 2 处干涉点会持续稀释收益。判断标准应是改善后还剩多少问题，而不是改造动作有多大。</li>
+        <li><strong>口径边界</strong>：本页所有数值为脱敏标定与情景推演口径，不含企业真实工艺参数；产能提升为单变量情景值，不等同于现场实际产出增量。如需用于对外汇报，应以现场实测数据重新标定。</li>
+      </ul>
+    </section>
+
+    <section class="case-section">
+      <h2><span>🔗</span> 相关作品</h2>
+      <div class="related-grid">
+        <a class="related-card" href="smart-manufacturing-takt-time-analysis.html">
+          <span class="related-kicker">应用统计案例分析</span>
+          <span class="related-name">智能产线节拍异常诊断与动态容量预测</span>
+          <span class="related-desc">同一产线命题的统计学版本：ARIMA 时间序列建模揭示瓶颈工序的跨周期自相关记忆机制。</span>
+        </a>
+        <a class="related-card" href="injection-molding-ventilation.html">
+          <span class="related-kicker">厂房工程实践</span>
+          <span class="related-name">注塑厂房作业环境改善与离心式屋顶通风系统选型</span>
+          <span class="related-desc">同为现场改善类工程实践：VOCs 浓度监测、风量平衡核算与设备选型决策。</span>
+        </a>
+        <a class="related-card" href="../index.html#internships">
+          <span class="related-kicker">经历索引</span>
+          <span class="related-name">实习实践经历总览</span>
+          <span class="related-desc">返回主页查看一汽丰田与长春派格两段企业实践的完整条目。</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" style="padding: 40px 0; border-top: 1px solid var(--border-color); background: var(--bg-card); text-align: center;">
+    <div class="container">
+      <p>© 2026 <strong>戴璇 (Dai Xuan)</strong> · 长春工业大学 · 应用统计硕士研究生（研究方向：数据分析）</p>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">
+        个人门户：<a href="https://daixuan.cloud" style="color: var(--link-inline); text-decoration: underline;">daixuan.cloud</a> · GitHub：<a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer" style="color: var(--link-inline); text-decoration: underline;">@dai123x</a>
+      </p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">代码已复制到剪贴板</div>
+
+  <script>
+    const themeBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    function updateThemeIcon(t) {
+      if (!themeIcon) return;
+      themeIcon.innerHTML = t === 'light'
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+    }
+    const initTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    updateThemeIcon(initTheme);
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const target = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', target);
+        try { localStorage.setItem('dx_theme', target); } catch (e) {}
+        updateThemeIcon(target);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', target === 'dark' ? '#0a0e17' : '#f8fafc');
+        showToast(target === 'dark' ? '已切换至深色模式' : '已切换至浅色模式');
+      });
+    }
+
+    function copyPipelineCode() {
+      const code = document.getElementById('code-snippet').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('Python 测算脚本已复制到剪贴板');
+        const copyText = document.getElementById('copy-text');
+        if (copyText) {
+          copyText.textContent = '已复制!';
+          setTimeout(() => { copyText.textContent = '复制代码'; }, 2000);
+        }
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        showToast('复制失败，请手动选择代码');
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  </script>
+  <script src="../js/lightbox.js?v=20261011-3" defer></script>
+</body>
+</html>
