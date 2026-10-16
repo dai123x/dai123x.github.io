@@ -89,6 +89,9 @@ const state = {
   boardSource: SOURCES.TEACHER,
   showBannerDetail: false,
   matrixSortKey: 'rank',
+  gradeMode: 'single', // 'single' | 'batch'
+  batchSubject: 'chinese',
+  batchTerm: 'final',
   matrixSortAsc: true,
   matrixQuery: '',
 };
@@ -352,6 +355,15 @@ function topbarHTML() {
           </span>
         </div>
       </div>
+      
+        ${state.role === 'teacher' && store.listClasses().length > 1 ? `
+          <div class="topbar-class-box" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-3);padding:3px 10px;border-radius:var(--r-pill);border:1px solid var(--border)">
+            <span style="font-size:.76rem;color:var(--muted)">当前班级:</span>
+            <select data-act="switch-class-top" style="background:transparent;border:0;color:var(--text);font-size:.82rem;font-weight:600;outline:none;cursor:pointer">
+              ${store.listClasses().map((c) => `<option value="${esc(c.id)}"${c.id === state.classId ? ' selected' : ''}>${esc(c.name)} (${c.studentCount}人)</option>`).join('')}
+            </select>
+          </div>` : ''}
+    
       <span class="topbar-spacer"></span>
       <div class="topbar-actions">
         <div class="seg" role="group" aria-label="使用角色">
@@ -657,7 +669,119 @@ function kpi(label, val, tone, sub) {
   </div>`;
 }
 
+
+/* ===================================================================== *
+ * 5.1 按科目批量快速录入视图（Batch Scoring View）
+ * ===================================================================== */
+
+function viewBatchGrade() {
+  const cls = curClass();
+  if (!cls) return noClassHTML();
+  const students = store.listStudents(cls.id);
+  const cfg = store.getConfig();
+  const subKey = state.batchSubject || 'chinese';
+  const termKey = state.batchTerm || 'final';
+  const curSub = SUBJECTS.find((s) => s.key === subKey) || SUBJECTS[0];
+
+  const termNames = { usual: '平时成绩', mid: '期中考试', final: '期末考试' };
+  const termWeights = { usual: cfg.termWeights.usual, mid: cfg.termWeights.mid, final: cfg.termWeights.final };
+
+  return `<div class="stack">
+    <div class="card">
+      <div class="card-head" style="flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <h1 style="margin:0">极速录入模式 · 按科目批量录入</h1>
+            <div class="seg seg-sm">
+              <button class="seg-btn" type="button" data-act="set-grade-mode" data-arg="single">单人全维打分</button>
+              <button class="seg-btn" type="button" data-act="set-grade-mode" data-arg="batch" aria-pressed="true">按科目极速录入</button>
+            </div>
+          </div>
+          <p class="card-sub">键盘友好模式：在输入框中输完按 <b>Enter 或 ↓ 键</b> 自动跳到下一名同学，光标自动全选</p>
+        </div>
+
+        <div class="row row-end" style="gap:10px;flex-wrap:wrap">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);padding:4px 10px;border-radius:var(--r);border:1px solid var(--border)">
+            <span style="font-size:.82rem;color:var(--muted)">当前科目：</span>
+            <select data-act="set-batch-subject" style="background:transparent;border:0;color:var(--text);font-size:.86rem;font-weight:700;outline:none;cursor:pointer">
+              ${SUBJECTS.map((s) => `<option value="${s.key}"${s.key === subKey ? ' selected' : ''}>${esc(s.name)} (权重 ${cfg.subjectWeights[s.key] ?? s.weight})</option>`).join('')}
+            </select>
+          </div>
+
+          <div style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);padding:4px 10px;border-radius:var(--r);border:1px solid var(--border)">
+            <span style="font-size:.82rem;color:var(--muted)">考核阶段：</span>
+            <select data-act="set-batch-term" style="background:transparent;border:0;color:var(--text);font-size:.86rem;font-weight:700;outline:none;cursor:pointer">
+              <option value="final"${termKey === 'final' ? ' selected' : ''}>期末成绩 (${termWeights.final}%)</option>
+              <option value="mid"${termKey === 'mid' ? ' selected' : ''}>期中成绩 (${termWeights.mid}%)</option>
+              <option value="usual"${termKey === 'usual' ? ' selected' : ''}>平时成绩 (${termWeights.usual}%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body tight">
+        <div class="table-wrap" style="max-height:70vh;overflow:auto">
+          <table>
+            <thead style="position:sticky;top:0;z-index:2;background:var(--surface)">
+              <tr>
+                <th scope="col" style="width:50px" class="center">序号</th>
+                <th scope="col" style="width:100px">学号</th>
+                <th scope="col" style="width:110px">姓名</th>
+                <th scope="col" style="width:170px" class="center">本次录入 (${termNames[termKey]})</th>
+                <th scope="col" class="center" style="width:90px">平时分</th>
+                <th scope="col" class="center" style="width:90px">期中分</th>
+                <th scope="col" class="center" style="width:90px">期末分</th>
+                <th scope="col" class="center" style="width:100px">当前科目总评</th>
+                <th scope="col">表现水平</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map((stu, idx) => {
+                const subRec = store.getSubjects(stu.id, SOURCES.TEACHER) || {};
+                const scores = subRec.scores || {};
+                const p = scores[subKey] || { usual: null, mid: null, final: null };
+                const curVal = p[termKey];
+                // 实时算分
+                const parts = [
+                  isNum(p.usual) ? p.usual * termWeights.usual : null,
+                  isNum(p.mid) ? p.mid * termWeights.mid : null,
+                  isNum(p.final) ? p.final * termWeights.final : null,
+                ].filter(isNum);
+                const wSum = [
+                  isNum(p.usual) ? termWeights.usual : 0,
+                  isNum(p.mid) ? termWeights.mid : 0,
+                  isNum(p.final) ? termWeights.final : 0,
+                ].reduce((a, b) => a + b, 0);
+                const termScore = wSum > 0 ? parts.reduce((a, b) => a + b, 0) / wSum : null;
+
+                return `<tr>
+                  <td class="center font-mono" style="color:var(--muted)">${idx + 1}</td>
+                  <td class="font-mono">${esc(stu.no)}</td>
+                  <td><strong>${esc(stu.name)}</strong></td>
+                  <td class="center">
+                    <input class="input font-mono center batch-score-input" type="number" min="0" max="100" step="0.5"
+                      data-batch-stu="${stu.id}" data-batch-idx="${idx}" value="${curVal ?? ''}" placeholder="未评"
+                      style="max-width:110px;font-weight:700;font-size:1.05rem;${isNum(curVal) ? (curVal >= 90 ? 'border-color:var(--ok);color:var(--ok)' : curVal < 60 ? 'border-color:var(--bad);color:var(--bad)' : '') : ''}">
+                  </td>
+                  <td class="center num font-mono" style="${termKey === 'usual' ? 'font-weight:700;color:var(--accent)' : 'color:var(--muted)'}">${fmt1(p.usual)}</td>
+                  <td class="center num font-mono" style="${termKey === 'mid' ? 'font-weight:700;color:var(--accent)' : 'color:var(--muted)'}">${fmt1(p.mid)}</td>
+                  <td class="center num font-mono" style="${termKey === 'final' ? 'font-weight:700;color:var(--accent)' : 'color:var(--muted)'}">${fmt1(p.final)}</td>
+                  <td class="center">
+                    <strong class="font-mono" style="color:${gradeColor(termScore)}">${fmt1(termScore)}</strong>
+                  </td>
+                  <td>${barRowHTML(curSub.name, termScore, 100, gradeColor(termScore))}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function viewGrade() {
+  if (state.gradeMode === 'batch') return viewBatchGrade();
   const cls = curClass();
   if (!cls) return noClassHTML();
   const stu = curStudent();
@@ -1241,6 +1365,123 @@ function weightsPreviewHTML() {
  * 10. 教师端 · 数据管理
  * ===================================================================== */
 
+
+/* ===================================================================== *
+ * 全真 CSV 智能导入引擎
+ * ===================================================================== */
+function parseRawCSV(text) {
+  const lines = [];
+  let row = [''];
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
+    if (c === '"') {
+      if (inQuotes && next === '"') {
+        row[row.length - 1] += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      row.push('');
+    } else if ((c === '\r' || c === '\n') && !inQuotes) {
+      if (c === '\r' && next === '\n') i++;
+      lines.push(row);
+      row = [''];
+    } else {
+      row[row.length - 1] += c;
+    }
+  }
+  if (row.length > 1 || row[0] !== '') lines.push(row);
+  return lines;
+}
+
+function importCSVIntoClass(clsId, csvText) {
+  const lines = parseRawCSV(csvText);
+  if (lines.length < 2) throw new Error('CSV 文件行数不足，至少需包含表头与一行数据');
+  
+  const headers = lines[0].map((h) => h.trim().replace(/^\uFEFF/, ''));
+  const noIdx = headers.findIndex((h) => h.includes('学号') || h.toLowerCase() === 'no' || h.toLowerCase() === 'id');
+  const nameIdx = headers.findIndex((h) => h.includes('姓名') || h.toLowerCase() === 'name');
+  if (noIdx === -1 || nameIdx === -1) {
+    throw new Error('未识别到「学号」或「姓名」列，请使用标准模板');
+  }
+
+  // 科目列与五育列映射索引
+  const subCols = {};
+  SUBJECTS.forEach((s) => {
+    const idx = headers.findIndex((h) => h === s.name || h.includes(s.name));
+    if (idx !== -1) subCols[s.key] = idx;
+  });
+
+  const fiveCols = {};
+  FIVES.forEach((f) => {
+    const idx = headers.findIndex((h) => h === f.name || h === f.full || h.includes(f.name));
+    if (idx !== -1) fiveCols[f.key] = idx;
+  });
+
+  const dailyIdx = headers.findIndex((h) => h.includes('日常'));
+
+  let updatedCount = 0;
+  let createdCount = 0;
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = lines[i];
+    if (!row || !row[noIdx] || !row[noIdx].trim()) continue;
+    const no = row[noIdx].trim();
+    const name = row[nameIdx] ? row[nameIdx].trim() : '学生' + no;
+
+    let stu = store.listStudents(clsId).find((s) => String(s.no) === no);
+    if (!stu) {
+      stu = store.upsertStudent({ classId: clsId, no, name });
+      createdCount++;
+    } else {
+      if (name && stu.name !== name) store.upsertStudent({ id: stu.id, classId: clsId, no, name });
+      updatedCount++;
+    }
+
+    // 导入五育
+    if (Object.keys(fiveCols).length) {
+      const curFives = store.getFives(stu.id, SOURCES.TEACHER) || { items: emptyFives() };
+      const items = curFives.items || emptyFives();
+      for (const [fKey, cIdx] of Object.entries(fiveCols)) {
+        const v = parseFloat(row[cIdx]);
+        if (!Number.isNaN(v)) {
+          // 均匀赋给该育细项
+          const fMeta = FIVES.find((x) => x.key === fKey);
+          if (fMeta) fMeta.items.forEach((it) => { items[fKey][it.key] = Math.max(0, Math.min(100, v)); });
+        }
+      }
+      store.setFives(stu.id, SOURCES.TEACHER, items);
+    }
+
+    // 导入学科成绩
+    if (Object.keys(subCols).length) {
+      const curSubs = store.getSubjects(stu.id, SOURCES.TEACHER) || { scores: emptySubjects() };
+      const scores = curSubs.scores || emptySubjects();
+      for (const [sKey, cIdx] of Object.entries(subCols)) {
+        const v = parseFloat(row[cIdx]);
+        if (!Number.isNaN(v)) {
+          scores[sKey] = { usual: v, mid: v, final: v };
+        }
+      }
+      store.setSubjects(stu.id, SOURCES.TEACHER, scores);
+    }
+
+    // 导入日常表现分
+    if (dailyIdx !== -1) {
+      const v = parseFloat(row[dailyIdx]);
+      if (!Number.isNaN(v)) {
+        const diff = v - store.getConfig().dailyBase;
+        store.setDaily(stu.id, SOURCES.TEACHER, [{ key: 'd-import', label: 'CSV 导入初始分', delta: diff, at: new Date().toISOString() }]);
+      }
+    }
+  }
+
+  return { createdCount, updatedCount };
+}
+
 function viewData() {
   const snap = store.snapshot();
   const counts = {
@@ -1276,6 +1517,7 @@ function viewData() {
         <button class="btn btn-sm" type="button" data-act="import-json">导入备份</button>
         <button class="btn btn-sm" type="button" data-act="export-csv">导出成绩表（CSV）</button>
         <button class="btn btn-sm" type="button" data-act="download-csv-template">📥 下载导入空白模板（CSV）</button>
+        <button class="btn btn-sm btn-primary" type="button" data-act="import-csv">📤 智能导入成绩表（CSV）</button>
         <button class="btn btn-sm" type="button" data-act="print">打印 / 存 PDF</button>
         <span class="row-end"></span>
         <button class="btn btn-sm" type="button" data-act="load-demo">重新载入演示数据</button>
@@ -2151,6 +2393,54 @@ function handleAction(act, arg, el) {
         '202603,王芳,96,90,84,95,92,95,88,94,82,85,88,94,92,90,85,96,92,90,112';
       download('学生综合评分导入模板.csv', '\uFEFF' + tpl, 'text/csv;charset=utf-8');
       toast('标准导入模板已下载', 'ok');
+      break;
+    }
+  
+    
+    case 'switch-class-top':
+      state.classId = arg;
+      const topStus = store.listStudents(arg);
+      if (topStus.length) state.studentId = topStus[0].id;
+      render();
+      break;
+
+    case 'set-grade-mode':
+      state.gradeMode = arg;
+      render();
+      break;
+
+    case 'set-batch-subject':
+      state.batchSubject = arg;
+      render();
+      break;
+
+    case 'set-batch-term':
+      state.batchTerm = arg;
+      render();
+      break;
+
+    case 'import-csv': {
+      const cls = curClass();
+      if (!cls) { toast('请先选择或新建一个班级', 'bad'); break; }
+      const inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = '.csv,text/csv';
+      inp.addEventListener('change', () => {
+        const file = inp.files && inp.files[0];
+        if (!file) return;
+        const fr = new FileReader();
+        fr.onload = () => {
+          try {
+            const res = importCSVIntoClass(cls.id, String(fr.result));
+            toast(`CSV 导入成功！新增 ${res.createdCount} 人，更新 ${res.updatedCount} 人`, 'ok');
+            render();
+          } catch (err) {
+            alert('CSV 导入失败：' + err.message);
+          }
+        };
+        fr.readAsText(file, 'utf-8');
+      });
+      inp.click();
       break;
     }
   
