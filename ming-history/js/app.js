@@ -189,6 +189,7 @@
     ensure(view);
     syncTabs(view);
     curView = view;
+    buildToc(view);          // 必须排在锚点定位之前：reveal() 要用目录条量出的偏移
 
     // 「权力」栏的段落语料有 1 MB，只在真正进入该栏时才拉。
     // 空闲预渲染会把这个栏目也建出来（只建骨架），若在 renderPower 里无条件 loadPwText()，
@@ -211,6 +212,10 @@
     }
 
     live(($("#tab-" + view) || {}).textContent ? "已切换到" + $("#tab-" + view).textContent + "栏目" : "");
+
+    // 「权力」栏的段落语料、部分异步图表是稍后才落地的，结构标题要等它齐了再收一次。
+    // 用 curView 兜底：700ms 内用户已经切走的话，这次重建就该丢弃，否则会把新栏目的目录覆盖掉。
+    setTimeout(() => { if (curView === view) buildToc(view); }, 700);
   }
 
   /* 定位/导航一律「瞬移」，不要动画。
@@ -244,7 +249,7 @@
     if (!el) return;
     unskip(el);
     // 必须瞬移：闪烁环只挂 2400ms，若边走动画边闪，人还在路上高亮就放完了
-    jumpTo(el.getBoundingClientRect().top + window.scrollY - 84);
+    jumpTo(el.getBoundingClientRect().top + window.scrollY - stickyOffset());
     el.classList.remove("flash");
     void el.offsetWidth;            // 强制重排，让动画可重放
     el.classList.add("flash");
@@ -297,6 +302,133 @@
     });
     const start = parseHash();
     go(start.view, { push: false, source: "init", anchor: start.anchor });
+  }
+
+  /* ==================== 4b. 页内目录 ==================== */
+  /* 长栏目原先只有顶栏那 18 个标签，栏目内部没有任何导航：年表 149 条一条线拉到
+     19000px，权力结构 26000px，词条库 15000px，用户只能一路滚。
+     这里按「结构标题」生成一条贴在顶栏下方的目录条，随滚动高亮当前小节。
+     结构标题的取法（宁少勿滥，避免把 149 条事件标题全塞进来）：
+       ① 静态的 .sec-head > h2（各栏目的顶层小节，全部视图都有）；
+       ② h3.sub-h / h3.st-sec-h / h3.ch-h（舆图、统计、图表三个栏目的既有小节类名）；
+       ③ 渲染时显式打了 data-toc 的（年表分期组头、词条分类组头、数据一览分组等）。
+     条目少于 3 个就整条隐藏——短栏目不需要它，白占一行反而挤。 */
+  const TOC_MIN = 3;
+  const TOC_SEL = "[data-toc], .sec-head > h2, h3.sub-h, h3.st-sec-h, h3.ch-h";
+  let tocItems = [];
+  /* 「这个栏目够长、值得配目录」是个栏目级属性，一旦成立就不再撤销。
+     否则筛到只剩一个分期/分类时条目掉到 2 个以下、目录条会突然消失，
+     下方内容整体上跳约 40px —— 用户刚点的筛选按钮就在旁边，这一跳很显眼。
+     条目为 0（整栏被筛空）才真的收起来。 */
+  const tocOk = Object.create(null);
+
+  /* 两条 sticky（顶栏 + 目录条）的总高。锚点定位、目录跳转、scroll-margin 都用它，
+     所以只在这里量一次；两处写死数字迟早会对不上。 */
+  function stickyOffset() {
+    const tb = $(".topbar");
+    const toc = $("#viewToc");
+    const th = tb ? tb.getBoundingClientRect().height : 0;
+    const ch = toc && !toc.hidden ? toc.getBoundingClientRect().height : 0;
+    return Math.round(th + ch + 14);
+  }
+
+  function syncStickyVars() {
+    const de = document.documentElement;
+    const tb = $(".topbar");
+    de.style.setProperty("--topbar-h", Math.round(tb ? tb.getBoundingClientRect().height : 57) + "px");
+    de.style.setProperty("--sticky-h", stickyOffset() + 4 + "px");
+  }
+
+  /* 取标题的可读文字。带 <span> 副标题的（如 .st-sec-h「A · 史料事实<span>统计对象是…</span>」）
+     只取自己的文本节点，否则目录里会出现一整句话。 */
+  function tocLabel(el) {
+    if (el.dataset && el.dataset.tocLabel) return el.dataset.tocLabel;
+    let t = "";
+    for (let n = el.firstChild; n; n = n.nextSibling) if (n.nodeType === 3) t += n.nodeValue;
+    t = t.replace(/\s+/g, " ").trim();
+    return t || (el.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function collectToc(view) {
+    const root = document.getElementById("view-" + view);
+    if (!root) return [];
+    const out = [];
+    $$(TOC_SEL, root).forEach((el) => {
+      if (el.closest("[hidden]")) return;     // 被筛选隐去的组头不进目录
+      const txt = tocLabel(el);
+      if (txt) out.push({ el: el, txt: txt, a: null });
+    });
+    return out;
+  }
+
+  function markToc() {
+    if (!tocItems.length) return;
+    const box = $("#viewTocItems");
+    const line = stickyOffset() + 10;
+    let cur = 0;
+    for (let i = 0; i < tocItems.length; i++) {
+      const r = tocItems[i].el.getBoundingClientRect();
+      if (r.height === 0 && r.width === 0) continue;   // 尚未渲染/被 content-visibility 跳过
+      if (r.top <= line) cur = i; else break;
+    }
+    tocItems.forEach((it, i) => { if (it.a) it.a.classList.toggle("on", i === cur); });
+    // 高亮的条目要留在横向条带的可见范围内
+    const a = tocItems[cur] && tocItems[cur].a;
+    if (a && box && box.scrollWidth > box.clientWidth + 4) {
+      const l = box.scrollLeft, r = l + box.clientWidth;
+      if (a.offsetLeft < l + 6) box.scrollLeft = a.offsetLeft - 6;
+      else if (a.offsetLeft + a.offsetWidth > r - 6) box.scrollLeft = a.offsetLeft + a.offsetWidth - box.clientWidth + 6;
+    }
+  }
+
+  function buildToc(view) {
+    const nav = $("#viewToc"), box = $("#viewTocItems");
+    if (!nav || !box) return;
+    tocItems = collectToc(view);
+    if (tocItems.length >= TOC_MIN) tocOk[view] = true;
+    if (!tocOk[view] || !tocItems.length) {
+      tocItems = []; box.innerHTML = ""; nav.hidden = true;
+      syncStickyVars();
+      return;
+    }
+    box.innerHTML = tocItems.map((it, i) => {
+      if (!it.el.id) it.el.id = "toc-" + view + "-" + i;
+      it.id = it.el.id;
+      return `<a class="vt-item" href="#${view}/${encodeURIComponent(it.id)}" data-i="${i}">${esc(it.txt)}</a>`;
+    }).join("");
+    const as = $$(".vt-item", box);
+    tocItems.forEach((it, i) => { it.a = as[i]; });
+    nav.hidden = false;
+    nav.classList.remove("more-right", "more-left");
+    syncStickyVars();
+    markToc();
+  }
+
+  /* 筛选改变了可见结构（如年表切分期、词条切分类）时，目录要跟着重建。
+     必须延到下一轮任务再跑：这些渲染函数也会在 go() 的 ensure() 阶段被调用，
+     那时 curView 还是「上一个栏目」，同步重建会拿旧栏目把新目录覆盖掉。 */
+  function syncToc() {
+    const v = curView;
+    setTimeout(() => {
+      const el = document.getElementById("view-" + v);
+      if (curView === v && el && el.classList.contains("active")) buildToc(v);
+    }, 0);
+  }
+
+  function initToc() {
+    const nav = $("#viewToc"), box = $("#viewTocItems");
+    if (!nav || !box) return;
+    delegate(box, "click", ".vt-item", (a, e) => {
+      const it = tocItems[Number(a.dataset.i)];
+      if (!it) return;
+      e.preventDefault();                  // 自己滚，别让浏览器再原生跳一次（会与 reveal 打架）
+      setHash(curView, it.id, true);       // 目录内跳转不往历史里堆，返回键仍回到上一个栏目
+      reveal(it.el);
+      live("已跳到「" + it.txt + "」");
+    });
+    window.addEventListener("scroll", raf(markToc), { passive: true });
+    window.addEventListener("resize", raf(() => { syncStickyVars(); markToc(); }));
+    syncStickyVars();
   }
 
   /* ==================== 5. 标签栏 ==================== */
@@ -393,31 +525,56 @@
       <div class="emp-refs">${(e.refs || []).map((r) => `<span class="chip">${esc(r)}</span>`).join("")}</div>`;
   }
 
-  /* 表头常驻、正文按需注入：首屏只建 23 个表头，展开哪一个才建哪一段 */
+  /* 在位时间轴（V9 重做）。
+     原先是一条 84px 的轨道加 23 个无标签圆点，整条轴的可读文字只有 8 个年份，
+     谁是谁必须悬停才知道，等于把「在位曲线」这个卖点藏了起来。
+     现在改成甘特图：每帝一行，左列庙号名讳、中列按年份定位的在位条、右列年数，
+     政权用颜色区分，条够宽时把年号直接写进条里。整行是一个按钮，
+     点它等同于点下方那张卡片——两个入口都走同一个 toggleEmp，状态不会分叉。 */
+  const HOUSE_COLOR = { "明朝": "var(--c-indigo)", "南明": "var(--c-teal)", "明郑": "var(--c-amber)" };
+  const houseColor = (h) => HOUSE_COLOR[h] || "var(--c-violet)";
+  const AXIS_TICKS = [1368, 1400, 1450, 1500, 1550, 1600, 1650, 1683];
+
   function renderEmperors() {
     const list = EMPERORS.filter((e) => houseFilter === "all" || e.house === houseFilter);
-
-    const axis = $("#axis");
     const span = AXIS_TO - AXIS_FROM;
-    const marks = [1368, 1400, 1450, 1500, 1550, 1600, 1650, 1683].map((y) => {
-      const p = ((y - AXIS_FROM) / span) * 100;
-      return `<span class="axis-year" style="left:${p.toFixed(3)}%">${y}</span>`;
-    }).join("");
-    const nodes = list.map((e) => {
-      const p = Math.max(0, Math.min(100, ((e.from - AXIS_FROM) / span) * 100));
-      return `<button class="axis-node${openEmps.has(e.no) ? " on" : ""}" type="button" style="left:${p.toFixed(3)}%"
-        data-no="${e.no}" title="${esc(e.temple + e.name)} ${esc(e.span)}" aria-label="${esc(e.temple + e.name)}"></button>`;
-    }).join("");
-    // 高亮条覆盖当前筛选出的时间范围
-    let fill = "";
-    if (list.length) {
-      const lo = Math.min.apply(null, list.map((e) => e.from));
-      const hi = Math.max.apply(null, list.map((e) => e.to));
-      const l = Math.max(0, ((lo - AXIS_FROM) / span) * 100);
-      const w = Math.min(100 - l, ((hi - lo) / span) * 100);
-      fill = `<div class="axis-fill" style="left:${l.toFixed(3)}%;width:${w.toFixed(3)}%"></div>`;
+    const axis = $("#axis");
+
+    if (!list.length) {
+      axis.innerHTML = '<div class="reign-empty">该政权下暂无条目</div>';
+    } else {
+      const ticks = AXIS_TICKS.map((y) =>
+        `<span class="reign-tick" style="left:${(((y - AXIS_FROM) / span) * 100).toFixed(3)}%">${y}</span>`).join("");
+      const rows = list.map((e) => {
+        const a = Math.max(0, Math.min(100, ((e.from - AXIS_FROM) / span) * 100));
+        const b = Math.max(0, Math.min(100, ((e.to - AXIS_FROM) / span) * 100));
+        const w = Math.max(0.5, b - a);   // 在位不足一年的，也要留得下一条看得见的色块
+        const on = openEmps.has(e.no);
+        const full = e.temple + e.name + "　" + e.span + "　在位 " + e.years;
+        return `<button class="reign-row${on ? " on" : ""}" type="button" data-no="${e.no}"
+          aria-expanded="${on}" aria-controls="empbody-${e.no}" aria-label="${esc(full)}" title="${esc(full)}">
+          <span class="reign-lab"><b>${esc(e.temple)}</b><span class="rg-name">${esc(e.name)}</span></span>
+          <span class="reign-track"><i style="left:${a.toFixed(3)}%;width:${w.toFixed(3)}%;background:${houseColor(e.house)}"></i></span>
+          <span class="reign-val">${e.era && e.era !== "—" ? `<em>${esc(e.era)}</em>` : ""}<span>${esc(e.years)}</span></span>
+        </button>`;
+      }).join("");
+      const houses = list.map((e) => e.house).filter((v, i, arr) => arr.indexOf(v) === i);
+      const legend = houses.length > 1
+        ? `<div class="reign-legend">${houses.map((h) =>
+            `<span><i style="background:${houseColor(h)}"></i>${esc(h)}</span>`).join("")}</div>`
+        : "";
+      /* 竖网格线：没有它，读条的时候只能拿眼睛去够顶部那 8 个年份刻度。
+         单独一层绝对定位，只铺满「轨道列」的宽度，压在行底下（行 z-index 更高）。 */
+      const grid = AXIS_TICKS.map((y) =>
+        `<i style="left:${(((y - AXIS_FROM) / span) * 100).toFixed(3)}%"></i>`).join("");
+      axis.innerHTML = `<div class="reign-plot">
+          <div class="reign-grid" aria-hidden="true">${grid}</div>
+          <div class="reign-row reign-axis" aria-hidden="true">
+            <span class="reign-lab"></span>
+            <span class="reign-track">${ticks}</span>
+            <span class="reign-val"><em>年号</em><span>在位</span></span>
+          </div>${rows}</div>${legend}`;
     }
-    axis.innerHTML = `<div class="axis-track"></div>${fill}${marks}${nodes}`;
 
     $("#empList").innerHTML = list.map((e) => {
       const on = openEmps.has(e.no);
@@ -457,6 +614,9 @@
     }
     if (art) art.classList.toggle("open", open);
     if (head) head.setAttribute("aria-expanded", String(open));
+    // 在位时间轴上同一帝王的行也要跟着亮/灭，否则两个入口的状态会分叉
+    const row = $('#axis .reign-row[data-no="' + no + '"]');
+    if (row) { row.classList.toggle("on", open); row.setAttribute("aria-expanded", String(open)); }
   }
 
   function initEmpList() {
@@ -469,11 +629,15 @@
         if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
     });
-    delegate($("#axis"), "click", ".axis-node", (n) => {
+    delegate($("#axis"), "click", ".reign-row[data-no]", (n) => {
       const no = Number(n.dataset.no);
-      if (!openEmps.has(no)) toggleEmp(no);
-      const el = document.getElementById("emp-" + no);
-      if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+      const willOpen = !openEmps.has(no);
+      toggleEmp(no);
+      // 展开时把对应卡片滚到视野中央；收起时不动，避免刚看完就被甩走
+      if (willOpen) {
+        const el = document.getElementById("emp-" + no);
+        if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
     });
     delegate($("#houseSwitch"), "click", ".pill", (p) => {
       houseFilter = p.dataset.house;
@@ -562,24 +726,48 @@
     $("#chronoCatFilters").innerHTML = ["全部"].concat(catsUsed).map((c) =>
       `<button class="pill cat${chronoCat === c ? " active" : ""}" data-cat="${esc(c)}" type="button">${esc(c)}</button>`).join("");
 
-    $("#chronoList").innerHTML = CHRONOLOGY.map((c, i) => `
+    const entryHtml = (c, i) => `
       <div class="ce${c.key ? " key" : ""}" id="ce-${i}" data-era="${esc(periodOf(c.y))}" data-cat="${esc(c.cat || "")}">
         <div class="y">${c.y}<span class="era">${esc(c.era)}</span>${c.cat ? `<span class="cat-tag" data-cat="${esc(c.cat)}">${esc(c.cat)}</span>` : ""}</div>
         <h3>${esc(c.t)}${c.key ? ' <span class="chip key">节点</span>' : ""}</h3>
         <p>${esc(c.d)}</p>
         ${c.refs && c.refs.length ? `<div class="ce-refs">${c.refs.map((r) => `<span>${esc(r)}</span>`).join("")}</div>` : ""}
-      </div>`).join("");
+      </div>`;
+
+    /* 149 条事件原先是「一条线拉到底」，19000px 里没有任何分段。
+       按分期切开后，既给了阅读的呼吸点，也给了页内目录可以落的锚点。
+       顺序沿用 PERIODS 的先后，不按出现顺序——年代线必须单调。 */
+    const groups = [];
+    const gIndex = Object.create(null);
+    CHRONOLOGY.forEach((c, i) => {
+      const pid = periodOf(c.y);
+      if (!(pid in gIndex)) { gIndex[pid] = groups.length; groups.push({ id: pid, items: [] }); }
+      groups[gIndex[pid]].items.push({ c: c, i: i });
+    });
+
+    $("#chronoList").innerHTML = groups.map((g, gi) => `
+      <div class="ce-group" id="ceg-${gi}" data-toc data-toc-label="${esc(g.id)}" data-era="${esc(g.id)}">
+        <span class="ceg-name">${esc(g.id)}</span><span class="ceg-n">${g.items.length} 条</span>
+      </div>${g.items.map((x) => entryHtml(x.c, x.i)).join("")}`).join("");
 
     applyChronoFilter();
   }
 
   function applyChronoFilter() {
     let shown = 0;
+    const byEra = Object.create(null);
     $$("#chronoList .ce").forEach((el) => {
       const ok = (chronoEra === "全部" || el.dataset.era === chronoEra) &&
         (chronoCat === "全部" || el.dataset.cat === chronoCat);
       el.hidden = !ok;
-      if (ok) shown++;
+      if (ok) { shown++; byEra[el.dataset.era] = (byEra[el.dataset.era] || 0) + 1; }
+    });
+    // 组头跟着筛选走：该分期一条不剩就整段隐去，计数改成当前可见条数
+    $$("#chronoList .ce-group").forEach((g) => {
+      const n = byEra[g.dataset.era] || 0;
+      g.hidden = n === 0;
+      const badge = g.querySelector(".ceg-n");
+      if (badge) badge.textContent = n + " 条";
     });
     let empty = $("#chronoEmpty");
     if (!shown) {
@@ -591,6 +779,7 @@
         $("#chronoList").appendChild(empty);
       }
     } else if (empty) empty.remove();
+    syncToc();   // 可见分期变了，页内目录跟着变
   }
 
   function initChronoFilters() {
@@ -717,7 +906,7 @@
       <section class="bz-sec" id="bzs-${esc(s.id)}" data-sys="${esc(s.name)}">
         <div class="bz-sec-head">
           <span class="bz-ico" aria-hidden="true">${esc(s.icon)}</span>
-          <h3>${esc(s.name)}</h3>
+          <h3 data-toc>${esc(s.name)}</h3>
           <span class="chip">${(s.offices || []).length} 个职位</span>
         </div>
         <p class="bz-sec-note">${esc(s.note)}</p>
@@ -763,6 +952,7 @@
         $("#bzSystems").appendChild(empty);
       }
     } else if (empty) empty.remove();
+    syncToc();   // 可见体系变了，页内目录跟着变
   }
 
   function initBureaucracy() {
@@ -809,7 +999,7 @@
       <section class="tk-sec" id="tks-${esc(s.id)}" data-school="${esc(s.name)}">
         <div class="tk-sec-head">
           <span class="bz-ico" aria-hidden="true">${esc(s.icon)}</span>
-          <h3>${esc(s.name)}</h3>
+          <h3 data-toc>${esc(s.name)}</h3>
           <span class="chip">${esc(s.span)}</span>
           <span class="chip">${(s.thinkers || []).length} 位</span>
         </div>
@@ -851,6 +1041,7 @@
         $("#tkSchools").appendChild(empty);
       }
     } else if (empty) empty.remove();
+    syncToc();   // 可见学派变了，页内目录跟着变
   }
 
   function initThinkers() {
@@ -1285,7 +1476,7 @@
       <section class="bib-group" data-g="${gi}">
         <div class="num-group-head">
           <span class="num-ico">${esc(g.icon)}</span>
-          <h3>${esc(g.name)}</h3>
+          <h3 data-toc>${esc(g.name)}</h3>
           <span class="chip" data-count></span>
         </div>
         <div class="bib-list">${(g.items || []).map((it, ii) => `
@@ -1329,6 +1520,7 @@
         $("#bibGroups").appendChild(empty);
       }
     } else if (empty) empty.remove();
+    syncToc();   // 可见书目分组变了，页内目录跟着变
   }
 
   function initBibliography() {
@@ -1362,12 +1554,35 @@
     });
 
     $("#glossCount").textContent = list.length + " 条";
-    $("#glossGrid").innerHTML = list.length ? list.map(({ g, i }) => `
+
+    const cardHtml = ({ g, i }) => `
       <article class="gi" id="gl-${i}">
         <div class="top"><b>${hl(g.t)}</b>${g.e ? `<span class="e">${hl(g.e)}</span>` : ""}<span class="chip" style="margin-left:auto">${esc(g.c)}</span></div>
         <p>${hl(g.d)}</p>
         <div class="refs">${g.r.map((r) => `<span>${esc(r)}</span>`).join("")}</div>
-      </article>`).join("") : '<div class="empty">没有匹配的词条</div>';
+      </article>`;
+
+    if (!list.length) {
+      $("#glossGrid").innerHTML = '<div class="empty">没有匹配的词条</div>';
+    } else if (glossCat !== "全部") {
+      // 已经按分类筛过，再套一层同名的组头是废话，直接平铺
+      $("#glossGrid").innerHTML = list.map(cardHtml).join("");
+    } else {
+      /* 「全部」时 272 条平铺成一张 15000px 的网格，没有任何分段。
+         按分类切开，给页内目录可以落的锚点；筛选到单一分类时自动回到平铺。 */
+      const groups = [];
+      const gIndex = Object.create(null);
+      list.forEach((it) => {
+        const k = it.g.c || "其他";
+        if (!(k in gIndex)) { gIndex[k] = groups.length; groups.push({ k: k, items: [] }); }
+        groups[gIndex[k]].items.push(it);
+      });
+      $("#glossGrid").innerHTML = groups.map((g, gi) => `
+        <div class="gi-group" id="gg-${gi}" data-toc data-toc-label="${esc(g.k)}">
+          <span class="gg-name">${esc(g.k)}</span><span class="gg-n">${g.items.length} 条</span>
+        </div>${g.items.map(cardHtml).join("")}`).join("");
+    }
+    syncToc();   // 分类组头变了，页内目录跟着变
   }
 
   function initGlossary() {
@@ -1446,7 +1661,7 @@
       `<div class="legend-item"><span class="conf ${confClass(l.k)}">${esc(l.k)}</span><span>${esc(l.d)}</span></div>`).join("");
     $("#numGroups").innerHTML = (NUMBERS.groups || []).map((g, gi) => `
       <section class="num-group">
-        <div class="num-group-head"><span class="num-ico">${esc(g.icon)}</span><h3>${esc(g.name)}</h3><span class="chip">${g.items.length} 项</span></div>
+        <div class="num-group-head"><span class="num-ico">${esc(g.icon)}</span><h3 data-toc>${esc(g.name)}</h3><span class="chip">${g.items.length} 项</span></div>
         <div class="num-list">
           ${g.items.map((it, ii) => `
             <article class="num-item" id="num-${gi}-${ii}">
@@ -2331,7 +2546,7 @@
       `<section class="ch-card${cls ? " " + cls : ""}" id="ch-${n}">
         <h3 class="ch-h">${esc(CH_TITLE[n])}</h3>${body}${note ? `<p class="ch-read">${note}</p>` : ""}</section>`;
     const group = (name, lead, cards) =>
-      `<section class="ch-group"><div class="ch-group-head"><h2>${esc(name)}</h2><p>${lead}</p></div>
+      `<section class="ch-group"><div class="ch-group-head"><h2 data-toc>${esc(name)}</h2><p>${lead}</p></div>
         <div class="ch-cards">${cards.join("")}</div></section>`;
 
     const G = [];
@@ -3196,6 +3411,7 @@
   /* ==================== 27. 启动 ==================== */
   function boot() {
     initTheme();
+    initToc();
     initTabs();
     initHoverPrefetch();
     initLineageMode();

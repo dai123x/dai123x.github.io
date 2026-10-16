@@ -12,7 +12,7 @@
 <meta property="og:description" content="帝王世系与世系图、大事年表、年号纪年速查、明代官僚体系与品级表、思想界二十家、权力结构（方志远全书骨架与段落级检索）、舆图政区、数据一览、争议考辨、多书对照与真实章节索引，附 35 种延伸书目与本地阅读器。不转载书籍正文。">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/><text y='76' x='50' text-anchor='middle' font-size='62' fill='white' font-family='serif'>明</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=20261011_09">
+<link rel="stylesheet" href="css/style.css?v=20261011_10">
 <script>
   (function () {
     try {
@@ -69,6 +69,14 @@
 </header>
 
 <main class="wrap" id="main" tabindex="-1">
+
+  <!-- 页内目录：随当前栏目由 JS 生成，结构简单时不显示 -->
+  <nav class="view-toc" id="viewToc" aria-label="本页目录" hidden>
+    <div class="vt-scroll">
+      <span class="vt-label">本页</span>
+      <div class="vt-items" id="viewTocItems"></div>
+    </div>
+  </nav>
 
   <!-- ============ 总览 ============ -->
   <section class="view active" id="view-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
@@ -179,7 +187,7 @@
         <button class="pill" data-house="南明" type="button">南明（1644—1662）</button>
         <button class="pill" data-house="明郑" type="button">明郑（1661—1683）</button>
       </div>
-      <div class="axis" id="axis" role="group" aria-label="年代轴"></div>
+      <div class="reign" id="axis" role="group" aria-label="帝王在位时间轴 · 每行一位帝王，横条为其在位区间"></div>
       <div class="emp-list" id="empList"></div>
     </div>
 
@@ -619,23 +627,23 @@
   </div>
 </div>
 
-<script src="js/data-books.js?v=20261011_09"></script>
-<script src="js/data-books-more.js?v=20261011_09"></script>
-<script src="js/data-books-power.js?v=20261011_09"></script>
-<script src="js/data-emperors.js?v=20261011_09"></script>
-<script src="js/data-chronology.js?v=20261011_09"></script>
-<script src="js/data-glossary.js?v=20261011_09"></script>
-<script src="js/data-reading.js?v=20261011_09"></script>
-<script src="js/data-eranames.js?v=20261011_09"></script>
-<script src="js/data-bureaucracy.js?v=20261011_09"></script>
-<script src="js/data-thinkers.js?v=20261011_09"></script>
-<script src="js/data-power.js?v=20261011_09"></script>
-<script src="js/data-geo.js?v=20261011_09"></script>
-<script src="js/data-numbers.js?v=20261011_09"></script>
-<script src="js/data-debates.js?v=20261011_09"></script>
-<script src="js/data-lineage.js?v=20261011_09"></script>
-<script src="js/data-bibliography.js?v=20261011_09"></script>
-<script src="js/stats.js?v=20261011_09"></script>
-<script src="js/app.js?v=20261011_09"></script>
+<script src="js/data-books.js?v=20261011_10"></script>
+<script src="js/data-books-more.js?v=20261011_10"></script>
+<script src="js/data-books-power.js?v=20261011_10"></script>
+<script src="js/data-emperors.js?v=20261011_10"></script>
+<script src="js/data-chronology.js?v=20261011_10"></script>
+<script src="js/data-glossary.js?v=20261011_10"></script>
+<script src="js/data-reading.js?v=20261011_10"></script>
+<script src="js/data-eranames.js?v=20261011_10"></script>
+<script src="js/data-bureaucracy.js?v=20261011_10"></script>
+<script src="js/data-thinkers.js?v=20261011_10"></script>
+<script src="js/data-power.js?v=20261011_10"></script>
+<script src="js/data-geo.js?v=20261011_10"></script>
+<script src="js/data-numbers.js?v=20261011_10"></script>
+<script src="js/data-debates.js?v=20261011_10"></script>
+<script src="js/data-lineage.js?v=20261011_10"></script>
+<script src="js/data-bibliography.js?v=20261011_10"></script>
+<script src="js/stats.js?v=20261011_10"></script>
+<script src="js/app.js?v=20261011_10"></script>
 </body>
 </html>

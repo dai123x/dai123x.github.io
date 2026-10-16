@@ -243,16 +243,73 @@ a:hover { text-decoration: underline; }
 .pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
 .pill.active { background: var(--accent-gradient); color: var(--on-accent); border-color: transparent; }
 
-.axis { position: relative; height: 84px; margin: 8px 0 26px; }
-.axis-track { position: absolute; top: 44px; left: 0; right: 0; height: 2px; background: var(--border-color); }
-.axis-fill { position: absolute; top: 44px; left: 0; height: 2px; background: var(--accent-gradient); }
-.axis-node {
-  position: absolute; top: 38px; width: 13px; height: 13px; margin-left: -6.5px;
-  border-radius: 50%; background: var(--bg-primary); border: 2px solid var(--accent-primary);
-  cursor: pointer; transition: var(--transition); padding: 0;
+/* 在位时间轴（V9 重做）：由「无标签圆点条」改为「有标签的在位甘特图」。
+   每帝一行 = 左标签列 + 中轨道（按 1368—1683 定位的条）+ 右年数列。
+   三条列宽用 CSS 变量统一，刻度行与数据行共用同一套网格，轴与条才对得齐。 */
+.reign {
+  display: block;
+  margin: 4px 0 26px; --rg-lab: 132px; --rg-val: 74px;
 }
-.axis-node:hover, .axis-node.on { background: var(--accent-primary); transform: scale(1.45); box-shadow: 0 0 0 5px var(--accent-glow); }
-.axis-year { position: absolute; top: 8px; font-size: 0.68rem; color: var(--text-muted); transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.reign-plot { position: relative; display: flex; flex-direction: column; gap: 1px; }
+/* 竖网格线层：只铺轨道列，压在数据行之下 */
+.reign-grid {
+  position: absolute; z-index: 0; pointer-events: none;
+  left: calc(var(--rg-lab) + 10px); right: calc(var(--rg-val) + 10px);
+  top: 0; bottom: 0;
+}
+.reign-grid i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid-line); }
+.reign-row {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: var(--rg-lab) 1fr var(--rg-val);
+  align-items: center; gap: 10px;
+  border: 0; background: none; font: inherit; color: inherit;
+  padding: 2px 0; text-align: left; cursor: pointer; border-radius: 6px;
+}
+.reign-row:hover { background: var(--bg-tertiary); }
+.reign-lab {
+  display: flex; align-items: baseline; gap: 6px; justify-content: flex-end;
+  min-width: 0; font-size: .82rem; line-height: 1.3; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden;
+}
+.reign-lab b { flex-shrink: 0; font-family: var(--font-serif); font-size: .92rem; color: var(--text-primary); font-weight: 700; }
+/* 「明郑」那一行的名讳是「郑成功 · 郑经 · 郑克塽」，必须能省略，否则会把庙号挤出可视区 */
+.reign-lab .rg-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* ⚠️ 轨道必须是半透明的：底下那层竖网格线要透上来。
+     原先用实心 --bg-tertiary，网格线被整条盖住，等于白画。 */
+.reign-track {
+  position: relative; height: 13px; border-radius: var(--radius-full);
+  background: var(--rg-rail); overflow: hidden;
+}
+.reign-track i {
+  position: absolute; top: 0; bottom: 0; min-width: 3px;
+  border-radius: var(--radius-full); display: block;
+  transition: width .5s cubic-bezier(.16,1,.3,1), filter .2s;
+}
+.reign-row:hover .reign-track i, .reign-row.on .reign-track i { filter: brightness(1.2) saturate(1.12); }
+.reign-row.on .reign-track i { box-shadow: 0 0 0 2px var(--accent-glow); }
+/* 右列两行：年号 + 在位年数。
+   年号原先写在条内，实测只有 28px 宽、字号 10px —— 截图里根本认不出，
+   挪到列里反而每个都读得到，也不受条宽影响。 */
+.reign-val {
+  display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25;
+  font-size: .74rem; color: var(--text-muted); white-space: nowrap;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+.reign-val em { font-style: normal; font-size: .7rem; color: var(--text-secondary); }
+.reign-row.on .reign-val, .reign-row.on .reign-val em { color: var(--text-primary); }
+/* 刻度行：与数据行同一网格，只是轨道里放的是年份文字而非条 */
+.reign-axis { cursor: default; }
+.reign-axis:hover { background: none; }
+.reign-axis .reign-track { background: none; overflow: visible; height: 16px; }
+/* 刻度文字由下方的 .reign-grid 竖线接续到图底，不再另画短刻度 */
+.reign-tick {
+  position: absolute; top: 0; font-size: .68rem; color: var(--text-muted);
+  transform: translateX(-50%); font-variant-numeric: tabular-nums;
+}
+.reign-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 4px 0 0; padding-left: calc(var(--rg-lab) + 10px); }
+.reign-legend span { font-size: .72rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 5px; }
+.reign-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.reign-empty { color: var(--text-muted); font-size: .88rem; padding: 18px 0; }
 
 .emp-list { display: grid; gap: 10px; }
 .emp {
@@ -412,7 +469,10 @@ mark { background: rgba(129, 140, 248, .28); color: inherit; border-radius: 3px;
 @media (max-width: 560px) {
   .emp-row { grid-template-columns: 40px 1fr; }
   .emp-span { grid-column: 2; }
-  .axis { height: 70px; }
+  .reign { --rg-lab: 88px; --rg-val: 44px; }
+  .reign-lab b { font-size: .84rem; }
+  .reign-lab .rg-name { display: none; }
+  .reign-val em { display: none; }   /* 46px 放不下「正统 / 天顺」，窄屏只留年数 */
   .hero { padding-top: 8px; }
   .reader-text { padding: 18px; }
 }
@@ -1731,3 +1791,96 @@ body.pal-open { overflow: hidden; }
   .st-verdict { border-top-style: solid; }
   .st-plotbg { fill: #f2f2f2 !important; }
 }
+
+/* ==========================================================================
+   V9 精修层 · 导航与结构（页内目录 / 在位时间轴 / 长列表分组）
+   与 V2—V8 同为追加层，不改动上方既有规则，便于单独回滚。
+   ========================================================================== */
+
+/* 0) 在位时间轴的两条色：竖网格线 + 半透明轨道底（两个主题各一套，写死色值即可） */
+:root { --grid-line: rgba(255, 255, 255, 0.10); --rg-rail: rgba(255, 255, 255, 0.045); }
+[data-theme="light"] { --grid-line: rgba(0, 0, 0, 0.10); --rg-rail: rgba(0, 0, 0, 0.045); }
+
+/* 1) 页内目录条：贴在顶栏下方，只在当前栏目结构足够复杂时出现。
+     顶栏高与目录条高都由 JS 量出后写进 :root，避免两处写死不一致。 */
+.view-toc {
+  position: sticky; top: var(--topbar-h, 57px); z-index: 40;
+  margin: 0 -22px; padding: 0 22px;
+  background: var(--nav-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border-color);
+}
+.view-toc[hidden] { display: none; }
+.vt-scroll { display: flex; align-items: center; gap: 10px; }
+.vt-label {
+  flex-shrink: 0; font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.vt-items { display: flex; gap: 3px; overflow-x: auto; scrollbar-width: none; padding: 7px 0; flex: 1; }
+.vt-items::-webkit-scrollbar { display: none; }
+.vt-item {
+  flex-shrink: 0; font-size: .78rem; color: var(--text-secondary); text-decoration: none;
+  padding: 5px 11px; border-radius: var(--radius-full); white-space: nowrap;
+  transition: var(--transition); max-width: 16em; overflow: hidden; text-overflow: ellipsis;
+}
+.vt-item:hover { color: var(--text-primary); background: var(--bg-tertiary); text-decoration: none; }
+.vt-item.on { color: var(--accent-primary); background: var(--bg-tertiary); font-weight: 600; }
+.vt-item:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 1px; }
+
+/* 2) 在位时间轴的响应式：中窄屏收窄标签列，并隐去条内年号（放不下就会糊成一团） */
+@media (max-width: 900px) {
+  .reign { --rg-lab: 108px; --rg-val: 64px; }
+  .reign-lab .rg-name { max-width: 6em; }
+}
+
+/* 窄屏：三列布局在 390px 下只剩约 200px 轨道，31 年的在位被压成一个小圆点，
+   8 个年份刻度也叠成一坨。改成「标签 + 数值一行、轨道占满下一行」的两行式，
+   轨道宽度翻倍，条才读得出长短。 */
+@media (max-width: 560px) {
+  .reign { --rg-lab: 0px; --rg-val: 0px; }
+  .reign-row {
+    grid-template-columns: 1fr auto; grid-template-areas: "lab val" "track track";
+    gap: 3px 8px; padding: 7px 0; align-items: center;
+  }
+  .reign-lab { grid-area: lab; justify-content: flex-start; }
+  .reign-lab .rg-name { display: inline; max-width: none; }
+  .reign-track { grid-area: track; height: 11px; }
+  .reign-val { grid-area: val; flex-direction: row; align-items: baseline; justify-content: flex-end; gap: 7px; }
+  .reign-val em { display: inline; }
+  /* 轴行只留刻度：标签与数值列空着会把刻度挤到右边 */
+  .reign-axis .reign-lab, .reign-axis .reign-val { display: none; }
+  .reign-axis { padding: 0 0 2px; }
+  .reign-axis .reign-track { height: 15px; }
+  /* 首尾刻度会各自向左右溢出半个字宽，窄屏直接去掉（起止年份在标题里写着） */
+  .reign-tick:first-child, .reign-tick:last-child { display: none; }
+  .reign-grid { display: none; }   /* 竖线会穿过标签文字，两行式布局里不用 */
+  .reign-row:hover { background: none; }
+  .reign-legend { padding-left: 0; }
+}
+@media print {
+  .view-toc { display: none !important; }
+}
+
+/* 3) 年表「分期」组头：149 条扁平事件按分期切开，供页内目录做锚点。
+     左内边距与 .ce 的 30px 对齐，保持时间轴那条竖线不被截断。 */
+.ce-group {
+  display: flex; align-items: baseline; gap: 10px;
+  margin: 30px 0 16px; padding: 0 0 9px 30px;
+  border-bottom: 1px solid var(--border-color);
+}
+.ce-group:first-child { margin-top: 0; }
+.ceg-name { font-family: var(--font-serif); font-size: 1.12rem; font-weight: 700; letter-spacing: .03em; }
+.ceg-n { font-size: .74rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* 4) 词条库「分类」组头：跨满整个自适应网格 */
+.gi-group {
+  grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px;
+  margin: 26px 0 0; padding-bottom: 9px; border-bottom: 1px solid var(--border-color);
+}
+.gi-group:first-child { margin-top: 0; }
+.gg-name { font-family: var(--font-serif); font-size: 1.08rem; font-weight: 700; letter-spacing: .03em; }
+.gg-n { font-size: .74rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* 5) 被页内目录指到的标题，滚动时留出两条 sticky 的高度，避免标题被压在栏下 */
+[data-toc] { scroll-margin-top: var(--sticky-h, 110px); }
