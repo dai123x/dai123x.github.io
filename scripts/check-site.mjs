@@ -22,7 +22,7 @@ const PUBLIC_DATA = [
 const PUBLIC_EXTENSIONS = new Set([
   '.html', '.css', '.js', '.json', '.csv', '.svg', '.png', '.jpg', '.jpeg',
   '.webp', '.gif', '.ico', '.avif', '.mp3', '.wav', '.ogg', '.pdf',
-  '.woff', '.woff2', '.ttf', '.otf', '.srt', '.vtt', '.webmanifest',
+  '.woff', '.woff2', '.ttf', '.otf', '.srt', '.vtt', '.webmanifest', '.zip',
 ]);
 
 export async function collectSiteFiles(root) {

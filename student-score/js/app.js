@@ -1873,7 +1873,8 @@ function viewData() {
           ${kpi('日常流水', counts.daily, '', '条')}
         </div>
       </div>
-      <div class="card-foot">
+      <div class="card-foot" style="flex-wrap:wrap;gap:8px">
+        <a class="btn btn-sm btn-primary" href="student-score-miniprogram.zip" download="student-score-miniprogram.zip">📱 下载微信小程序交付工程包 (.zip)</a>
         <button class="btn btn-primary btn-sm" type="button" data-act="export-json">导出备份（JSON）</button>
         <button class="btn btn-sm" type="button" data-act="import-json">导入备份</button>
         <button class="btn btn-sm" type="button" data-act="export-csv">导出成绩表（CSV）</button>
