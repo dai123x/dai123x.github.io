@@ -34,6 +34,7 @@
   const MILITARY_GEO = CORE.MILITARY_GEO || [];
   const PLACES = CORE.PLACES || [];
   const TERRITORY = CORE.TERRITORY || [];
+  const GEO_LAYOUT = CORE.GEO_LAYOUT || null;   // 示意图排布（非地理数据，见 data-geo.js 说明）
   const NUMBERS = CORE.NUMBERS || { groups: [], legend: [], intro: "", caveat: "" };
   const DEBATES = CORE.DEBATES || [];
   const LINEAGE = CORE.LINEAGE || { trees: [], notes: [] };
@@ -1720,7 +1721,138 @@
   /* ==================== 17. 舆图政区 ==================== */
   let placeKind = "全部";
 
+  /* ---- 17a. 舆图：两张结构示意图（本站原创） ----
+     合规前提：不引任何在线底图、不含经纬度、不绘海岸线与国界几何。
+     画的是「相对方位」与「衔接次序」，属结构示意，不是地理数据。 */
+  const GX_TONE_VAR = { far: "var(--c-violet)", capital: "var(--c-amber)", hot: "var(--c-rose)" };
+  const GX_TONE_NAME = { far: "孤悬河西", capital: "拱卫京师", hot: "战事最烈" };
+
+  /* 镇名去掉括注：山西镇（偏头关镇）→ 山西镇 */
+  const gxShort = (n) => String(n == null ? "" : n).replace(/（[^）]*）/g, "");
+
+  /* 各镇 span 统一写作「东起/东自/东接 X，西抵/西至/西接 Y」，两端都取出来。
+     取不到就返回 null，由调用方退回原文，不猜端点。 */
+  function spanEnds(span) {
+    const m = String(span == null ? "" : span)
+      .match(/^东[起自接]\s*(.+?)\s*[，,]\s*西[抵至接]\s*(.+?)\s*$/);
+    return m ? { e: m[1], w: m[2] } : null;
+  }
+
+  /* 十五政区的相对方位格。落点由 GEO_LAYOUT.provinces 给出；
+     缺项的政区直接不画——宁可少一格，也不替它猜个位置。 */
+  function renderGeoGrid() {
+    const box = $("#gxGrid");
+    if (!box) return;
+    if (!GEO_LAYOUT || !GEO_LAYOUT.provinces) { box.innerHTML = ""; return; }
+    const cols = (GEO_LAYOUT.grid || {}).cols || 6;
+    box.style.gridTemplateColumns = "repeat(" + cols + ",1fr)";
+    const at = GEO_LAYOUT.provinces;
+    box.innerHTML = PROVINCES.map((p, i) => {
+      const pos = at[p.name];
+      if (!pos) return "";
+      const label = p.name + "，治所" + p.seat + "。跳到该政区的条目";
+      return `<button class="gx-cell" type="button" data-i="${i}"
+        style="--gc:${pos[0]};--gr:${pos[1]}" aria-label="${esc(label)}">
+        <b>${esc(p.name)}</b><span>${esc(gxShort(p.seat))}</span></button>`;
+    }).join("");
+  }
+
+  /* 九边防线链：自西向东八镇依次衔接，衔接刻度取西边那一镇的「东至」。
+     两侧记载用词不同时（山西镇东接大同，大同镇西抵偏头关），刻度仍取西镇东端，
+     把另一种说法放进 title —— 不把两种说法揉成一句含糊的话。 */
+  function renderGeoChain() {
+    const box = $("#gxChain");
+    if (!box) return;
+    if (!GEO_LAYOUT || !GEO_LAYOUT.frontier) { box.innerHTML = ""; return; }
+    const byName = Object.create(null);
+    NINE_GARRISONS.forEach((g, i) => { byName[g.name] = { g: g, i: i }; });
+    const order = GEO_LAYOUT.frontier.map((n) => byName[n]).filter(Boolean);
+    const n = order.length;
+    if (n < 2) { box.innerHTML = ""; return; }
+
+    const ends = order.map((o) => spanEnds(o.g.span) || { e: "", w: "" });
+    const tone = GEO_LAYOUT.tone || {};
+    const pc = (k) => ((k / n) * 100).toFixed(4) + "%";
+
+    const segs = order.map((o, k) => {
+      const t = tone[o.g.name];
+      const tip = gxShort(o.g.name) + "，治所" + o.g.seat +
+        (ends[k].w ? "，西起" + ends[k].w + "，东至" + ends[k].e : "");
+      return `<button class="gx-seg${t ? " t-" + t : ""}" type="button" data-i="${o.i}"
+        ${t ? 'style="--seg:' + (GX_TONE_VAR[t] || "var(--c-indigo)") + '"' : ""}
+        title="${esc(tip)}" aria-label="${esc(tip + "。跳到该镇的条目")}">
+        <b>${esc(gxShort(o.g.name))}</b>
+        <span class="gx-seg-s">${esc(ends[k].w ? "西 " + ends[k].w + " → 东 " + ends[k].e : o.g.span)}</span>
+      </button>`;
+    }).join("");
+
+    /* 衔接刻度：n 段共 n+1 个端点，第 k 个即「第 k 段的西端」 */
+    const marks = [];
+    for (let k = 0; k <= n; k++) marks.push(k === 0 ? ends[0].w : ends[k - 1].e);
+    const ticks = marks.map((lab, k) => {
+      const west = k > 0 ? order[k - 1] : null;
+      const east = k < n ? order[k] : null;
+      let tip;
+      if (west && east) {
+        tip = gxShort(west.g.name) + "与" + gxShort(east.g.name) + "的衔接：" +
+          gxShort(west.g.name) + "东至" + lab;
+        if (ends[k].w && ends[k].w !== lab) tip += "，" + gxShort(east.g.name) + "西接" + ends[k].w;
+      } else if (east) {
+        tip = "防线西端：" + gxShort(east.g.name) + "西起" + lab;
+      } else {
+        tip = "防线东端：" + gxShort(west.g.name) + "东至" + lab;
+      }
+      /* 关隘若在「重要城市与关隘」里有条目，这一格就顺手做成入口 */
+      const pl = PLACES.findIndex((p) => p.name === lab);
+      if (pl < 0) {
+        return `<span class="gx-tick" style="left:${pc(k)}" title="${esc(tip)}">${esc(lab)}</span>`;
+      }
+      return `<button class="gx-tick link" type="button" style="left:${pc(k)}" data-pl="${pl}"
+        title="${esc(tip)}" aria-label="${esc(tip + "。跳到该关隘的条目")}">${esc(lab)}</button>`;
+    }).join("");
+
+    /* 两个挂在链下的注记：京师在宣府、蓟州之间（居庸关即其北门）；
+       固原镇不列防线，挂在宁夏镇那一段之下。 */
+    const pins = [];
+    const kJi = order.findIndex((o) => o.g.name === "蓟州镇");
+    if (kJi >= 0) {
+      const tip = "京师在宣府镇与蓟州镇之间，居庸关即其北门";
+      const bi = PLACES.findIndex((p) => p.name === "北京（顺天府）");
+      pins.push(bi >= 0
+        ? `<button class="gx-pin cap link" type="button" style="left:${pc(kJi)}" data-pl="${bi}"
+            title="${esc(tip)}" aria-label="${esc(tip + "。跳到该地名的条目")}">京师（北京）</button>`
+        : `<span class="gx-pin cap" style="left:${pc(kJi)}">京师（北京）</span>`);
+    }
+    const inl = byName[GEO_LAYOUT.inland];
+    const kG = order.findIndex((o) => o.g.name === "宁夏镇");
+    if (inl && kG >= 0) {
+      const tip = gxShort(inl.g.name) + "，" + inl.g.span + "。" + inl.g.note;
+      pins.push(`<button class="gx-pin in link" type="button"
+        style="left:${(((kG + 0.5) / n) * 100).toFixed(4)}%" data-i="${inl.i}"
+        title="${esc(tip)}" aria-label="${esc(gxShort(inl.g.name) + "，内线策应的一镇。跳到该镇的条目")}">
+        固原镇 · 内线策应</button>`);
+    }
+
+    /* 只给实际用到的色调出图例，不把没出现的分类也列出来充数 */
+    const used = [];
+    order.forEach((o) => { const t = tone[o.g.name]; if (t && used.indexOf(t) < 0) used.push(t); });
+    const legend = used.length
+      ? `<div class="gx-legend">${used.map((t) =>
+          `<span><i style="background:${GX_TONE_VAR[t] || "var(--c-indigo)"}"></i>${esc(GX_TONE_NAME[t] || t)}</span>`
+        ).join("")}</div>`
+      : "";
+
+    box.innerHTML =
+      `<div class="gx-ticks">${ticks}</div>` +
+      `<div class="gx-bar" style="--n:${n}">${segs}</div>` +
+      (pins.length ? `<div class="gx-pins">${pins.join("")}</div>` : "") +
+      legend;
+  }
+
   function renderGeo() {
+    renderGeoGrid();
+    renderGeoChain();
+
     $("#provGrid").innerHTML = PROVINCES.map((p, i) => `
       <article class="prov" id="prov-${i}">
         <div class="prov-head"><b>${esc(p.name)}</b><span class="chip">${esc(p.seat)}</span></div>
@@ -1772,6 +1904,32 @@
       placeKind = p.dataset.kind;
       $$("#placeFilters .pill").forEach((x) => x.classList.toggle("active", x === p));
       applyPlaceFilter();
+    });
+
+    /* 示意图只是「另一个入口」，不是另一份数据：点格子 / 镇 / 关隘，
+       落到下面同一张文字条目上，两处不会各说各话。 */
+    const jump = (id, msg) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      setHash("geo", id, true);   // 栏内跳转不往历史里堆，返回键仍回到上一个栏目
+      reveal(el);
+      live(msg);
+    };
+    delegate($("#gxGrid"), "click", ".gx-cell", (b) => {
+      jump("prov-" + b.dataset.i, "已跳到「" + b.querySelector("b").textContent + "」");
+    });
+    delegate($("#gxChain"), "click", ".gx-seg", (b) => {
+      jump("garr-" + b.dataset.i, "已跳到「" + b.querySelector("b").textContent + "」");
+    });
+    delegate($("#gxChain"), "click", ".gx-pin.in", (b) => {
+      jump("garr-" + b.dataset.i, "已跳到「固原镇」");
+    });
+    delegate($("#gxChain"), "click", ".gx-tick.link, .gx-pin.cap.link", (b) => {
+      if (b.dataset.pl == null) return;
+      /* 该地名可能正被「重要城市与关隘」的筛选藏着，先切回「全部」再定位 */
+      const all = $('#placeFilters .pill[data-kind="全部"]');
+      if (all && !all.classList.contains("active")) all.click();
+      jump("pl-" + b.dataset.pl, "已跳到「" + b.textContent.trim() + "」");
     });
   }
 

@@ -1898,3 +1898,132 @@ a.chip-ref:focus-visible { outline: 2px solid var(--accent-primary); outline-off
 }
 /* 打印时箭头无意义，且外链标记会污染纸面 */
 @media print { a.chip-ref::after { content: ""; } }
+
+/* ==================== V11 精修层 · 舆图结构示意图 ====================
+   两张图都是「结构示意」，不是地理投影：不含经纬度、海岸线与国界几何，
+   也不引任何在线底图。配色沿用全站令牌，深浅两主题各自给一套底色。 */
+
+.gx-fig { margin: 4px 0 20px; }
+.gx-cap { margin: 10px 0 0; font-size: .74rem; color: var(--text-muted); line-height: 1.7; }
+
+/* ---- ① 十五政区相对方位格 ---- */
+.gx-axis { display: flex; align-items: center; gap: 10px; margin: 0 0 9px; }
+.gx-axis span { font-size: .7rem; color: var(--text-muted); }
+.gx-axis i { flex: 1; height: 1px; background: var(--grid-line); }
+
+.gx-grid { display: grid; gap: 6px; }
+.gx-cell {
+  grid-column: var(--gc); grid-row: var(--gr);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+  padding: 8px 10px; text-align: left;
+  border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  background: var(--bg-card); color: inherit; font: inherit; cursor: pointer;
+  transition: var(--transition);
+}
+.gx-cell b { font-family: var(--font-serif); font-size: .86rem; font-weight: 700; color: var(--text-primary); }
+.gx-cell span { font-size: .68rem; color: var(--text-muted); }
+.gx-cell:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-1px); }
+.gx-cell:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+/* ---- ② 九边防线链 ---- */
+.gx-chain { padding: 0 20px; }
+
+/* 衔接刻度：n 段共 n+1 个端点，绝对定位在段边界上，故段间不留 gap（用边框分隔） */
+.gx-ticks { position: relative; height: 26px; }
+.gx-tick {
+  position: absolute; top: 0; transform: translateX(-50%);
+  font-size: .7rem; color: var(--text-muted); white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.gx-tick.link {
+  padding: 0; border: 0; border-bottom: 1px dashed currentColor; background: none;
+  font: inherit; font-size: .7rem; color: var(--accent-primary); cursor: pointer;
+}
+.gx-tick.link:hover { color: var(--border-hover); }
+.gx-tick.link:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 3px; }
+
+.gx-bar { display: flex; --n: 8; }
+.gx-seg {
+  --seg: var(--border-hover);
+  /* 每段固定占 100%/n，与刻度行的百分比定位用同一套坐标，
+     否则 flex 的取整会让第 7 个刻度偏出 2px（实测过） */
+  flex: 0 0 calc(100% / var(--n)); min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 9px 4px 8px;
+  border: 0; border-right: 2px solid var(--bg-primary);
+  background: var(--bg-tertiary); color: var(--text-primary);
+  font: inherit; cursor: pointer; transition: var(--transition);
+  box-shadow: inset 0 3px 0 0 var(--seg);
+}
+.gx-seg:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.gx-seg:last-child { border-right: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.gx-seg b { font-family: var(--font-serif); font-size: .84rem; font-weight: 700; white-space: nowrap; }
+.gx-seg-s { display: none; }
+.gx-seg:hover { filter: brightness(1.12); }
+.gx-seg:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: -2px; }
+/* 只给史实上有明确特色的四镇着色（见 data-geo.js 的 tone 字段），其余留素色 */
+.gx-seg.t-far { background: rgba(167, 139, 250, .16); }
+.gx-seg.t-capital { background: rgba(251, 191, 36, .16); }
+.gx-seg.t-hot { background: rgba(251, 113, 133, .16); }
+[data-theme="light"] .gx-seg.t-far { background: rgba(139, 92, 246, .12); }
+[data-theme="light"] .gx-seg.t-capital { background: rgba(217, 119, 6, .14); }
+[data-theme="light"] .gx-seg.t-hot { background: rgba(225, 29, 72, .11); }
+
+/* 链下的两个注记：京师（在宣府、蓟州之间）与固原镇（内线策应） */
+.gx-pins { position: relative; height: 32px; margin-top: 4px; }
+.gx-pin {
+  position: absolute; top: 0; transform: translateX(-50%);
+  font-size: .7rem; white-space: nowrap; color: var(--text-muted);
+}
+.gx-pin.link {
+  padding: 1px 9px; border: 1px solid var(--border-color); border-radius: var(--radius-full);
+  background: var(--bg-card); color: var(--text-secondary);
+  font: inherit; font-size: .7rem; cursor: pointer;
+}
+.gx-pin.link:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.gx-pin.link:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.gx-pin::before {
+  content: ""; position: absolute; left: 50%; top: -8px; width: 0; height: 8px;
+  border-left: 1px dashed var(--border-hover);
+}
+
+.gx-legend { display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0 0; }
+.gx-legend span { display: inline-flex; align-items: center; gap: 5px; font-size: .72rem; color: var(--text-muted); }
+.gx-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+
+/* 窄屏：方位格只留政区名（6 列 × 5 行仍在，相对位置不丢）；
+   防线链改成自上而下的竖列，每段自带两端的关隘，刻度行就不必再显示 */
+@media (max-width: 760px) {
+  .gx-cell { padding: 6px 3px; align-items: center; }
+  .gx-cell b { font-size: .72rem; }
+  .gx-cell span { display: none; }
+
+  .gx-chain { padding: 0; }
+  .gx-chain::before {
+    content: "↓ 自西向东"; display: block; margin-bottom: 6px;
+    font-size: .7rem; color: var(--text-muted);
+  }
+  .gx-ticks { display: none; }
+  .gx-bar { flex-direction: column; gap: 3px; }
+  .gx-seg {
+    /* 竖排时 flex-basis 变成高度，100%/n 就错了，必须复位 */
+    flex: 0 0 auto;
+    align-items: flex-start; gap: 1px; padding: 8px 12px;
+    border-right: 0; border-radius: var(--radius-sm);
+    box-shadow: inset 3px 0 0 0 var(--seg);
+  }
+  .gx-seg:first-child, .gx-seg:last-child { border-radius: var(--radius-sm); }
+  .gx-seg b { font-size: .9rem; }
+  .gx-seg-s { display: block; font-size: .7rem; color: var(--text-muted); }
+
+  .gx-pins { position: static; height: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .gx-pin { position: static; transform: none; }
+  .gx-pin::before { display: none; }
+  .gx-pin.link { align-self: flex-start; }
+}
+
+/* 打印：示意图无交互，去掉位移与滤镜即可，图形本身保留 */
+@media print {
+  .gx-seg, .gx-cell, .gx-pin.link { box-shadow: none; transform: none; filter: none; }
+  .gx-tick.link { color: var(--text-secondary); border-bottom: 0; }
+}
