@@ -555,7 +555,7 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
     </div>
 
     <nav class="navlinks" aria-label="页面栏目">
-      <a href="#risk-tool" class="highlight">⚡ 风险自测</a>
+      <a href="#risk-tool" class="highlight">⚡ 风险自测</a>\n      <a href="#fingerprint-tool" class="highlight">🛡️ 指纹体检</a>
       <a href="#action-checklist" class="highlight">✅ 实操打卡</a>
       <a href="#triage">故障分诊</a>
       <a href="#why">封号原因</a>
@@ -787,7 +787,78 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
   </div>
 </section>
 
-<!-- ======================= 工具二：防封实操六维交互打卡清单 ======================= -->
+
+<!-- ======================= 实时工具：浏览器环境指纹与网络纯净度在线体检仪 ======================= -->
+<section id="fingerprint-tool" style="padding-top:20px">
+  <div class="tool-banner" style="background:linear-gradient(145deg, var(--surface), var(--surface-2))">
+    <div class="tool-header">
+      <div>
+        <h2 class="tool-title" style="margin-bottom:4px">
+          🛡️ 浏览器环境指纹与网络纯净度在线体检仪
+          <span class="badge-tool" style="background:var(--info)">Live Inspector</span>
+        </h2>
+        <p class="sub" style="margin:0">纯前端在当前浏览器中实时探测时区、语言、WebRTC 穿透与无头驱动标记，排查是否存在“时区-IP 撕裂”等风控高危诱因。</p>
+      </div>
+      <button class="copybtn" id="btn-run-fingerprint">🔄 重新探测环境</button>
+    </div>
+
+    <!-- 探测结果网格卡片 -->
+    <div class="grid c2" style="gap:14px;margin-bottom:18px">
+      <!-- 1. 时区与语言协同 -->
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong style="font-size:14.5px;color:var(--ink)">🌐 系统时区与时间偏移</strong>
+          <span class="wiz-diag-status" id="fpTzStatus" style="font-size:12px;padding:2px 8px;border-radius:4px">检测中...</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-bottom:6px" id="fpTzValue">—</div>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:0" id="fpTzAdvice">分析当前时区是否与海外住宅出口存在撕裂...</p>
+      </div>
+
+      <!-- 2. 首选语言与系统 Locale -->
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong style="font-size:14.5px;color:var(--ink)">🗣️ 首选语言列表 (Languages)</strong>
+          <span class="wiz-diag-status" id="fpLangStatus" style="font-size:12px;padding:2px 8px;border-radius:4px">检测中...</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-bottom:6px" id="fpLangValue">—</div>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:0" id="fpLangAdvice">检查浏览器 Accept-Language 标头是否合理...</p>
+      </div>
+
+      <!-- 3. WebRTC 穿透与内网泄露探测 -->
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong style="font-size:14.5px;color:var(--ink)">🛡️ WebRTC 本地穿透探测</strong>
+          <span class="wiz-diag-status" id="fpRtcStatus" style="font-size:12px;padding:2px 8px;border-radius:4px">检测中...</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-bottom:6px" id="fpRtcValue">—</div>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:0" id="fpRtcAdvice">检测 STUN 协议是否可能绕过代理泄露真实 IP...</p>
+      </div>
+
+      <!-- 4. 自动化驱动与无头特征 -->
+      <div style="padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong style="font-size:14.5px;color:var(--ink)">🤖 自动化驱动标记 (WebDriver)</strong>
+          <span class="wiz-diag-status" id="fpDriverStatus" style="font-size:12px;padding:2px 8px;border-radius:4px">检测中...</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-bottom:6px" id="fpDriverValue">—</div>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:0" id="fpDriverAdvice">排查是否被 Cloudflare / Datadome 识别为自动化机器人...</p>
+      </div>
+    </div>
+
+    <!-- 综合安全指纹结论条 -->
+    <div style="padding:14px 18px;background:var(--surface-3);border:1px solid var(--line-2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px" id="fpOverallIco">🛡️</span>
+        <div>
+          <strong style="font-size:14px;color:var(--ink)" id="fpOverallTitle">正在综合研判环境拟真度...</strong>
+          <p style="margin:2px 0 0;font-size:12.5px;color:var(--ink-2)" id="fpOverallDesc">基于当前时区、语言权重、WebRTC 状态与驱动指纹进行交叉研判</p>
+        </div>
+      </div>
+      <span class="tag" id="fpOverallTag" style="font-size:13px;font-weight:700">探测中</span>
+    </div>
+  </div>
+</section>
+\n<!-- ======================= 工具二：防封实操六维交互打卡清单 ======================= -->
 <section id="action-checklist">
   <div class="tool-banner" style="background:var(--surface)">
     <div class="tool-header">

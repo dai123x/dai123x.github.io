@@ -89,6 +89,8 @@ const state = {
   boardSource: SOURCES.TEACHER,
   showBannerDetail: false,
   matrixSortKey: 'rank',
+  showCertificate: false,
+  matrixFilter: 'all',
   gradeMode: 'single', // 'single' | 'batch'
   batchSubject: 'chinese',
   batchTerm: 'final',
@@ -408,6 +410,7 @@ function bannerHTML() {
 const TEACHER_NAV = [
   { key: 'grade', ico: '✎', name: '评分台' },
   { key: 'matrix', ico: '▦', name: '全班成绩大表' },
+  { key: 'analytics', ico: '📈', name: '学情诊断大屏' },
   { key: 'board', ico: '▤', name: '班级榜单' },
   { key: 'roster', ico: '☰', name: '班级与学生' },
   { key: 'weights', ico: '⚖', name: '权重设置' },
@@ -873,7 +876,7 @@ function viewMatrix() {
   const { results } = reportFor(cls.id, SOURCES.TEACHER);
   const { rankMap } = rankBy(results, SCORE_OF.composite);
 
-  let rows = students.map((stu) => {
+  let allRows = students.map((stu) => {
     const ev = results.find((r) => r.studentId === stu.id);
     const fScores = ev && ev.fives ? ev.fives.fives : {};
     return {
@@ -895,9 +898,22 @@ function viewMatrix() {
     };
   });
 
+  let rows = allRows;
+
   const q = (state.matrixQuery || '').trim().toLowerCase();
   if (q) {
     rows = rows.filter((r) => r.name.toLowerCase().includes(q) || r.no.toLowerCase().includes(q));
+  }
+
+  const mFilter = state.matrixFilter || 'all';
+  if (mFilter === 'exc') {
+    rows = rows.filter((r) => isNum(r.composite) && r.composite >= 85);
+  } else if (mFilter === 'good') {
+    rows = rows.filter((r) => isNum(r.composite) && r.composite >= 75 && r.composite < 85);
+  } else if (mFilter === 'pass') {
+    rows = rows.filter((r) => isNum(r.composite) && r.composite >= 60 && r.composite < 75);
+  } else if (mFilter === 'fail') {
+    rows = rows.filter((r) => isNum(r.composite) && r.composite < 60);
   }
 
   const sk = state.matrixSortKey || 'rank';
@@ -921,6 +937,20 @@ function viewMatrix() {
     return 'background:var(--bad-soft);color:var(--bad)';
   };
 
+  const compList = rows.map((r) => r.composite).filter(isNum);
+  const deList = rows.map((r) => r.de).filter(isNum);
+  const zhiList = rows.map((r) => r.zhi).filter(isNum);
+  const tiList = rows.map((r) => r.ti).filter(isNum);
+  const meiList = rows.map((r) => r.mei).filter(isNum);
+  const laoList = rows.map((r) => r.lao).filter(isNum);
+  const subjList = rows.map((r) => r.subject).filter(isNum);
+  const dailyList = rows.map((r) => r.daily).filter(isNum);
+
+  const calcAvg = (arr) => arr.length ? fmt1(arr.reduce((a, b) => a + b, 0) / arr.length) : '—';
+  const calcMax = (arr) => arr.length ? fmt1(Math.max(...arr)) : '—';
+  const calcMin = (arr) => arr.length ? fmt1(Math.min(...arr)) : '—';
+  const calcPass = (arr) => arr.length ? ((arr.filter((v) => v >= 60).length / arr.length) * 100).toFixed(1) + '%' : '—';
+
   return `<div class="card">
     <div class="card-head" style="flex-wrap:wrap;gap:12px">
       <div>
@@ -928,14 +958,25 @@ function viewMatrix() {
           <span>全班成绩总览大表 · ${esc(cls.name)}</span>
           <span class="tag tag-accent">${rows.length}/${students.length} 人</span>
         </h1>
-        <p class="card-sub">点击表头快速升降序排布、支持模糊搜索、直观色彩热力染色</p>
+        <p class="card-sub">点击表头快速升降序排布、支持模糊搜索、直观色彩热力染色与底部班级统计小计</p>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <input type="search" id="matrixSearchInp" placeholder="搜索学号或姓名..." value="${esc(state.matrixQuery || '')}"
-          style="padding:6px 12px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:.85rem;width:170px">
+          style="padding:6px 12px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:.85rem;width:160px">
+        <button class="btn btn-sm" type="button" data-act="export-html">🌐 导出网页报表</button>
         <button class="btn btn-sm" type="button" data-act="export-csv">📥 导出 Excel CSV</button>
         <button class="btn btn-sm" type="button" data-act="print">🖨️ 打印表格</button>
       </div>
+    </div>
+
+    <!-- 快捷分段过滤器 -->
+    <div style="padding:10px 18px;background:var(--surface-2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;font-weight:700;color:var(--muted)">快速分段：</span>
+      <button class="btn btn-xs ${mFilter === 'all' ? 'btn-primary' : 'btn-ghost'}" type="button" data-act="matrix-filter" data-arg="all">全部 (${students.length})</button>
+      <button class="btn btn-xs ${mFilter === 'exc' ? 'btn-primary' : 'btn-ghost'}" type="button" data-act="matrix-filter" data-arg="exc">优秀 (≥85分)</button>
+      <button class="btn btn-xs ${mFilter === 'good' ? 'btn-primary' : 'btn-ghost'}" type="button" data-act="matrix-filter" data-arg="good">良好 (75-84分)</button>
+      <button class="btn btn-xs ${mFilter === 'pass' ? 'btn-primary' : 'btn-ghost'}" type="button" data-act="matrix-filter" data-arg="pass">及格 (60-74分)</button>
+      <button class="btn btn-xs ${mFilter === 'fail' ? 'btn-primary' : 'btn-ghost'}" type="button" data-act="matrix-filter" data-arg="fail">待补辅导 (<60分)</button>
     </div>
 
     <div class="card-body tight">
@@ -982,6 +1023,48 @@ function viewMatrix() {
               <tr><td colspan="13" style="text-align:center;padding:32px;color:var(--muted)">没有找到符合条件的学生</td></tr>
             `}
           </tbody>
+          ${rows.length ? `
+          <tfoot style="position:sticky;bottom:0;background:var(--surface);border-top:2px solid var(--border)">
+            <tr style="background:var(--surface-2);font-weight:700">
+              <td colspan="3" class="center">全班均分 (Average)</td>
+              <td class="center" style="font-family:var(--mono);color:var(--accent-2)">${calcAvg(compList)}</td>
+              <td class="center">—</td>
+              <td class="center num">${calcAvg(deList)}</td>
+              <td class="center num">${calcAvg(zhiList)}</td>
+              <td class="center num">${calcAvg(tiList)}</td>
+              <td class="center num">${calcAvg(meiList)}</td>
+              <td class="center num">${calcAvg(laoList)}</td>
+              <td class="center num">${calcAvg(subjList)}</td>
+              <td class="center num">${calcAvg(dailyList)}</td>
+              <td class="no-print"></td>
+            </tr>
+            <tr style="background:var(--surface-2);font-size:.8rem;color:var(--muted)">
+              <td colspan="3" class="center">全班最高分 (Highest)</td>
+              <td class="center" style="font-family:var(--mono);font-weight:700;color:var(--ok)">${calcMax(compList)}</td>
+              <td class="center">—</td>
+              <td class="center num">${calcMax(deList)}</td>
+              <td class="center num">${calcMax(zhiList)}</td>
+              <td class="center num">${calcMax(tiList)}</td>
+              <td class="center num">${calcMax(meiList)}</td>
+              <td class="center num">${calcMax(laoList)}</td>
+              <td class="center num">${calcMax(subjList)}</td>
+              <td class="center num">${calcMax(dailyList)}</td>
+              <td class="no-print"></td>
+            </tr>
+            <tr style="background:var(--surface-2);font-size:.8rem;color:var(--muted)">
+              <td colspan="3" class="center">及格率 (Pass Rate)</td>
+              <td class="center" style="font-family:var(--mono);font-weight:700">${calcPass(compList)}</td>
+              <td class="center">—</td>
+              <td class="center num">${calcPass(deList)}</td>
+              <td class="center num">${calcPass(zhiList)}</td>
+              <td class="center num">${calcPass(tiList)}</td>
+              <td class="center num">${calcPass(meiList)}</td>
+              <td class="center num">${calcPass(laoList)}</td>
+              <td class="center num">${calcPass(subjList)}</td>
+              <td class="center num">${calcPass(dailyList)}</td>
+              <td class="no-print"></td>
+            </tr>
+          </tfoot>` : ''}
         </table>
       </div>
     </div>
@@ -1010,6 +1093,155 @@ function generateStudentRemark(stu, ev) {
   return `【综合评语】${esc(stu.name)}同学在校${strength}。本学期${levelWord}（综合评估总分 ${fmt1(cScore)}，评定等级为 ${gradeOf(cScore).grade}）。望戒骄戒躁，勇攀高峰！`;
 }
 
+/* =====================================================================
+ * 7.2 学情与教学质量深度诊断大屏（Analytics & Insights View）
+ * ===================================================================== */
+function viewAnalytics() {
+  const cls = curClass();
+  if (!cls) return noClassHTML();
+  const cfg = store.getConfig();
+  const students = store.listStudents(cls.id);
+  const { results } = reportFor(cls.id, SOURCES.TEACHER);
+  const validResults = results.filter((r) => isNum(r.composite && r.composite.score));
+  const compScores = validResults.map((r) => r.composite.score);
+  const total = students.length;
+  const n = compScores.length;
+  const countExc = compScores.filter((s) => s >= 85).length;
+  const countGood = compScores.filter((s) => s >= 75 && s < 85).length;
+  const countPass = compScores.filter((s) => s >= 60 && s < 75).length;
+  const countFail = compScores.filter((s) => s < 60).length;
+  const pct = (cnt) => (n > 0 ? ((cnt / n) * 100).toFixed(1) : '0.0');
+  const fivesAvgs = {};
+  FIVES.forEach((f) => {
+    const vals = validResults.map((r) => r.fives && r.fives.fives ? r.fives.fives[f.key] : null).filter(isNum);
+    fivesAvgs[f.key] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+  });
+  const subjectAvgs = SUBJECTS.map((s) => {
+    const vals = validResults.map((r) => r.subject && r.subject.subjects ? r.subject.subjects[s.key] : null).filter(isNum);
+    const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+    return { ...s, avg };
+  }).sort((a, b) => b.avg - a.avg);
+  const warningStudents = [];
+  validResults.forEach((r) => {
+    const stu = students.find((s) => s.id === r.studentId);
+    if (!stu) return;
+    const lowSubs = [];
+    if (r.subject && r.subject.subjects) {
+      for (const [k, v] of Object.entries(r.subject.subjects)) {
+        if (isNum(v) && v < 60) lowSubs.push(subjectName(k) + ' (' + fmt1(v) + '分)');
+      }
+    }
+    const isDailyLow = isNum(r.daily && r.daily.score) && r.daily.score < 90;
+    if (lowSubs.length || isDailyLow) {
+      warningStudents.push({
+        stu,
+        compScore: r.composite.score,
+        lowSubs,
+        dailyLow: isDailyLow ? fmt1(r.daily.score) + '分' : null
+      });
+    }
+  });
+  const radarRows = FIVES.map((f) => ({
+    key: f.key,
+    name: f.name,
+    color: f.color,
+    teacher: fivesAvgs[f.key],
+    self: null
+  }));
+  const avgTotal = n ? compScores.reduce((a,b)=>a+b,0)/n : 0;
+  return `<div class="stack">` +
+    `<div class="card">` +
+      `<div class="card-head" style="flex-wrap:wrap;gap:12px">` +
+        `<div>` +
+          `<h1 style="margin:0;display:flex;align-items:center;gap:8px">` +
+            `<span>学情诊断与教学质量大屏 · ${esc(cls.name)}</span>` +
+            `<span class="tag tag-ok">已参评 ${n}/${total} 人</span>` +
+          `</h1>` +
+          `<p class="card-sub">综合素质四率分布、全班五育均衡度、学科横向对标与薄弱学生精准预警</p>` +
+        `</div>` +
+        `<button class="btn btn-sm" type="button" data-act="print">🖨️ 打印诊断报告</button>` +
+      `</div>` +
+      `<div class="card-body">` +
+        `<div class="kpis" style="margin-bottom:18px">` +
+          kpi('全班总评均分', fmt1(avgTotal)) +
+          kpi('优秀率 (≥85分)', pct(countExc) + '%', '', countExc + ' 人') +
+          kpi('优良率 (≥75分)', pct(countExc + countGood) + '%', '', (countExc + countGood) + ' 人') +
+          kpi('及格率 (≥60分)', pct(n - countFail) + '%', '', (n - countFail) + ' 人') +
+          kpi('需重点关注 (<60分)', countFail + ' 人', '', pct(countFail) + '%') +
+        `</div>` +
+        `<div style="margin:14px 0 6px">` +
+          `<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">` +
+            `<span>全员四率分布带：</span>` +
+            `<span>优秀 ${countExc}人 / 良好 ${countGood}人 / 及格 ${countPass}人 / 待辅导 ${countFail}人</span>` +
+          `</div>` +
+          `<div style="height:12px;border-radius:var(--r-pill);display:flex;overflow:hidden;background:var(--surface-3);border:1px solid var(--border)">` +
+            `<div style="width:${pct(countExc)}%;background:var(--ok)" title="优秀 ${pct(countExc)}%"></div>` +
+            `<div style="width:${pct(countGood)}%;background:var(--accent)" title="良好 ${pct(countGood)}%"></div>` +
+            `<div style="width:${pct(countPass)}%;background:var(--warn)" title="及格 ${pct(countPass)}%"></div>` +
+            `<div style="width:${pct(countFail)}%;background:var(--bad)" title="待提升 ${pct(countFail)}%"></div>` +
+          `</div>` +
+        `</div>` +
+      `</div>` +
+    `</div>` +
+    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px">` +
+      `<div class="card">` +
+        `<div class="card-head"><div><h2 style="margin:0">全班五育发展均衡度雷达</h2><p class="card-sub">群体德智体美劳平均水平（点击细看长短板）</p></div></div>` +
+        `<div class="card-body center" style="padding-bottom:10px">` +
+          radarSVG(radarRows) +
+          `<div style="display:flex;justify-content:center;gap:12px;margin-top:8px;font-size:12px;flex-wrap:wrap">` +
+            FIVES.map((f) => `<span style="color:${f.color}">${f.name}育均分: <strong>${fmt1(fivesAvgs[f.key])}</strong></span>`).join('') +
+          `</div>` +
+        `</div>` +
+      `</div>` +
+      `<div class="card">` +
+        `<div class="card-head"><div><h2 style="margin:0">13 门学科均分排行榜</h2><p class="card-sub">全班单科学期均分从高到低排列（红虚线为60分及格线）</p></div></div>` +
+        `<div class="card-body tight" style="padding:12px 18px;max-height:360px;overflow-y:auto">` +
+          subjectAvgs.map((s, idx) => `
+            <div style="margin-bottom:9px">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px">
+                <span><strong style="font-family:var(--mono);color:${idx < 3 ? 'var(--warn)' : 'var(--muted)'}">#${idx + 1}</strong> ${esc(s.name)}</span>
+                <strong style="font-family:var(--mono);color:${gradeColor(s.avg)}">${fmt1(s.avg)} 分</strong>
+              </div>
+              <div style="position:relative;height:7px;background:var(--surface-3);border-radius:4px;overflow:hidden">
+                <div style="width:${Math.max(0, Math.min(100, s.avg))}%;height:100%;background:${idx === 0 ? 'var(--ok)' : 'var(--accent)'}"></div>
+              </div>
+            </div>`).join('') +
+        `</div>` +
+      `</div>` +
+    `</div>` +
+    `<div class="card">` +
+      `<div class="card-head">` +
+        `<div><h2 style="margin:0">学情预警与个别辅导关怀名单</h2><p class="card-sub">自动识别单科不及格或日常积分偏低的学生，便于任课教师与班主任因材施教精准施策</p></div>` +
+        `<span class="tag ${warningStudents.length ? 'tag-warn' : 'tag-ok'} row-end">${warningStudents.length ? '需关怀 ' + warningStudents.length + ' 人' : '全员达标无预警'}</span>` +
+      `</div>` +
+      `<div class="card-body tight">` +
+        (warningStudents.length ? `
+          <div class="table-wrap"><table>
+            <thead><tr>
+              <th scope="col" style="width:100px">学号</th>
+              <th scope="col" style="width:110px">姓名</th>
+              <th scope="col" class="center" style="width:100px">综合总分</th>
+              <th scope="col">需要辅导的薄弱科目</th>
+              <th scope="col" style="width:140px">日常表现情况</th>
+              <th scope="col" class="center no-print" style="width:100px">跟进操作</th>
+            </tr></thead>
+            <tbody>` +
+              warningStudents.map((w) => `
+                <tr>
+                  <td class="font-mono">${esc(w.stu.no)}</td>
+                  <td><strong>${esc(w.stu.name)}</strong></td>
+                  <td class="center font-mono" style="font-weight:700;${w.compScore < 60 ? 'color:var(--bad)' : ''}">${fmt1(w.compScore)}</td>
+                  <td>${w.lowSubs.length ? w.lowSubs.map((sub) => `<span class="tag tag-warn" style="margin-right:4px;margin-bottom:2px">${sub}</span>`).join('') : '<span style="color:var(--ok)">各科均及格</span>'}</td>
+                  <td>${w.dailyLow ? `<span class="tag tag-bad">积分偏低: ${w.dailyLow}</span>` : '<span class="hint">正常</span>'}</td>
+                  <td class="center no-print">
+                    <button class="btn btn-xs" type="button" data-act="goto-grade" data-arg="${w.stu.id}">辅导打分</button>
+                  </td>
+                </tr>`).join('') +
+            `</tbody></table></div>` : `<div class="empty" style="padding:28px 20px"><span class="empty-ico">🎉</span><p>太棒了！本班级当前所有参评学生的学科与日常表现均达到良好基准线，未出现偏科预警。</p></div>`) +
+      `</div>` +
+    `</div>` +
+  `</div>`;
+}
 function viewBoard() {
   const cls = curClass();
   if (!cls) return noClassHTML();
@@ -1737,6 +1969,48 @@ function viewReport() {
         </div>
       </div>
       
+            <!-- 素质教育荣誉证书触发 -->
+      <div class="card ${state.showCertificate ? 'certificate-card' : 'no-print'}" style="background:linear-gradient(135deg,var(--surface),var(--surface-2));border-color:rgba(245,165,36,0.4)">
+        <div class="card-head ${state.showCertificate ? 'no-print' : ''}" style="align-items:center">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:24px">🏆</span>
+            <div>
+              <h2 style="margin:0;font-size:1.05rem">素质教育成长荣誉档案与电子奖状</h2>
+              <p class="card-sub">本学期综合评定：${gradeOf(ev.composite.score).grade}（${gradeOf(ev.composite.score).label}）· 班级排名第 ${rank} 名</p>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-primary row-end" type="button" data-act="toggle-cert">${state.showCertificate ? '收起荣誉奖状' : '🏅 展开我的荣誉奖状'}</button>
+        </div>
+        ${state.showCertificate ? `
+          <div class="card-body" style="padding-top:0">
+            <div class="certificate-frame" style="margin:10px auto;max-width:680px;padding:32px 28px;border:8px double #d4af37;border-radius:14px;background:var(--surface);box-shadow:0 8px 30px rgba(0,0,0,0.3);text-align:center;position:relative;overflow:hidden">
+              <div style="font-size:12px;letter-spacing:4px;color:#d4af37;text-transform:uppercase;font-weight:700">HONORARY CERTIFICATE</div>
+              <h1 style="font-size:1.85rem;margin:12px 0 16px;color:var(--text);letter-spacing:2px">荣 誉 证 书</h1>
+              <p style="font-size:1.05rem;line-height:2;color:var(--text);margin:16px auto;max-width:540px;text-align:left;text-indent:2em">
+                <strong style="font-size:1.25rem;border-bottom:2px solid var(--accent);padding:0 6px">${esc(stu.name)}</strong> 同学：
+              </p>
+              <p style="font-size:1rem;line-height:1.9;color:var(--text);margin:10px auto 28px;max-width:540px;text-align:left;text-indent:2em">
+                在本学期综合素质评价与学业表现中，遵规守纪、五育并举、笃行求知。经班级综合量化评定，总评成绩荣列全班 <strong>第 ${rank} 名</strong>，表现优异，特授予
+                <strong style="color:var(--warn);font-size:1.2rem">【五育并举 · 阳光少年】</strong> 荣誉称号。
+              </p>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:36px;padding:0 30px;font-size:.9rem;color:var(--muted)">
+                <div style="text-align:left">
+                  <div>颁发单位：${esc(cls.name)} 班务委员会</div>
+                  <div>证书编号：DX-CERT-${stu.no}</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="width:72px;height:72px;border:2px dashed #d4af37;border-radius:50%;display:grid;place-items:center;margin:0 auto 6px;color:#d4af37;font-weight:800;font-size:11px;transform:rotate(-15deg)">
+                    优秀之星<br>★ 认证 ★
+                  </div>
+                  <div>2026 学年第一学期</div>
+                </div>
+              </div>
+              <div style="margin-top:20px" class="no-print">
+                <button class="btn btn-sm" type="button" data-act="print">🖨️ 打印专属奖状</button>
+              </div>
+            </div>
+          </div>` : ''}
+      </div>
       <!-- 成绩单智能评语与回执区 -->
       <div class="card" style="margin-top:14px">
         <div class="card-head">
@@ -1967,6 +2241,7 @@ function mainHTML() {
   if (state.role === 'teacher') {
     switch (state.tview) {
       case 'matrix': return viewMatrix();
+      case 'analytics': return viewAnalytics();
       case 'board': return viewBoard();
       case 'roster': return viewRoster();
       case 'weights': return viewWeights();
@@ -2397,6 +2672,11 @@ function handleAction(act, arg, el) {
     }
   
     
+    case 'toggle-cert':
+      state.showCertificate = !state.showCertificate;
+      render();
+      break;
+
     case 'switch-class-top':
       state.classId = arg;
       const topStus = store.listStudents(arg);
@@ -2473,6 +2753,81 @@ function handleAction(act, arg, el) {
         fr.readAsText(file);
       });
       inp.click();
+      break;
+    }
+
+    case 'matrix-filter':
+      state.matrixFilter = act.arg || 'all';
+      render();
+      break;
+
+    case 'export-html': {
+      const cls = curClass();
+      if (!cls) { toast('还没有班级', 'bad'); break; }
+      const cfg = store.getConfig();
+      const { results } = reportFor(cls.id, SOURCES.TEACHER);
+      const { rankMap } = rankBy(results, SCORE_OF.composite);
+      const students = store.listStudents(cls.id);
+      const sortedStudents = students.slice().sort((a, b) => (rankMap.get(a.id) || 999) - (rankMap.get(b.id) || 999));
+      const stamp = new Date().toISOString().slice(0, 10);
+      const rowsHtml = sortedStudents.map((stu) => {
+        const ev = results.find((r) => r.studentId === stu.id);
+        const comp = ev && ev.composite ? ev.composite.score : null;
+        const gr = gradeOf(comp);
+        const f = ev && ev.fives ? ev.fives.fives : {};
+        return `<tr>
+          <td style="text-align:center">${rankMap.get(stu.id) || '—'}</td>
+          <td style="font-family:monospace">${esc(stu.no)}</td>
+          <td><strong>${esc(stu.name)}</strong></td>
+          <td style="text-align:center;font-weight:700">${fmt1(comp)}</td>
+          <td style="text-align:center">${gr.grade} (${gr.label})</td>
+          <td style="text-align:center">${fmt1(f.de)}</td>
+          <td style="text-align:center">${fmt1(f.zhi)}</td>
+          <td style="text-align:center">${fmt1(f.ti)}</td>
+          <td style="text-align:center">${fmt1(f.mei)}</td>
+          <td style="text-align:center">${fmt1(f.lao)}</td>
+          <td style="text-align:center">${fmt1(ev ? ev.subject.score : null)}</td>
+          <td style="text-align:center">${fmt1(ev ? ev.daily.score : null)}</td>
+        </tr>`;
+      }).join('');
+
+      const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>${esc(cls.name)} · 综合素质与学业成绩总览表</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 24px auto; max-width: 1000px; color: #111; line-height: 1.5; }
+h1 { margin: 0 0 6px; font-size: 22px; text-align: center; }
+.meta { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { border: 1px solid #ccc; padding: 8px 10px; }
+th { background: #f2f4f8; font-weight: 700; }
+tr:nth-child(even) { background: #fafafa; }
+@media print { button { display: none; } body { margin: 0; } }
+</style>
+</head>
+<body>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <span></span>
+    <button onclick="window.print()" style="padding:6px 14px;cursor:pointer;border-radius:4px;border:1px solid #999;background:#f5f5f5;font-weight:600">🖨️ 打印成绩报表</button>
+  </div>
+  <h1>${esc(cls.name)} · 学生综合素质评价大表</h1>
+  <div class="meta">生成日期：${stamp} · 参评学生人数：${students.length} 人 · 评价标准：五育并举 + 13科学业 + 日常表现</div>
+  <table>
+    <thead>
+      <tr>
+        <th>排名</th><th>学号</th><th>姓名</th><th>综合总分</th><th>评定等级</th>
+        <th>德育</th><th>智育</th><th>体育</th><th>美育</th><th>劳育</th>
+        <th>学科总评</th><th>日常积分</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</body>
+</html>`;
+      download(`${cls.name}-综合成绩报表-${stamp}.html`, html, 'text/html;charset=utf-8');
+      toast('网页报表已导出，可离线在任何浏览器打开或打印', 'ok');
       break;
     }
 

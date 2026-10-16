@@ -676,6 +676,16 @@ textarea.code {
   .main { gap: 12px; }
   .chart { max-width: 380px; }
   a { color: #000; text-decoration: none; }
+  .certificate-card { border: none !important; box-shadow: none !important; margin: 0 !important; background: transparent !important; }
+  .certificate-frame {
+    border: 6px double #d4af37 !important;
+    background: #ffffff !important;
+    color: #111 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
