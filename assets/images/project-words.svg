@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%" role="img" aria-label="朗读室：英文演讲与经济学人句式封面">
+  <defs>
+    <linearGradient id="bg_words" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="accent_words" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="55%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="bar_words" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <radialGradient id="glow_words" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(129,140,248,0.28)"/>
+      <stop offset="100%" stop-color="rgba(129,140,248,0)"/>
+    </radialGradient>
+    <pattern id="dots_words" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle fill="rgba(255,255,255,0.035)" cx="2" cy="2" r="1.4"/>
+    </pattern>
+  </defs>
+
+  <rect width="600" height="360" fill="url(#bg_words)"/>
+  <rect width="600" height="360" fill="url(#dots_words)"/>
+  <ellipse cx="470" cy="40" rx="220" ry="150" fill="url(#glow_words)"/>
+
+  <!-- 页面卡片 -->
+  <g transform="translate(56,40)">
+    <rect width="488" height="280" rx="18" fill="#1e293b" fill-opacity="0.62"
+          stroke="rgba(255,255,255,0.09)" stroke-width="1.5"/>
+    <rect x="0" y="0" width="3.5" height="280" rx="1.75" fill="url(#bar_words)"/>
+
+    <!-- 引号 -->
+    <text x="34" y="86" font-family="Georgia, 'Times New Roman', serif" font-size="86"
+          fill="url(#accent_words)" fill-opacity="0.9">&#8220;</text>
+
+    <!-- 正文行 -->
+    <g fill="rgba(248,250,252,0.92)">
+      <rect x="92" y="62" width="330" height="9" rx="4.5"/>
+      <rect x="92" y="86" width="286" height="9" rx="4.5"/>
+      <rect x="92" y="110" width="316" height="9" rx="4.5"/>
+      <rect x="92" y="134" width="196" height="9" rx="4.5"/>
+    </g>
+
+    <!-- 译文行（更淡） -->
+    <g fill="rgba(148,163,184,0.55)">
+      <rect x="92" y="166" width="300" height="6" rx="3"/>
+      <rect x="92" y="182" width="248" height="6" rx="3"/>
+    </g>
+
+    <!-- 分隔线 -->
+    <line x1="34" y1="210" x2="454" y2="210" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+    <!-- 声波 -->
+    <g transform="translate(34,228)" fill="url(#bar_words)">
+      <rect x="0"  y="6"  width="3" height="8"  rx="1.5" opacity="0.55"/>
+      <rect x="8"  y="2"  width="3" height="16" rx="1.5" opacity="0.75"/>
+      <rect x="16" y="0"  width="3" height="20" rx="1.5"/>
+      <rect x="24" y="4"  width="3" height="12" rx="1.5" opacity="0.75"/>
+      <rect x="32" y="7"  width="3" height="6"  rx="1.5" opacity="0.55"/>
+    </g>
+
+    <!-- 标签 -->
+    <g font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="11">
+      <rect x="78" y="224" width="86" height="24" rx="12" fill="rgba(129,140,248,0.14)" stroke="rgba(129,140,248,0.4)" stroke-width="1"/>
+      <text x="121" y="240" fill="#c7d2fe" text-anchor="middle">16 篇演讲</text>
+      <rect x="172" y="224" width="86" height="24" rx="12" fill="rgba(236,72,153,0.12)" stroke="rgba(236,72,153,0.38)" stroke-width="1"/>
+      <text x="215" y="240" fill="#fbcfe8" text-anchor="middle">16 个句式</text>
+      <rect x="266" y="224" width="86" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+      <text x="309" y="240" fill="#cbd5e1" text-anchor="middle">可朗读</text>
+    </g>
+  </g>
+
+  <!-- 角标 -->
+  <g font-family="ui-monospace, Menlo, Consolas, monospace" font-size="11" letter-spacing="3">
+    <text x="56" y="26" fill="rgba(148,163,184,0.75)">WORDS / READING ROOM</text>
+  </g>
+</svg>

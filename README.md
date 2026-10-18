@@ -22,6 +22,7 @@
 | [Aurora Chat · 极光](https://daixuan.cloud/aurora-chat/) | 浏览器端 AI 聊天工作台 |
 | [明史资料平台](https://daixuan.cloud/ming-history/) | 文献索引与研读工具 |
 | [简历](https://daixuan.cloud/resume/) | 在线简历与打印页面 |
+| [朗读室](https://daixuan.cloud/words/) | 英文演讲与《经济学人》句式精读 |
 
 `snow-viz/vr_twin.html` 是冰雪作品的附属三维 / VR 页面；`404.html` 提供站点错误页。
 
@@ -42,6 +43,7 @@
 ├── aurora-chat/               # 聊天工作台、本地第三方库及许可声明
 ├── ming-history/              # 明史页面、交互逻辑及 data-*.js 资料
 ├── resume/                    # 简历页面
+├── words/                     # 朗读室：演讲与句式内容、样式与交互
 ├── scripts/                   # 站点检查、部署打包及已有分析辅助文件
 ├── .github/workflows/         # GitHub Actions 校验与部署
 ├── sitemap.xml                # 公开页面索引
