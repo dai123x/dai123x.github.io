@@ -31,7 +31,7 @@
   --glow-b: rgba(236, 72, 153, 0.09);
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "HarmonyOS Sans SC", "MiSans", Roboto, "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", "Songti SC", serif;
+  --font-serif: "Newsreader", "Charter", "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", "Songti SC", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 
   --r-sm: 10px;
@@ -819,6 +819,59 @@ html[data-bi="off"] .card-zh { display: none; }
   transition: opacity 0.25s ease, transform 0.25s var(--ease);
 }
 .toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- cloze & recitation mode ---------- */
+.cloze-mask {
+  display: inline;
+  transition: all 0.2s ease;
+}
+html[data-cloze="on"] .cloze-mask {
+  background: var(--accent-soft);
+  color: transparent !important;
+  text-shadow: none;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin: 0 1px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 2px dashed var(--accent);
+}
+html[data-cloze="on"] .cloze-mask:hover,
+html[data-cloze="on"] .cloze-mask:focus,
+html[data-cloze="on"] .cloze-mask.is-revealed {
+  color: var(--accent) !important;
+  background: rgba(165, 180, 252, 0.24);
+  border-bottom-style: solid;
+  user-select: auto;
+}
+html[data-cloze="on"] .card-zh,
+html[data-cloze="on"] .d-zh {
+  filter: blur(5px);
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.25s ease;
+}
+html[data-cloze="on"] .card-zh:hover,
+html[data-cloze="on"] .card-zh.is-revealed,
+html[data-cloze="on"] .d-zh:hover,
+html[data-cloze="on"] .d-zh.is-revealed {
+  filter: none;
+  user-select: auto;
+}
+
+/* ---------- speaking audio wave pulse ---------- */
+.is-speaking {
+  color: var(--accent) !important;
+  border-color: var(--accent-line) !important;
+  background: var(--accent-soft) !important;
+}
+.is-speaking svg {
+  animation: audioPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes audioPulse {
+  0% { transform: scale(0.92); opacity: 0.75; }
+  100% { transform: scale(1.18); opacity: 1; }
+}
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {

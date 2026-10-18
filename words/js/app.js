@@ -25,6 +25,7 @@ const LS = {
   read: 'dx_words_read',
   bi: 'dx_words_bi',
   rate: 'dx_words_rate',
+  cloze: 'dx_words_cloze',
 };
 
 /* ---------- storage ---------- */
@@ -46,6 +47,7 @@ const state = {
   favs: new Set(),
   read: new Set(),
   bi: readLS(LS.bi, 'on') !== 'off',
+  cloze: readLS(LS.cloze, 'off') === 'on',
   rate: Number(readLS(LS.rate, '1')) || 1,
   currentId: null,
   visible: [],
@@ -72,6 +74,7 @@ const el = {
   tabs: document.querySelectorAll('.tabs button'),
   favCount: $('#fav-count'),
   readCount: $('#read-count'),
+  cloze: $('#btn-cloze'),
   bilingual: $('#btn-bilingual'),
   theme: $('#btn-theme'),
   todayQuote: $('#today-quote'),
@@ -161,6 +164,39 @@ function filterItems() {
   });
 }
 
+/* ---------- quote formatting & copy ---------- */
+function copySVG() {
+  return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+}
+
+function formatQuote(quote, item) {
+  const text = esc(quote);
+  if (!item.vocab || !item.vocab.length) return text;
+  const words = item.vocab.map((v) => v.w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).filter(Boolean);
+  if (!words.length) return text;
+  const regex = new RegExp(`\\b(${words.join('|')})\\b`, 'gi');
+  return text.replace(regex, '<span class="cloze-mask" tabindex="0" role="button" aria-label="点击揭开词汇">$1</span>');
+}
+
+async function copyQuote(id) {
+  const item = BY_ID.get(id);
+  if (!item) return;
+  const quote = quoteOf(item);
+  const zh = zhOf(item);
+  const by = item.type === 'speech'
+    ? `${item.speaker} · ${item.title} (${item.year})`
+    : `${item.device} · ${item.deviceEn} (The Economist 示范句)`;
+  const url = `${location.origin}${location.pathname}#${item.id}`;
+  const text = `“${quote}”\n\n「${zh}」\n—— ${by}\n${url}`;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('金句与出处已复制到剪贴板');
+  } catch (e) {
+    toast('复制失败，请手动选择复制');
+  }
+}
+
 /* ---------- render: grid ---------- */
 function cardHTML(item) {
   const b = badgeOf(item);
@@ -175,13 +211,16 @@ function cardHTML(item) {
     </div>
     <h3 class="card-name">${esc(titleOf(item))}</h3>
     <p class="card-meta">${esc(metaOf(item))}</p>
-    <blockquote class="card-quote${short}">${esc(quote)}</blockquote>
+    <blockquote class="card-quote${short}">${formatQuote(quote, item)}</blockquote>
     <p class="card-zh">${esc(zhOf(item))}</p>
     <ul class="card-tags">${(item.tags || []).map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
     <div class="card-foot">
       <div class="card-foot-l">
         <button type="button" class="mini-btn act-speak" data-speak="${esc(item.id)}" aria-label="朗读这一条">
           ${speakerSVG()}朗读
+        </button>
+        <button type="button" class="mini-btn act-copy" data-copy-quote="${esc(item.id)}" title="复制金句与出处">
+          ${copySVG()}复制
         </button>
       </div>
       <div class="card-foot-r">
@@ -295,10 +334,11 @@ function drawerHTML(item) {
     : `<div class="d-source"><span>示范句（按该刊句式重写，非原文转载）· 版权归 The Economist Newspaper Limited 所有</span></div>`;
 
   return `${head}
-    <blockquote class="d-quote${quote.length > 190 ? ' is-long' : ''}">${esc(quote)}</blockquote>
+    <blockquote class="d-quote${quote.length > 190 ? ' is-long' : ''}">${formatQuote(quote, item)}</blockquote>
     <p class="d-zh">${esc(zhOf(item))}</p>
     <div class="d-tools">
       <button type="button" class="ghost-btn" id="d-speak" data-speak="${esc(item.id)}">${speakerSVG()}朗读这一段</button>
+      <button type="button" class="ghost-btn" id="d-copy-quote" data-copy-quote="${esc(item.id)}">${copySVG()}复制金句卡片</button>
       <label class="sr-only" for="d-rate">语速</label>
       <select class="rate-select" id="d-rate">
         <option value="0.8">0.8×</option>
@@ -503,8 +543,29 @@ if ('speechSynthesis' in window) {
 
 /* ---------- events ---------- */
 function bind() {
-  // 卡片区：一次委托处理四种动作
+  // 卡片区：处理动作、标签、朗读、复制与挖空
   el.grid.addEventListener('click', (e) => {
+    const copyBtn = e.target.closest('[data-copy-quote]');
+    if (copyBtn) {
+      e.stopPropagation();
+      copyQuote(copyBtn.dataset.copyQuote);
+      return;
+    }
+
+    const clozeSpan = e.target.closest('.cloze-mask');
+    if (clozeSpan) {
+      e.stopPropagation();
+      clozeSpan.classList.toggle('is-revealed');
+      return;
+    }
+
+    const zhEl = e.target.closest('.card-zh');
+    if (zhEl && state.cloze) {
+      e.stopPropagation();
+      zhEl.classList.toggle('is-revealed');
+      return;
+    }
+
     const favBtn = e.target.closest('[data-fav]');
     if (favBtn) { e.stopPropagation(); toggleFav(favBtn.dataset.fav); return; }
 
@@ -608,6 +669,24 @@ function bind() {
     }
   });
   el.dBody.addEventListener('click', (e) => {
+    const copyBtn = e.target.closest('[data-copy-quote]');
+    if (copyBtn) {
+      e.stopPropagation();
+      copyQuote(copyBtn.dataset.copyQuote);
+      return;
+    }
+    const clozeSpan = e.target.closest('.cloze-mask');
+    if (clozeSpan) {
+      e.stopPropagation();
+      clozeSpan.classList.toggle('is-revealed');
+      return;
+    }
+    const zhEl = e.target.closest('.d-zh');
+    if (zhEl && state.cloze) {
+      e.stopPropagation();
+      zhEl.classList.toggle('is-revealed');
+      return;
+    }
     const btn = e.target.closest('[data-speak]');
     if (!btn) return;
     const item = BY_ID.get(btn.dataset.speak);
@@ -630,6 +709,16 @@ function bind() {
     applyBilingual();
     writeLS(LS.bi, state.bi ? 'on' : 'off');
   });
+
+  // 背诵挖空模式
+  if (el.cloze) {
+    el.cloze.addEventListener('click', () => {
+      state.cloze = !state.cloze;
+      applyCloze();
+      writeLS(LS.cloze, state.cloze ? 'on' : 'off');
+      toast(state.cloze ? '背诵模式已开启（中文与重点生词已遮盖，点击可揭开）' : '背诵模式已关闭');
+    });
+  }
 
   // 键盘
   document.addEventListener('keydown', (e) => {
@@ -683,9 +772,18 @@ function applyBilingual() {
   el.bilingual.title = state.bi ? '当前显示中文译文，点击隐藏' : '当前隐藏中文译文，点击显示';
 }
 
+function applyCloze() {
+  document.documentElement.setAttribute('data-cloze', state.cloze ? 'on' : 'off');
+  if (el.cloze) {
+    el.cloze.setAttribute('aria-pressed', String(state.cloze));
+    el.cloze.title = state.cloze ? '背诵模式已开启（点击关闭，恢复完整显示）' : '切换背诵模式（模糊中文与重点生词，点击即可揭开）';
+  }
+}
+
 /* ---------- boot ---------- */
 function boot() {
   applyBilingual();
+  applyCloze();
   el.year.textContent = String(new Date().getFullYear());
   renderToday();
   render();

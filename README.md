@@ -22,7 +22,7 @@
 | [Aurora Chat · 极光](https://daixuan.cloud/aurora-chat/) | 浏览器端 AI 聊天工作台 |
 | [明史资料平台](https://daixuan.cloud/ming-history/) | 文献索引与研读工具 |
 | [简历](https://daixuan.cloud/resume/) | 在线简历与打印页面 |
-| [朗读室](https://daixuan.cloud/words/) | 英文演讲与《经济学人》句式精读 |
+| [朗读室](https://daixuan.cloud/words/) | 20 篇英文演讲与 20 个《经济学人》句式精读（支持语音朗读、背诵挖空与金句复制） |
 
 `snow-viz/vr_twin.html` 是冰雪作品的附属三维 / VR 页面；`404.html` 提供站点错误页。
 

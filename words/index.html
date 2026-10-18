@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>朗读室 · 英文演讲与《经济学人》句式 | 戴璇 · daixuan.cloud</title>
-  <meta name="description" content="16 篇英文演讲里最值得背下来的段落，加 16 个《经济学人》式的行文装置。可搜索、可朗读、可收藏，每一条都有稳定链接，中英对照随时切换。纯静态、零依赖。">
-  <meta name="keywords" content="英文演讲,励志演讲,经济学人,英文精读,句式分析,英语学习,朗读,乔布斯,罗琳,This is Water,戴璇">
+  <meta name="description" content="20 篇英文演讲里最值得背下来的段落，加 20 个《经济学人》式的行文装置。可搜索、可朗读、可背诵挖空、可收藏，每一条都有稳定链接，中英对照随时切换。纯静态、零依赖。">
+  <meta name="keywords" content="英文演讲,励志演讲,经济学人,英文精读,句式分析,英语学习,朗读,背诵模式,乔布斯,罗琳,This is Water,戴璇">
   <meta name="author" content="戴璇">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://daixuan.cloud/words/">
   <meta name="theme-color" content="#0a0e17">
 
   <meta property="og:title" content="朗读室 · 英文演讲与《经济学人》句式">
-  <meta property="og:description" content="16 篇英文演讲的高光段落 + 16 个《经济学人》式行文装置。可搜索、可朗读、可收藏，中英对照随时切换。">
+  <meta property="og:description" content="20 篇英文演讲的高光段落 + 20 个《经济学人》式行文装置。可搜索、可朗读、可背诵挖空、可收藏，中英对照随时切换。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://daixuan.cloud/words/">
   <meta property="og:site_name" content="戴璇 · Dai Xuan">
@@ -20,7 +20,7 @@
   <meta property="og:image" content="https://daixuan.cloud/assets/images/og-card.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="朗读室 · 英文演讲与《经济学人》句式">
-  <meta name="twitter:description" content="16 篇英文演讲的高光段落 + 16 个《经济学人》式行文装置。可搜索、可朗读、可收藏。">
+  <meta name="twitter:description" content="20 篇英文演讲的高光段落 + 20 个《经济学人》式行文装置。可搜索、可朗读、可收藏。">
 
   <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
 
@@ -40,7 +40,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="css/style.css?v=20261018-2">
+  <link rel="stylesheet" href="css/style.css?v=20261018-3">
 </head>
 <body>
   <a class="skip-link" href="#library">跳到条目列表</a>
@@ -62,6 +62,9 @@
       </nav>
 
       <div class="tools">
+        <button id="btn-cloze" type="button" class="pill-btn" aria-pressed="false" title="切换背诵模式（模糊中文与生词，点击即可揭开）">
+          <span class="dot" aria-hidden="true"></span>背诵模式
+        </button>
         <button id="btn-bilingual" type="button" class="pill-btn" aria-pressed="true" title="显示或隐藏中文译文">
           <span class="dot" aria-hidden="true"></span>中英对照
         </button>
@@ -80,12 +83,12 @@
         <p class="eyebrow"><span class="eyebrow-line" aria-hidden="true"></span>READING ROOM / 朗读室</p>
         <h1>把好句子，<br><em>读出声来。</em></h1>
         <p class="lede">
-          十六篇英文演讲里最值得背下来的段落，加上十六个《经济学人》式的行文装置。
-          可以搜、可以朗读、可以收藏；每一条都有自己的链接，发给别人时不会只落在首页。
+          二十篇英文演讲里最值得背下来的段落，加上二十个《经济学人》式的行文装置。
+          可以搜、可以朗读、可以背诵挖空、可以收藏；每一条都有专属稳定链接，发给别人时直达条目。
         </p>
         <ul class="hero-meta">
-          <li><b>16</b><span>篇演讲</span></li>
-          <li><b>16</b><span>个句式</span></li>
+          <li><b>20</b><span>篇演讲</span></li>
+          <li><b>20</b><span>个句式</span></li>
           <li><b id="read-count">0</b><span>条已读</span></li>
         </ul>
       </div>
@@ -115,7 +118,7 @@
       <div class="lib-head">
         <div class="lib-heading">
           <h2>选一段开始</h2>
-          <p id="result-count" class="result-count" role="status" aria-live="polite" aria-atomic="true">共 32 条</p>
+          <p id="result-count" class="result-count" role="status" aria-live="polite" aria-atomic="true">共 40 条</p>
         </div>
 
         <div class="lib-tools">
@@ -200,8 +203,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/data.js?v=20261018-2" defer></script>
-  <script src="js/app.js?v=20261018-2" defer></script>
+  <script src="js/data.js?v=20261018-3" defer></script>
+  <script src="js/app.js?v=20261018-3" defer></script>
 
   <!-- 兜底：ES module 在 file:// 下会被浏览器的安全策略拦掉，此时网格是空的。
        这条检查用的是普通脚本，所以在 file:// 下也能跑，能把原因说清楚。 -->
