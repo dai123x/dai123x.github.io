@@ -39,6 +39,14 @@
       margin: 96px auto 60px;
       padding: 0 24px;
     }
+
+    /* 阅读行长（2026-10-19）：正文按 46 字/行封顶。
+       1040px 容器下 16px 正文原本排到 59 字/行，超出中文舒适区（30–45 字）；
+       只收窄 section 的直接正文子元素，框架图 / 表格 / 卡片一律不动。 */
+    .case-section > p,
+    .case-section > ul,
+    .case-section > ol,
+    .case-header > p { max-width: 46em; }
     .case-header {
       background: var(--bg-card);
       backdrop-filter: var(--glass-blur);
@@ -464,6 +472,36 @@
       .case-section h2 { font-size: 1.2rem; }
     }
   </style>
+  <link rel="stylesheet" href="/assets/site-index.css?v=20261019-1">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "@id": "https://daixuan.cloud/case-studies/toyota-engine-line-agv.html#webpage",
+      "url": "https://daixuan.cloud/case-studies/toyota-engine-line-agv.html",
+      "name": "工程实践案例：一汽丰田发动机产线作业测定与 AGV 物流路径重构 · 戴璇",
+      "description": "发动机装配线现场作业测定与精益改善复盘：秒表测时与 MOD 动作分解定位瓶颈工序，MUDA 非增值活动分解，AGV 物料配送路径网络建模与交叉干涉点简化。作者：戴璇。",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://daixuan.cloud/#website"
+      },
+      "author": {
+        "@id": "https://daixuan.cloud/#person"
+      },
+      "headline": "工程实践案例：一汽丰田发动机产线作业测定与 AGV 物流路径重构 · 戴璇",
+      "image": "https://daixuan.cloud/assets/images/og-case-smart-mfg.jpg",
+      "publisher": {
+        "@id": "https://daixuan.cloud/#person"
+      },
+      "mainEntityOfPage": {
+        "@id": "https://daixuan.cloud/case-studies/toyota-engine-line-agv.html"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -1116,7 +1154,29 @@ print(f"单循环里程：{ROUTE_BEFORE:.1f} m -> {ROUTE_AFTER:.1f} m "
     </section>
   </main>
 
-  <footer class="footer" style="padding: 40px 0; border-top: 1px solid var(--border-color); background: var(--bg-card); text-align: center;">
+    <!-- 站内索引：全站统一入口，由 assets/site-index.css 提供样式（只用 currentColor，深浅色自适应） -->
+  <nav class="sx-index" aria-label="站内作品索引">
+    <div class="sx-in">
+      <p class="sx-label">Site Index / 站内索引</p>
+      <ul class="sx-list">
+        <li><a href="/ming-history/">明史资料平台<em>七部著作索引 · 1,667 条可检索</em></a></li>
+        <li><a href="/words/">朗读室<em>英文演讲与《经济学人》句式</em></a></li>
+        <li><a href="/stats-lab/">数据实验室<em>可拖动、可分享深链的统计沙盒</em></a></li>
+        <li><a href="/case-studies/smart-manufacturing-takt-time-analysis.html">案例研究<em>四份统计与工业工程复盘</em></a></li>
+        <li><a href="/claude-anti-ban/">防封指南<em>AI 与 GitHub 开发者风控自测</em></a></li>
+        <li><a href="/student-score/">学生综合评分<em>五育并举与学业表现</em></a></li>
+        <li><a href="/aurora-chat/">极光聊天<em>私有 AI 聊天工作台</em></a></li>
+        <li><a href="/snow-viz/">雪线之上<em>吉林冰雪经济可视化大屏</em></a></li>
+        <li><a href="/campus-map/">校园地图<em>长工大 3D 全景漫游</em></a></li>
+        <li><a href="/galaxy/">璇玑星海<em>3D 记忆星系</em></a></li>
+        <li><a href="/school/">工大印记<em>长春工业大学专属页</em></a></li>
+        <li><a href="/resume/">简历<em>一页式学术与工程履历</em></a></li>
+      </ul>
+      <p class="sx-foot"><a href="/">← 返回 daixuan.cloud 主页</a><span>© 2026 戴璇 · Dai Xuan</span><a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer">GitHub @dai123x</a></p>
+    </div>
+  </nav>
+
+<footer class="footer" style="padding: 40px 0; border-top: 1px solid var(--border-color); background: var(--bg-card); text-align: center;">
     <div class="container">
       <p>© 2026 <strong>戴璇 (Dai Xuan)</strong> · 长春工业大学 · 应用统计硕士研究生（研究方向：数据分析）</p>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">

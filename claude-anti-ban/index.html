@@ -104,6 +104,17 @@ a { color: var(--brand-2); text-decoration: none; transition: color .15s; }
 a:hover { text-decoration: underline; }
 .wrap { max-width: 960px; margin: 0 auto; padding: 0 22px; }
 
+/* ---------- 阅读行长（2026-10-19） ----------
+   960px 容器下 13px 正文排到 55 字/行、15px 提示框 61 字/行，超出中文舒适区
+   （30–45 字，硬上限约 50）。正文段落 / 列表 / 提示框统一收到 46em，
+   形成一条固定的文字栏；工具卡片、表格、代码块一律不动 —— 它们需要宽度。
+   提示框跟着收，是为了让它的右边缘和正文对齐；只收文字不收框会露出半个空框。 */
+main.wrap > section > p,
+main.wrap > section > ul,
+main.wrap > section > ol,
+footer .disc p,
+.callout { max-width: 46em; }
+
 /* ---------- 阅读进度条 ---------- */
 .readbar {
   position: fixed; top: 0; left: 0; height: 3px; width: 0%;
@@ -296,7 +307,7 @@ h1 .hl {
 }
 .chk-card:hover { border-color: var(--brand); transform: translateY(-1px); }
 .chk-card.done { border-color: rgba(52, 211, 153, 0.4); background: var(--ok-soft); }
-.chk-card input { margin-top: 3.5px; accent-color: var(--ok); cursor: pointer; }
+.chk-card input { margin-top: 3.5px; accent-color: var(--ok); cursor: pointer; width: 16px; height: 16px; flex: 0 0 auto; }
 .chk-card-text { font-size: 13.5px; line-height: 1.5; color: var(--ink); }
 .chk-card-text small { display: block; color: var(--ink-3); margin-top: 2px; }
 
@@ -435,7 +446,7 @@ tbody tr:hover { background: var(--surface-2); }
 .codebox { position: relative; margin: 14px 0; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); overflow: hidden; }
 .codebox .cb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; background: var(--surface-3); border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
 .codebox pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
-.copybtn { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 999px; cursor: pointer; transition: .15s; font-family: inherit; }
+.copybtn { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: .15s; font-family: inherit; }
 .copybtn:hover { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-2); }
 .copybtn.done { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
 
@@ -492,7 +503,7 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
 
 /* 典型场景预设按钮 */
 .btn-preset {
-  font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 999px;
   background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2);
   cursor: pointer; transition: all .15s; font-family: inherit;
 }
@@ -594,6 +605,38 @@ footer .foot-links a { color: var(--brand-2); font-weight: 600; }
 .gh-step-card p { margin: 0; font-size: 13px; color: var(--ink-2); }
 
 </style>
+  <link rel="stylesheet" href="/assets/site-index.css?v=20261019-1">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://daixuan.cloud/claude-anti-ban/#webpage",
+      "url": "https://daixuan.cloud/claude-anti-ban/",
+      "name": "AI 与 GitHub 开发者防封完全指南与风控自测系统 · 2026 最新版",
+      "description": "AI 与 GitHub 开发者防封完全指南（2026 最新版）：涵盖 Claude 账号风控自测、Persona 核验、申诉退款，以及 GitHub 账号防 Flag、Actions 算力防封、Copilot 节点风控、Git Pre-Commit 敏感凭据自动拦截器与官方工单生成。",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://daixuan.cloud/#website"
+      },
+      "author": {
+        "@id": "https://daixuan.cloud/#person"
+      },
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "账号风控"
+        },
+        {
+          "@type": "Thing",
+          "name": "AI 服务合规使用"
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -2611,6 +2654,28 @@ Thank you for your time.
   </div>
 </section>
 
+  <!-- 站内索引：全站统一入口，由 assets/site-index.css 提供样式（只用 currentColor，深浅色自适应） -->
+  <nav class="sx-index" aria-label="站内作品索引">
+    <div class="sx-in">
+      <p class="sx-label">Site Index / 站内索引</p>
+      <ul class="sx-list">
+        <li><a href="/ming-history/">明史资料平台<em>七部著作索引 · 1,667 条可检索</em></a></li>
+        <li><a href="/words/">朗读室<em>英文演讲与《经济学人》句式</em></a></li>
+        <li><a href="/stats-lab/">数据实验室<em>可拖动、可分享深链的统计沙盒</em></a></li>
+        <li><a href="/case-studies/smart-manufacturing-takt-time-analysis.html">案例研究<em>四份统计与工业工程复盘</em></a></li>
+        <li><a href="/claude-anti-ban/">防封指南<em>AI 与 GitHub 开发者风控自测</em></a></li>
+        <li><a href="/student-score/">学生综合评分<em>五育并举与学业表现</em></a></li>
+        <li><a href="/aurora-chat/">极光聊天<em>私有 AI 聊天工作台</em></a></li>
+        <li><a href="/snow-viz/">雪线之上<em>吉林冰雪经济可视化大屏</em></a></li>
+        <li><a href="/campus-map/">校园地图<em>长工大 3D 全景漫游</em></a></li>
+        <li><a href="/galaxy/">璇玑星海<em>3D 记忆星系</em></a></li>
+        <li><a href="/school/">工大印记<em>长春工业大学专属页</em></a></li>
+        <li><a href="/resume/">简历<em>一页式学术与工程履历</em></a></li>
+      </ul>
+      <p class="sx-foot"><a href="/">← 返回 daixuan.cloud 主页</a><span>© 2026 戴璇 · Dai Xuan</span><a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer">GitHub @dai123x</a></p>
+    </div>
+  </nav>
+
 <footer>
   <div class="wrap" style="padding:0">
     <div class="disc">
@@ -2644,6 +2709,7 @@ Thank you for your time.
 
 <!-- 返回顶部按钮 -->
 <button class="totop" id="btnToTop" type="button" aria-label="回到顶部" title="回到顶部">↑</button>
+
 
 <footer>
   <div class="wrap">

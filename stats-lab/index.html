@@ -86,10 +86,11 @@
   }
   </script>
 
-  <link rel="stylesheet" href="css/style.css?v=20261013-3">
+  <link rel="stylesheet" href="css/style.css?v=20261019-1">
   <!-- 必须排在 js/lab.js 之前：两者都是 defer，按文档顺序执行，
        保证 lab.js 启动时 SL_I18N 已就绪，图表第一帧就是对的语种 -->
   <script src="js/i18n.js?v=20261013-2" defer></script>
+  <link rel="stylesheet" href="/assets/site-index.css?v=20261019-1">
 </head>
 <body>
   <a class="skip-link" href="#main" data-i18n="a11y.skip">跳到主内容</a>
@@ -624,7 +625,29 @@
     </div>
   </main>
 
-  <footer class="sl-footer">
+    <!-- 站内索引：全站统一入口，由 assets/site-index.css 提供样式（只用 currentColor，深浅色自适应） -->
+  <nav class="sx-index" aria-label="站内作品索引">
+    <div class="sx-in">
+      <p class="sx-label">Site Index / 站内索引</p>
+      <ul class="sx-list">
+        <li><a href="/ming-history/">明史资料平台<em>七部著作索引 · 1,667 条可检索</em></a></li>
+        <li><a href="/words/">朗读室<em>英文演讲与《经济学人》句式</em></a></li>
+        <li><a href="/stats-lab/">数据实验室<em>可拖动、可分享深链的统计沙盒</em></a></li>
+        <li><a href="/case-studies/smart-manufacturing-takt-time-analysis.html">案例研究<em>四份统计与工业工程复盘</em></a></li>
+        <li><a href="/claude-anti-ban/">防封指南<em>AI 与 GitHub 开发者风控自测</em></a></li>
+        <li><a href="/student-score/">学生综合评分<em>五育并举与学业表现</em></a></li>
+        <li><a href="/aurora-chat/">极光聊天<em>私有 AI 聊天工作台</em></a></li>
+        <li><a href="/snow-viz/">雪线之上<em>吉林冰雪经济可视化大屏</em></a></li>
+        <li><a href="/campus-map/">校园地图<em>长工大 3D 全景漫游</em></a></li>
+        <li><a href="/galaxy/">璇玑星海<em>3D 记忆星系</em></a></li>
+        <li><a href="/school/">工大印记<em>长春工业大学专属页</em></a></li>
+        <li><a href="/resume/">简历<em>一页式学术与工程履历</em></a></li>
+      </ul>
+      <p class="sx-foot"><a href="/">← 返回 daixuan.cloud 主页</a><span>© 2026 戴璇 · Dai Xuan</span><a href="https://github.com/dai123x" target="_blank" rel="noopener noreferrer">GitHub @dai123x</a></p>
+    </div>
+  </nav>
+
+<footer class="sl-footer">
     <div class="sl-shell sl-footer-inner">
       <p>© <span id="sl-year">2026</span> <span lang="zh-CN">戴璇</span> · Dai Xuan · <a href="../index.html">daixuan.cloud</a></p>
       <p class="sl-footer-note" data-i18n="footer.note">交互统计沙盒 · 纯静态零依赖 · 图表由浏览器现场模拟生成</p>

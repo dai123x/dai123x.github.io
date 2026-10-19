@@ -6,7 +6,7 @@
 
 ## 站点入口
 
-当前 `sitemap.xml` 收录以下 12 个页面：
+当前 `sitemap.xml` 收录以下 17 个页面：
 
 | 页面 | 内容 |
 | --- | --- |
@@ -15,6 +15,8 @@
 | [工大印记](https://daixuan.cloud/school/) | 长春工业大学主题页面 |
 | [智能制造案例](https://daixuan.cloud/case-studies/smart-manufacturing-takt-time-analysis.html) | 工序节拍分析与产线改善情景展示 |
 | [信用风险案例](https://daixuan.cloud/case-studies/applied-statistics-credit-risk.html) | 应用统计与信用风险分析展示 |
+| [AGV 物流案例](https://daixuan.cloud/case-studies/toyota-engine-line-agv.html) | 作业测定、MUDA 分解与 AGV 路径重构 |
+| [注塑厂房通风案例](https://daixuan.cloud/case-studies/injection-molding-ventilation.html) | 作业环境改善与屋顶通风系统选型 |
 | [全景立体校园地图](https://daixuan.cloud/campus-map/) | 校园空间示意、建筑检索与三维漫游 |
 | [雪线之上](https://daixuan.cloud/snow-viz/) | 吉林冰雪经济目标可视化交互系统 |
 | [雪线之上作品说明书](https://daixuan.cloud/snow-viz/documentation.html) | 作品方法、数据与交互说明 |
@@ -22,6 +24,8 @@
 | [Aurora Chat · 极光](https://daixuan.cloud/aurora-chat/) | 浏览器端 AI 聊天工作台 |
 | [明史资料平台](https://daixuan.cloud/ming-history/) | 文献索引与研读工具 |
 | [简历](https://daixuan.cloud/resume/) | 在线简历与打印页面 |
+| [防封指南](https://daixuan.cloud/claude-anti-ban/) | AI 与 GitHub 开发者风控自测与合规路径 |
+| [学生综合评分系统](https://daixuan.cloud/student-score/) | 五育并举 / 学科成绩 / 日常表现三维评分 |
 | [朗读室](https://daixuan.cloud/words/) | 30 篇英文演讲与 30 个《经济学人》句式精读（共 60 条，支持语音朗读、背诵挖空与金句复制） |
 
 `snow-viz/vr_twin.html` 是冰雪作品的附属三维 / VR 页面；`404.html` 提供站点错误页。
@@ -33,7 +37,7 @@
 ├── index.html                 # 首页内容、作品卡片和导航
 ├── css/                       # 首页样式（style.css、refresh.css）
 ├── js/                        # 首页交互与图片查看器
-├── assets/                    # 共享图片、图标和音频
+├── assets/                    # 共享图片、图标和音频；site-index.css 为全站「站内索引」样式
 ├── galaxy/                    # 星系页面及 comments.json
 ├── school/                    # 学校主题页面
 ├── case-studies/              # 两篇统计案例、说明与保存结果
@@ -58,6 +62,8 @@
 - 各作品的内容和交互主要位于对应目录。校园模型数据在 `campus-map/js/campus-data.js`，明史资料在 `ming-history/js/data-*.js`，统计游乐场的双语文案在 `stats-lab/js/i18n.js`。
 - 冰雪作品的数据、报告和页面同在 `snow-viz/`；案例保存结果位于 `case-studies/case_summary.json`。更新统计内容时核对数据来源、分析条件和页面数值，保留原有作者署名。
 - 新增或移除公开页面时，同时更新导航、页面的 canonical / 分享信息和 `sitemap.xml`。更换域名时同步检查 `CNAME`、`robots.txt` 与页面中的绝对地址。
+- **站内索引**：10 个内容页（明史 / 朗读室 / 防封指南 / 统计实验室 / 简历 / 工大印记 / 四份案例）在页脚上方各有一份相同的 `<nav class="sx-index">`，样式统一来自 `assets/site-index.css`。新增作品时改一处就要全站同步替换这份 HTML；它只用 `currentColor`，所以深浅两种主题都不用额外适配。
+- **结构化数据**：首页用 `Person` + `WebSite` + `ProfilePage`（含作品 `ItemList`），子页用 `CollectionPage` / `WebApplication` / `Article` / `ProfilePage`，统一用 `@id` 引用首页的 `#person` 与 `#website`。JSON-LD 里的名称和链接应与页面可见内容一致，不要写页面里没有的事实。
 
 ## 本地预览与检查
 

@@ -236,6 +236,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .banner-text { flex: 1 1 auto; }
 .banner-text strong { color: var(--text); }
+/* 阅读行长（2026-10-19）：banner 在 1360px 容器里通栏铺开，13px 提示语排到 99 字/行。
+   收到 46em 后是 46 字/行；右侧留白不影响右侧的「接入说明」按钮（它是同段内的行内元素）。 */
+.banner-text p, .banner-note { max-width: 46em; }
 .banner-note {
   margin: 6px 0 0; padding: 8px 10px; font-size: .78rem; line-height: 1.65;
   background: var(--surface); border: 1px solid var(--border);
@@ -663,6 +666,10 @@ textarea.code {
   tbody td, thead th { padding: 6px 7px; }
   input.num-cell { width: 54px; }
   input.num-cell-sm { width: 54px; }
+  /* 点按目标（2026-10-19）：.btn-xs 实测只有 24px 高，移动端够不着。
+     表格里的分数输入框保持 38px 不动 —— 那是 13 科 × 3 次的录入网格，抬到 40px 会让整表高出一大截。 */
+  .btn-xs { min-height: 32px; padding: 5px 10px; }
+  .chip { min-height: 34px; }
 }
 
 /* ------------------------------ 批量打印全班学生报告单 ------------------------------ */

@@ -946,6 +946,14 @@ html[data-cloze="on"] .d-zh.is-revealed {
   .drawer-body { padding: 22px 18px 28px; }
   .drawer-nav { padding-left: 14px; padding-right: 14px; }
   .foot-in { padding-left: 16px; padding-right: 16px; }
+
+  /* 点按目标（2026-10-19）：实测移动端每张卡片上的「朗读 / 复制 / 展开 / 收藏」
+     只有 30–34px 高，60 张卡片就是 240 个够不着的按钮。只抬移动端，桌面保持紧凑。 */
+  .icon-btn { width: 40px; height: 40px; }
+  .pill-btn { min-width: 40px; min-height: 40px; }
+  .mini-btn { min-height: 40px; padding: 8px 12px; }
+  .tabs button { min-height: 40px; }
+  .topic-pill { min-height: 40px; padding: 8px 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1267,3 +1275,26 @@ html:not(.js) .grid::after {
   display: block; padding: 40px 0;
   color: var(--ink-3); font-size: 0.9rem;
 }
+
+/* ---------- JS 关闭时的提示（2026-10-18） ----------
+   之前只靠「2 秒后网格为空」的脚本兜底，但那段兜底本身也是脚本，
+   脚本一关就永远不会触发，用户看到的是一个没有任何说明的空页面。 */
+.noscript-note {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  line-height: 1.85;
+}
+.noscript-note h2 { font-size: 1.05rem; margin: 0 0 8px; }
+.noscript-note p { margin: 0; color: var(--ink-2); font-size: 0.92rem; }
+.noscript-note a { color: var(--accent); }
+
+/* ---------- 首帧位移预留（2026-10-18） ----------
+   网格由 JS 插入 60 张卡片。卡片还没渲染时网格高度是 0，下方的「说明」区块
+   会被顶到首屏边缘；卡片一到，整块内容被推走 —— 实测限速 1.2Mbps 下 CLS 0.252。
+   先给网格留出大半屏高度，让下方内容从一开始就在折线以下。 */
+.grid { min-height: 70vh; }

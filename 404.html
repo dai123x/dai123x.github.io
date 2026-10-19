@@ -7,6 +7,26 @@
   <title>404 · 页面未找到 | 戴璇 · daixuan.cloud</title>
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#0a0e17">
+  <meta name="description" content="页面不存在或已被移动。daixuan.cloud 是戴璇的个人学术与工程门户：明史资料平台、朗读室、数据实验室、案例研究与 3D 交互作品。">
+  <meta property="og:title" content="404 · 页面漂出了雪线之外 | 戴璇 · daixuan.cloud">
+  <meta property="og:description" content="你要找的页面不存在。这里有几条通往主要作品的路。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://daixuan.cloud/404.html">
+  <meta property="og:site_name" content="戴璇 · Dai Xuan">
+  <!-- 主题：与站内其它页面同口径 —— localStorage.dx_theme 优先，系统偏好兜底。
+       之前这一页写死深色，浅色用户从主页跳过来会突然全黑。 -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('dx_theme'); } catch (e) { /* 隐私模式 */ }
+      if (t !== 'light' && t !== 'dark') {
+        t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+      var m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.content = t === 'light' ? '#f8fafc' : '#0a0e17';
+    })();
+  </script>
   <style>
     :root {
       --bg: #0a0e17;
@@ -15,6 +35,7 @@
       --text: #f1f5f9;
       --muted: #94a3b8;
       --accent: #818cf8;
+      --meta: #738196;
       /* 与全站暗色主题的品牌渐变完全一致（见 css/style.css 的 --accent-gradient）。
          原先这里是独立的三停靠点版本 linear-gradient(#7c83f5, #8b5cf6, #ec4899)，
          中停靠点 #8b5cf6 的亮度 (0.1980) 比左右邻居 (#7c83f5 0.2711 / #ec4899 0.2477)
@@ -22,6 +43,27 @@
          换成全站同款后稠密采样最坏 4.78:1，且 404 大字与首页品牌色统一。 */
       --grad: linear-gradient(135deg, #818cf8 0%, #7c83f5 28%, #a855f7 62%, #ec4899 100%);
       --on-accent: #0b1020;
+      --ghost-bg: rgba(31, 41, 55, 0.6);
+      --orb-opacity: 0.35;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    /* 浅色：沿用主页的 --bg #f8fafc / --text #0f172a 一套，渐变字与按钮色不变，
+       只把卡片、边框、灰阶和光球强度换掉。 */
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card: rgba(255, 255, 255, 0.82);
+      --border: rgba(15, 23, 42, 0.09);
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #4f46e5;
+      --meta: #64748b;
+      /* 按钮文字保持深色：渐变左端 #818cf8 上白字只有 3.3:1（不达标），
+         深色字 #0b1020 稠密采样最坏 4.78:1。浅色主题不能想当然改成白字。 */
+      --on-accent: #0b1020;
+      --ghost-bg: rgba(241, 245, 249, 0.9);
+      --orb-opacity: 0.22;
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
@@ -43,7 +85,7 @@
       position: absolute;
       border-radius: 50%;
       filter: blur(90px);
-      opacity: 0.35;
+      opacity: var(--orb-opacity);
       pointer-events: none;
     }
     .orb-1 { width: 420px; height: 420px; background: #312e81; top: -160px; left: -120px; }
@@ -59,7 +101,7 @@
       border-radius: 20px;
       padding: 48px 40px;
       text-align: center;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      box-shadow: var(--shadow);
     }
     .code {
       font-size: 5rem;
@@ -96,13 +138,13 @@
     }
     .btn-ghost {
       color: var(--text);
-      background: rgba(31, 41, 55, 0.6);
+      background: var(--ghost-bg);
       border: 1px solid var(--border);
     }
     .btn-ghost:hover { border-color: rgba(99, 102, 241, 0.4); }
     /* #64748b 压在 .card 的 rgba(17,24,39,.75) 上实测只有 3.81:1；
        卡片底色比页面底色浅，所以这里必须比页面上的同级灰更亮。 */
-    .meta { margin-top: 26px; font-size: 0.8rem; color: #738196; }
+    .meta { margin-top: 26px; font-size: 0.8rem; color: var(--meta); }
     .meta a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
@@ -117,6 +159,8 @@
     <nav class="actions" aria-label="返回导航">
       <a class="btn btn-primary" href="/">回到首页</a>
       <a class="btn btn-ghost" href="/#projects">精选项目</a>
+      <a class="btn btn-ghost" href="/ming-history/">明史资料平台</a>
+      <a class="btn btn-ghost" href="/words/">朗读室</a>
       <a class="btn btn-ghost" href="/campus-map/">全景校园地图</a>
       <a class="btn btn-ghost" href="/snow-viz/">雪线之上</a>
       <a class="btn btn-ghost" href="/aurora-chat/">极光 AI 工作台</a>

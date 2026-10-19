@@ -1,0 +1,125 @@
+/* ==========================================================================
+   site-index.css — 全站统一「站内索引」
+   --------------------------------------------------------------------------
+   设计约束：
+   1. 只使用 currentColor 与其透明度，不引入任何新色值 —— 这样在深色页、
+      浅色页、以及各自定义了 --bg/--text 的子站里都能自动融入，不会撞色。
+   2. 类名统一 sx- 前缀，避免与各子页自有样式冲突。
+   3. 轨道一律 minmax(0, 1fr)：1fr 的最小尺寸是 auto，会被长条目撑破视口。
+   ========================================================================== */
+
+.sx-index {
+  margin: 0;
+  padding: 46px 0 40px;
+  border-top: 1px solid currentColor;
+  border-color: color-mix(in srgb, currentColor 14%, transparent);
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+/* 老浏览器不支持 color-mix 时退回极淡的边框，不依赖它也能看 */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .sx-index { border-top-color: rgba(128, 128, 128, 0.28); }
+}
+
+.sx-in {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.sx-label {
+  margin: 0 0 22px;
+  /* 0.72rem(11.5px) 在 10 个页面里都是最小的一档字号，抬到 0.75rem(12px) */
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.sx-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sx-list li { min-width: 0; }
+
+.sx-list a {
+  display: block;
+  padding: 11px 0 12px;
+  border-bottom: 1px solid currentColor;
+  border-bottom-color: color-mix(in srgb, currentColor 11%, transparent);
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  .sx-list a { border-bottom-color: rgba(128, 128, 128, 0.22); }
+}
+
+.sx-list a:hover,
+.sx-list a:focus-visible {
+  opacity: 0.72;
+  transform: translateX(3px);
+}
+
+.sx-list a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.sx-list em {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-size: 0.76rem;
+  font-weight: 400;
+  line-height: 1.45;
+  opacity: 0.55;
+}
+
+.sx-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 26px 0 0;
+  font-size: 0.78rem;
+  opacity: 0.6;
+}
+
+.sx-foot a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  border-bottom-color: color-mix(in srgb, currentColor 30%, transparent);
+  padding-bottom: 1px;
+}
+
+.sx-foot a:hover { opacity: 0.75; }
+
+.sx-foot span { opacity: 0.9; }
+
+@media (max-width: 900px) {
+  .sx-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .sx-index { padding: 36px 0 30px; }
+  .sx-in { padding: 0 18px; }
+  .sx-list { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sx-list a { padding: 13px 0 13px; }
+}
+
+@media print {
+  .sx-index { display: none; }
+}
