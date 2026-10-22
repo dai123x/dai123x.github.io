@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>学迹 · 大学生综测与绩点管理</title>
+<meta name="description" content="学迹：把绩点、综测、奖学金、毕业学分这四笔账算清楚。不联网、不上传、数据只存在你自己的设备里。">
+<meta name="author" content="戴璇">
+<link rel="canonical" href="https://daixuan.cloud/xueji/">
+<meta property="og:title" content="学迹 · 大学生综测与绩点管理">
+<meta property="og:description" content="学迹：把绩点、综测、奖学金、毕业学分这四笔账算清楚。不联网、不上传、数据只存在你自己的设备里。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://daixuan.cloud/xueji/">
+<meta property="og:site_name" content="戴璇 · daixuan.cloud">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#070b14">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234f8cff'/%3E%3Ctext x='16' y='23' font-size='18' font-family='sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3E%E8%BF%B9%3C/text%3E%3C/svg%3E">
+<script>
+/* 主题：localStorage.dx_theme 优先，prefers-color-scheme 兜底（与站内其它页口径一致） */
+(function () {
+  try {
+    var t = localStorage.getItem('dx_theme');
+    if (t !== 'light' && t !== 'dark') {
+      t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://daixuan.cloud/xueji/#webpage",
+      "url": "https://daixuan.cloud/xueji/",
+      "name": "学迹 · 大学生综测与绩点管理",
+      "description": "学迹：把绩点、综测、奖学金、毕业学分这四笔账算清楚。不联网、不上传、数据只存在你自己的设备里。",
+      "inLanguage": "zh-CN",
+      "isPartOf": {
+        "@id": "https://daixuan.cloud/#website"
+      },
+      "author": {
+        "@id": "https://daixuan.cloud/#person"
+      },
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any (browser)",
+      "browserRequirements": "需要支持 ES2019 的现代浏览器",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      }
+    }
+  ]
+}
+</script>
+<style>
+:root{
+  --bg:#070b14; --bg2:#0a1020; --card:#0f1826; --card2:#141f31; --line:#1d2a3f; --line2:#26354c;
+  --text:#e8eef7; --muted:#8ea0b8; --dim:#5d6e85;
+  --accent:#4f8cff; --teal:#2dd4bf; --green:#35c98a; --amber:#f0b849; --red:#f0616d; --purple:#a78bfa;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);
+  --r:14px; --r-sm:10px;
+}
+html[data-theme="light"]{
+  --bg:#f4f6fb; --bg2:#eef2f9; --card:#ffffff; --card2:#f7f9fd; --line:#e2e8f2; --line2:#d3dcea;
+  --text:#101c2c; --muted:#5b6b80; --dim:#8494a8;
+  --shadow:0 1px 2px rgba(16,28,44,.05),0 10px 28px -18px rgba(16,28,44,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:inherit;color:inherit}
+::selection{background:rgba(79,140,255,.28)}
+
+/* ---------- shell ---------- */
+.shell{display:flex;min-height:100vh}
+.rail{
+  width:236px;flex:0 0 236px;border-right:1px solid var(--line);
+  background:linear-gradient(180deg,var(--bg2),var(--bg));
+  padding:22px 14px;display:flex;flex-direction:column;gap:4px;
+  position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:0 8px 18px}
+.brand-mark{
+  width:38px;height:38px;border-radius:11px;flex:0 0 38px;
+  background:linear-gradient(135deg,#4f8cff,#7b6cf6);
+  display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff;
+  box-shadow:0 6px 18px -8px rgba(79,140,255,.9);
+}
+.brand-txt b{display:block;font-size:16px;letter-spacing:.06em}
+.brand-txt span{display:block;font-size:11px;color:var(--dim);letter-spacing:.02em}
+.nav-group{font-size:10.5px;color:var(--dim);letter-spacing:.14em;padding:14px 10px 6px;font-weight:600}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;
+  color:var(--muted);font-size:13.5px;transition:background .14s,color .14s;
+}
+.nav-item svg{width:17px;height:17px;flex:0 0 17px;opacity:.9}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.on{background:rgba(79,140,255,.14);color:#a9c6ff;font-weight:600}
+html[data-theme="light"] .nav-item.on{background:rgba(79,140,255,.12);color:#2b62c9}
+.rail-foot{margin-top:auto;padding:12px 10px 0;border-top:1px solid var(--line);font-size:11px;color:var(--dim);line-height:1.7}
+.rail-foot b{color:var(--green);font-weight:600}
+
+.main{flex:1;min-width:0;padding:26px 32px 60px;max-width:1280px}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.topbar h1{font-size:22px;letter-spacing:-.01em}
+.topbar p{font-size:12.5px;color:var(--dim);margin-top:3px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.btn{
+  padding:7px 13px;border-radius:8px;border:1px solid var(--line2);
+  background:var(--card);font-size:12.5px;color:var(--muted);transition:.14s;
+}
+.btn:hover{border-color:var(--accent);color:var(--text)}
+.btn.primary{background:linear-gradient(135deg,#4f8cff,#6a7cf7);border-color:transparent;color:#fff;font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+
+/* ---------- grid & cards ---------- */
+.grid{display:grid;gap:14px;grid-template-columns:repeat(12,minmax(0,1fr))}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px 18px;box-shadow:var(--shadow);min-width:0;
+}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.card-h h3{font-size:13.5px;font-weight:650;letter-spacing:.01em}
+.card-h .hint{font-size:11.5px;color:var(--dim)}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c5{grid-column:span 5}
+.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+
+/* ---------- stat ---------- */
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .k{font-size:11.5px;color:var(--dim);letter-spacing:.02em}
+.stat .v{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.stat .v small{font-size:13px;color:var(--dim);font-weight:500;margin-left:2px}
+.stat .s{font-size:11.5px;color:var(--muted)}
+.big{font-size:46px;font-weight:750;letter-spacing:-.03em;line-height:1}
+.big small{font-size:15px;color:var(--dim);font-weight:500;margin-left:4px}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;
+  font-size:11px;font-weight:600;line-height:1.7;
+}
+.pill.green{background:rgba(53,201,138,.14);color:var(--green)}
+.pill.amber{background:rgba(240,184,73,.14);color:var(--amber)}
+.pill.red{background:rgba(240,97,109,.14);color:var(--red)}
+.pill.blue{background:rgba(79,140,255,.14);color:#7fa9ff}
+.pill.teal{background:rgba(45,212,191,.14);color:var(--teal)}
+.pill.dim{background:rgba(93,110,133,.16);color:var(--muted)}
+html[data-theme="light"] .pill.blue{color:#2b62c9}
+
+/* ---------- bars ---------- */
+.bar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#4f8cff,#7b6cf6)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.muted{color:var(--muted)}.dim{color:var(--dim)}
+.tiny{font-size:11.5px}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ---------- table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{
+  text-align:left;font-weight:600;font-size:11.5px;color:var(--dim);
+  padding:7px 8px;border-bottom:1px solid var(--line);letter-spacing:.03em;white-space:nowrap;
+}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--card2)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{
+  display:inline-block;padding:1px 7px;border-radius:6px;font-size:10.5px;
+  background:rgba(79,140,255,.13);color:#8fb4ff;font-weight:600;white-space:nowrap;
+}
+html[data-theme="light"] .tag{color:#2b62c9}
+
+/* ---------- list ---------- */
+.li{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:none;padding-bottom:0}
+.li:first-child{padding-top:0}
+.li-body{flex:1;min-width:0}
+.li-title{font-size:13.5px;font-weight:550;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.li-sub{font-size:11.5px;color:var(--dim);margin-top:2px}
+.dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px}
+
+/* ---------- inputs ---------- */
+.inp{
+  width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--line2);
+  background:var(--bg2);color:var(--text);font-size:13px;outline:none;transition:.14s;
+}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,140,255,.14)}
+.inp.sm{width:74px;padding:4px 8px;font-size:12.5px;text-align:right}
+.inp.ghost{background:transparent;border-color:transparent;width:58px;padding:4px 6px}
+.inp.ghost:hover{border-color:var(--line2);background:var(--bg2)}
+.inp.ghost:focus{background:var(--bg2)}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);background-position:calc(100% - 14px) 52%,calc(100% - 9px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:26px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11.5px;color:var(--dim)}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:4px;border-radius:999px;
+  background:var(--line2);outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:#fff;border:3px solid var(--accent);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{padding:4px 11px;border-radius:7px;font-size:12px;color:var(--muted)}
+.seg button.on{background:var(--card2);color:var(--text);font-weight:600;box-shadow:var(--shadow)}
+
+/* ---------- eval dims ---------- */
+.dim{padding:13px 0;border-bottom:1px solid var(--line)}
+.dim:last-child{border-bottom:none;padding-bottom:0}
+.dim-h{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.dim-h b{font-size:13.5px}
+.dim-items{display:grid;gap:7px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.dim-item{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+.dim-item span{font-size:12px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dim-item input{width:52px;background:transparent;border:none;text-align:right;font-size:13px;font-weight:600;outline:none;font-variant-numeric:tabular-nums}
+.dim-item input:focus{color:var(--accent)}
+
+/* ---------- charts ---------- */
+.barchart{display:flex;gap:8px;align-items:stretch}
+.bc-col{flex:1;min-width:0;display:flex;flex-direction:column}
+.bc-plot{
+  flex:1;position:relative;display:flex;align-items:flex-end;justify-content:center;
+  background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px);
+  background-size:100% 25%;background-position:0 100%;
+}
+.bc-bar{width:min(44px,58%);border-radius:5px 5px 0 0;min-height:3px}
+.bc-val{position:absolute;left:0;right:0;text-align:center;font-size:11.5px;font-weight:650;line-height:1}
+.bc-lab{font-size:11px;color:var(--dim);text-align:center;padding-top:7px;line-height:1.35;height:36px;overflow:hidden}
+.chart{width:100%;display:block;overflow:visible}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
+
+/* ---------- misc ---------- */
+.note{
+  border-left:3px solid var(--amber);background:rgba(240,184,73,.08);
+  padding:9px 12px;border-radius:0 8px 8px 0;font-size:12px;color:var(--muted);line-height:1.7;
+}
+.note b{color:var(--amber);font-weight:600}
+.empty{color:var(--dim);font-size:12.5px;padding:18px 0;text-align:center}
+.tabbar{display:none}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);
+  background:#1a2436;color:#e8eef7;border:1px solid var(--line2);
+  padding:9px 16px;border-radius:10px;font-size:12.5px;opacity:0;pointer-events:none;
+  transition:.22s;z-index:99;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:1080px){
+  .c3{grid-column:span 6}.c4{grid-column:span 6}.c5{grid-column:span 12}
+  .c6{grid-column:span 12}.c7{grid-column:span 12}.c8{grid-column:span 12}
+}
+@media (max-width:820px){
+  .rail{display:none}
+  .main{padding:18px 14px 92px}
+  .grid{gap:11px}
+  .c3,.c4,.c5,.c6,.c7,.c8{grid-column:span 12}
+  .topbar h1{font-size:19px}
+  .big{font-size:38px}
+  .dim-items{grid-template-columns:1fr 1fr}
+  .tabbar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:rgba(10,16,32,.92);backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);padding:7px 4px calc(7px + env(safe-area-inset-bottom));
+  }
+  html[data-theme="light"] .tabbar{background:rgba(255,255,255,.94)}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--dim);padding:3px 0}
+  .tabbar a.on{color:var(--accent)}
+  .tabbar svg{width:19px;height:19px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark">迹</div>
+      <div class="brand-txt"><b>学迹</b><span>大学生综测与绩点管理</span></div>
+    </div>
+    <div class="nav-group">主视图</div>
+    <nav id="nav"></nav>
+    <div class="nav-group">工具</div>
+    <nav id="nav-tools"></nav>
+    <div class="rail-foot">
+      <b>● 本地运行</b><br>
+      不联网、不上传<br>
+      数据只存在这台设备
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="page-title">总览</h1>
+        <p id="page-sub">把四年的账，算在自己手里</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="seg" id="sem-seg"></div>
+        <button class="btn" id="theme-btn" title="切换主题">浅色</button>
+      </div>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<nav class="tabbar" id="tabbar"></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   0. 领域模型（口径全部可配置，默认值只是常见做法）
+   ============================================================ */
+const SCHEMA = 1;
+
+const GPA_MODES = [
+  {key:'std4', name:'标准 4.0', max:4.0, desc:'90+ 记 4.0，85–89 记 3.7，逐段递减'},
+  {key:'five', name:'五分制',   max:5.0, desc:'绩点 = 成绩 ÷ 10 − 5，60 分起算'},
+  {key:'pct',  name:'加权百分制', max:100, desc:'只算学分加权平均分，不折绩点'}
+];
+const STD4_TABLE = [[90,4.0],[85,3.7],[82,3.3],[78,3.0],[75,2.7],[72,2.3],[68,2.0],[64,1.5],[60,1.0]];
+
+const COURSE_KINDS = [
+  {key:'required', name:'通识必修', color:'#4f8cff'},
+  {key:'basic',    name:'学科基础', color:'#2dd4bf'},
+  {key:'core',     name:'专业核心', color:'#a78bfa'},
+  {key:'elective', name:'专业选修', color:'#f0b849'},
+  {key:'public',   name:'公共选修', color:'#f0616d'},
+  {key:'practice', name:'实践环节', color:'#7dd3fc'}
+];
+const KIND_MAP = Object.fromEntries(COURSE_KINDS.map(k=>[k.key,k]));
+
+const EVAL_DIMS = [
+  {key:'moral', name:'思想品德', weight:22, color:'#f0616d', desc:'政治理论学习、校规校纪、集体贡献',
+   items:[{key:'moral-theory',name:'理论学习',hint:'党课团课、主题班会'},
+          {key:'moral-rule',name:'遵规守纪',hint:'无违纪、诚信考试'},
+          {key:'moral-team',name:'集体贡献',hint:'班级事务、社团工作'}]},
+  {key:'body', name:'身心健康', weight:18, color:'#35c98a', desc:'体测达标、锻炼习惯、心理状态',
+   items:[{key:'body-test',name:'体质测试',hint:'体测成绩与达标'},
+          {key:'body-habit',name:'锻炼习惯',hint:'体育课、晨跑打卡'},
+          {key:'body-mind',name:'心理素质',hint:'抗压能力、情绪调节'}]},
+  {key:'aesth', name:'审美素养', weight:10, color:'#a78bfa', desc:'艺术课程、文艺活动、审美表达',
+   items:[{key:'aesth-course',name:'艺术课程',hint:'艺术公选课、美育讲座'},
+          {key:'aesth-act',name:'文艺活动',hint:'演出、展览、社团'}]},
+  {key:'labor', name:'劳动实践', weight:20, color:'#f0b849', desc:'劳动课程、志愿服务、社会实践',
+   items:[{key:'labor-course',name:'劳动课程',hint:'劳动教育必修课'},
+          {key:'labor-vol',name:'志愿服务',hint:'志愿时长、公益活动'},
+          {key:'labor-social',name:'社会实践',hint:'暑期实践、调研、支教'}]},
+  {key:'innov', name:'创新拓展', weight:30, color:'#2dd4bf', desc:'竞赛、科研、证书（可由加分自动折算）',
+   items:[{key:'innov-comp',name:'学科竞赛',hint:'竞赛获奖情况'},
+          {key:'innov-research',name:'科研创新',hint:'大创、论文、专利'},
+          {key:'innov-skill',name:'技能证书',hint:'四六级、计算机、资格证'}]}
+];
+
+const AWARD_CATS = [
+  {key:'competition',name:'学科竞赛',color:'#4f8cff',dim:'innov'},
+  {key:'research',   name:'科研创新',color:'#2dd4bf',dim:'innov'},
+  {key:'certificate',name:'技能证书',color:'#a78bfa',dim:'innov'},
+  {key:'volunteer',  name:'志愿服务',color:'#35c98a',dim:'labor'},
+  {key:'social',     name:'社会工作',color:'#f0b849',dim:'moral'},
+  {key:'practice',   name:'实习实践',color:'#f0616d',dim:'labor'}
+];
+const CAT_MAP = Object.fromEntries(AWARD_CATS.map(c=>[c.key,c]));
+
+const AWARD_LEVELS = [
+  {key:'national',name:'国家级',factor:1.0},
+  {key:'province',name:'省级',factor:0.6},
+  {key:'city',    name:'市级',factor:0.4},
+  {key:'school',  name:'校级',factor:0.25},
+  {key:'college', name:'院级',factor:0.15}
+];
+const LEVEL_MAP = Object.fromEntries(AWARD_LEVELS.map(l=>[l.key,l]));
+
+const DEFAULT_PLAN = [
+  {key:'required',need:42},{key:'basic',need:32},{key:'core',need:36},
+  {key:'elective',need:22},{key:'public',need:12},{key:'practice',need:16}
+];
+
+const TASK_KINDS = [
+  {key:'paper',name:'文献',color:'#2dd4bf'},
+  {key:'experiment',name:'实验',color:'#a78bfa'},
+  {key:'meeting',name:'组会',color:'#4f8cff'},
+  {key:'course',name:'课程',color:'#35c98a'},
+  {key:'admin',name:'事务',color:'#f0b849'}
+];
+const TASK_KIND_MAP = Object.fromEntries(TASK_KINDS.map(k=>[k.key,k]));
+const PRIORITY = {high:{name:'紧急',color:'#f0616d'},normal:{name:'普通',color:'#8ea0b8'},low:{name:'随手',color:'#5d6e85'}};
+
+const BOARD_CATS = [
+  {key:'kaoyan',name:'考研',color:'#4f8cff'},
+  {key:'baoyan',name:'保研',color:'#2dd4bf'},
+  {key:'research',name:'科研',color:'#a78bfa'},
+  {key:'life',name:'生活',color:'#35c98a'},
+  {key:'help',name:'求助',color:'#f0b849'}
+];
+const BOARD_MAP = Object.fromEntries(BOARD_CATS.map(c=>[c.key,c]));
+
+/* ============================================================
+   1. 计算引擎（纯函数）
+   ============================================================ */
+const EPS = 1e-9;
+const isNum = v => typeof v === 'number' && Number.isFinite(v);
+function num(v){ if(v===null||v===undefined||v==='') return null; const n=Number(v); return Number.isFinite(n)?n:null; }
+function round(v,d=2){ if(!isNum(v)) return null; const f=Math.pow(10,d); return Math.round((v+EPS)*f)/f; }
+function fx(v,d=2){ const n=num(v); return isNum(n)? n.toFixed(d) : '—'; }
+const clamp = (v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+
+function scoreToGp(score, mode){
+  const s = num(score);
+  if(!isNum(s) || s<0 || s>100) return null;
+  if(mode==='pct') return s;
+  if(mode==='five'){ if(s<60) return 0; return round(Math.min(5, s/10-5),2); }
+  for(const [floor,gp] of STD4_TABLE){ if(s>=floor) return gp; }
+  return 0;
+}
+const maxGp = mode => mode==='pct'?100 : mode==='five'?5 : 4;
+const isScored  = c => !!c && isNum(num(c.score)) && c.status!=='learning';
+const isCounted = c => isScored(c) && c.includeGpa!==false;
+const normName = s => String(s||'').replace(/\s+/g,'').toLowerCase();
+
+function mergeRetakes(courses){
+  const g = new Map();
+  for(const c of courses||[]){ if(!c) continue; const k=normName(c.name); if(!g.has(k)) g.set(k,[]); g.get(k).push(c); }
+  const out=[];
+  for(const list of g.values()){
+    if(list.length<=1){ out.push(...list); continue; }
+    if(!list.some(c=>c.retake)){ out.push(...list); continue; }
+    let best=list[0];
+    for(const c of list){ const a=num(c.score), b=num(best.score); if(a===null) continue; if(b===null||a>b+EPS) best=c; }
+    out.push(Object.assign({},best,{_merged:true,_mergedScores:list.map(c=>num(c.score)).filter(isNum)}));
+  }
+  return out;
+}
+
+function summarize(courses, cfg){
+  const mode = (cfg&&cfg.gpaMode)||'std4';
+  const passLine = num(cfg&&cfg.passLine) ?? 60;
+  const list = mergeRetakes(courses||[]);
+  let gpSum=0, wtSum=0, creditSum=0, earned=0, planned=0, counted=0, passed=0, failed=0;
+  const dist={'90':0,'80':0,'70':0,'60':0,fail:0};
+  let best=null, worst=null;
+  for(const c of list){
+    const cr=num(c.credit), sc=num(c.score);
+    if(isNum(cr)&&cr>0) planned+=cr;
+    if(!isScored(c)) continue;
+    if(sc>=passLine){ passed++; if(isNum(cr)&&cr>0) earned+=cr; } else failed++;
+    if(sc>=90) dist['90']++; else if(sc>=80) dist['80']++; else if(sc>=70) dist['70']++; else if(sc>=60) dist['60']++; else dist.fail++;
+    if(!best||sc>num(best.score)) best=c;
+    if(!worst||sc<num(worst.score)) worst=c;
+    if(!isCounted(c)) continue;
+    if(!isNum(cr)||cr<=0) continue;
+    const gp=scoreToGp(sc,mode);
+    if(!isNum(gp)) continue;
+    gpSum+=gp*cr; wtSum+=sc*cr; creditSum+=cr; counted++;
+  }
+  return {
+    gpa: creditSum>0? round(gpSum/creditSum,2):null,
+    avg: creditSum>0? round(wtSum/creditSum,2):null,
+    credits: round(creditSum,1), earned: round(earned,1), planned: round(planned,1),
+    counted, passed, failed, dist, best, worst, courses:list.length
+  };
+}
+
+function bySemester(courses, semesters, cfg){
+  const mode=(cfg&&cfg.gpaMode)||'std4';
+  const rows=[]; let accGp=0, accCr=0;
+  for(const sem of (semesters||[]).slice().sort((a,b)=>a.order-b.order)){
+    const list=(courses||[]).filter(c=>c.semId===sem.id);
+    const sum=summarize(list,cfg);
+    for(const c of mergeRetakes(list)){
+      if(!isCounted(c)) continue;
+      const cr=num(c.credit); if(!isNum(cr)||cr<=0) continue;
+      const gp=scoreToGp(c.score,mode); if(!isNum(gp)) continue;
+      accGp+=gp*cr; accCr+=cr;
+    }
+    rows.push(Object.assign({sem},sum,{cumGpa:accCr>0?round(accGp/accCr,2):null,cumCredits:round(accCr,1)}));
+  }
+  return rows;
+}
+
+function rankInfo(rank,size){
+  const r=num(rank), n=num(size);
+  if(!isNum(r)||!isNum(n)||r<=0||n<=0||r>n) return {pct:null,topText:'—',level:'none'};
+  const pct=round(r/n*100,1);
+  let level='low';
+  if(pct<=5) level='top'; else if(pct<=15) level='high'; else if(pct<=30) level='mid';
+  return {pct,topText:'前 '+pct+'%',level};
+}
+
+function awardValue(a){
+  const direct=num(a&&a.points);
+  if(isNum(direct)) return Math.max(0,round(direct,1));
+  const base=num(a&&a.base), lv=LEVEL_MAP[a&&a.level];
+  if(!isNum(base)||!lv) return 0;
+  return Math.max(0,round(base*lv.factor,1));
+}
+
+function awardSummary(awards,cfg){
+  const includePending=(cfg&&cfg.includePending)!==false;
+  const byCat={}, byDim={};
+  let total=0,pending=0;
+  for(const a of awards||[]){
+    if(!a) continue;
+    const v=awardValue(a); if(v<=0) continue;
+    const cat=CAT_MAP[a.cat]?a.cat:'competition';
+    const dim=CAT_MAP[cat].dim;
+    const isP=a.status==='pending';
+    if(!byCat[cat]) byCat[cat]={points:0,count:0,pending:0};
+    byCat[cat].points=round(byCat[cat].points+v,1); byCat[cat].count++;
+    if(isP) byCat[cat].pending=round(byCat[cat].pending+v,1);
+    if(isP) pending=round(pending+v,1);
+    if(isP && !includePending) continue;
+    if(!byDim[dim]) byDim[dim]={points:0,count:0};
+    byDim[dim].points=round(byDim[dim].points+v,1); byDim[dim].count++;
+    total=round(total+v,1);
+  }
+  return {total:round(total,1),pending:round(pending,1),byCat,byDim,count:(awards||[]).length};
+}
+
+function evaluate(items, awards, academic, cfg){
+  cfg=cfg||{};
+  const aw=cfg.academicWeight??70, qw=cfg.qualityWeight??30;
+  const dimWeights=cfg.dimWeights||{};
+  const autoInnov=cfg.autoInnov!==false;
+  const includePending=cfg.includePending!==false;
+  const awardRes=awardSummary(awards,{includePending});
+  const dims=[]; let wSum=0,wScoreSum=0,validDims=0;
+  for(const d of EVAL_DIMS){
+    const row=(items&&items[d.key])||{};
+    const vals=d.items.map(it=>num(row[it.key])).filter(isNum);
+    const base=vals.length? round(vals.reduce((a,b)=>a+b,0)/vals.length,2):null;
+    const bonusRaw=awardRes.byDim[d.key]?awardRes.byDim[d.key].points:0;
+    const bonus=(autoInnov||d.key!=='innov')?bonusRaw:0;
+    let score=null;
+    if(isNum(base)||bonus>0) score=round(clamp((isNum(base)?base:0)+bonus,0,100),2);
+    const w=num(dimWeights[d.key]);
+    const weight=(isNum(w)&&w>0)?w:0;
+    const valid=isNum(score);
+    if(valid){ validDims++; if(weight>0){ wSum+=weight; wScoreSum+=score*weight; } }
+    dims.push({key:d.key,name:d.name,color:d.color,desc:d.desc,weight,base,bonus:round(bonus,1),score,valid,
+      filled:vals.length,total:d.items.length,items:d.items,raw:row});
+  }
+  const quality=wSum>0? round(wScoreSum/wSum,2):null;
+  const academicScore=isNum(academic)? round(academic,2):null;
+  let total=null;
+  if(isNum(academicScore)&&isNum(quality)) total=round((academicScore*aw+quality*qw)/(aw+qw),2);
+  else if(isNum(academicScore)&&wSum===0) total=academicScore;
+  else if(!isNum(academicScore)&&isNum(quality)) total=quality;
+  return {
+    academic:{score:academicScore,weight:aw},
+    quality:{score:quality,weight:qw,dims,coverage:validDims+'/'+EVAL_DIMS.length,validDims,weightUsed:round(wSum,1)},
+    awards:awardRes, total
+  };
+}
+
+function scholarshipOf(pct,tiers){
+  const p=num(pct); if(!isNum(p)||!Array.isArray(tiers)||!tiers.length) return null;
+  for(const t of tiers.slice().sort((a,b)=>num(a.pct)-num(b.pct))){ if(p<=num(t.pct)) return t; }
+  return null;
+}
+function postgradOf(pct,rate){
+  const p=num(pct), r=num(rate)??15;
+  if(!isNum(p)) return {eligible:null,pct:null,rate:r,gap:null};
+  return {eligible:p<=r,pct:p,rate:r,gap:round(p-r,1)};
+}
+function evalLevel(s){
+  const v=num(s);
+  if(!isNum(v)) return {label:'未测评',cls:'dim'};
+  if(v>=90) return {label:'优秀',cls:'green'};
+  if(v>=80) return {label:'良好',cls:'blue'};
+  if(v>=70) return {label:'中等',cls:'amber'};
+  if(v>=60) return {label:'合格',cls:'teal'};
+  return {label:'待提升',cls:'red'};
+}
+function requiredGp(accGpa,accCredits,target,left,mode){
+  const g=num(accGpa),c=num(accCredits),t=num(target),l=num(left);
+  if(![g,c,t,l].every(isNum)||l<=0) return null;
+  const need=(t*(c+l)-g*c)/l;
+  return {value:round(need,2),reachable:need<=maxGp(mode)+EPS};
+}
+
+/* ============================================================
+   2. 出厂数据（确定性，不用随机数，便于复现）
+   ============================================================ */
+const DEFAULT_CONFIG = {
+  schemaVersion:SCHEMA, gpaMode:'std4', passLine:60,
+  eval:{academicWeight:70,qualityWeight:30,dimWeights:{moral:22,body:18,aesth:10,labor:20,innov:30},autoInnov:true,includePending:true},
+  plan:JSON.parse(JSON.stringify(DEFAULT_PLAN)),
+  scholarship:[{key:'s1',name:'一等奖学金',pct:5,amount:3000},
+               {key:'s2',name:'二等奖学金',pct:15,amount:2000},
+               {key:'s3',name:'三等奖学金',pct:30,amount:1000}],
+  postgradRate:15
+};
+const DEFAULT_PROFILE = {
+  name:'戴璇', school:'长春工业大学', major:'应用统计学', grade:'2024 级',
+  classNo:'统计 2401', enrollYear:2024, majorSize:126,
+  targetGpa:3.8, targetRank:10, rank:12, gradCredits:160
+};
+
+const SEED_SEMS = [
+  {id:'s1', year:2024, half:1, order:1, label:'2024–2025 学年 · 第一学期'},
+  {id:'s2', year:2024, half:2, order:2, label:'2024–2025 学年 · 第二学期'},
+  {id:'s3', year:2025, half:1, order:3, label:'2025–2026 学年 · 第一学期'}
+];
+
+const SEED_COURSES = [
+  ['高等数学 A1',5,88,'required','s1'],['线性代数',3,91,'basic','s1'],['大学英语 1',3,86,'required','s1'],
+  ['思想道德与法治',3,90,'required','s1'],['计算机基础',3,94,'basic','s1'],['体育 1',1,89,'required','s1'],
+  ['军事理论',2,92,'required','s1'],
+  ['高等数学 A2',5,84,'required','s2'],['概率论与数理统计',4,89,'basic','s2'],['大学英语 2',3,88,'required','s2'],
+  ['Python 程序设计',3,95,'basic','s2'],['中国近现代史纲要',3,87,'required','s2'],['体育 2',1,91,'required','s2'],
+  ['数学分析',4,82,'core','s3'],['应用回归分析',3,90,'core','s3'],['抽样技术',3,86,'core','s3'],
+  ['多元统计分析',3,88,'core','s3'],['马克思主义基本原理',3,89,'required','s3'],
+  ['数据可视化',2,96,'elective','s3'],['统计计算与软件',3,91,'core','s3']
+];
+
+const SEED_AWARDS = [
+  {id:'a1',title:'全国大学生数学建模竞赛 · 省级二等奖',cat:'competition',level:'province',points:7.2,status:'approved',date:'2025-09'},
+  {id:'a2',title:'大学生创新创业训练计划 · 校级立项',cat:'research',level:'school',points:2.5,status:'approved',date:'2025-06'},
+  {id:'a3',title:'大学英语六级（CET-6）· 通过',cat:'certificate',level:'national',points:5,status:'approved',date:'2025-08'},
+  {id:'a4',title:'志愿服务 · 累计 40 小时',cat:'volunteer',level:'school',points:4,status:'approved',date:'2025-10'},
+  {id:'a5',title:'班级学习委员 · 一学年',cat:'social',level:'school',points:3,status:'approved',date:'2025-09'},
+  {id:'a6',title:'全国大学生统计建模大赛 · 省级三等奖',cat:'competition',level:'province',points:4.8,status:'pending',date:'2025-10'}
+];
+
+const SEED_ITEMS = {
+  moral:{'moral-theory':92,'moral-rule':95,'moral-team':88},
+  body:{'body-test':86,'body-habit':82,'body-mind':90},
+  aesth:{'aesth-course':88,'aesth-act':80},
+  labor:{'labor-course':90,'labor-vol':92,'labor-social':85},
+  innov:{'innov-comp':85,'innov-research':88,'innov-skill':90}
+};
+
+const SEED_TASKS = [
+  {id:'t1',title:'完成《应用回归分析》课程论文初稿',kind:'course',priority:'high',due:2,done:false},
+  {id:'t2',title:'整理组会汇报 PPT（第三章 模型诊断）',kind:'admin',priority:'high',due:1,done:false},
+  {id:'t3',title:'复现论文中的 Bootstrap 置信区间',kind:'experiment',priority:'normal',due:5,done:false},
+  {id:'t4',title:'读完《统计学习基础》第 3 章',kind:'paper',priority:'normal',due:7,done:false},
+  {id:'t5',title:'提交国家奖学金申请材料',kind:'admin',priority:'low',due:10,done:false},
+  {id:'t6',title:'核对下学期培养方案学分',kind:'admin',priority:'low',due:-2,done:false},
+  {id:'t7',title:'导出上学年成绩单 PDF',kind:'admin',priority:'normal',due:-1,done:true}
+];
+
+const SEED_MEETINGS = [
+  {id:'m1',date:'2025-10-16',report:'汇报了第三章模型诊断部分的残差分析结果，展示了异方差检验的三种方法对比。',
+   todo:'补做 Box-Cox 变换前后的对照实验；下周把 R² 与调整 R² 的差异解释清楚。'},
+  {id:'m2',date:'2025-10-09',report:'讲了一篇关于分层抽样样本量分配的文献，重点是 Neyman 分配与比例分配的效率比较。',
+   todo:'把文献里的算例用 R 复现一遍，验证公式 3.7。'}
+];
+
+const SEED_LITS = [
+  {id:'l1',title:'Statistical Learning with Sparsity (Hastie et al., 2015)',status:'reading',progress:45},
+  {id:'l2',title:'抽样调查中的校准估计方法综述',status:'done',progress:100},
+  {id:'l3',title:'Bootstrap Methods: Another Look at the Jackknife (Efron, 1979)',status:'todo',progress:0}
+];
+
+const SEED_POSTS = [
+  {id:'p1',cat:'baoyan',role:'m1',title:'夏令营的推荐信到底找谁写比较合适？',body:'导师说可以写，但听说要找上过课的老师更稳。有没有过来人说说？',likes:12,replies:4,time:'2 小时前'},
+  {id:'p2',cat:'research',role:'m2',title:'组会汇报被问住了，怎么补救',body:'被问到为什么不用固定效应模型，当场没答上来。回去补了但不知道下次怎么开口。',likes:23,replies:9,time:'5 小时前'},
+  {id:'p3',cat:'life',role:'ug',title:'大三下才开始准备考研来得及吗',body:'数学基础一般，目标本校。想听听真实的时间线。',likes:31,replies:17,time:'昨天'},
+  {id:'p4',cat:'kaoyan',role:'ug',title:'数三和数一的差距到底有多大',body:'看了大纲还是没概念，有没有人两套都做过的。',likes:8,replies:6,time:'2 天前'}
+];
+
+/* ============================================================
+   3. 存储层
+   ============================================================ */
+const KEY='xueji_web_v1';
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+function freshState(){
+  return {
+    schemaVersion:SCHEMA,
+    profile:clone(DEFAULT_PROFILE),
+    config:clone(DEFAULT_CONFIG),
+    semesters:clone(SEED_SEMS),
+    courses:SEED_COURSES.map((r,i)=>({
+      id:'c'+(i+1), name:r[0], credit:r[1], score:r[2], kind:r[3], semId:r[4],
+      status:'done', includeGpa:true, retake:false
+    })),
+    awards:clone(SEED_AWARDS),
+    items:clone(SEED_ITEMS),
+    tasks:clone(SEED_TASKS),
+    meetings:clone(SEED_MEETINGS),
+    lits:clone(SEED_LITS),
+    posts:clone(SEED_POSTS),
+    activeSem:'s3'
+  };
+}
+
+let state;
+try{
+  const raw=localStorage.getItem(KEY);
+  state = raw ? JSON.parse(raw) : freshState();
+  if(!state || state.schemaVersion!==SCHEMA) state = freshState();
+}catch(e){ state = freshState(); }
+
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('on'),1900);
+}
+
+/* ============================================================
+   4. 派生数据
+   ============================================================ */
+function cfg(){ return state.config; }
+function profile(){ return state.profile; }
+
+function allSummary(){ return summarize(state.courses, cfg()); }
+function academicScore(){ const s=allSummary(); return s.avg; }
+function semRows(){ return bySemester(state.courses, state.semesters, cfg()); }
+function evalResult(){
+  return evaluate(state.items, state.awards, academicScore(), cfg().eval);
+}
+function rankObj(){ return rankInfo(profile().rank, profile().majorSize); }
+function scholarObj(){
+  const r=rankObj();
+  return scholarshipOf(r.pct, cfg().scholarship);
+}
+function postgradObj(){ return postgradOf(rankObj().pct, cfg().postgradRate); }
+
+function planProgress(){
+  const rows = cfg().plan.map(p=>{
+    const k=KIND_MAP[p.key];
+    let earned=0;
+    for(const c of mergeRetakes(state.courses)){
+      if(c.kind!==p.key) continue;
+      if(!isScored(c)) continue;
+      if(num(c.score)>= (num(cfg().passLine)??60)) earned += num(c.credit)||0;
+    }
+    return {key:p.key,name:k?k.name:p.key,color:k?k.color:'#4f8cff',need:p.need,earned:round(earned,1)};
+  });
+  const need=rows.reduce((a,b)=>a+b.need,0);
+  const earned=rows.reduce((a,b)=>a+b.earned,0);
+  return {rows,need:round(need,1),earned:round(earned,1),pct:need>0?round(earned/need*100,1):0};
+}
+
+/* ============================================================
+   5. 渲染工具
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+function icon(name){
+  const p={
+    home:'M3 10.5 12 3l9 7.5V21H3z',
+    book:'M4 4h7v16H4zM13 4h7v16h-7z',
+    gauge:'M12 21a9 9 0 1 1 9-9M12 12l5-4',
+    list:'M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01',
+    user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-3.9 3.6-6 8-6s8 2.1 8 6',
+    calc:'M6 3h12v18H6zM9 7h6M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01',
+    trophy:'M8 4h8v5a4 4 0 0 1-8 0zM5 5h3v2a3 3 0 0 1-3-3zM19 5h-3v2a3 3 0 0 0 3-3zM12 13v4M9 21h6'
+  }[name]||'M4 4h16v16H4z';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="'+p+'"/></svg>';
+}
+
+const NAV=[
+  {v:'home',   name:'总览', icon:'home'},
+  {v:'course', name:'学业', icon:'book'},
+  {v:'eval',   name:'综测', icon:'gauge'},
+  {v:'daily',  name:'日常', icon:'list'},
+  {v:'me',     name:'我的', icon:'user'}
+];
+const TOOLS=[
+  {v:'gpa',    name:'绩点计算器', icon:'calc'},
+  {v:'scholar',name:'奖学金计算器', icon:'trophy'}
+];
+
+/* ---------- 图表 ---------- */
+function semShort(sem){
+  const a=String(sem.year).slice(2), b=String(sem.year+1).slice(2);
+  return a+'–'+b+' '+(sem.half===1?'上':'下');
+}
+function barChart(data, opts){
+  opts=opts||{};
+  const max=Math.max(opts.max||0, ...data.map(d=>d.value||0)) || 1;
+  const top=max*1.1;
+  return '<div class="barchart" style="height:'+(opts.h||200)+'px">'+data.map(d=>{
+    const pct=clamp((d.value||0)/top*100,0,100);
+    return '<div class="bc-col">'
+      +'<div class="bc-plot">'
+      +'<div class="bc-bar" style="height:'+pct.toFixed(1)+'%;background:'+(d.color||'#4f8cff')+'"></div>'
+      +'<div class="bc-val" style="bottom:calc('+pct.toFixed(1)+'% + 6px)">'+(d.label2||'')+'</div>'
+      +'</div>'
+      +'<div class="bc-lab">'+esc(d.label)+'</div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+
+function radarChart(dims){
+  const W=300,H=270,cx=W/2,cy=H/2+6,R=94;
+  const n=dims.length;
+  const pt=(i,r)=>{ const a=-Math.PI/2 + i*2*Math.PI/n; return [cx+Math.cos(a)*r, cy+Math.sin(a)*r]; };
+  let s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
+  for(let ring=1;ring<=4;ring++){
+    const r=R*ring/4;
+    const pts=dims.map((_,i)=>pt(i,r).map(v=>v.toFixed(1)).join(',')).join(' ');
+    s+='<polygon points="'+pts+'" fill="none" stroke="var(--line)" stroke-width="1"/>';
+  }
+  dims.forEach((_,i)=>{ const [x,y]=pt(i,R); s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="var(--line)" stroke-width="1"/>'; });
+  const pts=dims.map((d,i)=>pt(i, R*clamp((d.score||0)/100,0,1)).map(v=>v.toFixed(1)).join(',')).join(' ');
+  s+='<polygon points="'+pts+'" fill="rgba(79,140,255,.20)" stroke="#4f8cff" stroke-width="2"/>';
+  dims.forEach((d,i)=>{
+    const [x,y]=pt(i, R*clamp((d.score||0)/100,0,1));
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.2" fill="#4f8cff"/>';
+    const [lx,ly]=pt(i,R+27);
+    s+='<text x="'+lx.toFixed(1)+'" y="'+(ly+3).toFixed(1)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+esc(d.name)+'</text>';
+    s+='<text x="'+lx.toFixed(1)+'" y="'+(ly+16).toFixed(1)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--text)">'+fx(d.score,1)+'</text>';
+  });
+  s+='</svg>';
+  return '<div style="max-width:330px;margin:0 auto">'+s+'</div>';
+}
+
+function rankRuler(pct, tiers, rate){
+  const W=520,H=118,L=16,R2=16;
+  const x=p=>L+(clamp(p,0,50)/50)*(W-L-R2);
+  let s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
+  const sorted=(tiers||[]).slice().sort((a,b)=>num(a.pct)-num(b.pct));
+  let prev=0;
+  sorted.forEach(t=>{
+    const x0=x(prev), x1=x(t.pct), w=Math.max(1,x1-x0);
+    s+='<rect x="'+x0.toFixed(1)+'" y="26" width="'+w.toFixed(1)+'" height="18" rx="4" fill="rgba(79,140,255,.16)" stroke="rgba(79,140,255,.28)" stroke-width="1"/>';
+    const nm=String(t.name).replace('奖学金','');
+    const lx=x0+w*(w>60?0.7:0.5);
+    s+='<text x="'+lx.toFixed(1)+'" y="38.5" text-anchor="middle" font-size="9.5" fill="var(--muted)">'+esc(nm)+'</text>';
+    prev=t.pct;
+  });
+  if(isNum(rate)&&rate<=50){
+    const rx=x(rate);
+    s+='<line x1="'+rx.toFixed(1)+'" y1="20" x2="'+rx.toFixed(1)+'" y2="48" stroke="var(--teal)" stroke-width="1.4" stroke-dasharray="3 3"/>';
+    s+='<text x="'+rx.toFixed(1)+'" y="15" text-anchor="middle" font-size="9.5" fill="var(--teal)">保研线 '+rate+'%</text>';
+  }
+  [0,5,10,15,20,25,30,35,40,45,50].forEach(m=>{
+    const px=x(m);
+    s+='<line x1="'+px.toFixed(1)+'" y1="48" x2="'+px.toFixed(1)+'" y2="53" stroke="var(--line2)" stroke-width="1"/>';
+    if(m%10===0){
+      s+='<text x="'+px.toFixed(1)+'" y="66" text-anchor="middle" font-size="9.5" fill="var(--dim)">'+m+'%</text>';
+    }
+  });
+  if(isNum(pct)){
+    const px=x(clamp(pct,0,50));
+    s+='<line x1="'+px.toFixed(1)+'" y1="20" x2="'+px.toFixed(1)+'" y2="58" stroke="var(--text)" stroke-width="2"/>';
+    s+='<circle cx="'+px.toFixed(1)+'" cy="35" r="4.6" fill="var(--text)" stroke="#4f8cff" stroke-width="2.2"/>';
+    const tx=clamp(px, L+34, W-R2-34);
+    s+='<text x="'+tx.toFixed(1)+'" y="82" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text)">你 · 前 '+fx(pct,1)+'%</text>';
+  }
+  s+='</svg>';
+  return s;
+}
+
+/* ============================================================
+   6. 视图
+   ============================================================ */
+const VIEWS={};
+let current='home';
+
+VIEWS.home=function(){
+  const s=allSummary(), r=rankObj(), ev=evalResult(), sc=scholarObj(), pg=postgradObj(), pp=planProgress();
+  const rows=semRows();
+  const lvl=evalLevel(ev.total);
+  const gap=round(num(profile().targetGpa)-num(s.gpa),2);
+  const rankPct=r.pct;
+
+  return `
+  <div class="grid">
+    <div class="card c4">
+      <div class="card-h"><h3>累计绩点</h3><span class="hint">${GPA_MODES.find(m=>m.key===cfg().gpaMode).name}</span></div>
+      <div class="row" style="align-items:flex-end">
+        <div class="big">${fx(s.gpa)}<small>/ ${maxGp(cfg().gpaMode).toFixed(1)}</small></div>
+        <div style="text-align:right">
+          <div class="tiny dim">目标 ${fx(profile().targetGpa,2)}</div>
+          <div class="tiny" style="color:${gap>0?'var(--amber)':'var(--green)'};font-weight:600">${gap>0?'还差 '+fx(gap,2):'已达成'}</div>
+        </div>
+      </div>
+      <div class="bar" style="margin:12px 0 6px"><i style="width:${clamp(s.gpa/maxGp(cfg().gpaMode)*100,0,100).toFixed(1)}%"></i></div>
+      <div class="tiny dim">${s.counted} 门课程计入绩点 · 共 ${fx(s.credits,1)} 学分</div>
+    </div>
+
+    <div class="card c4">
+      <div class="card-h"><h3>综测总分</h3><span class="pill ${lvl.cls}">${lvl.label}</span></div>
+      <div class="row" style="align-items:flex-end">
+        <div class="big">${fx(ev.total,1)}<small>/ 100</small></div>
+        <div style="text-align:right">
+          <div class="tiny dim">学业 ${fx(ev.academic.score,1)} × ${ev.academic.weight}%</div>
+          <div class="tiny dim">素质 ${fx(ev.quality.score,1)} × ${ev.quality.weight}%</div>
+        </div>
+      </div>
+      <div class="bar" style="margin:12px 0 6px"><i style="width:${clamp(ev.total||0,0,100)}%;background:linear-gradient(90deg,#2dd4bf,#35c98a)"></i></div>
+      <div class="tiny dim">五维覆盖 ${ev.quality.coverage} · 加分合计 ${fx(ev.awards.total,1)}</div>
+    </div>
+
+    <div class="card c4">
+      <div class="card-h"><h3>专业排名</h3><span class="hint">共 ${profile().majorSize} 人</span></div>
+      <div class="row" style="align-items:flex-end">
+        <div class="big">${profile().rank}<small>/ ${profile().majorSize}</small></div>
+        <div style="text-align:right">
+          <div class="tiny dim">${r.topText}</div>
+          <div class="tiny" style="color:var(--green);font-weight:600">${pg.eligible?'在保研线内':'距保研线 '+(pg.gap>0?fx(pg.gap,1)+' 个百分点':'—')}</div>
+        </div>
+      </div>
+      <div class="bar" style="margin:12px 0 6px"><i style="width:${clamp(100-(rankPct||0),0,100).toFixed(1)}%;background:linear-gradient(90deg,#f0b849,#f0616d)"></i></div>
+      <div class="tiny dim">${sc?('预计 '+sc.name+' · ¥'+sc.amount):'暂未进入奖学金档位'}</div>
+    </div>
+
+    <div class="card c7">
+      <div class="card-h"><h3>学期绩点走势</h3><span class="hint">累计 GPA 按学分加权</span></div>
+      ${barChart(rows.map(r=>({label:semShort(r.sem), label2:fx(r.gpa,2), value:r.gpa, color:'#4f8cff'})), {max:maxGp(cfg().gpaMode), h:200})}
+      <div class="legend">
+        <span><i style="background:#4f8cff"></i>学期 GPA</span>
+        <span>累计 ${fx(s.gpa,2)} · 最高 ${fx(Math.max(...rows.map(r=>r.gpa||0)),2)}</span>
+      </div>
+    </div>
+
+    <div class="card c5">
+      <div class="card-h"><h3>五维雷达</h3><span class="hint">覆盖 ${ev.quality.coverage}</span></div>
+      ${radarChart(ev.quality.dims)}
+    </div>
+
+    <div class="card c5">
+      <div class="card-h"><h3>毕业学分进度</h3><span class="hint">${fx(pp.earned,1)} / ${fx(pp.need,1)}</span></div>
+      <div class="bar" style="margin-bottom:12px"><i style="width:${clamp(pp.pct,0,100)}%"></i></div>
+      <div style="display:grid;gap:8px">
+        ${pp.rows.map(r=>`
+          <div>
+            <div class="row tiny" style="margin-bottom:3px">
+              <span class="muted">${esc(r.name)}</span>
+              <span class="mono ${r.earned>=r.need?'':'dim'}">${fx(r.earned,0)} / ${r.need}</span>
+            </div>
+            <div class="bar" style="height:4px"><i style="width:${clamp(r.earned/r.need*100,0,100)}%;background:${r.color}"></i></div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card c7">
+      <div class="card-h"><h3>待办与组会</h3><span class="hint">共 ${state.tasks.filter(t=>!t.done).length} 项未完成</span></div>
+      ${state.tasks.filter(t=>!t.done).slice(0,4).map(t=>{
+        const k=TASK_KIND_MAP[t.kind]||TASK_KINDS[0], p=PRIORITY[t.priority]||PRIORITY.normal;
+        return `<div class="li">
+          <div class="dot" style="background:${p.color};margin-top:7px"></div>
+          <div class="li-body">
+            <div class="li-title">${esc(t.title)}</div>
+            <div class="li-sub"><span class="tag" style="background:${k.color}22;color:${k.color}">${k.name}</span>
+              <span style="margin-left:6px">${t.due<0?'已逾期 '+Math.abs(t.due)+' 天':'还剩 '+t.due+' 天'}</span></div>
+          </div>
+        </div>`;
+      }).join('') || '<div class="empty">没有待办</div>'}
+    </div>
+
+    <div class="card c5">
+      <div class="card-h"><h3>奖学金与保研</h3><span class="hint">按专业百分位估算</span></div>
+      ${rankRuler(rankPct, cfg().scholarship, cfg().postgradRate)}
+      <div class="note" style="margin-top:10px">
+        <b>口径提示</b>　档位与保研率都是可改的常见做法，各校差异极大。到「我的 → 计算口径」按本校文件改。
+      </div>
+    </div>
+  </div>`;
+};
+
+VIEWS.course=function(){
+  const sems=state.semesters.slice().sort((a,b)=>a.order-b.order);
+  const active=state.activeSem||sems[sems.length-1].id;
+  const list=state.courses.filter(c=>c.semId===active);
+  const sum=summarize(list,cfg());
+  const rows=semRows();
+  const dist=[
+    {k:'90–100',v:sum.dist['90'],c:'#35c98a'},{k:'80–89',v:sum.dist['80'],c:'#4f8cff'},
+    {k:'70–79',v:sum.dist['70'],c:'#f0b849'},{k:'60–69',v:sum.dist['60'],c:'#f0b849'},
+    {k:'不及格',v:sum.dist.fail,c:'#f0616d'}
+  ];
+  const maxD=Math.max(1,...dist.map(d=>d.v));
+
+  return `
+  <div class="grid">
+    <div class="card c12">
+      <div class="card-h">
+        <h3>${esc((sems.find(s=>s.id===active)||{}).label||'')}</h3>
+        <div class="seg" id="sem-switch">
+          ${sems.map(s=>`<button data-sem="${s.id}" class="${s.id===active?'on':''}">${s.label.split('·')[1].trim()}</button>`).join('')}
+        </div>
+      </div>
+      <div class="grid" style="gap:12px">
+        <div class="c3"><div class="stat"><div class="k">学期绩点</div><div class="v">${fx(sum.gpa)}</div><div class="s">满绩 ${maxGp(cfg().gpaMode).toFixed(1)}</div></div></div>
+        <div class="c3"><div class="stat"><div class="k">加权均分</div><div class="v">${fx(sum.avg,1)}</div><div class="s">学业分取这个值</div></div></div>
+        <div class="c3"><div class="stat"><div class="k">学分</div><div class="v">${fx(sum.earned,0)}<small>/${fx(sum.planned,0)}</small></div><div class="s">已获得 / 已登记</div></div></div>
+        <div class="c3"><div class="stat"><div class="k">课程</div><div class="v">${sum.passed}<small>/${sum.courses}</small></div><div class="s">${sum.failed?sum.failed+' 门不及格':'全部及格'}</div></div></div>
+      </div>
+    </div>
+
+    <div class="card c8">
+      <div class="card-h"><h3>课程明细</h3><span class="hint">点击分数可修改，自动重算</span></div>
+      <table>
+        <thead><tr><th>课程</th><th>类别</th><th class="num">学分</th><th class="num">成绩</th><th class="num">绩点</th><th class="num">学分绩点</th></tr></thead>
+        <tbody>
+        ${list.map(c=>{
+          const gp=scoreToGp(c.score,cfg().gpaMode);
+          const k=KIND_MAP[c.kind]||COURSE_KINDS[0];
+          return `<tr>
+            <td>${esc(c.name)}${c.retake?' <span class="tag">重修</span>':''}</td>
+            <td><span class="tag" style="background:${k.color}1f;color:${k.color}">${k.name}</span></td>
+            <td class="num mono">${fx(c.credit,1)}</td>
+            <td class="num"><input class="inp ghost" data-score="${c.id}" type="number" min="0" max="100" value="${c.score}"></td>
+            <td class="num mono">${fx(gp,2)}</td>
+            <td class="num mono dim">${fx((gp||0)*c.credit,2)}</td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card c4">
+      <div class="card-h"><h3>成绩分布</h3><span class="hint">本学年</span></div>
+      <div style="display:grid;gap:11px;margin-top:4px">
+        ${dist.map(d=>`
+          <div>
+            <div class="row tiny" style="margin-bottom:4px"><span class="muted">${d.k}</span><span class="mono">${d.v} 门</span></div>
+            <div class="bar" style="height:6px"><i style="width:${(d.v/maxD*100).toFixed(1)}%;background:${d.c}"></i></div>
+          </div>`).join('')}
+      </div>
+      <div class="note" style="margin-top:14px">
+        <b>重修合并</b>　同名课程取最高分，学分只算一次。
+      </div>
+    </div>
+
+    <div class="card c12">
+      <div class="card-h"><h3>各学期对比</h3><span class="hint">累计 GPA 不是各学期平均</span></div>
+      ${barChart(rows.map(r=>({label:semShort(r.sem), label2:fx(r.gpa,2), value:r.gpa, color:'#4f8cff'})),{max:maxGp(cfg().gpaMode),h:180})}
+    </div>
+  </div>`;
+};
+
+VIEWS.eval=function(){
+  const ev=evalResult();
+  const lvl=evalLevel(ev.total);
+  const dims=ev.quality.dims;
+
+  return `
+  <div class="grid">
+    <div class="card c4">
+      <div class="card-h"><h3>综测总分</h3><span class="pill ${lvl.cls}">${lvl.label}</span></div>
+      <div class="big">${fx(ev.total,1)}<small>/ 100</small></div>
+      <div style="margin-top:14px;display:grid;gap:9px">
+        <div>
+          <div class="row tiny" style="margin-bottom:4px"><span class="muted">学业成绩（加权均分）</span><span class="mono">${fx(ev.academic.score,1)}</span></div>
+          <div class="bar" style="height:6px"><i style="width:${clamp(ev.academic.score||0,0,100)}%"></i></div>
+        </div>
+        <div>
+          <div class="row tiny" style="margin-bottom:4px"><span class="muted">综合素质（五维加权）</span><span class="mono">${fx(ev.quality.score,1)}</span></div>
+          <div class="bar" style="height:6px"><i style="width:${clamp(ev.quality.score||0,0,100)}%;background:linear-gradient(90deg,#2dd4bf,#35c98a)"></i></div>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px">
+        <b>缺维度不参与归一化</b>　当前有效维度 ${ev.quality.coverage}，实际参与加权的权重 ${fx(ev.quality.weightUsed,0)}（名义 100）。没打分的维度不会被当成 0 分。
+      </div>
+      <div style="margin-top:14px;display:grid;gap:8px">
+        ${dims.map(d=>`
+          <div>
+            <div class="row tiny" style="margin-bottom:3px">
+              <span class="muted"><span class="dot" style="background:${d.color};display:inline-block;margin-right:6px"></span>${d.name} <span class="dim">· ${d.weight}%</span></span>
+              <span class="mono">${fx(d.score,1)}</span>
+            </div>
+            <div class="bar" style="height:4px"><i style="width:${clamp(d.score||0,0,100)}%;background:${d.color}"></i></div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card c8">
+      <div class="card-h"><h3>五维得分</h3><span class="hint">细项均分 + 该维度加分，封顶 100</span></div>
+      ${radarChart(dims)}
+    </div>
+
+    <div class="card c12">
+      <div class="card-h"><h3>细项打分</h3><span class="hint">改数字即时重算</span></div>
+      ${dims.map(d=>`
+        <div class="dim">
+          <div class="dim-h">
+            <span class="dot" style="background:${d.color}"></span>
+            <b>${d.name}</b>
+            <span class="tiny dim">权重 ${d.weight}%</span>
+            <span style="flex:1"></span>
+            <span class="tiny dim">均分 ${fx(d.base,1)}${d.bonus>0?' + 加分 '+fx(d.bonus,1):''}</span>
+            <span class="pill ${d.score>=90?'green':d.score>=80?'blue':'amber'}" style="margin-left:8px">${fx(d.score,1)}</span>
+          </div>
+          <div class="dim-items">
+            ${d.items.map(it=>`
+              <label class="dim-item" title="${esc(it.hint)}">
+                <span>${esc(it.name)}</span>
+                <input type="number" min="0" max="100" data-dim="${d.key}" data-item="${it.key}" value="${d.raw[it.key]==null?'':d.raw[it.key]}">
+              </label>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="card c7">
+      <div class="card-h"><h3>加分记录</h3><span class="hint">合计 ${fx(ev.awards.total,1)} · 待认定 ${fx(ev.awards.pending,1)}</span></div>
+      ${state.awards.map(a=>{
+        const cat=CAT_MAP[a.cat]||AWARD_CATS[0];
+        const lv=LEVEL_MAP[a.level];
+        return `<div class="li">
+          <div class="dot" style="background:${cat.color};margin-top:7px"></div>
+          <div class="li-body">
+            <div class="li-title">${esc(a.title)}</div>
+            <div class="li-sub">
+              <span class="tag" style="background:${cat.color}1f;color:${cat.color}">${cat.name}</span>
+              ${lv?'<span style="margin-left:6px">'+lv.name+'</span>':''}
+              <span style="margin-left:6px">${esc(a.date)}</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="mono" style="font-weight:650">+${fx(a.points,1)}</div>
+            <div class="tiny ${a.status==='pending'?'':'dim'}" style="color:${a.status==='pending'?'var(--amber)':'var(--dim)'}">${a.status==='pending'?'待认定':'已认定'}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="card c5">
+      <div class="card-h"><h3>加分归属</h3><span class="hint">只加到所属维度</span></div>
+      ${AWARD_CATS.map(c=>{
+        const b=ev.awards.byCat[c.key];
+        return `<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)">
+          <span class="tiny"><span class="dot" style="background:${c.color};display:inline-block;margin-right:7px"></span>${c.name}</span>
+          <span class="mono tiny ${b?'':'dim'}">${b?fx(b.points,1):'—'}</span>
+        </div>`;
+      }).join('')}
+      <div class="note" style="margin-top:12px">
+        <b>不重复计入</b>　一条加分只归一个维度；竞赛 / 科研 / 证书 → 创新拓展，志愿 / 实践 → 劳动实践，社会工作 → 思想品德。
+      </div>
+    </div>
+  </div>`;
+};
+
+VIEWS.daily=function(){
+  const tasks=state.tasks.slice().sort((a,b)=>(a.done?1:0)-(b.done?1:0)||a.due-b.due);
+  const todo=tasks.filter(t=>!t.done), done=tasks.filter(t=>t.done);
+  const week=weeklyReport();
+
+  return `
+  <div class="grid">
+    <div class="card c7">
+      <div class="card-h"><h3>待办</h3><span class="hint">${todo.length} 项未完成</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input class="inp" id="task-input" placeholder="加一条待办，回车保存">
+        <select class="inp" id="task-kind" style="width:96px">
+          ${TASK_KINDS.map(k=>`<option value="${k.key}">${k.name}</option>`).join('')}
+        </select>
+      </div>
+      ${todo.map(t=>{
+        const k=TASK_KIND_MAP[t.kind]||TASK_KINDS[0], p=PRIORITY[t.priority]||PRIORITY.normal;
+        const over=t.due<0;
+        return `<div class="li">
+          <button class="dot" data-done="${t.id}" style="background:transparent;border:1.6px solid ${over?'var(--red)':'var(--line2)'};margin-top:6px;width:14px;height:14px;flex:0 0 14px;border-radius:50%"></button>
+          <div class="li-body">
+            <div class="li-title">${esc(t.title)}</div>
+            <div class="li-sub">
+              <span class="tag" style="background:${k.color}1f;color:${k.color}">${k.name}</span>
+              <span style="margin-left:6px;color:${over?'var(--red)':'var(--dim)'}">${over?'已逾期 '+Math.abs(t.due)+' 天':'还剩 '+t.due+' 天'}</span>
+            </div>
+          </div>
+          <span class="tiny" style="color:${p.color}">${p.name}</span>
+        </div>`;
+      }).join('') || '<div class="empty">全部完成</div>'}
+      ${done.length?`<div class="tiny dim" style="margin-top:12px">已完成 ${done.length} 项</div>`:''}
+    </div>
+
+    <div class="card c5">
+      <div class="card-h"><h3>组会记录</h3><span class="hint">${state.meetings.length} 次</span></div>
+      ${state.meetings.map(m=>`
+        <div style="padding:11px 0;border-bottom:1px solid var(--line)">
+          <div class="tiny dim" style="margin-bottom:5px">${esc(m.date)}</div>
+          <div class="tiny" style="line-height:1.75"><b style="color:var(--muted)">汇报　</b>${esc(m.report)}</div>
+          <div class="tiny" style="line-height:1.75;margin-top:5px"><b style="color:var(--amber)">待办　</b>${esc(m.todo)}</div>
+        </div>`).join('')}
+      <div class="note" style="margin-top:12px">
+        <b>这两行最值钱</b>　「我汇报了什么 / 导师让我做什么」——期末写总结时不用回忆。
+      </div>
+    </div>
+
+    <div class="card c5">
+      <div class="card-h"><h3>文献</h3><span class="hint">${state.lits.filter(l=>l.status!=='done').length} 篇在读</span></div>
+      ${state.lits.map(l=>`
+        <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+          <div class="li-title" style="font-size:12.5px;line-height:1.6">${esc(l.title)}</div>
+          <div class="row" style="margin-top:6px">
+            <span class="pill ${l.status==='done'?'green':l.status==='reading'?'amber':'dim'}">${l.status==='done'?'已读':l.status==='reading'?'在读':'待读'}</span>
+            <span class="tiny dim mono">${l.progress}%</span>
+          </div>
+          <div class="bar" style="height:4px;margin-top:6px"><i style="width:${l.progress}%"></i></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="card c7">
+      <div class="card-h"><h3>周报</h3><span class="hint">自动拼装，不替你想内容</span></div>
+      <div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12.5px;line-height:1.9;white-space:pre-wrap;color:var(--muted)">${esc(week)}</div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="btn primary" id="copy-week">复制周报</button>
+        <span class="tiny dim" style="align-self:center">已逾期的任务会标「已逾期」，不会写成「昨天」</span>
+      </div>
+    </div>
+  </div>`;
+};
+
+function weeklyReport(){
+  const todo=state.tasks.filter(t=>!t.done);
+  const over=todo.filter(t=>t.due<0);
+  const soon=todo.filter(t=>t.due>=0&&t.due<=7);
+  const m=state.meetings[0];
+  const lit=state.lits.filter(l=>l.status!=='done');
+  const lines=[];
+  lines.push('本周进展');
+  lines.push('· 完成课程与实验任务 '+state.tasks.filter(t=>t.done).length+' 项，在办 '+todo.length+' 项');
+  if(over.length) lines.push('· 已逾期 '+over.length+' 项：'+over.map(t=>t.title).join('；'));
+  if(soon.length) lines.push('· 一周内到期：'+soon.map(t=>t.title+'（还剩 '+t.due+' 天）').join('；'));
+  if(m) lines.push('· 最近一次组会：'+m.report);
+  if(lit.length) lines.push('· 在读文献：'+lit.map(l=>l.title+'（'+l.progress+'%）').join('；'));
+  lines.push('');
+  lines.push('下周计划');
+  if(m&&m.todo) lines.push('· '+m.todo);
+  if(soon.length) lines.push('· 优先推进：'+soon.slice(0,2).map(t=>t.title).join('；'));
+  lines.push('· 完成上述在办事项并同步导师');
+  return lines.join('\n');
+}
+
+VIEWS.me=function(){
+  const p=profile(), c=cfg(), pp=planProgress(), s=allSummary();
+  return `
+  <div class="grid">
+    <div class="card c4">
+      <div class="card-h"><h3>档案</h3><span class="hint">${esc(p.grade)}</span></div>
+      <div class="row" style="gap:12px;margin-bottom:14px">
+        <div class="brand-mark" style="width:46px;height:46px;flex:0 0 46px;font-size:19px">${esc(p.name.slice(0,1))}</div>
+        <div>
+          <div style="font-size:16px;font-weight:650">${esc(p.name)}</div>
+          <div class="tiny dim">${esc(p.school)} · ${esc(p.major)}</div>
+        </div>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div class="field"><label>专业总人数（用于排名百分位）</label><input class="inp" data-prof="majorSize" type="number" value="${p.majorSize}"></div>
+        <div class="field"><label>当前名次</label><input class="inp" data-prof="rank" type="number" value="${p.rank}"></div>
+        <div class="field"><label>目标绩点</label><input class="inp" data-prof="targetGpa" type="number" step="0.1" value="${p.targetGpa}"></div>
+        <div class="field"><label>毕业总学分要求</label><input class="inp" data-prof="gradCredits" type="number" value="${p.gradCredits}"></div>
+      </div>
+    </div>
+
+    <div class="card c4">
+      <div class="card-h"><h3>计算口径</h3><span class="hint">全部可改</span></div>
+      <div class="field" style="margin-bottom:12px">
+        <label>绩点换算</label>
+        <select class="inp" data-cfg="gpaMode">
+          ${GPA_MODES.map(m=>`<option value="${m.key}" ${c.gpaMode===m.key?'selected':''}>${m.name} — ${m.desc}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="field"><label>学业权重 %</label><input class="inp" data-eval="academicWeight" type="number" value="${c.eval.academicWeight}"></div>
+        <div class="field"><label>素质权重 %</label><input class="inp" data-eval="qualityWeight" type="number" value="${c.eval.qualityWeight}"></div>
+      </div>
+      <div class="tiny dim" style="margin-bottom:8px">五维权重</div>
+      <div style="display:grid;gap:8px">
+        ${EVAL_DIMS.map(d=>`
+          <div class="row">
+            <span class="tiny"><span class="dot" style="background:${d.color};display:inline-block;margin-right:7px"></span>${d.name}</span>
+            <input class="inp sm" data-dimw="${d.key}" type="number" value="${c.eval.dimWeights[d.key]}">
+          </div>`).join('')}
+      </div>
+      <div class="field" style="margin-top:12px"><label>保研率 %（专业前百分之几）</label><input class="inp" data-cfg="postgradRate" type="number" value="${c.postgradRate}"></div>
+    </div>
+
+    <div class="card c4">
+      <div class="card-h"><h3>奖学金档位</h3><span class="hint">按百分位</span></div>
+      ${c.scholarship.map(t=>`
+        <div class="row" style="padding:8px 0;border-bottom:1px solid var(--line)">
+          <span class="tiny">${esc(t.name)}</span>
+          <span class="tiny dim mono">前 <input class="inp sm" data-sch="${t.key}" type="number" value="${t.pct}" style="width:52px"> % · ¥${t.amount}</span>
+        </div>`).join('')}
+      <div class="note" style="margin-top:14px">
+        <b>数据与隐私</b>　本页所有数据只写在这台设备的 localStorage 里，不联网、不上传、不读教务系统。清空浏览器数据 = 数据消失。
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="export-btn">导出 JSON</button>
+        <button class="btn" id="reset-btn">重置为演示数据</button>
+      </div>
+    </div>
+
+    <div class="card c12">
+      <div class="card-h"><h3>培养方案完成度</h3><span class="hint">${fx(pp.earned,1)} / ${fx(pp.need,1)} 学分 · ${fx(pp.pct,1)}%</span></div>
+      <div class="bar" style="margin-bottom:14px"><i style="width:${clamp(pp.pct,0,100)}%"></i></div>
+      <div class="grid" style="gap:10px">
+        ${pp.rows.map(r=>`
+          <div class="c4">
+            <div class="row tiny" style="margin-bottom:4px"><span class="muted">${esc(r.name)}</span><span class="mono">${fx(r.earned,0)} / ${r.need}</span></div>
+            <div class="bar" style="height:5px"><i style="width:${clamp(r.earned/r.need*100,0,100)}%;background:${r.color}"></i></div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card c12">
+      <div class="card-h"><h3>同学圈</h3><span class="hint">本地演示 · 别人看不到你的帖子</span></div>
+      <div class="grid" style="gap:12px">
+        ${state.posts.map(p=>{
+          const b=BOARD_MAP[p.cat]||BOARD_CATS[0];
+          return `<div class="c6">
+            <div style="border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--card2)">
+              <div class="li-title" style="font-size:13px">${esc(p.title)}</div>
+              <div class="tiny muted" style="margin:6px 0 8px;line-height:1.7">${esc(p.body)}</div>
+              <div class="row tiny dim">
+                <span><span class="tag" style="background:${b.color}1f;color:${b.color}">${b.name}</span></span>
+                <span>♡ ${p.likes}　💬 ${p.replies}　${esc(p.time)}</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+};
+
+VIEWS.gpa=function(){
+  const s=allSummary(), p=profile();
+  const target=num(p.targetGpa)||3.8;
+  const left=Math.max(0, (num(p.gradCredits)||160) - (num(s.credits)||0));
+  const req=requiredGp(s.gpa, s.credits, target, left, cfg().gpaMode);
+
+  const courses=state.courses.filter(c=>isScored(c));
+  return `
+  <div class="grid">
+    <div class="card c5">
+      <div class="card-h"><h3>当前</h3><span class="hint">${GPA_MODES.find(m=>m.key===cfg().gpaMode).name}</span></div>
+      <div class="big">${fx(s.gpa)}<small>/ ${maxGp(cfg().gpaMode).toFixed(1)}</small></div>
+      <div class="tiny dim" style="margin-top:6px">累计 ${fx(s.credits,1)} 学分 · ${s.counted} 门计入</div>
+      <div style="margin-top:16px;display:grid;gap:8px">
+        <div class="field"><label>目标绩点</label><input class="inp" data-prof="targetGpa" type="number" step="0.1" value="${p.targetGpa}"></div>
+        <div class="field"><label>毕业总学分</label><input class="inp" data-prof="gradCredits" type="number" value="${p.gradCredits}"></div>
+      </div>
+    </div>
+
+    <div class="card c7">
+      <div class="card-h"><h3>目标反推</h3><span class="hint">剩余学分里需要拿到多少</span></div>
+      ${req?`
+        <div class="row" style="align-items:flex-end;margin-bottom:10px">
+          <div>
+            <div class="tiny dim">剩余 ${fx(left,0)} 学分，平均需拿到</div>
+            <div class="big" style="color:${req.reachable?'var(--green)':'var(--red)'}">${fx(req.value,2)}<small>绩点</small></div>
+          </div>
+          <span class="pill ${req.reachable?'green':'red'}">${req.reachable?'可行':'超出满绩，不可行'}</span>
+        </div>
+        <div class="bar"><i style="width:${clamp(req.value/maxGp(cfg().gpaMode)*100,0,100)}%;background:${req.reachable?'linear-gradient(90deg,#35c98a,#2dd4bf)':'linear-gradient(90deg,#f0616d,#f0b849)'}"></i></div>
+        <div class="note" style="margin-top:14px">
+          <b>算法</b>　目标 = (已有绩点×已有学分 + 需达绩点×剩余学分) / 总学分。这是「还需要多努力」的下界，不含课程难度差异。
+        </div>
+      `:'<div class="empty">填完目标与毕业学分后显示</div>'}
+    </div>
+
+    <div class="card c12">
+      <div class="card-h"><h3>模拟：这门课如果考这些分</h3><span class="hint">拖动查看预测绩点，不会改动真实成绩</span></div>
+      <div class="grid" style="gap:12px">
+        ${courses.slice(-6).map(c=>{
+          const gp=scoreToGp(c.score,cfg().gpaMode);
+          return `<div class="c4" style="border:1px solid var(--line);border-radius:10px;padding:12px 14px">
+            <div class="row" style="margin-bottom:8px">
+              <span class="tiny" style="font-weight:600">${esc(c.name)}</span>
+              <span class="tiny dim mono">${fx(c.credit,0)} 学分</span>
+            </div>
+            <div class="row" style="margin-bottom:6px">
+              <span class="tiny dim">原成绩 ${c.score}</span>
+              <span class="tiny" style="font-weight:700" data-sim-label="${c.id}">${fx(gp,2)} 绩点</span>
+            </div>
+            <input type="range" min="0" max="100" value="${c.score}" data-sim="${c.id}">
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+};
+
+VIEWS.scholar=function(){
+  const ev=evalResult(), r=rankObj(), sc=scholarObj(), pg=postgradObj();
+  const tiers=cfg().scholarship;
+  const academic=num(ev.academic.score)||0, quality=num(ev.quality.score)||0;
+  const aw=cfg().eval.academicWeight, qw=cfg().eval.qualityWeight;
+  const leverA=round(aw/(aw+qw),3), leverQ=round(qw/(aw+qw),3);
+
+  return `
+  <div class="grid">
+    <div class="card c4">
+      <div class="card-h"><h3>综测</h3><span class="pill ${evalLevel(ev.total).cls}">${evalLevel(ev.total).label}</span></div>
+      <div class="big">${fx(ev.total,1)}<small>/ 100</small></div>
+      <div class="tiny dim" style="margin-top:6px">学业 ${fx(academic,1)} × ${aw}% ＋ 素质 ${fx(quality,1)} × ${qw}%</div>
+      <div style="margin-top:16px;display:grid;gap:8px">
+        <div class="field"><label>专业人数</label><input class="inp" data-prof="majorSize" type="number" value="${profile().majorSize}"></div>
+        <div class="field"><label>当前名次</label><input class="inp" data-prof="rank" type="number" value="${profile().rank}"></div>
+      </div>
+    </div>
+
+    <div class="card c8">
+      <div class="card-h"><h3>名次尺</h3><span class="hint">色块是各档位覆盖的名次区间</span></div>
+      ${rankRuler(r.pct, tiers, cfg().postgradRate)}
+      <div class="grid" style="gap:10px;margin-top:6px">
+        ${tiers.map(t=>{
+          const need=Math.ceil(t.pct/100*profile().majorSize);
+          const ok=r.pct!=null && r.pct<=t.pct;
+          return `<div class="c4" style="border:1px solid ${ok?'rgba(53,201,138,.4)':'var(--line)'};border-radius:9px;padding:9px 11px">
+            <div class="row tiny"><span>${esc(t.name)}</span><span class="mono">${ok?'已进入':'差 '+(profile().rank-need>0?profile().rank-need:0)+' 名'}</span></div>
+            <div class="tiny dim" style="margin-top:3px">到第 ${need} 名 · ¥${t.amount}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="card c6">
+      <div class="card-h"><h3>提分杠杆</h3><span class="hint">每提 1 分拉动总分多少</span></div>
+      <div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)">
+        <span class="tiny muted">学业成绩 +1 分</span>
+        <span class="mono" style="color:var(--accent);font-weight:700">+${fx(leverA,3)}</span>
+      </div>
+      <div class="row" style="padding:10px 0;border-bottom:1px solid var(--line)">
+        <span class="tiny muted">综合素质 +1 分</span>
+        <span class="mono" style="color:var(--teal);font-weight:700">+${fx(leverQ,3)}</span>
+      </div>
+      <div class="row" style="padding:10px 0">
+        <span class="tiny muted">保研资格（前 ${cfg().postgradRate}%）</span>
+        <span class="pill ${pg.eligible?'green':'amber'}">${pg.eligible?'已具备':'差 '+fx(pg.gap,1)+' 个百分点'}</span>
+      </div>
+      <div class="note" style="margin-top:12px">
+        <b>这只是估算</b>　档位与保研率按你填的规则算，各校文件不同，不构成任何承诺。
+      </div>
+    </div>
+
+    <div class="card c6">
+      <div class="card-h"><h3>还差多少</h3><span class="hint">距各档位</span></div>
+      ${tiers.map(t=>{
+        const need=Math.ceil(t.pct/100*profile().majorSize);
+        const gap=profile().rank-need;
+        return `<div style="padding:9px 0;border-bottom:1px solid var(--line)">
+          <div class="row tiny" style="margin-bottom:5px"><span>${esc(t.name)}</span><span class="mono ${gap<=0?'':'dim'}">${gap<=0?'已进入':'还需超过 '+gap+' 人'}</span></div>
+          <div class="bar" style="height:5px"><i style="width:${clamp(need/profile().rank*100,0,100)}%;background:${gap<=0?'linear-gradient(90deg,#35c98a,#2dd4bf)':'var(--line2)'}"></i></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+};
+
+/* ============================================================
+   7. 路由与事件
+   ============================================================ */
+const TITLES={
+  home:['总览','把四年的账，算在自己手里'],
+  course:['学业','成绩、绩点、学分，一学期一学期看'],
+  eval:['综测','五维打分 + 加分折算，缺维度不按 0 分算'],
+  daily:['日常','待办、组会、文献、周报'],
+  me:['我的','档案、计算口径、数据与隐私'],
+  gpa:['绩点计算器','三口径随时切，目标可反推'],
+  scholar:['奖学金计算器','名次尺、档位、提分杠杆']
+};
+
+function renderNav(){
+  const mk=list=>list.map(n=>`<a class="nav-item ${current===n.v?'on':''}" data-go="${n.v}">${icon(n.icon)}<span>${n.name}</span></a>`).join('');
+  $('#nav').innerHTML=mk(NAV);
+  $('#nav-tools').innerHTML=mk(TOOLS);
+  $('#tabbar').innerHTML=NAV.map(n=>`<a class="${current===n.v?'on':''}" data-go="${n.v}">${icon(n.icon)}<span>${n.name}</span></a>`).join('');
+}
+
+function render(){
+  const t=TITLES[current]||['学迹',''];
+  $('#page-title').textContent=t[0];
+  $('#page-sub').textContent=t[1];
+  const semSeg=$('#sem-seg');
+  semSeg.style.display = current==='course' ? 'none' : 'none';
+  $('#view').innerHTML=(VIEWS[current]||VIEWS.home)();
+  renderNav();
+  bind();
+}
+
+let suppressHash=false;
+function go(v){
+  current=v;
+  suppressHash=true;
+  if(location.hash.slice(1)!==v) location.hash=v;
+  suppressHash=false;
+  render();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+window.addEventListener('hashchange',()=>{
+  if(suppressHash) return;
+  const h=location.hash.slice(1);
+  if(TITLES[h]&&h!==current){ current=h; render(); }
+});
+
+function bind(){
+  document.querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>go(el.dataset.go));
+
+  // 课程分数
+  document.querySelectorAll('[data-score]').forEach(inp=>{
+    inp.onchange=()=>{
+      const c=state.courses.find(x=>x.id===inp.dataset.score);
+      const v=clamp(num(inp.value)??0,0,100);
+      c.score=v; save(); toast('已更新 '+c.name+' 的成绩'); render();
+    };
+  });
+
+  // 学期切换
+  document.querySelectorAll('[data-sem]').forEach(b=>{
+    b.onclick=()=>{ state.activeSem=b.dataset.sem; save(); render(); };
+  });
+
+  // 综测细项
+  document.querySelectorAll('[data-dim][data-item]').forEach(inp=>{
+    inp.onchange=()=>{
+      const d=inp.dataset.dim, k=inp.dataset.item;
+      if(!state.items[d]) state.items[d]={};
+      const v=inp.value===''?null:clamp(num(inp.value)??0,0,100);
+      state.items[d][k]=v; save(); render();
+    };
+  });
+
+  // 待办
+  const ti=$('#task-input');
+  if(ti){
+    ti.onkeydown=e=>{
+      if(e.key==='Enter'&&ti.value.trim()){
+        state.tasks.unshift({id:'t'+Date.now(),title:ti.value.trim(),kind:$('#task-kind').value,priority:'normal',due:7,done:false});
+        save(); toast('已添加'); render();
+      }
+    };
+  }
+  document.querySelectorAll('[data-done]').forEach(b=>{
+    b.onclick=()=>{
+      const t=state.tasks.find(x=>x.id===b.dataset.done);
+      if(t){ t.done=true; save(); toast('已完成：'+t.title); render(); }
+    };
+  });
+
+  // 周报复制
+  const cw=$('#copy-week');
+  if(cw) cw.onclick=()=>{
+    const txt=weeklyReport();
+    if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>toast('周报已复制'),()=>toast('复制失败，请手动选择'));
+    else toast('当前环境不支持自动复制');
+  };
+
+  // 档案
+  document.querySelectorAll('[data-prof]').forEach(inp=>{
+    inp.onchange=()=>{
+      const k=inp.dataset.prof;
+      state.profile[k]=k==='targetGpa'? (num(inp.value)||3.8) : (num(inp.value)||0);
+      save(); render();
+    };
+  });
+
+  // 口径
+  document.querySelectorAll('[data-cfg]').forEach(el=>{
+    el.onchange=()=>{
+      const k=el.dataset.cfg;
+      state.config[k]= k==='gpaMode'? el.value : (num(el.value)||0);
+      save(); render();
+    };
+  });
+  document.querySelectorAll('[data-eval]').forEach(inp=>{
+    inp.onchange=()=>{ state.config.eval[inp.dataset.eval]=num(inp.value)||0; save(); render(); };
+  });
+  document.querySelectorAll('[data-dimw]').forEach(inp=>{
+    inp.onchange=()=>{ state.config.eval.dimWeights[inp.dataset.dimw]=num(inp.value)||0; save(); render(); };
+  });
+  document.querySelectorAll('[data-sch]').forEach(inp=>{
+    inp.onchange=()=>{
+      const t=state.config.scholarship.find(x=>x.key===inp.dataset.sch);
+      if(t){ t.pct=num(inp.value)||0; save(); render(); }
+    };
+  });
+
+  // 导出 / 重置
+  const ex=$('#export-btn');
+  if(ex) ex.onclick=()=>{
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='xueji-data.json'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    toast('已导出 JSON');
+  };
+  const rs=$('#reset-btn');
+  if(rs) rs.onclick=()=>{
+    state=freshState(); save(); toast('已重置为演示数据'); render();
+  };
+
+  // 绩点模拟
+  document.querySelectorAll('[data-sim]').forEach(r=>{
+    r.oninput=()=>{
+      const c=state.courses.find(x=>x.id===r.dataset.sim);
+      const gp=scoreToGp(num(r.value),cfg().gpaMode);
+      const lab=document.querySelector('[data-sim-label="'+r.dataset.sim+'"]');
+      if(lab) lab.textContent=fx(gp,2)+' 绩点';
+    };
+  });
+}
+
+/* 主题（键与站内其它页一致：dx_theme） */
+function initTheme(){
+  let t=document.documentElement.getAttribute('data-theme')||'dark';
+  const b=$('#theme-btn');
+  b.textContent = t==='dark' ? '浅色' : '深色';
+  b.onclick=()=>{
+    const nt=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nt);
+    try{ localStorage.setItem('dx_theme',nt); }catch(e){}
+    b.textContent = nt==='dark' ? '浅色' : '深色';
+    render();
+  };
+}
+
+/* 启动 */
+initTheme();
+(function(){
+  const h=location.hash.slice(1);
+  if(TITLES[h]) current=h;
+})();
+render();
+window.__xuejiReady = true;
+window.xueji = { get state(){ return state; }, summarize, evaluate, scoreToGp, bySemester };
+})();
+</script>
+</body>
+</html>

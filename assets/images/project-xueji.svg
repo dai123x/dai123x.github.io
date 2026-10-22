@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_xj" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1226"/>
+      <stop offset="100%" stop-color="#060a16"/>
+    </linearGradient>
+    <linearGradient id="blue_xj" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f8cff"/>
+      <stop offset="100%" stop-color="#7ab0ff"/>
+    </linearGradient>
+    <linearGradient id="teal_xj" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#0ea5a4"/>
+    </linearGradient>
+    <filter id="glow_xj" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="600" height="360" fill="url(#bg_xj)"/>
+
+  <pattern id="grid_xj" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(79, 140, 255, 0.09)" stroke-width="1"/>
+  </pattern>
+  <rect width="600" height="360" fill="url(#grid_xj)"/>
+
+  <circle cx="150" cy="170" r="120" fill="url(#blue_xj)" opacity="0.14" filter="url(#glow_xj)"/>
+  <circle cx="470" cy="200" r="100" fill="#2dd4bf" opacity="0.10" filter="url(#glow_xj)"/>
+
+  <!-- 左侧：成绩面板窗口 -->
+  <g>
+    <rect x="60" y="80" width="280" height="210" rx="14" fill="#0f1826" stroke="#26354c" stroke-width="1.5"/>
+    <circle cx="82" cy="100" r="4" fill="#f0616d"/>
+    <circle cx="98" cy="100" r="4" fill="#f0b849"/>
+    <circle cx="114" cy="100" r="4" fill="#35c98a"/>
+    <rect x="200" y="95" width="120" height="9" rx="4.5" fill="#1d2a3f"/>
+
+    <text x="80" y="140" font-family="sans-serif" font-size="13" fill="#8ea0b8">累计绩点</text>
+    <text x="80" y="182" font-family="sans-serif" font-size="46" font-weight="700" fill="#e8eef7">3.76</text>
+    <text x="180" y="182" font-family="sans-serif" font-size="15" fill="#5d6e85">/ 4.0</text>
+    <rect x="80" y="196" width="220" height="8" rx="4" fill="#1d2a3f"/>
+    <rect x="80" y="196" width="168" height="8" rx="4" fill="url(#blue_xj)"/>
+
+    <!-- 迷你柱状图 -->
+    <rect x="80" y="240" width="26" height="34" rx="5" fill="#4f8cff" opacity="0.75"/>
+    <rect x="120" y="230" width="26" height="44" rx="5" fill="#4f8cff" opacity="0.9"/>
+    <rect x="160" y="222" width="26" height="52" rx="5" fill="url(#blue_xj)"/>
+    <text x="210" y="262" font-family="sans-serif" font-size="11" fill="#5d6e85">学期绩点走势</text>
+  </g>
+
+  <!-- 右侧：五维雷达 -->
+  <g transform="translate(420,190)">
+    <polygon points="0,-72 68,-22 42,58 -42,58 -68,-22" fill="none" stroke="#26354c" stroke-width="1.2"/>
+    <polygon points="0,-54 51,-16.5 31.5,43.5 -31.5,43.5 -51,-16.5" fill="none" stroke="#26354c" stroke-width="1"/>
+    <polygon points="0,-36 34,-11 21,29 -21,29 -34,-11" fill="none" stroke="#26354c" stroke-width="0.8"/>
+    <line x1="0" y1="0" x2="0" y2="-72" stroke="#26354c" stroke-width="1"/>
+    <line x1="0" y1="0" x2="68" y2="-22" stroke="#26354c" stroke-width="1"/>
+    <line x1="0" y1="0" x2="42" y2="58" stroke="#26354c" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-42" y2="58" stroke="#26354c" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-68" y2="-22" stroke="#26354c" stroke-width="1"/>
+    <polygon points="0,-66 61,-20 33,46 -30,41 -58,-19" fill="rgba(79,140,255,0.25)" stroke="#4f8cff" stroke-width="2" filter="url(#glow_xj)"/>
+    <circle cx="0" cy="-66" r="3.5" fill="#7ab0ff"/>
+    <circle cx="61" cy="-20" r="3.5" fill="#7ab0ff"/>
+    <circle cx="33" cy="46" r="3.5" fill="#7ab0ff"/>
+    <circle cx="-30" cy="41" r="3.5" fill="#7ab0ff"/>
+    <circle cx="-58" cy="-19" r="3.5" fill="#7ab0ff"/>
+  </g>
+
+  <!-- 徽章 -->
+  <g>
+    <rect x="60" y="308" width="118" height="26" rx="13" fill="rgba(79,140,255,0.14)" stroke="rgba(79,140,255,0.45)" stroke-width="1"/>
+    <text x="119" y="325" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#7ab0ff">绩点 · 综测</text>
+    <rect x="188" y="308" width="118" height="26" rx="13" fill="rgba(45,212,191,0.12)" stroke="rgba(45,212,191,0.4)" stroke-width="1"/>
+    <text x="247" y="325" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#5eead4">奖学金 · 保研</text>
+    <rect x="316" y="308" width="130" height="26" rx="13" fill="rgba(53,201,138,0.12)" stroke="rgba(53,201,138,0.4)" stroke-width="1"/>
+    <text x="381" y="325" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#6ee7b7">数据只在本地</text>
+  </g>
+
+  <text x="530" y="52" font-family="sans-serif" font-size="26" font-weight="700" text-anchor="middle" fill="#e8eef7">学迹</text>
+  <text x="530" y="74" font-family="sans-serif" font-size="11" text-anchor="middle" fill="#5d6e85">XUEJI</text>
+</svg>
