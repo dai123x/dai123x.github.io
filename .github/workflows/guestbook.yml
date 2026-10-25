@@ -37,6 +37,10 @@ jobs:
   publish:
     if: github.event.label.name == 'approved'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      actions: write
     steps:
       - name: 审核发布 / 撤回
         uses: actions/github-script@v7
@@ -111,6 +115,13 @@ jobs:
               sha: newShaResp.data.sha
             });
 
+            // GITHUB_TOKEN commits do not trigger push workflows.
+            await github.rest.actions.createWorkflowDispatch({
+              owner, repo,
+              workflow_id: 'deploy.yml',
+              ref: context.payload.repository.default_branch
+            });
+
             // 摘掉"待审核"标签(若还在)
             try {
               await github.rest.issues.removeLabel({
@@ -119,7 +130,7 @@ jobs:
             } catch (e) { /* 标签可能已不存在,忽略 */ }
 
             if (action === 'labeled') {
-              await reply('✅ 审核通过,已发布到 [星海留言墙](https://daixuan.cloud/galaxy/)。');
+              await reply('✅ 审核通过,已请求更新 [星海留言墙](https://daixuan.cloud/galaxy/),部署完成后生效。');
             } else {
-              await reply('🔄 已从星海留言墙撤回。');
+              await reply('🔄 已请求从星海留言墙撤回,部署完成后生效。');
             }

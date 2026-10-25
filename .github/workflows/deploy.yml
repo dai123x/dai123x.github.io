@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 22
       - name: Test site checker
-        run: node --test scripts/check-site.test.mjs
+        run: node --test scripts/*.test.mjs
       - name: Build and check public artifact
         run: node scripts/build-site.mjs
       - name: Upload artifact
