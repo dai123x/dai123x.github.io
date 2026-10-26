@@ -78,6 +78,21 @@ jobs:
                 owner, repo, issue_number: issue.number, body: msg
               });
             };
+            const requestDeployment = async () => {
+              // A retry must still dispatch after a previous run saved the file.
+              await github.rest.actions.createWorkflowDispatch({
+                owner, repo,
+                workflow_id: 'deploy.yml',
+                ref: context.payload.repository.default_branch
+              });
+            };
+            const clearPendingLabel = async () => {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: issue.number, name: 'pending-review'
+                });
+              } catch (e) { /* 标签可能已不存在,忽略 */ }
+            };
 
             if (action === 'labeled') {
               if (!text) {
@@ -85,7 +100,9 @@ jobs:
                 return;
               }
               if (comments.some(c => c.n === issue.number)) {
-                await reply('ℹ️ 该留言已在墙上,无需重复发布。');
+                await requestDeployment();
+                await clearPendingLabel();
+                await reply('ℹ️ 该留言已保存,已重新请求部署,完成后生效。');
                 return;
               }
               if (!name) name = '匿名访客';
@@ -99,35 +116,29 @@ jobs:
               // unlabeled → 撤回
               const idx = comments.findIndex(c => c.n === issue.number);
               if (idx === -1) {
-                await reply('ℹ️ 墙上没有该留言,无需撤回。');
+                await requestDeployment();
+                await clearPendingLabel();
+                await reply('ℹ️ 留言数据中已无该留言,已重新请求部署,完成后生效。');
                 return;
               }
               comments.splice(idx, 1);
             }
 
             // ---- 写回 comments.json(提交到默认分支,Pages 约 1 分钟后生效) ----
-            const newShaResp = await github.rest.repos.getContent({ owner, repo, path: PATH });
             await github.rest.repos.createOrUpdateFileContents({
               owner, repo,
               path: PATH,
               message: `留言墙: ${action === 'labeled' ? '发布' : '撤回'} #${issue.number}`,
               content: Buffer.from(JSON.stringify(comments, null, 2) + '\n', 'utf8').toString('base64'),
-              sha: newShaResp.data.sha
+              // Compare against the version used to calculate this update.
+              sha: fileResp.data.sha
             });
 
             // GITHUB_TOKEN commits do not trigger push workflows.
-            await github.rest.actions.createWorkflowDispatch({
-              owner, repo,
-              workflow_id: 'deploy.yml',
-              ref: context.payload.repository.default_branch
-            });
+            await requestDeployment();
 
             // 摘掉"待审核"标签(若还在)
-            try {
-              await github.rest.issues.removeLabel({
-                owner, repo, issue_number: issue.number, name: 'pending-review'
-              });
-            } catch (e) { /* 标签可能已不存在,忽略 */ }
+            await clearPendingLabel();
 
             if (action === 'labeled') {
               await reply('✅ 审核通过,已请求更新 [星海留言墙](https://daixuan.cloud/galaxy/),部署完成后生效。');
