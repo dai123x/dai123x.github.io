@@ -9,7 +9,7 @@ import { Script } from 'node:vm';
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const SITE_DIRECTORIES = [
   'assets', 'aurora-chat', 'campus-map', 'case-studies', 'claude-anti-ban',
-  'css', 'galaxy', 'js', 'ming-history', 'resume', 'school',
+  'css', 'forbidden-city', 'galaxy', 'js', 'ming-history', 'resume', 'school',
   'snow-viz', 'stats-lab', 'student-score', 'words', 'xueji',
 ];
 const ROOT_FILES = ['index.html', '404.html', 'CNAME', 'robots.txt', 'site.webmanifest', 'sitemap.xml', 'LICENSE'];
