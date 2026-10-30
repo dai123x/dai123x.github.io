@@ -24,8 +24,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Test site checker
-        run: node --test scripts/check-site.test.mjs
+      - name: Test site checker and palace watercolour renderer
+        run: node --test scripts/check-site.test.mjs scripts/forbidden-city-reveal.test.mjs
       - name: Build and check public artifact
         run: node scripts/build-site.mjs
       - name: Upload artifact
