@@ -1,5 +1,5 @@
-import { rng, lerp } from './art.js?v=20261030-drawing3';
-import { pen, tint, P } from './drawing-kit.js?v=20261030-drawing3';
+import { rng, lerp } from './art.js?v=20261030-dragon2';
+import { pen, tint, P } from './drawing-kit.js?v=20261030-dragon2';
 
 const project = (camera, points) => points.map(point => camera.p(point)).filter(Boolean).map(point => [point.x, point.y]);
 const point = (x, y, z) => ({ x, y, z });

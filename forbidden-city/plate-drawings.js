@@ -1,11 +1,11 @@
-import { rng, ellipse, dab, hex, lerp } from './art.js?v=20261030-drawing3';
-import { SPOTS } from './spots.js?v=20261030-drawing3';
-import { PLATE_COPY } from './plate-copy.js?v=20261030-drawing3';
+import { rng, ellipse, dab, hex, lerp } from './art.js?v=20261030-dragon2';
+import { SPOTS } from './spots.js?v=20261030-dragon2';
+import { PLATE_COPY } from './plate-copy.js?v=20261030-dragon2';
 import {
   P, pen, tint, rect, outline, oval, text, plaque, ground, water, brickwork, lattice,
   facade, roof, hall, railing, terrace, tree, rock, cloud, annotation, openPage,
-} from './drawing-kit.js?v=20261030-drawing3';
-import { bridge, lion, dragon, bronzeVessel, jadeSeal, book, desk, scroll, incense, sealPrint } from './drawing-motifs.js?v=20261030-drawing3';
+} from './drawing-kit.js?v=20261030-dragon2';
+import { bridge, lion, dragon, bronzeVessel, jadeSeal, book, desk, scroll, incense, sealPrint } from './drawing-motifs.js?v=20261030-dragon2';
 
 function sky(ctx, color = '#c2d0ca', seed = 2) {
   tint(ctx, [[320, 150], [2280, 150], [2250, 580], [340, 560]], color, .21, 42, seed);
@@ -234,7 +234,8 @@ function ningshou(ctx) {
   const tones = ['#ddd1a7', '#6b9c9a', '#bda34e', '#789a9b', '#d8b764', '#9ab18e', '#d9d8c3', '#b07c55', '#7d9e9a'];
   for (let i = 0; i < 9; i++) {
     const cx = x + (i + .5) * w / 9, cy = 675 + Math.sin(i * 1.2) * 40;
-    dragon(ctx, cx, cy, .58, tones[i], i % 2 ? -1 : 1, 1310 + i);
+    const dir = i < 4 ? 1 : (i > 4 ? -1 : 1);
+    dragon(ctx, cx, cy, .58, tones[i], dir, 1310 + i);
     cloud(ctx, cx - 70, cy - 105, 140, 28, 1350 + i);
   }
   for (let row = 0; row < 3; row++) for (let i = 0; i < 36; i++) {

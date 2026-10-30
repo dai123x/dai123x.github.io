@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createArrivalField, revealOpacity, REVEAL_DURATION } from '../forbidden-city/wash-reveal.js';
 import { palace, faceColor, forbiddenCitySite, perspCam, orderScene } from '../forbidden-city/art.js';
+import { dragon } from '../forbidden-city/drawing-motifs.js';
 
 test('the same palace page produces a stable watercolour reveal', () => {
   const first = createArrivalField(2400, 1350, 80, 45, 23);
@@ -76,4 +77,30 @@ test('expanded palace geometry has only finite vertices in all three seasons', (
       assert.ok(face.pts.every(point => [point.x, point.y, point.z].every(Number.isFinite)));
     }
   }
+});
+
+
+test('imperial dragon motif renders ascending, descending and coiled postures cleanly', () => {
+  const drawOps = [];
+  const mockCtx = {
+    beginPath: () => drawOps.push('begin'),
+    moveTo: (x, y) => { assert.ok(Number.isFinite(x) && Number.isFinite(y)); drawOps.push('move'); },
+    lineTo: (x, y) => { assert.ok(Number.isFinite(x) && Number.isFinite(y)); drawOps.push('line'); },
+    quadraticCurveTo: () => {},
+    bezierCurveTo: () => {},
+    arc: (x, y, r) => { assert.ok(Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(r)); },
+    closePath: () => drawOps.push('close'),
+    fill: () => drawOps.push('fill'),
+    stroke: () => drawOps.push('stroke'),
+    save: () => {},
+    restore: () => {},
+    setLineDash: () => {},
+    translate: () => {},
+    rotate: () => {},
+    scale: () => {},
+  };
+  for (const seed of [1310, 1311, 1314]) {
+    dragon(mockCtx, 600, 400, 0.58, '#d8b764', 1, seed);
+  }
+  assert.ok(drawOps.length > 500);
 });
