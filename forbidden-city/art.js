@@ -419,6 +419,7 @@ function handwrite(ctx, tx, p) {
 class PalaceAudio {
   constructor() {
     this.ctx = null;
+    this.masterGain = null;
     this.enabled = false;
     this.timer = null;
   }
@@ -427,6 +428,9 @@ class PalaceAudio {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx();
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+      this.masterGain.connect(this.ctx.destination);
     } catch (e) {
       console.warn('Web Audio not supported');
     }
@@ -446,7 +450,9 @@ class PalaceAudio {
     return this.enabled;
   }
   playChime(freq = 1175, dur = 2.5, vol = 0.06) {
-    if (!this.ctx || !this.enabled) return;
+    if (!this.ctx) this.init();
+    if (!this.ctx) return;
+    if (!this.enabled && this.ctx.state !== 'running') return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -461,9 +467,35 @@ class PalaceAudio {
     gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.masterGain || this.ctx.destination);
     osc.start(now);
     osc.stop(now + dur);
+  }
+  playBell(freq = 261.63, dur = 4.5, vol = 0.16) {
+    if (!this.ctx) this.init();
+    if (!this.ctx) return;
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    const now = this.ctx.currentTime;
+    const dest = this.masterGain || this.ctx.destination;
+    const partials = [
+      { r: 1.0, a: 1.0, d: dur },
+      { r: 2.0, a: 0.45, d: dur * 0.75 },
+      { r: 2.76, a: 0.28, d: dur * 0.6 },
+      { r: 4.07, a: 0.15, d: dur * 0.45 },
+    ];
+    partials.forEach(p => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq * p.r, now);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(vol * p.a, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + p.d);
+      osc.connect(gain);
+      gain.connect(dest);
+      osc.start(now);
+      osc.stop(now + p.d);
+    });
   }
   scheduleChimes() {
     if (!this.enabled) return;
