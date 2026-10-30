@@ -1,1 +1,1 @@
-export { drawPalacePlate as decoratePlate } from './plate-drawings.js?v=20261030-official-beasts';
+export { drawPalacePlate as decoratePlate } from './plate-drawings.js?v=20261030-detail4';

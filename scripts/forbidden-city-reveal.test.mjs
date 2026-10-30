@@ -1,8 +1,47 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createArrivalField, revealOpacity, REVEAL_DURATION } from '../forbidden-city/wash-reveal.js';
-import { palace, faceColor, forbiddenCitySite, perspCam, orderScene } from '../forbidden-city/art.js';
+import { palace, faceColor, forbiddenCitySite, perspCam, orderScene, capturePlate, ink, underpaint } from '../forbidden-city/art.js';
 import { dragon, lion } from '../forbidden-city/drawing-motifs.js';
+import { PLATE_DETAILS, detailView } from '../forbidden-city/plate-focus.js';
+import { SPOTS } from '../forbidden-city/spots.js';
+
+test('all sixteen paintings have three usable detail views on desktop and narrow screens', () => {
+  assert.deepEqual(Object.keys(PLATE_DETAILS).sort(), SPOTS.map(spot => spot.id).sort());
+  for (const spot of SPOTS) {
+    assert.equal(PLATE_DETAILS[spot.id].length, 3);
+    for (const focus of PLATE_DETAILS[spot.id]) {
+      assert.ok(focus.x > 0 && focus.x < 2400 && focus.y > 0 && focus.y < 1350);
+      assert.ok(focus.zoom > 1 && focus.zoom <= 5 && focus.label && focus.caption);
+      for (const area of [{ width: 1000, height: 500 }, { width: 280, height: 250 }]) {
+        const image = { width: 2400, height: 1350 }, view = detailView(area, image, focus);
+        const scale = Math.min(area.width / image.width, area.height / image.height) * view.zoom;
+        assert.ok(Object.values(view).every(Number.isFinite));
+        assert.ok(Math.abs((focus.x - image.width / 2) * scale + view.x) < 1e-8);
+        assert.ok(Math.abs((focus.y - image.height / 2) * scale + view.y) < 1e-8);
+      }
+    }
+  }
+});
+
+test('foreground surfaces hide only earlier pen strokes that they overlap', () => {
+  const previousDocument = globalThis.document;
+  const context = { save() {}, restore() {}, beginPath() {}, moveTo() {}, lineTo() {}, closePath() {}, fill() {} };
+  globalThis.document = { createElement: () => ({ getContext: () => context }) };
+  try {
+    const plate = capturePlate(1, ctx => {
+      ink(ctx, [{ x: 10, y: 30 }, { x: 90, y: 30 }], { w: 2, seed: 1 }, 1);
+      ink(ctx, [{ x: 10, y: 90 }, { x: 90, y: 90 }], { w: 2, seed: 2 }, 1);
+      underpaint(ctx, [[35, 15], [65, 15], [65, 50], [35, 50]]);
+      ink(ctx, [{ x: 10, y: 30 }, { x: 90, y: 30 }], { w: 2, seed: 3 }, 1);
+    });
+    assert.equal(plate.strokes[0].occluders.length, 1);
+    assert.equal(plate.strokes[1].occluders.length, 0);
+    assert.equal(plate.strokes[2].occluders.length, 0);
+  } finally {
+    globalThis.document = previousDocument;
+  }
+});
 
 test('the same palace page produces a stable watercolour reveal', () => {
   const first = createArrivalField(2400, 1350, 80, 45, 23);

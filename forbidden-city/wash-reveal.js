@@ -1,5 +1,5 @@
-import { capturePlate, drawPen, handwrite, sealStamp, clamp, ss, fbm } from './art.js?v=20261030-official-beasts';
-import { decoratePlate } from './plate-details.js?v=20261030-official-beasts';
+import { capturePlate, drawPen, handwrite, sealStamp, clamp, ss, fbm } from './art.js?v=20261030-detail4';
+import { decoratePlate } from './plate-details.js?v=20261030-detail4';
 
 export const REVEAL_DURATION = 3.2;
 
@@ -75,12 +75,12 @@ export function renderPlate(plate, elapsed) {
     const duration = clamp(stroke.st.L / 1500, .07, .65);
     const progress = clamp((time - start) / duration);
     if (progress >= 1) {
-      drawPen(ink, stroke.st, 1, stroke.col, stroke.alpha);
+      drawPen(ink, stroke.st, 1, stroke.col, stroke.alpha, 0, stroke.occluders);
       stroke.complete = true;
     } else if (progress > 0) active.push({ stroke, progress });
   }
   output.drawImage(plate.ink, 0, 0);
-  for (const { stroke, progress } of active) drawPen(output, stroke.st, progress, stroke.col, stroke.alpha);
+  for (const { stroke, progress } of active) drawPen(output, stroke.st, progress, stroke.col, stroke.alpha, 0, stroke.occluders);
   plate.texts.forEach(({ tx }, index) => handwrite(output, tx, clamp((time - 1.15 - index * .04) / .85)));
   plate.seals.forEach(({ text, x, y, size, o }, index) => sealStamp(output, text, x, y, size, { ...o, p: clamp((time - 2.1 - index * .1) / .4) }));
   plate.lastTime = time;

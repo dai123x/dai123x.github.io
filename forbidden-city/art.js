@@ -155,12 +155,23 @@ function penStroke(pts, o = {}) {
 
 const inGap = (st, u) => st.gaps.some(g => u > g[0] && u < g[1]);
 
-function drawPen(ctx, st, p = 1, col = INK, alpha = 1, from = 0) {
+function drawPen(ctx, st, p = 1, col = INK, alpha = 1, from = 0, occluders = []) {
   if (activePlateCapture?.ctx === ctx) {
     activePlateCapture.strokes.push({ st, col, alpha, progress: 0 });
     return;
   }
   if (p <= 0 || from >= p) return;
+  if (occluders.length) {
+    ctx.save();
+    for (const polygon of occluders) {
+      ctx.beginPath();
+      ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.moveTo(...polygon[0]);
+      for (const point of polygon.slice(1)) ctx.lineTo(...point);
+      ctx.closePath();
+      ctx.clip('evenodd');
+    }
+  }
   const end = st.L * clamp(p), beg = st.L * clamp(from);
   ctx.strokeStyle = rgba(col, alpha * st.alpha);
   ctx.lineCap = 'round';
@@ -182,6 +193,22 @@ function drawPen(ctx, st, p = 1, col = INK, alpha = 1, from = 0) {
     ctx.lineTo(x1, y1);
     ctx.stroke();
   }
+  if (occluders.length) ctx.restore();
+}
+
+// A solid surface reserves its paper before receiving transparent pigment.
+// Captured ink keeps the same front-to-back order as the original painting.
+function underpaint(ctx, polygon, color = '#f5eede') {
+  if (!polygon || polygon.length < 3) return;
+  if (activePlateCapture?.ctx === ctx) {
+    activePlateCapture.occluders.push({ after: activePlateCapture.strokes.length, polygon });
+  }
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = color;
+  pathPoly(ctx, polygon);
+  ctx.fill();
+  ctx.restore();
 }
 
 // ---------- 水彩淡彩（多层叠加透叠 + 边缘收缩水渍） ----------
@@ -1156,10 +1183,25 @@ function capturePlate(page, draw) {
   const color = document.createElement('canvas');
   color.width = 2400; color.height = 1350;
   const ctx = color.getContext('2d');
-  const capture = { ctx, strokes: [], texts: [], seals: [] };
+  const capture = { ctx, strokes: [], texts: [], seals: [], occluders: [] };
   activePlateCapture = capture;
   try {
     draw(ctx, page);
+    const bounds = points => {
+      let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+      for (const [x, y] of points) {
+        left = Math.min(left, x); top = Math.min(top, y);
+        right = Math.max(right, x); bottom = Math.max(bottom, y);
+      }
+      return { left, top, right, bottom };
+    };
+    const occluders = capture.occluders.map(item => ({ ...item, bounds: bounds(item.polygon) }));
+    capture.strokes.forEach((stroke, index) => {
+      const box = bounds(stroke.st.P), pad = Math.max(...stroke.st.W) + 2;
+      stroke.occluders = occluders.filter(item => item.after > index
+        && item.bounds.right >= box.left - pad && item.bounds.left <= box.right + pad
+        && item.bounds.bottom >= box.top - pad && item.bounds.top <= box.bottom + pad).map(item => item.polygon);
+    });
     return { color, strokes: capture.strokes, texts: capture.texts, seals: capture.seals };
   } finally {
     activePlateCapture = null;
@@ -1169,5 +1211,5 @@ function capturePlate(page, draw) {
 export {
   clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene, palaceSound,
   capturePlate, drawPen, handwrite, sealStamp, rng, fbm, ink, wash, ellipse, hex, v, dab,
-  paper, pathPoly, palace, faceColor, orderScene,
+  paper, pathPoly, palace, faceColor, orderScene, underpaint,
 };

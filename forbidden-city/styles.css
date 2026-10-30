@@ -21,7 +21,7 @@ button:disabled { cursor: default; opacity: .45; }
 button:focus-visible, a:focus-visible, input:focus-visible, canvas:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
 button { touch-action: manipulation; }
 a { color: var(--red); text-underline-offset: 4px; }
-.app { display: grid; grid-template-rows: 88px minmax(0, 1fr) 42px; height: 100vh; height: 100dvh; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 88px minmax(0, 1fr) 42px; height: 100vh; height: 100dvh; }
 .masthead { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 30px; border-bottom: 1px solid var(--line); background: var(--paper-light); z-index: 5; }
 .brand { display: flex; align-items: center; gap: 15px; }
 .brand-seal { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; width: 41px; height: 48px; border: 1px solid var(--red); padding: 4px; color: var(--red); font: 17px/1.12 var(--serif); border-radius: 2px; }
@@ -91,6 +91,11 @@ a { color: var(--red); text-underline-offset: 4px; }
 .reading-actions button:hover { background: #e8d7b8; }
 .reading h2 { margin: 10px 0 8px; font: 24px/1.4 var(--serif); letter-spacing: .1em; }
 .reading p { margin: 0; font: 13px/1.8 var(--serif); color: #786b59; }
+.detail-nav { display: flex; gap: 6px; margin-top: 10px; }
+.detail-nav button { flex: 1; min-width: 0; min-height: 34px; padding: 5px 8px; border: 1px solid #d9cbb3; border-radius: 4px; background: #f7f0e3; color: #796044; font-size: 11px; letter-spacing: .04em; }
+.detail-nav button:hover { background: #eee2cc; }
+.detail-nav button[aria-pressed="true"] { background: #eee0ca; border-color: #a97a50; color: var(--red-dark); }
+.reading .detail-caption { margin-top: 8px; font-size: 11px; line-height: 1.5; color: #8a7054; }
 .reading-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
 .reading-nav button { min-height: 32px; padding: 0 5px; border: none; background: transparent; color: var(--red); font-size: 12px; }
 .reading-nav span { color: var(--muted); font-size: 10px; }
@@ -133,8 +138,8 @@ dialog p { font-size: 13px; line-height: 1.9; color: #6c6255; }
   .brand p { font-size: 8px; letter-spacing: .1em; }
   .header-actions { gap: 6px; }
   .action { min-height: 40px; padding: 0 11px; font-size: 11px; }
-  #audio-label, #tour-label { display: none; }
-  #audio-btn, #tour-btn { width: 40px; padding: 0; }
+  #audio-label, #tour-label, #record-label { display: none; }
+  #audio-btn, #tour-btn, #record-video-btn { width: 40px; padding: 0; }
   .help-action { width: 36px; }
   .experience { display: block; }
   .stage { height: 100%; }
@@ -173,7 +178,7 @@ dialog p { font-size: 13px; line-height: 1.9; color: #6c6255; }
   .header-actions { gap: 4px; }
   #season-btn { padding-inline: 8px; min-width: 74px; }
   #season-btn .action-icon { display: none; }
-  #audio-btn, #tour-btn { width: 34px; min-height: 38px; }
+  #audio-btn, #tour-btn, #record-video-btn { width: 34px; min-height: 38px; }
   .help-action { width: 32px; min-height: 34px; font-size: 16px; }
   .stage-heading { top: 26px; }
   .stage-heading h2 { font-size: 25px; }
@@ -185,6 +190,7 @@ dialog p { font-size: 13px; line-height: 1.9; color: #6c6255; }
 @media (max-width: 360px) {
   .brand-seal { display: none; }
   .brand h1 { font-size: 20px; }
+  #season-btn { min-width: 62px; padding-inline: 6px; }
 }
 @media (max-height: 580px) and (min-width: 700px) {
   .app { grid-template-rows: 64px minmax(0, 1fr) 34px; }

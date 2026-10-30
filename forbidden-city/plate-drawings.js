@@ -1,11 +1,11 @@
-import { rng, ellipse, dab, hex, lerp } from './art.js?v=20261030-official-beasts';
-import { SPOTS } from './spots.js?v=20261030-official-beasts';
-import { PLATE_COPY } from './plate-copy.js?v=20261030-official-beasts';
+import { rng, ellipse, dab, hex, lerp } from './art.js?v=20261030-detail4';
+import { SPOTS } from './spots.js?v=20261030-detail4';
+import { PLATE_COPY } from './plate-copy.js?v=20261030-detail4';
 import {
   P, pen, tint, rect, outline, oval, text, plaque, ground, water, brickwork, lattice,
   facade, roof, hall, railing, terrace, tree, rock, cloud, annotation, openPage,
-} from './drawing-kit.js?v=20261030-official-beasts';
-import { bridge, lion, dragon, bronzeVessel, jadeSeal, book, desk, scroll, incense, sealPrint } from './drawing-motifs.js?v=20261030-official-beasts';
+} from './drawing-kit.js?v=20261030-detail4';
+import { bridge, lion, dragon, bronzeVessel, jadeSeal, book, desk, scroll, incense, sealPrint } from './drawing-motifs.js?v=20261030-detail4';
 
 function sky(ctx, color = '#c2d0ca', seed = 2) {
   tint(ctx, [[320, 150], [2280, 150], [2250, 580], [340, 560]], color, .21, 42, seed);
@@ -17,7 +17,7 @@ function sky(ctx, color = '#c2d0ca', seed = 2) {
   }
 }
 function wall(ctx, x, y, w, h, seed = 3) {
-  tint(ctx, rect(x, y, w, h), '#b7604d', .43, 7, seed);
+  tint(ctx, rect(x, y, w, h), '#b7604d', .43, 7, seed, true);
   brickwork(ctx, x + 3, y + 4, w - 6, h - 8, 65, .17);
   pen(ctx, [[x - 8, y], [x + w + 8, y]], 2.2, .65);
   for (let i = 0; i < Math.floor(w / 16); i++) {
@@ -28,7 +28,7 @@ function wall(ctx, x, y, w, h, seed = 3) {
 function arch(ctx, cx, y, w, h) {
   const pts = Array.from({ length: 23 }, (_, i) => [cx + Math.cos(Math.PI + i / 22 * Math.PI) * w / 2, y + h * .3 + Math.sin(Math.PI + i / 22 * Math.PI) * w * .44]);
   pts.push([cx + w / 2, y + h], [cx - w / 2, y + h]);
-  tint(ctx, pts, '#3c4036', .88, 1.5); outline(ctx, pts, 2.2, .8);
+  tint(ctx, pts, '#3c4036', .88, 1.5, 7, true); outline(ctx, pts, 2.2, .8);
   for (let i = 0; i < 10; i++) {
     const angle = Math.PI + i / 9 * Math.PI;
     pen(ctx, [[cx + Math.cos(angle) * w * .52, y + h * .3 + Math.sin(angle) * w * .46], [cx + Math.cos(angle) * w * .63, y + h * .3 + Math.sin(angle) * w * .58]], .9, .4);
@@ -83,9 +83,9 @@ function wenhua(ctx) {
   tree(ctx, 2090, 1020, 680, 403, 205);
   tint(ctx, rect(610, 615, 1270, 310), '#9a6a4d', .6, 3);
   facade(ctx, 620, 625, 1250, 290, 7, { ornate: true, color: '#9b6649' });
-  roof(ctx, 490, 375, 1510, 245, { color: '#465552', dark: '#263d3e', type: 'gable' });
-  tint(ctx, [[475, 610], [2010, 610], [1985, 634], [500, 634]], '#609577', .8, 1.5);
   facade(ctx, 645, 365, 1200, 175, 7, { ornate: true, doors: 0, color: '#806b51' });
+  roof(ctx, 490, 470, 1510, 150, { color: '#465552', dark: '#263d3e', type: 'gable' });
+  tint(ctx, [[475, 610], [2010, 610], [1985, 634], [500, 634]], '#609577', .8, 1.5);
   roof(ctx, 550, 175, 1390, 205, { color: '#465552', dark: '#263d3e', type: 'gable' });
   plaque(ctx, '文渊阁', 1240, 630, 170, 48);
   terrace(ctx, 1250, 925, 1260, 82, 1);

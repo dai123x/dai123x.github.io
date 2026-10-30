@@ -1,4 +1,4 @@
-import { ink, wash, hex, v, ellipse, rng, dab, lerp, clamp, handwrite, paper, sealStamp } from './art.js?v=20261030-official-beasts';
+import { ink, wash, hex, v, ellipse, rng, dab, lerp, clamp, handwrite, paper, sealStamp, underpaint } from './art.js?v=20261030-detail4';
 
 export const P = {
   red: '#a54432', redDark: '#703728', redLight: '#c27155', gold: '#d5a64b', goldLight: '#ecd28a',
@@ -12,21 +12,22 @@ export function pen(ctx, points, w = 1.6, alpha = .7, smooth = false, seed) {
   const s = seed ?? Math.round(points[0][0] * 7 + points[0][1] * 13 + w * 41);
   ink(ctx, points.map(([x, y]) => v(x, y, 0)), { w, wob: Math.min(.8, w * .28), over: w * .65, gap: .13, smooth, seed: s }, alpha);
 }
-export function tint(ctx, points, color, alpha = .5, jitter = 3, seed = 7) {
+export function tint(ctx, points, color, alpha = .5, jitter = 3, seed = 7, solid = false) {
+  if (solid) underpaint(ctx, points);
   wash(ctx, points, col(color), { a: alpha, j: jitter, layers: 2, edge: .18, seed });
 }
 export const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
 export function outline(ctx, points, w = 1.6, alpha = .65) { pen(ctx, [...points, points[0]], w, alpha); }
 export function oval(ctx, x, y, rx, ry, color, alpha = .5, line = true) {
   const points = ellipse(x, y, rx, ry, 28);
-  tint(ctx, points, color, alpha, Math.max(1, Math.min(rx, ry) * .025), Math.round(x + y));
+  tint(ctx, points, color, alpha, Math.max(1, Math.min(rx, ry) * .025), Math.round(x + y), line);
   if (line) pen(ctx, [...points, points[0]], 1.6, .62, true);
 }
 export function text(ctx, value, x, y, size = 22, alpha = .72, gold = false) {
   handwrite(ctx, { text: value, x, y, size, alpha, gold }, 1);
 }
 export function plaque(ctx, value, cx, y, w, h = 63) {
-  tint(ctx, rect(cx - w / 2, y, w, h), '#334a48', .94, 1.5);
+  tint(ctx, rect(cx - w / 2, y, w, h), '#334a48', .94, 1.5, 7, true);
   outline(ctx, rect(cx - w / 2, y, w, h), 2.7, .85);
   outline(ctx, rect(cx - w / 2 + 7, y + 7, w - 14, h - 14), 1, .65);
   const font = Math.min(h * .62, w / (value.length + 1));
@@ -63,9 +64,10 @@ export function brickwork(ctx, x, y, w, h, size = 53, alpha = .3) {
   }
 }
 export function lattice(ctx, x, y, w, h, ornate = false) {
-  tint(ctx, rect(x, y, w, h), '#465a51', .49, 1.3);
+  tint(ctx, rect(x, y, w, h), '#465a51', .49, 1.3, 7, true);
   outline(ctx, rect(x, y, w, h), 2.3, .85);
   outline(ctx, rect(x + 5, y + 5, w - 10, h - 10), .9, .6);
+  pen(ctx, [[x + 8, y + h - 5], [x + w - 5, y + h - 5], [x + w - 5, y + 8]], 1.4, .46);
   const step = ornate ? 19 : 26;
   for (let px = x + step; px < x + w - 3; px += step) pen(ctx, [[px, y + 7], [px, y + h - 7]], .8, .65);
   for (let py = y + step; py < y + h - 3; py += step) pen(ctx, [[x + 7, py], [x + w - 7, py]], .8, .65);
@@ -74,7 +76,7 @@ export function lattice(ctx, x, y, w, h, ornate = false) {
   }
 }
 export function door(ctx, x, y, w, h, studs = true) {
-  tint(ctx, rect(x, y, w, h), P.redDark, .82, 1.5);
+  tint(ctx, rect(x, y, w, h), P.redDark, .82, 1.5, 7, true);
   outline(ctx, rect(x, y, w, h), 2, .75);
   pen(ctx, [[x + w / 2, y + 3], [x + w / 2, y + h - 3]], 2, .8);
   for (const offset of [.38, .62]) oval(ctx, x + w * offset, y + h * .53, 4.5, 7, P.gold, .9);
@@ -84,25 +86,34 @@ export function door(ctx, x, y, w, h, studs = true) {
   }
 }
 function bracket(ctx, x, y, s = 1) {
-  const shapes = [[-12, 9, 24, 5], [-18, 1, 36, 5], [-24, -7, 48, 5]];
-  for (const [dx, dy, w, h] of shapes) {
-    tint(ctx, rect(x + dx * s, y + dy * s, w * s, h * s), P.blue, .55, .5);
+  const shapes = [[-8, 15, 16, 5], [-12, 8, 24, 5], [-18, 0, 36, 5], [-24, -8, 48, 5]];
+  for (const [level, [dx, dy, w, h]] of shapes.entries()) {
+    tint(ctx, rect(x + dx * s, y + dy * s, w * s, h * s), level % 2 ? P.blue : P.jade, .73, .5);
     pen(ctx, [[x + dx * s, y + dy * s], [x + (dx + w) * s, y + dy * s]], 1.2, .65);
+    pen(ctx, [[x + dx * s, y + (dy + h) * s], [x + (dx + w) * s, y + (dy + h) * s]], .7, .58);
   }
   pen(ctx, [[x - 15 * s, y - 10 * s], [x - 8 * s, y + 17 * s], [x + 8 * s, y + 17 * s], [x + 15 * s, y - 10 * s]], 1.5, .7);
+  tint(ctx, rect(x - 4 * s, y + 6 * s, 8 * s, 9 * s), P.goldLight, .65, .2);
 }
 export function fascia(ctx, x, y, w, h, bays = 9) {
-  tint(ctx, rect(x, y, w, h), P.blue, .64, 1.5);
+  tint(ctx, rect(x, y, w, h), P.blue, .64, 1.5, 7, true);
   for (const dy of [2, h * .27, h * .75, h - 2]) pen(ctx, [[x, y + dy], [x + w, y + dy]], 1.4, .8);
   for (let i = 0; i < bays; i++) {
     const cx = x + w * (i + .5) / bays, cy = y + h * .5;
     const radius = Math.min(15, w / bays * .25);
     outline(ctx, [[cx - radius, cy], [cx, cy - h * .19], [cx + radius, cy], [cx, cy + h * .19]], .9, .9);
+    const half = w / bays * .43;
+    for (const side of [-1, 1]) {
+      pen(ctx, [[cx + side * (radius + 3), cy], [cx + side * half * .6, cy - h * .14], [cx + side * half, cy], [cx + side * half * .6, cy + h * .14], [cx + side * (radius + 3), cy]], .85, .66, true);
+      pen(ctx, [[cx + side * half, cy], [cx + side * half * .8, cy - h * .22]], .65, .55, true);
+    }
+    oval(ctx, cx, cy, Math.max(1.8, radius * .2), Math.max(1.8, h * .09), P.goldLight, .8, false);
     bracket(ctx, x + w * i / bays, y + h + 2, Math.min(1, w / bays / 72));
   }
+  bracket(ctx, x + w, y + h + 2, Math.min(1, w / bays / 72));
 }
 export function facade(ctx, x, y, w, h, bays = 9, options = {}) {
-  tint(ctx, rect(x, y, w, h), options.color ?? P.red, .7, 3);
+  tint(ctx, rect(x, y, w, h), options.color ?? P.red, .7, 3, 7, true);
   tint(ctx, rect(x + 8, y + 16, w - 16, h * .14), P.redDark, .38, 1);
   const bw = w / bays;
   for (let i = 0; i < bays; i++) {
@@ -111,6 +122,9 @@ export function facade(ctx, x, y, w, h, bays = 9, options = {}) {
     else {
       lattice(ctx, bx + bw * .14, y + h * .28, bw * .72, h * .43, options.ornate ?? false);
       outline(ctx, rect(bx + bw * .14, y + h * .75, bw * .72, h * .17), 1, .5);
+      const cx = bx + bw / 2, cy = y + h * .835, r = Math.min(9, bw * .12);
+      pen(ctx, [[cx - r * 2, cy], [cx - r, cy - r * .5], [cx, cy], [cx + r, cy - r * .5], [cx + r * 2, cy]], .75, .5, true);
+      pen(ctx, [[cx - r * 1.4, cy + 3], [cx, cy + r * .6], [cx + r * 1.4, cy + 3]], .7, .5, true);
     }
     const px = bx + 2;
     tint(ctx, rect(px - 4, y + 8, 9, h - 8), P.redDark, .7, .7);
@@ -121,6 +135,20 @@ export function facade(ctx, x, y, w, h, bays = 9, options = {}) {
   fascia(ctx, x - 7, y - 2, w + 14, Math.min(34, h * .22), bays);
   pen(ctx, [[x - 8, y + h], [x + w + 8, y + h]], 2.5, .8);
 }
+
+function ridgeBeast(ctx, x, y, side, kind, size) {
+  const at = (dx, dy) => [x + dx * size * side, y + dy * size];
+  const silhouette = [at(-7, 0), at(-6, -6), at(-2, -8), at(-1, -15), at(4, -19), at(8, -15), at(10, -14), at(7, -11), at(5, -11), at(5, -4), at(8, 0)];
+  tint(ctx, silhouette, kind % 2 ? P.goldDark : P.gold, .76, .2, kind + 16, true);
+  outline(ctx, silhouette, .9, .76);
+  pen(ctx, [at(-6, -5), at(-13, -12), at(-15, -9), at(-13, -7)], .9, .7, true);
+  pen(ctx, [at(-1, -4), at(-3, 0), at(-5, 0)], .9, .72);
+  pen(ctx, [at(3, -4), at(3, 0), at(6, 0)], .9, .72);
+  if (kind % 3 === 0) pen(ctx, [at(-4, -7), at(-12, -19), at(0, -12)], 1, .72);
+  else if (kind % 3 === 1) pen(ctx, [at(3, -17), at(3, -23), at(6, -19)], .8, .75);
+  oval(ctx, ...at(6, -15), .85 * size, .85 * size, P.ink, .85, false);
+}
+
 export function roof(ctx, x, y, w, h, options = {}) {
   const tone = options.color ?? P.gold;
   const inset = options.type === 'pyramid' ? w * .5 : w * (options.type === 'gable' ? .1 : .23);
@@ -128,9 +156,12 @@ export function roof(ctx, x, y, w, h, options = {}) {
   const eaveY = t => y + h * (.8 + .2 * Math.sin(Math.PI * t));
   const edge = [[x - 20, y + h * .77], [x + w * .07, y + h * .95], [x + w * .5, y + h], [x + w * .93, y + h * .95], [x + w + 20, y + h * .77]];
   const polygon = [[ridgeL, y], [ridgeR, y], ...edge.toReversed()];
-  tint(ctx, polygon, tone, .68, 4, Math.round(x + y));
+  tint(ctx, polygon, tone, .68, 4, Math.round(x + y), true);
   tint(ctx, [[ridgeL, y], [x + w * .48, y + h * .97], [x + 20, y + h * .8]], options.dark ?? P.goldDark, .19, 4);
   pen(ctx, [[ridgeL - 8, y - 5], [ridgeL + 20, y + 2], [ridgeR - 20, y + 2], [ridgeR + 8, y - 5]], 3, .84, true);
+  if (ridgeR - ridgeL > 60) {
+    for (let px = ridgeL + 25; px < ridgeR - 25; px += 16) pen(ctx, [[px, y - 3], [px + 6, y - 8], [px + 12, y - 3]], .8, .55, true);
+  }
   pen(ctx, edge, 2.8, .9, true);
   pen(ctx, edge.map(([px, py]) => [px, py + 9]), 1.4, .7, true);
   const count = clamp(Math.round(w / 18), 18, 98);
@@ -142,16 +173,21 @@ export function roof(ctx, x, y, w, h, options = {}) {
       const q = row / 6, px = lerp(topX, bottomX, q), py = lerp(y, ey, q * q * .4 + q * .6);
       pen(ctx, [[px - 4, py], [px, py + 1.5], [px + 4, py]], .6, .27, true);
     }
-    if (i < count) oval(ctx, bottomX + w / count / 2, ey + 3, Math.min(4.4, w / count * .23), 2.2, tone, .48, false);
+    if (i < count) {
+      const dx = bottomX + w / count / 2;
+      oval(ctx, dx, ey + 3, Math.min(4.4, w / count * .23), 2.2, tone, .48, false);
+      if (w > 650 && i % 2 === 0) pen(ctx, [[dx - 1.8, ey + 3], [dx, ey + 1], [dx + 1.8, ey + 3]], .55, .55, true);
+    }
   }
   for (const side of [-1, 1]) {
     const tip = side < 0 ? ridgeL : ridgeR;
     pen(ctx, [[tip, y + 3], [tip + side * 13, y - 21], [tip + side * 27, y - 27], [tip + side * 25, y - 7]], 2.3, .85, true);
+    pen(ctx, [[tip + side * 8, y - 3], [tip + side * 16, y - 16], [tip + side * 21, y - 12]], .95, .75, true);
     const beasts = options.beasts ?? 4;
     for (let j = 0; j < beasts; j++) {
       const t = (j + 1) / (beasts + 3), px = side < 0 ? lerp(x - 4, ridgeL, t * .65) : lerp(x + w + 4, ridgeR, t * .65);
       const py = y + h * (.82 - t * .53);
-      pen(ctx, [[px - 5, py], [px - 5, py - 9], [px + 1, py - 15], [px + 6, py - 8], [px + 8, py]], 1.35, .8);
+      ridgeBeast(ctx, px, py, -side, j, Math.min(1.05, Math.max(.58, w / 1150)));
     }
   }
 }
@@ -172,9 +208,12 @@ export function railing(ctx, x0, x1, y, h = 55, posts = 20) {
     tint(ctx, rect(x - 4, y - 7, 8, h + 9), P.stone, .78, .5);
     outline(ctx, rect(x - 4, y - 7, 8, h + 9), 1, .65);
     oval(ctx, x, y - 8, 7, 5, P.stone, .8);
+    pen(ctx, [[x - 4, y - 8], [x, y - 13], [x + 4, y - 8], [x, y - 4], [x - 4, y - 8]], .7, .65, true);
     if (i < posts) {
       const cx = x + (x1 - x0) / posts / 2;
       outline(ctx, [[cx - 12, y + h * .55], [cx, y + h * .42], [cx + 12, y + h * .55], [cx, y + h * .8]], .8, .52);
+      pen(ctx, [[cx - 8, y + h * .63], [cx, y + h * .53], [cx + 8, y + h * .63]], .65, .5, true);
+      pen(ctx, [[cx, y + h * .53], [cx, y + h * .77]], .7, .55);
     }
   }
 }
@@ -182,7 +221,7 @@ export function terrace(ctx, cx, y, width, height = 170, tiers = 3) {
   for (let i = tiers - 1; i >= 0; i--) {
     const yy = y + (tiers - 1 - i) * height / tiers, ww = width + (tiers - 1 - i) * 88;
     const points = [[cx - ww / 2, yy], [cx + ww / 2, yy], [cx + ww / 2 + 24, yy + height / tiers], [cx - ww / 2 - 24, yy + height / tiers]];
-    tint(ctx, points, P.stone, .66, 3, i + 700);
+    tint(ctx, points, P.stone, .66, 3, i + 700, true);
     outline(ctx, points, 1.8, .55);
     railing(ctx, cx - ww / 2 + 10, cx - 145, yy - 43, 42, Math.max(3, Math.round(ww / 110)));
     railing(ctx, cx + 145, cx + ww / 2 - 10, yy - 43, 42, Math.max(3, Math.round(ww / 110)));
@@ -200,7 +239,7 @@ export function terrace(ctx, cx, y, width, height = 170, tiers = 3) {
 export function tree(ctx, x, bottom, height, seed = 19, crownWidth = height * .4) {
   const random = rng(seed), trunkTop = bottom - height * .66;
   const trunk = [[x - 15, bottom], [x - 9, trunkTop + 70], [x + 1, trunkTop - 30], [x + 17, trunkTop + 15], [x + 12, bottom]];
-  tint(ctx, trunk, P.woodDark, .66, 2, seed);
+  tint(ctx, trunk, P.woodDark, .66, 2, seed, true);
   outline(ctx, trunk, 2.1, .72);
   for (let i = 0; i < 15; i++) {
     const bx = x - 11 + random() * 22;
@@ -225,7 +264,7 @@ export function rock(ctx, x, y, w, h, seed = 12) {
     const angle = i / 9 * Math.PI * 2;
     return [x + Math.cos(angle) * w * (.7 + random() * .3), y + Math.sin(angle) * h * (.7 + random() * .3)];
   });
-  tint(ctx, points, '#aaa995', .5, 5, seed);
+  tint(ctx, points, '#aaa995', .5, 5, seed, true);
   outline(ctx, points, 1.9, .65);
   tint(ctx, [points[2], points[3], [x + 8, y + 9], points[5], points[6]], '#6e7c70', .23, 4, seed + 1);
   for (let i = 0; i < 12; i++) {

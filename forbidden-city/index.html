@@ -12,9 +12,9 @@
   <meta property="og:description" content="一城宫阙，一卷光阴。十六景水墨册页与中轴漫游。">
   <meta property="og:url" content="https://daixuan.cloud/forbidden-city/">
   <link rel="icon" type="image/svg+xml" href="./seal.svg">
-  <link rel="stylesheet" href="./styles.css?v=20261030-official-beasts">
-  <link rel="modulepreload" href="./art.js?v=20261030-official-beasts">
-  <link rel="modulepreload" href="./spots.js?v=20261030-official-beasts">
+  <link rel="stylesheet" href="./styles.css?v=20261030-detail4">
+  <link rel="modulepreload" href="./art.js?v=20261030-detail4">
+  <link rel="modulepreload" href="./spots.js?v=20261030-detail4">
 </head>
 <body>
   <div class="app">
@@ -56,6 +56,8 @@
           <div class="reading-meta"><span id="reading-number">第一景 / 共十六景</span><div class="reading-actions"><span id="reading-category">中轴巡礼</span><button id="detail-plate" type="button" aria-label="放大当前册页的绘图细部">细部放大 ↗</button></div></div>
           <h2 id="reading-title">午门 · 雁翅凌云</h2>
           <p id="reading-line">城阙辅三秦，云韶导五门</p>
+          <nav id="detail-nav" class="detail-nav" aria-label="画作细部"></nav>
+          <p id="detail-caption" class="detail-caption" hidden></p>
           <nav class="reading-nav" aria-label="册页翻阅">
             <button id="previous-spot" type="button">← 上一景</button>
             <button id="replay-plate" type="button" aria-label="重新播放此景的水墨绘制">↻ 重展此卷</button><span id="reading-counter">01 / 16</span>
@@ -101,7 +103,7 @@
     <p>这是一份以紫禁城为题的水墨淡彩图志。钢笔勾勒建筑骨架，淡彩铺开红墙黄瓦；十六处风景，各自按落墨、晕染、题字的顺序展开一页册页。你可以自由寻景，也可以跟随中轴九景，走完一段巡礼。</p>
     <dl class="instructions">
       <div><dt>看全景</dt><dd>点击编号或目录进入册页；鼠标拖拽或单指滑动移动画面。</dd></div>
-      <div><dt>看细部</dt><dd>滚轮、双指捏合或加减按钮缩放，点“复位”找回完整画面。</dd></div>
+      <div><dt>看细部</dt><dd>每景下方可点选三处细部，直接看脊饰、窗棂、器物或纹样；也可用滚轮、双指捏合或加减按钮缩放，点“复位”找回整幅。</dd></div>
       <div><dt>翻册页</dt><dd>点上一景、下一景，或用左右方向键；“重展此卷”可重看水墨绘制，Esc 返回全景。</dd></div>
       <div><dt>换一种意境</dt><dd>S 切换晴日、雪霁、暮霞；M 开关风铃；R 打开舆图。</dd></div>
       <div><dt>中轴漫游</dt><dd>点漫游按钮或按空格，自动翻阅中轴九景；再次点击即可暂停。离开当前标签页时暂停。</dd></div>
@@ -125,6 +127,6 @@
       <button id="cancel-record-btn" type="button" class="action">取消制作</button>
     </div>
   </div>
-  <script type="module" src="./app.js?v=20261030-official-beasts"></script>
+  <script type="module" src="./app.js?v=20261030-detail4"></script>
 </body>
 </html>

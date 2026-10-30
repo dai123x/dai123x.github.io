@@ -1,11 +1,12 @@
 import {
   clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene,
   palaceSound,
-} from './art.js?v=20261030-official-beasts';
-import { SPOTS } from './spots.js?v=20261030-official-beasts';
-import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-official-beasts';
-import { routeMap } from './map-art.js?v=20261030-official-beasts';
-import { drawWorldDetails } from './world-details.js?v=20261030-official-beasts';
+} from './art.js?v=20261030-detail4';
+import { SPOTS } from './spots.js?v=20261030-detail4';
+import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-detail4';
+import { routeMap } from './map-art.js?v=20261030-detail4';
+import { drawWorldDetails } from './world-details.js?v=20261030-detail4';
+import { PLATE_DETAILS, detailView } from './plate-focus.js?v=20261030-detail4';
 
 const $ = id => document.getElementById(id);
 const canvas = $('c');
@@ -46,6 +47,7 @@ let portraitArtwork = false;
 let worldQuality = 0;
 let plateStarted = 0;
 let returnPaper = 0;
+let activeDetail = -1;
 
 function announce(message) {
   $('live-status').textContent = message;
@@ -116,6 +118,9 @@ function resize() {
   } else fitWorld();
   flatRect = null;
   flat.x = flat.y = 0;
+  if (state.mode === 'plate' && activeDetail >= 0 && plateImage) {
+    Object.assign(flat, detailView(imageArea(), plateImage.surface, PLATE_DETAILS[state.spot.id][activeDetail]));
+  }
   requestRender();
 }
 
@@ -266,13 +271,52 @@ function resetFlat() {
   flat.zoom = 1;
   flat.x = flat.y = 0;
   flatRect = null;
+  clearDetailSelection();
+}
+
+function clearDetailSelection() {
+  activeDetail = -1;
+  $('detail-caption').hidden = true;
+  for (const button of $('detail-nav').children) button.setAttribute('aria-pressed', 'false');
+}
+
+function renderDetailNavigation() {
+  $('detail-nav').replaceChildren();
+  PLATE_DETAILS[state.spot.id].forEach((focus, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = focus.label;
+    button.setAttribute('aria-label', `放大细部：${focus.label}`);
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => focusPlate(index));
+    $('detail-nav').appendChild(button);
+  });
+}
+
+function focusPlate(index = 0) {
+  if (state.mode !== 'plate') return;
+  const focus = PLATE_DETAILS[state.spot.id][index];
+  activeDetail = index;
+  stopTour();
+  for (const [i, button] of [...$('detail-nav').children].entries()) button.setAttribute('aria-pressed', String(i === index));
+  $('detail-caption').textContent = focus.caption;
+  $('detail-caption').hidden = false;
+  Object.assign(flat, detailView(imageArea(), plateImage.surface, focus));
+  plateStarted = Math.min(plateStarted, performance.now() - REVEAL_DURATION * 1000);
+  announce(`${state.spot.name} · ${focus.label}，可拖拽细看，点复位查看整幅。`);
+  requestRender();
 }
 
 function getPlate(spot) {
-  if (plateCache.has(spot.id)) return plateCache.get(spot.id);
+  if (plateCache.has(spot.id)) {
+    const image = plateCache.get(spot.id);
+    plateCache.delete(spot.id);
+    plateCache.set(spot.id, image);
+    return image;
+  }
+  if (plateCache.size >= 2) plateCache.delete(plateCache.keys().next().value);
   const image = preparePlate(spot.page);
   plateCache.set(spot.id, image);
-  if (plateCache.size > 2) plateCache.delete(plateCache.keys().next().value);
   return image;
 }
 
@@ -288,6 +332,7 @@ function showPlate() {
   $('reading-number').textContent = `第 ${String(index + 1).padStart(2, '0')} 景 / 共十六景`;
   $('reading-category').textContent = tourSpots.includes(state.spot) ? '中轴巡礼' : '宫城拾趣';
   $('reading-counter').textContent = `${String(index + 1).padStart(2, '0')} / 16`;
+  renderDetailNavigation();
   announce(`正在阅览：${state.spot.name}`);
   syncUI();
   if (state.tour) {
@@ -305,6 +350,7 @@ function showPlate() {
 }
 
 function visit(spot, fromTour = false, updateHash = true) {
+  if (typeof spot === 'string') spot = spots.find(item => item.id === spot);
   if (!spot) return;
   if (!fromTour) stopTour();
   clearTimeout(tourTimer);
@@ -586,25 +632,7 @@ for (const id of ['world-btn', 'mobile-world']) $(id).addEventListener('click', 
 for (const id of ['route-btn', 'mobile-map']) $(id).addEventListener('click', () => showMap());
 $('previous-spot').addEventListener('click', () => stepSpot(-1));
 $('next-spot').addEventListener('click', () => stepSpot(1));
-$('detail-plate').addEventListener('click', () => {
-  if (state.mode !== 'plate') return;
-  const focus = {
-    wumen: [1290, 510, 2.3], jinshui: [1270, 1000, 2.4], wuying: [710, 840, 3],
-    wenhua: [1260, 560, 2.1], taihemen: [730, 930, 2.8], taihedian: [1300, 580, 2.3],
-    zhonghedian: [1280, 530, 2.4], baohedian: [1280, 910, 2.5], tonggang: [1260, 790, 2.5],
-    yangxin: [1450, 840, 2.6], qianqinggong: [1350, 800, 2.5], jiaotaidian: [1190, 850, 2.8],
-    ningshou: [1320, 675, 3.2], yuhuayuan: [1420, 850, 2.3], jiaolou: [1350, 560, 2.2], cat: [1070, 940, 2.9],
-  }[state.spot.id];
-  stopTour();
-  const area = imageArea(), image = plateImage.surface;
-  const scale = Math.min(area.width / image.width, area.height / image.height) * focus[2];
-  flat.zoom = focus[2];
-  flat.x = (image.width / 2 - focus[0]) * scale;
-  flat.y = (image.height / 2 - focus[1]) * scale;
-  plateStarted = Math.min(plateStarted, performance.now() - REVEAL_DURATION * 1000);
-  announce(`正在查看${state.spot.name}的绘图细部，点复位可查看整幅。`);
-  requestRender();
-});
+$('detail-plate').addEventListener('click', () => focusPlate());
 $('replay-plate').addEventListener('click', () => {
   if (state.mode !== 'plate') return;
   stopTour();

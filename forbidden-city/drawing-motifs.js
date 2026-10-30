@@ -1,10 +1,10 @@
-import { ellipse, rng, lerp, sealStamp } from './art.js?v=20261030-official-beasts';
-import { P, pen, tint, rect, outline, oval, lattice, brickwork } from './drawing-kit.js?v=20261030-official-beasts';
+import { ellipse, rng, lerp, sealStamp } from './art.js?v=20261030-detail4';
+import { P, pen, tint, rect, outline, oval, lattice, brickwork } from './drawing-kit.js?v=20261030-detail4';
 
 export function bridge(ctx, cx, top, w, h, seed = 12) {
   const x0 = cx - w / 2, x1 = cx + w / 2;
   const curve = Array.from({ length: 33 }, (_, i) => [lerp(x0, x1, i / 32), top + h * .25 * (1 - Math.sin(i / 32 * Math.PI))]);
-  tint(ctx, [...curve, [x1 + 12, top + h], [x0 - 12, top + h]], P.stone, .84, 2, seed);
+  tint(ctx, [...curve, [x1 + 12, top + h], [x0 - 12, top + h]], P.stone, .84, 2, seed, true);
   pen(ctx, curve, 2.6, .8, true);
   const arch = Array.from({ length: 25 }, (_, i) => {
     const angle = Math.PI + i / 24 * Math.PI;
@@ -66,7 +66,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
       [cx + baseW / 2 - inset * 0.9, y1],
       [cx - baseW / 2 + inset * 0.9, y1],
     ];
-    tint(ctx, poly, tone, .78, 1.5, seed);
+    tint(ctx, poly, tone, .78, 1.5, seed, true);
     pen(ctx, poly, 1.4 * s, .75, true);
   }
 
@@ -92,7 +92,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     [cx - 42 * s, bottom + 35 * s],
     [cx - 82 * s, bottom + 28 * s],
   ];
-  tint(ctx, clothPoly, '#6a8170', .82, 1.2, seed + 1);
+  tint(ctx, clothPoly, '#6a8170', .82, 1.2, seed + 1, true);
   pen(ctx, clothPoly, 1.6 * s, .82, true);
   // 锦袱流苏边缘与缠枝锦纹
   for (let i = 0; i < 8; i++) {
@@ -114,7 +114,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
       [cx + side * 50 * s, bottom - 6 * s],
       [cx + side * 28 * s, bottom - 30 * s],
     ];
-    tint(ctx, hipPoly, color, .8, 1.5, seed + side);
+    tint(ctx, hipPoly, color, .8, 1.5, seed + side, true);
     pen(ctx, hipPoly, 1.8 * s, .82, true);
     // 后爪厚掌
     oval(ctx, cx + side * 68 * s, bottom - 6 * s, 24 * s, 12 * s, color, .85, true);
@@ -132,7 +132,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     [cx - 38 * s, bottom - 15 * s],
     [cx - 56 * s, yNeck + 65 * s],
   ];
-  tint(ctx, torso, color, .86, 2, seed + 2);
+  tint(ctx, torso, color, .86, 2, seed + 2, true);
   outline(ctx, torso, 2.2 * s, .88);
 
   // 双侧胸大肌饱满隆起与正中胸骨线
@@ -150,7 +150,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     [cx, yNeck + 32 * s],
     [cx - 42 * s, yNeck + 26 * s],
   ];
-  tint(ctx, collar, '#9a814c', .88, 1, seed + 3);
+  tint(ctx, collar, '#9a814c', .88, 1, seed + 3, true);
   outline(ctx, collar, 1.8 * s, .88);
   for (let i = 0; i < 5; i++) {
     const bx = cx - 32 * s + i * 16 * s, by = yNeck + 18 * s + Math.abs(i - 2) * 2 * s;
@@ -170,7 +170,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
   if (!isFemale) {
     // 【东侧雄狮】：左腿立地撑柱，右爪踩踏雕花绣球
     const legL = [[cx - 42 * s, yNeck + 35 * s], [cx - 26 * s, yNeck + 35 * s], [cx - 24 * s, pawY], [cx - 48 * s, pawY]];
-    tint(ctx, legL, color, .85, 1); pen(ctx, legL, 2.0 * s, .85, true);
+    tint(ctx, legL, color, .85, 1, 7, true); pen(ctx, legL, 2.0 * s, .85, true);
     oval(ctx, cx - 36 * s, pawY, 18 * s, 12 * s, color, .9, true);
     for (let c = 0; c < 4; c++) {
       const tx = cx - 46 * s + c * 7 * s;
@@ -179,7 +179,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     }
 
     const legR = [[cx + 26 * s, yNeck + 35 * s], [cx + 44 * s, yNeck + 35 * s], [cx + 56 * s, pawY - 32 * s], [cx + 34 * s, pawY - 30 * s]];
-    tint(ctx, legR, color, .85, 1); pen(ctx, legR, 2.0 * s, .85, true);
+    tint(ctx, legR, color, .85, 1, 7, true); pen(ctx, legR, 2.0 * s, .85, true);
 
     // 八宝镂空绣球（右爪下踩）
     const ballX = cx + 52 * s, ballY = pawY - 14 * s, ballR = 26 * s;
@@ -201,7 +201,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
   } else {
     // 【西侧雌狮】：右腿立地撑柱，左爪抚弄嬉戏幼狮
     const legR = [[cx + 26 * s, yNeck + 35 * s], [cx + 42 * s, yNeck + 35 * s], [cx + 48 * s, pawY], [cx + 24 * s, pawY]];
-    tint(ctx, legR, color, .85, 1); pen(ctx, legR, 2.0 * s, .85, true);
+    tint(ctx, legR, color, .85, 1, 7, true); pen(ctx, legR, 2.0 * s, .85, true);
     oval(ctx, cx + 36 * s, pawY, 18 * s, 12 * s, color, .9, true);
     for (let c = 0; c < 4; c++) {
       const tx = cx + 26 * s + c * 7 * s;
@@ -210,7 +210,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     }
 
     const legL = [[cx - 44 * s, yNeck + 35 * s], [cx - 26 * s, yNeck + 35 * s], [cx - 34 * s, pawY - 26 * s], [cx - 56 * s, pawY - 26 * s]];
-    tint(ctx, legL, color, .85, 1); pen(ctx, legL, 2.0 * s, .85, true);
+    tint(ctx, legL, color, .85, 1, 7, true); pen(ctx, legL, 2.0 * s, .85, true);
 
     // 仰面嬉戏的可爱小幼狮
     const cubX = cx - 50 * s, cubY = pawY - 6 * s;
@@ -242,7 +242,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     [cx - 62 * s, yHead + 24 * s],
     [cx - 56 * s, yHead - 8 * s],
   ];
-  tint(ctx, headContour, color, .88, 1.5, seed + 4);
+  tint(ctx, headContour, color, .88, 1.5, seed + 4, true);
   outline(ctx, headContour, 2.2 * s, .9);
 
   // 【太和门独有标识】：坚挺向外扬起的双立耳（非圆耳，警惕锐利）
@@ -251,7 +251,7 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
     const earTip = [cx + side * 72 * s, yHead - 54 * s];
     const earOuter = [cx + side * 62 * s, yHead - 16 * s];
     const earPoly = [earBase, earTip, earOuter];
-    tint(ctx, earPoly, color, .9, 1);
+    tint(ctx, earPoly, color, .9, 1, 7, true);
     pen(ctx, earPoly, 2.0 * s, .88, true);
     pen(ctx, [[earBase[0] + side * 5 * s, earBase[1] - 4 * s], [earTip[0] - side * 6 * s, earTip[1] + 8 * s]], 1.2 * s, .75);
   }
@@ -774,7 +774,7 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
 export function bronzeVessel(ctx, cx, cy, w = 600, h = 400, seed = 42) {
   const random = rng(seed), rx = w / 2;
   const body = [[cx - rx, cy - h * .25], [cx - rx * .92, cy + h * .23], [cx - rx * .65, cy + h * .48], [cx, cy + h * .55], [cx + rx * .65, cy + h * .48], [cx + rx * .92, cy + h * .23], [cx + rx, cy - h * .25]];
-  tint(ctx, body, '#b38c3d', .82, 5, seed);
+  tint(ctx, body, '#b38c3d', .82, 5, seed, true);
   tint(ctx, [[cx - rx * .8, cy - h * .24], [cx - rx * .2, cy - h * .18], [cx + rx * .1, cy + h * .47], [cx - rx * .6, cy + h * .32]], '#e6c772', .5, 12, seed + 1);
   pen(ctx, body, 2.8, .85, true);
   oval(ctx, cx, cy - h * .25, rx, h * .16, '#b99546', .86);
@@ -797,11 +797,11 @@ export function bronzeVessel(ctx, cx, cy, w = 600, h = 400, seed = 42) {
 export function jadeSeal(ctx, cx, y, w, seed = 12, tone = P.jade) {
   const h = w * .36, depth = w * .2;
   const front = rect(cx - w / 2, y, w, h);
-  tint(ctx, front, tone, .74, 2, seed); outline(ctx, front, 2, .8);
+  tint(ctx, front, tone, .74, 2, seed, true); outline(ctx, front, 2, .8);
   const top = [[cx - w / 2, y], [cx - w / 2 + depth, y - depth], [cx + w / 2 + depth, y - depth], [cx + w / 2, y]];
-  tint(ctx, top, '#a2b5a1', .72, 2, seed + 1); outline(ctx, top, 1.5, .7);
+  tint(ctx, top, '#a2b5a1', .72, 2, seed + 1, true); outline(ctx, top, 1.5, .7);
   const side = [[cx + w / 2, y], [cx + w / 2 + depth, y - depth], [cx + w / 2 + depth, y + h - depth], [cx + w / 2, y + h]];
-  tint(ctx, side, '#486f67', .64, 2, seed + 2); outline(ctx, side, 1.5, .7);
+  tint(ctx, side, '#486f67', .64, 2, seed + 2, true); outline(ctx, side, 1.5, .7);
   dragon(ctx, cx + depth * .3, y - depth - w * .08, w / 460, '#82957b', 1, seed);
   for (let i = 0; i < 12; i++) pen(ctx, [[cx - w * .4 + i * w / 14, y + h * .12], [cx - w * .36 + i * w / 14, y + h * .78]], .7, .23, true);
 }
@@ -815,7 +815,7 @@ export function book(ctx, x, y, w, h, tone = '#718d8a', pages = 8) {
 }
 export function desk(ctx, x, y, w, h) {
   const top = [[x, y], [x + w, y], [x + w + 45, y + h * .2], [x - 35, y + h * .2]];
-  tint(ctx, top, P.wood, .77, 2); outline(ctx, top, 2.2, .8);
+  tint(ctx, top, P.wood, .77, 2, 7, true); outline(ctx, top, 2.2, .8);
   tint(ctx, rect(x - 22, y + h * .2, w + 54, h * .14), P.woodDark, .8, 1);
   for (const px of [x + 10, x + w - 30]) {
     const leg = [[px, y + h * .28], [px + 28, y + h * .28], [px + 18, y + h], [px - 16, y + h]];
@@ -825,7 +825,7 @@ export function desk(ctx, x, y, w, h) {
   for (let i = 0; i < 11; i++) spiral(ctx, x + (i + .5) / 11 * w, y + h * .27, h * .035, .65, 1.2);
 }
 export function scroll(ctx, x, y, w, h) {
-  tint(ctx, [[x, y], [x + w, y - 4], [x + w, y + h], [x, y + h + 6]], '#f3e9d0', .86, 2);
+  tint(ctx, [[x, y], [x + w, y - 4], [x + w, y + h], [x, y + h + 6]], '#f3e9d0', .86, 2, 7, true);
   for (const px of [x, x + w]) {
     tint(ctx, rect(px - 5, y - 10, 10, h + 24), P.woodDark, .65, 1);
     oval(ctx, px, y - 11, 8, 5, P.goldDark, .7);
