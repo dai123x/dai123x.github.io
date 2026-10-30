@@ -1,5 +1,5 @@
-import { capturePlate, drawPen, handwrite, sealStamp, clamp, ss, fbm } from './art.js?v=20261030-dragon2';
-import { decoratePlate } from './plate-details.js?v=20261030-dragon2';
+import { capturePlate, drawPen, handwrite, sealStamp, clamp, ss, fbm } from './art.js?v=20261030-official-dragon';
+import { decoratePlate } from './plate-details.js?v=20261030-official-dragon';
 
 export const REVEAL_DURATION = 3.2;
 

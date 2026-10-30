@@ -1,6 +1,6 @@
-import { forbiddenCitySite, rng, ellipse, dab, hex, paper } from './art.js?v=20261030-dragon2';
-import { SPOTS } from './spots.js?v=20261030-dragon2';
-import { P, pen, tint, rect, outline, text } from './drawing-kit.js?v=20261030-dragon2';
+import { forbiddenCitySite, rng, ellipse, dab, hex, paper } from './art.js?v=20261030-official-dragon';
+import { SPOTS } from './spots.js?v=20261030-official-dragon';
+import { P, pen, tint, rect, outline, text } from './drawing-kit.js?v=20261030-official-dragon';
 
 const mx = x => 1400 + x * 3.6;
 const my = z => 1120 - z * 3.6;

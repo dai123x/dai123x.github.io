@@ -1,4 +1,4 @@
-import { ink, wash, hex, v, ellipse, rng, dab, lerp, clamp, handwrite, paper, sealStamp } from './art.js?v=20261030-dragon2';
+import { ink, wash, hex, v, ellipse, rng, dab, lerp, clamp, handwrite, paper, sealStamp } from './art.js?v=20261030-official-dragon';
 
 export const P = {
   red: '#a54432', redDark: '#703728', redLight: '#c27155', gold: '#d5a64b', goldLight: '#ecd28a',

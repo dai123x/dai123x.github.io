@@ -1,11 +1,11 @@
-import { rng, ellipse, dab, hex, lerp } from './art.js?v=20261030-dragon2';
-import { SPOTS } from './spots.js?v=20261030-dragon2';
-import { PLATE_COPY } from './plate-copy.js?v=20261030-dragon2';
+import { rng, ellipse, dab, hex, lerp } from './art.js?v=20261030-official-dragon';
+import { SPOTS } from './spots.js?v=20261030-official-dragon';
+import { PLATE_COPY } from './plate-copy.js?v=20261030-official-dragon';
 import {
   P, pen, tint, rect, outline, oval, text, plaque, ground, water, brickwork, lattice,
   facade, roof, hall, railing, terrace, tree, rock, cloud, annotation, openPage,
-} from './drawing-kit.js?v=20261030-dragon2';
-import { bridge, lion, dragon, bronzeVessel, jadeSeal, book, desk, scroll, incense, sealPrint } from './drawing-motifs.js?v=20261030-dragon2';
+} from './drawing-kit.js?v=20261030-official-dragon';
+import { bridge, lion, dragon, bronzeVessel, jadeSeal, book, desk, scroll, incense, sealPrint } from './drawing-motifs.js?v=20261030-official-dragon';
 
 function sky(ctx, color = '#c2d0ca', seed = 2) {
   tint(ctx, [[320, 150], [2280, 150], [2250, 580], [340, 560]], color, .21, 42, seed);

@@ -1,5 +1,5 @@
-import { ellipse, rng, lerp, sealStamp } from './art.js?v=20261030-dragon2';
-import { P, pen, tint, rect, outline, oval, lattice, brickwork } from './drawing-kit.js?v=20261030-dragon2';
+import { ellipse, rng, lerp, sealStamp } from './art.js?v=20261030-official-dragon';
+import { P, pen, tint, rect, outline, oval, lattice, brickwork } from './drawing-kit.js?v=20261030-official-dragon';
 
 export function bridge(ctx, cx, top, w, h, seed = 12) {
   const x0 = cx - w / 2, x1 = cx + w / 2;
@@ -67,41 +67,243 @@ export function lion(ctx, cx, bottom, scale = 1, color = '#667e69', seed = 30) {
   for (let i = 0; i < 6; i++) pen(ctx, [[cx + (45 + i * 7) * s, bottom - 63 * s], [cx + (65 + i * 4) * s, bottom - 24 * s]], .85 * s, .5, true);
 }
 
-export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, seed = 35) {
-  const s = size, d = direction;
+// --- Official Imperial Dragon (故宫官式龙纹：正龙/坐龙、升龙、降龙) ---
 
-  // 1. Classical Imperial Posture Curves (升龙 / 降龙 / 盘龙正龙)
-  // Determine pose archetype:
-  // - 0: 升龙 (Ascending dragon soaring through clouds)
-  // - 1: 降龙 (Descending dragon swooping down)
-  // - 2: 盘龙 / 正龙 (Imperial coiled dragon, especially majestic for center Nine Dragon Wall seed 1314 or throne seed 1120)
-  const poseType = (seed === 1314 || seed === 1120) ? 2 : Math.abs(seed) % 3;
+function fiveClaws(ctx, wx, wy, angle, s, color, side) {
+  // 掌心虎掌肉垫
+  oval(ctx, wx, wy, 5.2 * s, 4.2 * s, color, 0.85, true);
+  // 4 根前屈鹰爪（带双指节与钢钩内扣爪尖）
+  for (let i = 0; i < 4; i++) {
+    const spread = angle + (i - 1.5) * 0.36;
+    const mid = [wx + Math.cos(spread) * 11 * s, wy + Math.sin(spread) * 11 * s];
+    const hookAngle = spread + (side > 0 ? 0.38 : -0.38);
+    const tip = [mid[0] + Math.cos(hookAngle) * 8 * s, mid[1] + Math.sin(hookAngle) * 8 * s];
+    pen(ctx, [[wx, wy], mid, tip], 1.35 * s, 0.9, true);
+    pen(ctx, [mid, tip], 0.85 * s, 0.95);
+  }
+  // 第 5 爪：向后反扣的后指大拇爪（大趾，皇家五爪定式）
+  const thumbAngle = angle + (side > 0 ? -1 : 1) * Math.PI * 0.72;
+  const thumbMid = [wx + Math.cos(thumbAngle) * 8.5 * s, wy + Math.sin(thumbAngle) * 8.5 * s];
+  const thumbTip = [thumbMid[0] + Math.cos(thumbAngle - 0.45) * 6.5 * s, thumbMid[1] + Math.sin(thumbAngle - 0.45) * 6.5 * s];
+  pen(ctx, [[wx, wy], thumbMid, thumbTip], 1.3 * s, 0.9, true);
+}
+
+function flamePearl(ctx, px, py, radius, s, seed) {
+  // 宝珠金色光晕
+  oval(ctx, px, py, radius * 1.35, radius * 1.35, '#f4ba3e', 0.42, false);
+  // 赤金宝珠主体
+  oval(ctx, px, py, radius, radius, '#f7ca45', 0.88, true);
+  // 核心白金珠光高光
+  oval(ctx, px, py, radius * 0.58, radius * 0.58, '#fffdf2', 0.96, false);
+  // 四道旋转太阳神火火舌（游龙戏珠烈焰）
+  for (let f = 0; f < 4; f++) {
+    const theta = f * Math.PI / 2 + (seed % 7) * 0.25;
+    const fx = px + Math.cos(theta) * radius * 0.9;
+    const fy = py + Math.sin(theta) * radius * 0.9;
+    const flameTip = [px + Math.cos(theta + 0.65) * radius * 2.2, py + Math.sin(theta + 0.65) * radius * 2.2];
+    pen(ctx, [[fx, fy], flameTip], 1.25 * s, 0.85, true);
+    spiral(ctx, flameTip[0], flameTip[1], radius * 0.38, 0.65, 0.9 * s);
+  }
+}
+
+// 1. 皇家正龙（坐龙 / 盘龙）：故宫九龙壁正中金龙、皇帝宝座金龙屏风之最高规制
+function drawZhengLong(ctx, cx, cy, s, color, seed) {
+  // (1) 盘龙身段：大圆同心环抱
+  const bodyLoop = [
+    [cx, cy - 82 * s],
+    [cx - 52 * s, cy - 88 * s], [cx - 95 * s, cy - 55 * s], [cx - 105 * s, cy - 12 * s],
+    [cx - 108 * s, cy + 35 * s], [cx - 82 * s, cy + 82 * s], [cx - 42 * s, cy + 102 * s],
+    [cx, cy + 108 * s],
+    [cx + 42 * s, cy + 102 * s], [cx + 82 * s, cy + 82 * s], [cx + 108 * s, cy + 35 * s],
+    [cx + 105 * s, cy - 12 * s], [cx + 95 * s, cy - 55 * s], [cx + 52 * s, cy - 88 * s],
+  ];
+
+  // 计算环抱身躯法线与内外轮廓
+  const outer = [], inner = [], belly = [];
+  const loopPts = [...bodyLoop, bodyLoop[0]];
+  for (let i = 0; i < bodyLoop.length; i++) {
+    const prev = loopPts[Math.max(0, i - 1)], next = loopPts[i + 1];
+    const dx = next[0] - prev[0], dy = next[1] - prev[1];
+    const len = Math.hypot(dx, dy) || 1;
+    const r = (11 + Math.sin(i / bodyLoop.length * Math.PI) * 4) * s;
+    const nx = -dy / len * r, ny = dx / len * r;
+    outer.push([bodyLoop[i][0] + nx, bodyLoop[i][1] + ny]);
+    inner.push([bodyLoop[i][0] - nx, bodyLoop[i][1] - ny]);
+    belly.push([bodyLoop[i][0] - nx * 0.35, bodyLoop[i][1] - ny * 0.35]);
+  }
+
+  // 龙身矿物颜料与暖白蚌腹双层水彩晕染
+  tint(ctx, [...outer, ...inner.toReversed()], color, .8, 1.2, seed);
+  tint(ctx, [...belly, ...inner.toReversed()], '#fff5de', .38, .8, seed + 2);
+
+  // 腹部横纹（蜃腹甲板）
+  for (let i = 0; i < bodyLoop.length; i += 2) {
+    pen(ctx, [bodyLoop[i], inner[i]], 0.85 * s, 0.45);
+  }
+
+  // 背脊外轮廓锯齿放射火焰背鳍（刀鳍刺）
+  for (let i = 0; i < outer.length; i += 2) {
+    const [ox, oy] = outer[i];
+    const next = outer[(i + 1) % outer.length];
+    const finDx = (ox - cx), finDy = (oy - (cy + 10 * s));
+    const finLen = Math.hypot(finDx, finDy) || 1;
+    const finTip = [ox + (finDx / finLen) * 9 * s, oy + (finDy / finLen) * 9 * s];
+    tint(ctx, [[ox, oy], finTip, next], '#e5b244', .65, .5, seed + i);
+    pen(ctx, [[ox, oy], finTip, next], .9 * s, .8, true);
+  }
+
+  // 交错覆瓦金鳞
+  for (let i = 0; i < bodyLoop.length; i++) {
+    const [bx, by] = bodyLoop[i];
+    pen(ctx, [
+      [bx - 5 * s, by - 2 * s],
+      [bx, by + 3.5 * s],
+      [bx + 5 * s, by - 2 * s],
+    ], 0.75 * s, 0.65, true);
+  }
+
+  // 双钩墨线轮廓
+  pen(ctx, [...outer, outer[0]], 1.5 * s, .84, true);
+  pen(ctx, [...inner, inner[0]], 1.3 * s, .75, true);
+
+  // 翻卷烈焰尾鳍（右侧向上冲起）
+  const tailBase = [cx + 105 * s, cy - 12 * s];
+  const tailPlumes = [
+    [cx + 138 * s, cy - 48 * s],
+    [cx + 124 * s, cy - 65 * s],
+    [cx + 105 * s, cy - 78 * s],
+    [cx + 145 * s, cy - 28 * s],
+  ];
+  tint(ctx, [tailBase, ...tailPlumes], color, .78, 1.2, seed + 5);
+  for (const tp of tailPlumes) {
+    pen(ctx, [tailBase, [lerp(tailBase[0], tp[0], .5) + 6 * s, lerp(tailBase[1], tp[1], .5)], tp], 1.2 * s, .82, true);
+    spiral(ctx, tp[0], tp[1], 4.2 * s, .65, .85 * s);
+  }
+
+  // (2) 左右四肢五爪金龙（上双前爪抱珠，下双后爪踏波）
+  for (const side of [-1, 1]) {
+    const shoulder = [cx + side * 34 * s, cy + 2 * s];
+    const elbow = [cx + side * 62 * s, cy + 18 * s];
+    const wrist = [cx + side * 42 * s, cy + 42 * s];
+    tint(ctx, [shoulder, [elbow[0] + side * 4 * s, elbow[1]], wrist, [elbow[0] - side * 4 * s, elbow[1]]], color, .78, 1, seed);
+    pen(ctx, [shoulder, elbow, wrist], 2.4 * s, .85, true);
+
+    for (let f = 0; f < 3; f++) {
+      pen(ctx, [elbow, [elbow[0] + side * (14 + f * 5) * s, elbow[1] - (8 + f * 4) * s]], .85 * s, .7, true);
+    }
+    const clawAngle = Math.atan2(cy + 42 * s - elbow[1], (cx + side * 15 * s) - elbow[0]);
+    fiveClaws(ctx, wrist[0], wrist[1], clawAngle, s, color, side);
+  }
+
+  for (const side of [-1, 1]) {
+    const hip = [cx + side * 48 * s, cy + 85 * s];
+    const knee = [cx + side * 76 * s, cy + 102 * s];
+    const ankle = [cx + side * 88 * s, cy + 128 * s];
+    pen(ctx, [hip, knee, ankle], 2.2 * s, .85, true);
+    fiveClaws(ctx, ankle[0], ankle[1], Math.PI * 0.5 + side * 0.35, s, color, side);
+  }
+
+  // (3) 居中端坐之威严正面龙头
+  const headY = cy - 24 * s;
+  const crown = [cx, headY - 42 * s];
+  const browL = [cx - 28 * s, headY - 18 * s], browR = [cx + 28 * s, headY - 18 * s];
+  const cheekL = [cx - 42 * s, headY + 4 * s], cheekR = [cx + 42 * s, headY + 4 * s];
+  const jawL = [cx - 32 * s, headY + 24 * s], jawR = [cx + 32 * s, headY + 24 * s];
+  const chin = [cx, headY + 28 * s];
+
+  const headFace = [crown, [cx - 16 * s, headY - 32 * s], browL, cheekL, jawL, chin, jawR, cheekR, browR, [cx + 16 * s, headY - 32 * s]];
+  tint(ctx, headFace, color, .86, 1.2, seed + 1);
+  outline(ctx, headFace, 1.8 * s, .88);
+
+  // 正面狮鼻与鼻孔
+  oval(ctx, cx, headY - 5 * s, 14 * s, 9 * s, color, .85, true);
+  oval(ctx, cx - 6 * s, headY - 4 * s, 2.8 * s, 2.2 * s, P.dark, .95, false);
+  oval(ctx, cx + 6 * s, headY - 4 * s, 2.8 * s, 2.2 * s, P.dark, .95, false);
+
+  // 正面怒目金睛
+  for (const side of [-1, 1]) {
+    const ex = cx + side * 18 * s, ey = headY - 18 * s;
+    pen(ctx, [[ex - side * 12 * s, ey - 2 * s], [ex, ey - 7 * s], [ex + side * 14 * s, ey - 12 * s]], 2.6 * s, .92, true);
+    oval(ctx, ex, ey, 4.8 * s, 4 * s, '#fff8e2', .96, true);
+    oval(ctx, ex, ey, 2.4 * s, 2.6 * s, P.dark, .95, false);
+    oval(ctx, ex + side * 0.8 * s, ey - 0.8 * s, 0.9 * s, 0.9 * s, '#ffffff', .92, false);
+  }
+
+  // 阔口獠牙与朱砂龙舌
+  pen(ctx, [[cx - 26 * s, headY + 8 * s], [cx - 24 * s, headY + 21 * s], [cx - 22 * s, headY + 8 * s]], 1.25 * s, .95, true);
+  pen(ctx, [[cx + 26 * s, headY + 8 * s], [cx + 24 * s, headY + 21 * s], [cx + 22 * s, headY + 8 * s]], 1.25 * s, .95, true);
+  for (let t = -3; t <= 3; t++) {
+    pen(ctx, [[cx + t * 5 * s, headY + 7 * s], [cx + (t + 0.5) * 5 * s, headY + 12 * s]], 0.9 * s, .88);
+  }
+  tint(ctx, [[cx - 8 * s, headY + 10 * s], [cx, headY + 27 * s], [cx + 8 * s, headY + 10 * s]], P.red, .86, .5, seed);
+  pen(ctx, [[cx, headY + 9 * s], [cx, headY + 28 * s]], 1.6 * s, .9, true);
+
+  // 对称雄浑鹿角
+  for (const side of [-1, 1]) {
+    const hornRoot = [cx + side * 12 * s, headY - 38 * s];
+    const hornMid = [cx + side * 34 * s, headY - 65 * s];
+    const hornTip = [cx + side * 56 * s, headY - 96 * s];
+    pen(ctx, [hornRoot, hornMid, hornTip], 2.2 * s, .88, true);
+    pen(ctx, [hornMid, [hornMid[0] + side * 12 * s, hornMid[1] - 16 * s]], 1.5 * s, .84, true);
+    pen(ctx, [hornTip, [hornTip[0] - side * 10 * s, hornTip[1] + 8 * s]], 1.2 * s, .8, true);
+  }
+
+  // 对称修长龙须
+  for (const side of [-1, 1]) {
+    pen(ctx, [
+      [cx + side * 14 * s, headY - 4 * s],
+      [cx + side * 48 * s, headY - 14 * s],
+      [cx + side * 78 * s, headY - 4 * s],
+      [cx + side * 85 * s, headY + 22 * s],
+      [cx + side * 56 * s, headY + 48 * s],
+      [cx + side * 28 * s, headY + 58 * s],
+    ], 1.35 * s, .86, true);
+  }
+
+  // 下颌浓密墨髯
+  for (let i = -3; i <= 3; i++) {
+    pen(ctx, [
+      [cx + i * 6 * s, headY + 26 * s],
+      [cx + i * 4 * s, headY + 44 * s],
+    ], 1.1 * s, .72);
+  }
+
+  // 脑后两侧翻飞龙鬃
+  for (const side of [-1, 1]) {
+    for (let f = 0; f < 6; f++) {
+      const maneRoot = [cx + side * 22 * s, headY - (28 - f * 6) * s];
+      const maneTip = [cx + side * (52 + f * 6) * s, headY - (42 - f * 3) * s];
+      pen(ctx, [maneRoot, [lerp(maneRoot[0], maneTip[0], .5) + side * 8 * s, maneRoot[1] - 8 * s], maneTip], 1.3 * s, .78, true);
+    }
+  }
+
+  // (4) 正胸前赤金火焰宝珠（神龙护珠）
+  if (s >= 0.32) {
+    flamePearl(ctx, cx, cy + 42 * s, 11 * s, s, seed);
+  }
+}
+
+// 2. 皇家行龙（升龙与降龙）：金龙和玺枋心、九龙壁左右拱卫诸龙之经典动势
+function drawXingLong(ctx, cx, cy, s, color, direction, seed, isDescending) {
+  const d = direction;
 
   let curves;
-  if (poseType === 0) {
-    // 升龙 (Ascending): Head vaults high up and forward, body arches dynamically with deep S-curve
+  if (!isDescending) {
+    // 升龙：昂首长啸、穿云跃起、龙尾在下
     curves = [
       [[-155, 95], [-165, -30], [-100, -75], [-45, 10]],
       [[-45, 10], [5, 90], [55, 60], [30, -25]],
       [[30, -25], [10, -95], [85, -90], [130, -45]],
     ];
-  } else if (poseType === 1) {
-    // 降龙 (Descending): Body arches high from top, head swoops down and forward
+  } else {
+    // 降龙：高拱九霄、倒挂金钩、龙首俯冲向下扑浪
     curves = [
       [[-150, -65], [-120, -115], [-50, -95], [-20, -25]],
       [[-20, -25], [10, 50], [-70, 95], [15, 80]],
       [[15, 80], [90, 65], [80, -15], [125, 25]],
     ];
-  } else {
-    // 盘龙 / 正龙 (Majestic Coiled Dragon): Grand concentric loops, imperial poise
-    curves = [
-      [[-140, 60], [-175, -20], [-95, -95], [-20, -70]],
-      [[-20, -70], [60, -45], [95, 60], [10, 85]],
-      [[10, 85], [-65, 105], [55, 20], [115, -20]],
-    ];
   }
 
-  // Generate smooth spine points along cubic Beziers
   const numPoints = 79;
   const points = Array.from({ length: numPoints }, (_, i) => {
     const segment = Math.min(curves.length - 1, Math.floor(i / (numPoints / curves.length)));
@@ -113,35 +315,29 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
     return [cx + d * x * s, cy + y * s];
   });
 
-  // Calculate normals and body contours with organic anatomical thickness
   const left = [], right = [], belly = [];
   const normals = [];
   points.forEach(([x, y], i) => {
     const a = points[Math.max(0, i - 1)], b = points[Math.min(points.length - 1, i + 1)];
     const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
     const u = i / (points.length - 1);
-    // Radius: starts slender at tail (3.5*s), thickens at hindquarters (11*s), broad powerful chest (16*s), flexible neck (8*s)
     const r = (3.5 + 12.5 * Math.sin(Math.pow(u, 0.68) * Math.PI)) * s;
     const nx = -(b[1] - a[1]) / len * r, ny = (b[0] - a[0]) / len * r;
     normals.push([nx / r, ny / r, r]);
     left.push([x + nx, y + ny]);
     right.push([x - nx, y - ny]);
-    // Inner underbelly contour (35% offset toward right edge)
     belly.push([x - nx * 0.4, y - ny * 0.4]);
   });
 
-  // 2. Body Wash & Shading (双层水彩生宣晕染)
+  // 双层水彩晕染与腹甲横纹
   tint(ctx, [...left, ...right.toReversed()], color, .78, 1.2, seed);
   tint(ctx, [...belly, ...right.toReversed()], '#fff4dc', .36, .8, seed + 2);
 
-  // 3. Ventral Cross-Plates (腹甲横纹)
   for (let i = 8; i < points.length - 6; i += 3) {
-    const [x, y] = points[i];
-    const [bx, by] = right[i];
-    pen(ctx, [[x, y], [bx, by]], 0.8 * s, 0.45);
+    pen(ctx, [points[i], right[i]], 0.8 * s, 0.45);
   }
 
-  // 4. Dorsal Spine Fins (火焰背脊棘刺 / 龙脊刀鳍)
+  // 锯齿火焰背脊刀鳍
   for (let i = 10; i < points.length - 6; i += 3) {
     const [lx, ly] = left[i];
     const [nx, ny] = normals[i];
@@ -152,7 +348,7 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
     pen(ctx, [[lx, ly], finTip, nextLeft], .9 * s, .78, true);
   }
 
-  // 5. Overlapping Fish Scales (层叠金鳞纹)
+  // 覆瓦金鳞
   for (let i = 8; i < points.length - 7; i += 2) {
     const [x, y] = points[i];
     const [nx, ny, r] = normals[i];
@@ -167,11 +363,11 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
     }
   }
 
-  // Body Outlines (双钩墨线)
+  // 双钩墨线轮廓
   pen(ctx, left, 1.45 * s, .82, true);
   pen(ctx, right, 1.45 * s, .82, true);
 
-  // 6. Magnificent Flaming Tail Fin (火焰龙尾 / 卷云鱼尾)
+  // 卷云火焰尾鳍
   const [tx, ty] = points[0];
   const tailDirX = (points[0][0] - points[3][0]) || -1;
   const tailDirY = (points[0][1] - points[3][1]) || 0;
@@ -186,18 +382,13 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
     [tdx * 24 * s + tnx * 34 * s, tdy * 24 * s + tny * 34 * s],
     [tdx * 24 * s - tnx * 34 * s, tdy * 24 * s - tny * 34 * s],
   ];
-  const tailPoly = [[tx, ty], ...tailPlumes.map(([px, py]) => [tx + px, ty + py])];
-  tint(ctx, tailPoly, color, .75, 1.2, seed + 3);
+  tint(ctx, [[tx, ty], ...tailPlumes.map(([px, py]) => [tx + px, ty + py])], color, .75, 1.2, seed + 3);
   for (const [px, py] of tailPlumes) {
-    pen(ctx, [
-      [tx, ty],
-      [tx + px * .55 + tnx * 6 * s, ty + py * .55 + tny * 6 * s],
-      [tx + px, ty + py],
-    ], 1.2 * s, .8, true);
+    pen(ctx, [[tx, ty], [tx + px * .55 + tnx * 6 * s, ty + py * .55 + tny * 6 * s], [tx + px, ty + py]], 1.2 * s, .8, true);
     spiral(ctx, tx + px, ty + py, 4.5 * s, .65, .9 * s);
   }
 
-  // 7. Five Imperial Dragon Claws (严格五爪金龙与肘部云焰)
+  // 四肢五爪（前爪胸部，后爪腰部）
   const limbIndices = [
     { at: Math.round(numPoints * 0.72), reach: 1 },
     { at: Math.round(numPoints * 0.32), reach: -0.6 },
@@ -211,61 +402,22 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
       const wristX = kneeX + (d * 12 * reach - side * 4) * s;
       const wristY = kneeY + side * 18 * s;
 
-      const legPoly = [
-        [lx - 4 * s, ly],
-        [kneeX - 3 * s, kneeY],
-        [wristX, wristY],
-        [kneeX + 4 * s, kneeY],
-        [lx + 6 * s, ly],
-      ];
-      tint(ctx, legPoly, color, .78, .8, seed + at);
+      tint(ctx, [[lx - 4 * s, ly], [kneeX - 3 * s, kneeY], [wristX, wristY], [kneeX + 4 * s, kneeY], [lx + 6 * s, ly]], color, .78, .8, seed + at);
       pen(ctx, [[lx, ly], [kneeX, kneeY], [wristX, wristY]], 2.4 * s, .82, true);
 
-      // Elbow Flame Wisps (肘毛/云焰)
+      // 肘后火云
       for (let f = 0; f < 3; f++) {
-        const flameOffset = (f - 1) * 6 * s;
-        pen(ctx, [
-          [kneeX, kneeY],
-          [kneeX - d * (14 + f * 5) * s, kneeY - side * (8 + flameOffset) * s],
-          [kneeX - d * (24 + f * 7) * s, kneeY - side * (4 + flameOffset) * s],
-        ], .85 * s, .7, true);
+        pen(ctx, [[kneeX, kneeY], [kneeX - d * (14 + f * 5) * s, kneeY - side * (8 + f * 6) * s]], .85 * s, .7, true);
       }
 
-      // Palm Pad
-      oval(ctx, wristX, wristY, 5 * s, 4 * s, color, .85, true);
-
-      // FIVE TALONS (五爪: 4 fan claws + 1 rear thumb claw)
-      const baseAngle = Math.atan2(wristY - kneeY, wristX - kneeX);
-      for (let claw = 0; claw < 4; claw++) {
-        const spreadAngle = baseAngle + (claw - 1.5) * 0.38;
-        const knuckle = [
-          wristX + Math.cos(spreadAngle) * 11 * s,
-          wristY + Math.sin(spreadAngle) * 11 * s,
-        ];
-        const hookAngle = spreadAngle + (side > 0 ? 0.35 : -0.35);
-        const clawTip = [
-          knuckle[0] + Math.cos(hookAngle) * 8 * s,
-          knuckle[1] + Math.sin(hookAngle) * 8 * s,
-        ];
-        pen(ctx, [[wristX, wristY], knuckle, clawTip], 1.25 * s, .88, true);
-        pen(ctx, [knuckle, clawTip], .8 * s, .95);
-      }
-      const thumbAngle = baseAngle + Math.PI * 0.75 * (side > 0 ? -1 : 1);
-      const thumbKnuckle = [
-        wristX + Math.cos(thumbAngle) * 8 * s,
-        wristY + Math.sin(thumbAngle) * 8 * s,
-      ];
-      const thumbTip = [
-        thumbKnuckle[0] + Math.cos(thumbAngle - 0.4) * 6 * s,
-        thumbKnuckle[1] + Math.sin(thumbAngle - 0.4) * 6 * s,
-      ];
-      pen(ctx, [[wristX, wristY], thumbKnuckle, thumbTip], 1.2 * s, .88, true);
+      // 五爪金龙爪掌
+      const clawAngle = Math.atan2(wristY - kneeY, wristX - kneeX);
+      fiveClaws(ctx, wristX, wristY, clawAngle, s, color, side);
     }
   }
 
-  // 8. Regal Dragon Head (威严神骏之龙首)
+  // 侧首七分面龙首
   const [hx, hy] = points.at(-1);
-
   const crown = [hx + d * 12 * s, hy - 24 * s];
   const brow = [hx + d * 28 * s, hy - 18 * s];
   const noseTip = [hx + d * 52 * s, hy - 8 * s];
@@ -276,53 +428,31 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
   const throat = [hx + d * 8 * s, hy + 22 * s];
 
   const headContour = [
-    [hx - d * 12 * s, hy - 14 * s],
-    crown,
-    brow,
-    noseTip,
-    upperLip,
-    mouthCorner,
-    lowerJaw,
-    chin,
-    throat,
-    [hx - d * 14 * s, hy + 12 * s],
+    [hx - d * 12 * s, hy - 14 * s], crown, brow, noseTip, upperLip, mouthCorner, lowerJaw, chin, throat, [hx - d * 14 * s, hy + 12 * s]
   ];
   tint(ctx, headContour, color, .84, 1.2, seed + 1);
   outline(ctx, headContour, 1.7 * s, .88);
 
-  // Upturned Nostril (朝天隆鼻与鼻孔)
+  // 朝天鼻孔
   oval(ctx, hx + d * 44 * s, hy - 8 * s, 3.2 * s, 2.2 * s, P.dark, .9, false);
 
-  // Sharp White Fangs & Teeth (上下獠牙利齿)
+  // 上下利齿白獠牙
   pen(ctx, [[hx + d * 42 * s, hy + 1 * s], [hx + d * 44 * s, hy + 8 * s], [hx + d * 46 * s, hy + 1 * s]], 1.1 * s, .9, true);
   pen(ctx, [[hx + d * 28 * s, hy + 2 * s], [hx + d * 30 * s, hy + 7 * s], [hx + d * 32 * s, hy + 2 * s]], 1 * s, .9, true);
   pen(ctx, [[hx + d * 38 * s, hy + 16 * s], [hx + d * 40 * s, hy + 9 * s], [hx + d * 42 * s, hy + 16 * s]], 1.1 * s, .9, true);
 
-  // Flaming Vermilion Tongue (朱砂吐珠龙舌)
-  const tongue = [
-    [hx + d * 26 * s, hy + 6 * s],
-    [hx + d * 42 * s, hy + 8 * s],
-    [hx + d * 56 * s, hy + 5 * s],
-    [hx + d * 64 * s, hy + 12 * s],
-  ];
-  tint(ctx, tongue, P.red, .85, .5, seed + 4);
-  pen(ctx, tongue, 1.6 * s, .85, true);
+  // 朱砂龙舌
+  tint(ctx, [[hx + d * 26 * s, hy + 6 * s], [hx + d * 42 * s, hy + 8 * s], [hx + d * 56 * s, hy + 5 * s], [hx + d * 64 * s, hy + 12 * s]], P.red, .85, .5, seed + 4);
+  pen(ctx, [[hx + d * 26 * s, hy + 6 * s], [hx + d * 42 * s, hy + 8 * s], [hx + d * 56 * s, hy + 5 * s], [hx + d * 64 * s, hy + 12 * s]], 1.6 * s, .85, true);
 
-  // Dragon Eye & Arched Brow (怒目圆睁与突隆龙眉)
-  pen(ctx, [
-    [hx + d * 12 * s, hy - 12 * s],
-    [hx + d * 22 * s, hy - 19 * s],
-    [hx + d * 34 * s, hy - 13 * s],
-  ], 2.8 * s, .9, true);
+  // 剑眉与圆目
+  pen(ctx, [[hx + d * 12 * s, hy - 12 * s], [hx + d * 22 * s, hy - 19 * s], [hx + d * 34 * s, hy - 13 * s]], 2.8 * s, .9, true);
   oval(ctx, hx + d * 22 * s, hy - 10 * s, 4.2 * s, 3.4 * s, '#fff8e2', .95, true);
   oval(ctx, hx + d * (22 + 1.2) * s, hy - 10 * s, 2.1 * s, 2.4 * s, P.dark, .95, false);
   oval(ctx, hx + d * (22 + 0.6) * s, hy - 11 * s, 0.8 * s, 0.8 * s, '#ffffff', .9, false);
 
-  // Branched Deer Antlers (雄浑双杈鹿角)
-  for (const [hornRootX, hornRootY, spread] of [
-    [hx + d * 4 * s, hy - 20 * s, 0],
-    [hx + d * 12 * s, hy - 22 * s, 8 * s],
-  ]) {
+  // 分杈鹿角
+  for (const [hornRootX, hornRootY, spread] of [[hx + d * 4 * s, hy - 20 * s, 0], [hx + d * 12 * s, hy - 22 * s, 8 * s]]) {
     const tip = [hx - d * (36 + spread) * s, hy - (58 + spread * 0.8) * s];
     const mid = [hx - d * (18 + spread * 0.5) * s, hy - (38 + spread * 0.4) * s];
     pen(ctx, [[hornRootX, hornRootY], mid, tip], 2.2 * s, .86, true);
@@ -330,65 +460,47 @@ export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, see
     pen(ctx, [tip, [tip[0] - d * 14 * s, tip[1] + 8 * s]], 1.3 * s, .8, true);
   }
 
-  // Flowing Long Whiskers & Beard (飘逸双长须与下颌龙髯)
-  const whiskerOrigin = [hx + d * 46 * s, hy - 3 * s];
-  pen(ctx, [
-    whiskerOrigin,
-    [hx + d * 70 * s, hy - 16 * s],
-    [hx + d * 92 * s, hy - 4 * s],
-    [hx + d * 82 * s, hy + 18 * s],
-    [hx + d * 52 * s, hy + 38 * s],
-    [hx + d * 28 * s, hy + 46 * s],
-  ], 1.3 * s, .82, true);
+  // 飘逸长须
+  pen(ctx, [[hx + d * 46 * s, hy - 3 * s], [hx + d * 70 * s, hy - 16 * s], [hx + d * 92 * s, hy - 4 * s], [hx + d * 82 * s, hy + 18 * s], [hx + d * 52 * s, hy + 38 * s]], 1.3 * s, .82, true);
+  pen(ctx, [[hx + d * 42 * s, hy + 3 * s], [hx + d * 64 * s, hy + 15 * s], [hx + d * 78 * s, hy + 28 * s], [hx + d * 58 * s, hy + 44 * s]], 1.1 * s, .75, true);
 
-  pen(ctx, [
-    [hx + d * 42 * s, hy + 3 * s],
-    [hx + d * 64 * s, hy + 15 * s],
-    [hx + d * 78 * s, hy + 28 * s],
-    [hx + d * 58 * s, hy + 44 * s],
-  ], 1.1 * s, .75, true);
-
+  // 下颌龙髯
   for (let i = 0; i < 6; i++) {
-    pen(ctx, [
-      [hx + d * (24 + i * 4) * s, hy + 20 * s],
-      [hx + d * (14 + i * 3) * s, hy + (36 + i * 3) * s],
-      [hx - d * (4 - i * 3) * s, hy + (52 + i * 2) * s],
-    ], 1.0 * s, .68, true);
+    pen(ctx, [[hx + d * (24 + i * 4) * s, hy + 20 * s], [hx + d * (14 + i * 3) * s, hy + (36 + i * 3) * s]], 1.0 * s, .68, true);
   }
 
-  // Cascading Mane (飞扬奔腾龙鬃)
+  // 脑后飞扬长鬃
   for (let i = 0; i < 9; i++) {
     const maneRoot = [hx - d * (6 + i * 4) * s, hy - (16 - i * 3) * s];
     const maneTip = [hx - d * (36 + i * 6) * s, hy - (34 - i * 2) * s];
-    pen(ctx, [
-      maneRoot,
-      [maneRoot[0] - d * 18 * s, maneRoot[1] - 12 * s],
-      maneTip,
-    ], 1.4 * s, .78, true);
+    pen(ctx, [maneRoot, [maneRoot[0] - d * 18 * s, maneRoot[1] - 12 * s], maneTip], 1.4 * s, .78, true);
   }
 
-  // 9. Sacred Flaming Pearl (赤金火焰神珠 / 游龙戏珠)
-  if (s >= 0.34) {
+  // 神龙戏珠（前方赤金火焰神珠）
+  if (s >= 0.32) {
     const pearlX = hx + d * (78 + (seed % 14)) * s;
-    const pearlY = hy + (poseType === 1 ? 40 : -20) * s;
-    const pearlRadius = 9.5 * s;
-
-    oval(ctx, pearlX, pearlY, pearlRadius, pearlRadius, '#f6c744', .86, true);
-    oval(ctx, pearlX, pearlY, pearlRadius * .65, pearlRadius * .65, '#fff5cb', .95, false);
-
-    for (let f = 0; f < 4; f++) {
-      const flameAngle = (f / 4) * Math.PI * 2 + (seed % 7) * 0.3;
-      const fx = pearlX + Math.cos(flameAngle) * pearlRadius * 1.1;
-      const fy = pearlY + Math.sin(flameAngle) * pearlRadius * 1.1;
-      const flameTip = [
-        pearlX + Math.cos(flameAngle + 0.6) * pearlRadius * 2.1,
-        pearlY + Math.sin(flameAngle + 0.6) * pearlRadius * 2.1,
-      ];
-      pen(ctx, [[fx, fy], flameTip], 1.2 * s, .78, true);
-      spiral(ctx, flameTip[0], flameTip[1], 3.8 * s, .6, .85 * s);
-    }
+    const pearlY = hy + (!isDescending ? -25 : 35) * s;
+    flamePearl(ctx, pearlX, pearlY, 9.5 * s, s, seed);
   }
 }
+
+// 导出统一接口：根据规制精准分流正龙、升龙、降龙
+export function dragon(ctx, cx, cy, size = 1, color = P.gold, direction = 1, seed = 35) {
+  const s = size, d = direction;
+  // 官方规制判断：
+  // 1. 宁寿宫九龙壁正中央主龙 (seed === 1314) -> 严格官方正龙（正面坐龙）
+  // 2. 乾清宫宝座正中五爪金龙 (seed === 1120) -> 严格官方正龙（正面坐龙）
+  // 3. 其它适中或特大尺寸且种子命中者 (如特定正中屏风位) 均依规制分流
+  const isZheng = (seed === 1314 || seed === 1120 || (Math.abs(seed) % 5 === 2 && s >= 0.52));
+  if (isZheng) {
+    drawZhengLong(ctx, cx, cy, s, color, seed);
+  } else {
+    // 升龙 (偶数种子) 与 降龙 (奇数种子)
+    const isDescending = Math.abs(seed) % 2 === 1;
+    drawXingLong(ctx, cx, cy, s, color, d, seed, isDescending);
+  }
+}
+
 
 export function bronzeVessel(ctx, cx, cy, w = 600, h = 400, seed = 42) {
   const random = rng(seed), rx = w / 2;
