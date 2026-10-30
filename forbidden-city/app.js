@@ -1,11 +1,11 @@
 import {
   clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene,
   palaceSound,
-} from './art.js?v=20261030-official-dragon';
-import { SPOTS } from './spots.js?v=20261030-official-dragon';
-import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-official-dragon';
-import { routeMap } from './map-art.js?v=20261030-official-dragon';
-import { drawWorldDetails } from './world-details.js?v=20261030-official-dragon';
+} from './art.js?v=20261030-official-beasts';
+import { SPOTS } from './spots.js?v=20261030-official-beasts';
+import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-official-beasts';
+import { routeMap } from './map-art.js?v=20261030-official-beasts';
+import { drawWorldDetails } from './world-details.js?v=20261030-official-beasts';
 
 const $ = id => document.getElementById(id);
 const canvas = $('c');

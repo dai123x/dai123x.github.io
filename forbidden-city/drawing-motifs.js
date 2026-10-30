@@ -1,5 +1,5 @@
-import { ellipse, rng, lerp, sealStamp } from './art.js?v=20261030-official-dragon';
-import { P, pen, tint, rect, outline, oval, lattice, brickwork } from './drawing-kit.js?v=20261030-official-dragon';
+import { ellipse, rng, lerp, sealStamp } from './art.js?v=20261030-official-beasts';
+import { P, pen, tint, rect, outline, oval, lattice, brickwork } from './drawing-kit.js?v=20261030-official-beasts';
 
 export function bridge(ctx, cx, top, w, h, seed = 12) {
   const x0 = cx - w / 2, x1 = cx + w / 2;
@@ -41,60 +41,323 @@ function spiral(ctx, x, y, radius, alpha = .6, width = 1.1) {
   pen(ctx, points, width, alpha, true);
 }
 
-export function lion(ctx, cx, bottom, scale = 1, color = '#667e69', seed = 30) {
-  const s = scale, y = bottom - 210 * s, random = rng(seed);
-  tint(ctx, [[cx - 105 * s, bottom], [cx + 115 * s, bottom], [cx + 130 * s, bottom + 85 * s], [cx - 115 * s, bottom + 85 * s]], P.stoneDark, .65, 2, seed);
-  outline(ctx, [[cx - 105 * s, bottom], [cx + 115 * s, bottom], [cx + 130 * s, bottom + 85 * s], [cx - 115 * s, bottom + 85 * s]], 1.8, .6);
-  brickwork(ctx, cx - 95 * s, bottom + 15 * s, 200 * s, 55 * s, 46 * s, .27);
-  oval(ctx, cx + 8 * s, y + 120 * s, 83 * s, 105 * s, color, .73);
-  oval(ctx, cx + 15 * s, y + 17 * s, 81 * s, 76 * s, color, .78);
-  for (let i = 0; i < 26; i++) {
-    const a = i / 26 * Math.PI * 2, px = cx + 15 * s + Math.cos(a) * 71 * s, py = y + 17 * s + Math.sin(a) * 65 * s;
-    spiral(ctx, px, py, 9 * s, .7, 1.3 * s);
+// --- Official Imperial Guardian Lion (故宫太和门明代青铜大狮：东雄西雌、踏球抚幼、须弥座与立耳威仪) ---
+export function lion(ctx, cx, bottom, scale = 1, color = '#556c5e', seed = 30) {
+  const s = scale;
+  // 规制：506 为太和门西侧雌狮抚幼；505 或其它为东侧雄狮踏绣球
+  const isFemale = (seed === 506);
+
+  // 1. 汉白玉须弥座与青铜雕花锦袱
+  const baseW = 230 * s, baseH = 88 * s;
+
+  // 须弥座多层台阶骨架（上枋、上枭仰莲、束腰椀花、下枭覆莲、下枋圭角）
+  const xuMiLayers = [
+    [bottom, bottom + 16 * s, 10 * s, '#e2dbcb'],           // 上枋
+    [bottom + 16 * s, bottom + 32 * s, 18 * s, '#dcd4c3'],  // 上枭（仰莲瓣）
+    [bottom + 32 * s, bottom + 56 * s, 32 * s, '#cfc5b0'],  // 束腰（椀花绶带）
+    [bottom + 56 * s, bottom + 72 * s, 18 * s, '#dcd4c3'],  // 下枭（覆莲瓣）
+    [bottom + 72 * s, bottom + baseH, 6 * s, '#cfc4b0'],    // 下枋与圭角
+  ];
+
+  for (const [y0, y1, inset, tone] of xuMiLayers) {
+    const poly = [
+      [cx - baseW / 2 + inset, y0],
+      [cx + baseW / 2 - inset, y0],
+      [cx + baseW / 2 - inset * 0.9, y1],
+      [cx - baseW / 2 + inset * 0.9, y1],
+    ];
+    tint(ctx, poly, tone, .78, 1.5, seed);
+    pen(ctx, poly, 1.4 * s, .75, true);
   }
+
+  // 束腰处雕刻椀花浮雕线条
+  for (let i = 0; i < 7; i++) {
+    const wx = cx - 75 * s + i * 25 * s, wy = bottom + 44 * s;
+    pen(ctx, [[wx - 7 * s, wy], [wx, wy - 6 * s], [wx + 7 * s, wy], [wx, wy + 6 * s]], .8 * s, .55, true);
+  }
+  // 上枭与下枭的重瓣仰覆莲瓣（巴达马）
+  for (let i = 0; i < 9; i++) {
+    const lx = cx - 88 * s + i * 22 * s;
+    pen(ctx, [[lx, bottom + 30 * s], [lx + 10 * s, bottom + 18 * s], [lx + 20 * s, bottom + 30 * s]], 1.0 * s, .65, true);
+    pen(ctx, [[lx, bottom + 58 * s], [lx + 10 * s, bottom + 70 * s], [lx + 20 * s, bottom + 58 * s]], 1.0 * s, .65, true);
+  }
+
+  // 铺在座面上的青铜雕花锦袱（下垂锦袱台布与流苏长缨）
+  const clothPoly = [
+    [cx - 95 * s, bottom],
+    [cx + 95 * s, bottom],
+    [cx + 82 * s, bottom + 28 * s],
+    [cx + 42 * s, bottom + 35 * s],
+    [cx, bottom + 26 * s],
+    [cx - 42 * s, bottom + 35 * s],
+    [cx - 82 * s, bottom + 28 * s],
+  ];
+  tint(ctx, clothPoly, '#6a8170', .82, 1.2, seed + 1);
+  pen(ctx, clothPoly, 1.6 * s, .82, true);
+  // 锦袱流苏边缘与缠枝锦纹
+  for (let i = 0; i < 8; i++) {
+    const tx = cx - 72 * s + i * 20 * s, ty = bottom + 28 * s + (i % 2 ? 4 : 0) * s;
+    pen(ctx, [[tx, ty], [tx, ty + 12 * s]], 1.1 * s, .7);
+    oval(ctx, tx, ty + 13 * s, 1.8 * s, 2.2 * s, P.goldDark, .8, false);
+  }
+
+  // 2. 雄壮金字塔蹲坐狮身（宽厚胸大肌、弓背与强健后腿）
+  const yNeck = bottom - 148 * s;
+  const yHead = bottom - 195 * s;
+
+  // 后腿强健曲蹲（后臀圆阔）
   for (const side of [-1, 1]) {
-    oval(ctx, cx + (15 + side * 73) * s, y - 12 * s, 15 * s, 21 * s, color, .7);
-    pen(ctx, [[cx + (15 + side * 40) * s, y + 10 * s], [cx + (15 + side * 22) * s, y + 3 * s], [cx + (15 + side * 8) * s, y + 12 * s]], 2.5 * s, .85, true);
-    oval(ctx, cx + (15 + side * 27) * s, y + 15 * s, 4 * s, 4.5 * s, P.dark, .9, false);
-    oval(ctx, cx + side * 50 * s, bottom - 8 * s, 32 * s, 16 * s, color, .8);
-    for (let claw = 0; claw < 4; claw++) pen(ctx, [[cx + (side * 50 - 19 + claw * 12) * s, bottom - 6 * s], [cx + (side * 50 - 20 + claw * 12) * s, bottom + 5 * s]], 1.5 * s, .8);
+    const hipPoly = [
+      [cx + side * 45 * s, yNeck + 30 * s],
+      [cx + side * 96 * s, bottom - 45 * s],
+      [cx + side * 85 * s, bottom - 6 * s],
+      [cx + side * 50 * s, bottom - 6 * s],
+      [cx + side * 28 * s, bottom - 30 * s],
+    ];
+    tint(ctx, hipPoly, color, .8, 1.5, seed + side);
+    pen(ctx, hipPoly, 1.8 * s, .82, true);
+    // 后爪厚掌
+    oval(ctx, cx + side * 68 * s, bottom - 6 * s, 24 * s, 12 * s, color, .85, true);
+    for (let c = 0; c < 3; c++) {
+      pen(ctx, [[cx + side * 68 * s + (c - 1) * 8 * s, bottom - 8 * s], [cx + side * 68 * s + (c - 1) * 8 * s, bottom + 2 * s]], 1.4 * s, .85);
+    }
   }
-  oval(ctx, cx + 15 * s, y + 38 * s, 38 * s, 25 * s, color, .72);
-  tint(ctx, [[cx + 2 * s, y + 24 * s], [cx + 29 * s, y + 24 * s], [cx + 17 * s, y + 37 * s]], P.dark, .8, .5);
-  pen(ctx, [[cx - 10 * s, y + 48 * s], [cx + 15 * s, y + 59 * s], [cx + 43 * s, y + 46 * s]], 2 * s, .8, true);
-  for (let i = 0; i < 28; i++) spiral(ctx, cx + (random() - .5) * 100 * s, y + (80 + random() * 90) * s, (4 + random() * 6) * s, .5, .9 * s);
-  oval(ctx, cx + 65 * s, bottom - 44 * s, 29 * s, 27 * s, color, .65);
-  for (let i = 0; i < 6; i++) pen(ctx, [[cx + (45 + i * 7) * s, bottom - 63 * s], [cx + (65 + i * 4) * s, bottom - 24 * s]], .85 * s, .5, true);
+
+  // 宽阔雄壮的前胸与躯干
+  const torso = [
+    [cx - 45 * s, yNeck],
+    [cx + 45 * s, yNeck],
+    [cx + 56 * s, yNeck + 65 * s],
+    [cx + 38 * s, bottom - 15 * s],
+    [cx - 38 * s, bottom - 15 * s],
+    [cx - 56 * s, yNeck + 65 * s],
+  ];
+  tint(ctx, torso, color, .86, 2, seed + 2);
+  outline(ctx, torso, 2.2 * s, .88);
+
+  // 双侧胸大肌饱满隆起与正中胸骨线
+  tint(ctx, [[cx - 38 * s, yNeck + 18 * s], [cx - 6 * s, yNeck + 16 * s], [cx - 8 * s, yNeck + 68 * s], [cx - 42 * s, yNeck + 62 * s]], '#4c5f52', .52, 1);
+  tint(ctx, [[cx + 38 * s, yNeck + 18 * s], [cx + 6 * s, yNeck + 16 * s], [cx + 8 * s, yNeck + 68 * s], [cx + 42 * s, yNeck + 62 * s]], '#4c5f52', .52, 1);
+  pen(ctx, [[cx, yNeck + 10 * s], [cx, yNeck + 76 * s]], 1.9 * s, .75);
+  pen(ctx, [[cx - 38 * s, yNeck + 38 * s], [cx - 6 * s, yNeck + 42 * s]], 1.3 * s, .65);
+  pen(ctx, [[cx + 38 * s, yNeck + 38 * s], [cx + 6 * s, yNeck + 42 * s]], 1.3 * s, .65);
+
+  // 颈间华丽銮带（雕花项圈）与悬挂的鎏金大铜铃
+  const collar = [
+    [cx - 48 * s, yNeck + 8 * s],
+    [cx + 48 * s, yNeck + 8 * s],
+    [cx + 42 * s, yNeck + 26 * s],
+    [cx, yNeck + 32 * s],
+    [cx - 42 * s, yNeck + 26 * s],
+  ];
+  tint(ctx, collar, '#9a814c', .88, 1, seed + 3);
+  outline(ctx, collar, 1.8 * s, .88);
+  for (let i = 0; i < 5; i++) {
+    const bx = cx - 32 * s + i * 16 * s, by = yNeck + 18 * s + Math.abs(i - 2) * 2 * s;
+    oval(ctx, bx, by, 3.2 * s, 3.2 * s, P.goldLight, .92, false);
+  }
+  // 正中悬挂大铜铃与如意流苏
+  const bellY = yNeck + 42 * s;
+  oval(ctx, cx, bellY, 12 * s, 14 * s, '#c7a250', .92, true);
+  pen(ctx, [[cx - 10 * s, bellY], [cx + 10 * s, bellY]], 1.2 * s, .85);
+  oval(ctx, cx, bellY + 11 * s, 3.2 * s, 3.2 * s, P.goldDark, .95, false);
+  pen(ctx, [[cx, bellY + 14 * s], [cx, bellY + 28 * s]], 1.8 * s, .8, true);
+  pen(ctx, [[cx - 4 * s, bellY + 24 * s], [cx + 4 * s, bellY + 24 * s]], 1.2 * s, .8);
+
+  // 3. 前肢与绣球/幼狮
+  const pawY = bottom - 10 * s;
+
+  if (!isFemale) {
+    // 【东侧雄狮】：左腿立地撑柱，右爪踩踏雕花绣球
+    const legL = [[cx - 42 * s, yNeck + 35 * s], [cx - 26 * s, yNeck + 35 * s], [cx - 24 * s, pawY], [cx - 48 * s, pawY]];
+    tint(ctx, legL, color, .85, 1); pen(ctx, legL, 2.0 * s, .85, true);
+    oval(ctx, cx - 36 * s, pawY, 18 * s, 12 * s, color, .9, true);
+    for (let c = 0; c < 4; c++) {
+      const tx = cx - 46 * s + c * 7 * s;
+      pen(ctx, [[tx, pawY - 4 * s], [tx, pawY + 8 * s]], 1.5 * s, .88);
+      pen(ctx, [[tx, pawY + 8 * s], [tx - 2 * s, pawY + 13 * s]], 1.1 * s, .95);
+    }
+
+    const legR = [[cx + 26 * s, yNeck + 35 * s], [cx + 44 * s, yNeck + 35 * s], [cx + 56 * s, pawY - 32 * s], [cx + 34 * s, pawY - 30 * s]];
+    tint(ctx, legR, color, .85, 1); pen(ctx, legR, 2.0 * s, .85, true);
+
+    // 八宝镂空绣球（右爪下踩）
+    const ballX = cx + 52 * s, ballY = pawY - 14 * s, ballR = 26 * s;
+    oval(ctx, ballX, ballY, ballR, ballR, '#8d784a', .88, true);
+    for (let a = 0; a < 8; a++) {
+      const ang = a * Math.PI / 4;
+      pen(ctx, [[ballX + Math.cos(ang) * ballR * .9, ballY + Math.sin(ang) * ballR * .9], [ballX, ballY]], 1.1 * s, .72);
+      spiral(ctx, ballX + Math.cos(ang) * ballR * .55, ballY + Math.sin(ang) * ballR * .55, 4.5 * s, .65, .9 * s);
+    }
+    oval(ctx, ballX, ballY, 5 * s, 5 * s, P.goldLight, .95, true);
+    pen(ctx, [[ballX - 4 * s, ballY + 12 * s], [ballX - 16 * s, ballY + 28 * s], [ballX - 8 * s, bottom + 12 * s]], 2.2 * s, .82, true);
+    pen(ctx, [[ballX + 8 * s, ballY + 10 * s], [ballX + 24 * s, ballY + 24 * s], [ballX + 32 * s, bottom + 10 * s]], 2.2 * s, .82, true);
+
+    oval(ctx, ballX - 6 * s, ballY - ballR * 0.72, 19 * s, 13 * s, color, .92, true);
+    for (let c = 0; c < 4; c++) {
+      const tx = ballX - 16 * s + c * 7 * s;
+      pen(ctx, [[tx, ballY - ballR * 0.72 - 3 * s], [tx + 2 * s, ballY - ballR * 0.72 + 9 * s]], 1.6 * s, .9);
+    }
+  } else {
+    // 【西侧雌狮】：右腿立地撑柱，左爪抚弄嬉戏幼狮
+    const legR = [[cx + 26 * s, yNeck + 35 * s], [cx + 42 * s, yNeck + 35 * s], [cx + 48 * s, pawY], [cx + 24 * s, pawY]];
+    tint(ctx, legR, color, .85, 1); pen(ctx, legR, 2.0 * s, .85, true);
+    oval(ctx, cx + 36 * s, pawY, 18 * s, 12 * s, color, .9, true);
+    for (let c = 0; c < 4; c++) {
+      const tx = cx + 26 * s + c * 7 * s;
+      pen(ctx, [[tx, pawY - 4 * s], [tx, pawY + 8 * s]], 1.5 * s, .88);
+      pen(ctx, [[tx, pawY + 8 * s], [tx + 2 * s, pawY + 13 * s]], 1.1 * s, .95);
+    }
+
+    const legL = [[cx - 44 * s, yNeck + 35 * s], [cx - 26 * s, yNeck + 35 * s], [cx - 34 * s, pawY - 26 * s], [cx - 56 * s, pawY - 26 * s]];
+    tint(ctx, legL, color, .85, 1); pen(ctx, legL, 2.0 * s, .85, true);
+
+    // 仰面嬉戏的可爱小幼狮
+    const cubX = cx - 50 * s, cubY = pawY - 6 * s;
+    oval(ctx, cubX, cubY, 18 * s, 12 * s, color, .9, true);
+    oval(ctx, cubX + 11 * s, cubY - 8 * s, 10 * s, 9 * s, color, .92, true);
+    oval(ctx, cubX + 16 * s, cubY - 14 * s, 3.5 * s, 3.5 * s, color, .85, true);
+    pen(ctx, [[cubX + 14 * s, cubY - 5 * s], [cubX + 9 * s, cubY - 10 * s]], 1.1 * s, .85);
+    pen(ctx, [[cubX - 6 * s, cubY - 6 * s], [cubX - 12 * s, cubY - 22 * s]], 1.6 * s, .85, true);
+    pen(ctx, [[cubX + 4 * s, cubY - 8 * s], [cubX + 2 * s, cubY - 24 * s]], 1.6 * s, .85, true);
+    pen(ctx, [[cubX - 10 * s, cubY + 4 * s], [cubX - 18 * s, cubY - 6 * s]], 1.5 * s, .85);
+
+    oval(ctx, cubX + 4 * s, cubY - 20 * s, 18 * s, 12 * s, color, .92, true);
+    for (let c = 0; c < 4; c++) {
+      const tx = cubX - 6 * s + c * 7 * s;
+      pen(ctx, [[tx, cubY - 22 * s], [tx + 1 * s, cubY - 11 * s]], 1.5 * s, .9);
+    }
+  }
+
+  // 4. 故宫太和门独具特色的威武狮首
+  const headContour = [
+    [cx - 38 * s, yHead - 32 * s],
+    [cx, yHead - 42 * s],
+    [cx + 38 * s, yHead - 32 * s],
+    [cx + 56 * s, yHead - 8 * s],
+    [cx + 62 * s, yHead + 24 * s],
+    [cx + 42 * s, yHead + 52 * s],
+    [cx, yHead + 58 * s],
+    [cx - 42 * s, yHead + 52 * s],
+    [cx - 62 * s, yHead + 24 * s],
+    [cx - 56 * s, yHead - 8 * s],
+  ];
+  tint(ctx, headContour, color, .88, 1.5, seed + 4);
+  outline(ctx, headContour, 2.2 * s, .9);
+
+  // 【太和门独有标识】：坚挺向外扬起的双立耳（非圆耳，警惕锐利）
+  for (const side of [-1, 1]) {
+    const earBase = [cx + side * 42 * s, yHead - 26 * s];
+    const earTip = [cx + side * 72 * s, yHead - 54 * s];
+    const earOuter = [cx + side * 62 * s, yHead - 16 * s];
+    const earPoly = [earBase, earTip, earOuter];
+    tint(ctx, earPoly, color, .9, 1);
+    pen(ctx, earPoly, 2.0 * s, .88, true);
+    pen(ctx, [[earBase[0] + side * 5 * s, earBase[1] - 4 * s], [earTip[0] - side * 6 * s, earTip[1] + 8 * s]], 1.2 * s, .75);
+  }
+
+  // 【九五之尊】：45 颗整齐饱满螺旋发髻（螺髻 / 卷鬃）
+  const curls = [
+    [0, -32, 6.5], [-16, -30, 6.5], [16, -30, 6.5], [-30, -26, 6], [30, -26, 6],
+    [-8, -20, 6.5], [8, -20, 6.5], [-24, -16, 6.2], [24, -16, 6.2], [-38, -14, 5.8], [38, -14, 5.8],
+    [0, -10, 6.5], [-16, -8, 6.2], [16, -8, 6.2], [-32, -4, 6], [32, -4, 6], [-46, -2, 5.5], [46, -2, 5.5],
+    [-48, 12, 6], [48, 12, 6], [-54, 26, 6.5], [54, 26, 6.5], [-45, 38, 6], [45, 38, 6],
+  ];
+  for (const [dx, dy, cr] of curls) {
+    oval(ctx, cx + dx * s, yHead + dy * s, cr * s, cr * s, '#475a4d', .72, true);
+    spiral(ctx, cx + dx * s, yHead + dy * s, cr * 0.9 * s, .85, 1.2 * s);
+  }
+
+  // 突隆如意眉骨与圆睁铜铃大眼
+  for (const side of [-1, 1]) {
+    const eyeX = cx + side * 22 * s, eyeY = yHead + 4 * s;
+    pen(ctx, [
+      [eyeX - side * 14 * s, eyeY - 14 * s],
+      [eyeX, eyeY - 19 * s],
+      [eyeX + side * 16 * s, eyeY - 14 * s],
+      [eyeX + side * 24 * s, eyeY - 22 * s],
+    ], 2.4 * s, .92, true);
+    oval(ctx, eyeX, eyeY, 7.5 * s, 6.5 * s, '#fff8e2', .96, true);
+    oval(ctx, eyeX, eyeY, 4.2 * s, 4.2 * s, P.dark, .98, false);
+    oval(ctx, eyeX + side * 1.5 * s, eyeY - 1.2 * s, 1.4 * s, 1.4 * s, '#ffffff', .92, false);
+  }
+
+  // 蒜头阔鼻与外张鼻翼
+  oval(ctx, cx, yHead + 14 * s, 16 * s, 11 * s, color, .9, true);
+  oval(ctx, cx - 7 * s, yHead + 15 * s, 3.8 * s, 3.0 * s, P.dark, .95, false);
+  oval(ctx, cx + 7 * s, yHead + 15 * s, 3.8 * s, 3.0 * s, P.dark, .95, false);
+  pen(ctx, [[cx - 15 * s, yHead + 15 * s], [cx, yHead + 8 * s], [cx + 15 * s, yHead + 15 * s]], 1.5 * s, .85, true);
+
+  // 阔口怒张、利齿与四枚大长獠牙
+  pen(ctx, [[cx - 36 * s, yHead + 30 * s], [cx, yHead + 26 * s], [cx + 36 * s, yHead + 30 * s]], 2.4 * s, .9, true);
+  tint(ctx, [[cx - 32 * s, yHead + 30 * s], [cx + 32 * s, yHead + 30 * s], [cx + 26 * s, yHead + 45 * s], [cx - 26 * s, yHead + 45 * s]], P.dark, .9, 1);
+  for (let t = -3; t <= 3; t++) {
+    pen(ctx, [[cx + t * 6 * s, yHead + 30 * s], [cx + (t + 0.5) * 6 * s, yHead + 36 * s]], 1.1 * s, .88);
+  }
+  pen(ctx, [[cx - 24 * s, yHead + 29 * s], [cx - 22 * s, yHead + 42 * s], [cx - 20 * s, yHead + 29 * s]], 1.4 * s, .95, true);
+  pen(ctx, [[cx + 20 * s, yHead + 29 * s], [cx + 22 * s, yHead + 42 * s], [cx + 24 * s, yHead + 29 * s]], 1.4 * s, .95, true);
+  pen(ctx, [[cx - 16 * s, yHead + 45 * s], [cx - 14 * s, yHead + 35 * s], [cx - 12 * s, yHead + 45 * s]], 1.2 * s, .95, true);
+  pen(ctx, [[cx + 12 * s, yHead + 45 * s], [cx + 14 * s, yHead + 35 * s], [cx + 16 * s, yHead + 45 * s]], 1.2 * s, .95, true);
+
+  // 嘴角翻卷向上之金铜长胡须
+  for (const side of [-1, 1]) {
+    pen(ctx, [
+      [cx + side * 34 * s, yHead + 28 * s],
+      [cx + side * 56 * s, yHead + 20 * s],
+      [cx + side * 68 * s, yHead + 8 * s],
+    ], 1.5 * s, .85, true);
+  }
+  // 下巴短卷髯
+  for (let i = -2; i <= 2; i++) {
+    spiral(ctx, cx + i * 9 * s, yHead + 52 * s, 4.2 * s, .75, 1.1 * s);
+  }
+
+  // 5. 翻卷有力的狮尾
+  const tailSide = isFemale ? -1 : 1;
+  const tailPoly = [
+    [cx + tailSide * 45 * s, bottom - 35 * s],
+    [cx + tailSide * 85 * s, bottom - 65 * s],
+    [cx + tailSide * 105 * s, bottom - 105 * s],
+  ];
+  pen(ctx, tailPoly, 3.8 * s, .85, true);
+  for (let i = 0; i < 5; i++) {
+    const ang = i * Math.PI / 3;
+    spiral(ctx, cx + tailSide * 105 * s + Math.cos(ang) * 9 * s, bottom - 105 * s + Math.sin(ang) * 9 * s, 6.5 * s, .75, 1.2 * s);
+  }
 }
+
 
 // --- Official Imperial Dragon (故宫官式龙纹：正龙/坐龙、升龙、降龙) ---
 
 function fiveClaws(ctx, wx, wy, angle, s, color, side) {
-  // 掌心虎掌肉垫
-  oval(ctx, wx, wy, 5.2 * s, 4.2 * s, color, 0.85, true);
+  // 掌心虎掌厚肉垫
+  oval(ctx, wx, wy, 5.5 * s, 4.5 * s, color, 0.88, true);
   // 4 根前屈鹰爪（带双指节与钢钩内扣爪尖）
   for (let i = 0; i < 4; i++) {
     const spread = angle + (i - 1.5) * 0.36;
-    const mid = [wx + Math.cos(spread) * 11 * s, wy + Math.sin(spread) * 11 * s];
+    const mid = [wx + Math.cos(spread) * 11.5 * s, wy + Math.sin(spread) * 11.5 * s];
     const hookAngle = spread + (side > 0 ? 0.38 : -0.38);
-    const tip = [mid[0] + Math.cos(hookAngle) * 8 * s, mid[1] + Math.sin(hookAngle) * 8 * s];
-    pen(ctx, [[wx, wy], mid, tip], 1.35 * s, 0.9, true);
-    pen(ctx, [mid, tip], 0.85 * s, 0.95);
+    const tip = [mid[0] + Math.cos(hookAngle) * 8.5 * s, mid[1] + Math.sin(hookAngle) * 8.5 * s];
+    pen(ctx, [[wx, wy], mid, tip], 1.45 * s, 0.9, true);
+    pen(ctx, [mid, tip], 0.9 * s, 0.95);
+    oval(ctx, mid[0], mid[1], 1.8 * s, 1.8 * s, P.goldDark, 0.7, false);
   }
-  // 第 5 爪：向后反扣的后指大拇爪（大趾，皇家五爪定式）
+  // 第 5 爪：向后反扣的后指大拇爪（大趾，皇家五爪严格定式）
   const thumbAngle = angle + (side > 0 ? -1 : 1) * Math.PI * 0.72;
-  const thumbMid = [wx + Math.cos(thumbAngle) * 8.5 * s, wy + Math.sin(thumbAngle) * 8.5 * s];
-  const thumbTip = [thumbMid[0] + Math.cos(thumbAngle - 0.45) * 6.5 * s, thumbMid[1] + Math.sin(thumbAngle - 0.45) * 6.5 * s];
-  pen(ctx, [[wx, wy], thumbMid, thumbTip], 1.3 * s, 0.9, true);
+  const thumbMid = [wx + Math.cos(thumbAngle) * 9 * s, wy + Math.sin(thumbAngle) * 9 * s];
+  const thumbTip = [thumbMid[0] + Math.cos(thumbAngle - 0.45) * 7 * s, thumbMid[1] + Math.sin(thumbAngle - 0.45) * 7 * s];
+  pen(ctx, [[wx, wy], thumbMid, thumbTip], 1.4 * s, 0.92, true);
+  pen(ctx, [thumbMid, thumbTip], 0.9 * s, 0.95);
 }
 
 function flamePearl(ctx, px, py, radius, s, seed) {
   // 宝珠金色光晕
-  oval(ctx, px, py, radius * 1.35, radius * 1.35, '#f4ba3e', 0.42, false);
+  oval(ctx, px, py, radius * 1.4, radius * 1.4, '#f4ba3e', 0.45, false);
   // 赤金宝珠主体
   oval(ctx, px, py, radius, radius, '#f7ca45', 0.88, true);
   // 核心白金珠光高光
   oval(ctx, px, py, radius * 0.58, radius * 0.58, '#fffdf2', 0.96, false);
+  oval(ctx, px - radius * 0.15, py - radius * 0.15, radius * 0.25, radius * 0.25, '#ffffff', 0.98, false);
   // 四道旋转太阳神火火舌（游龙戏珠烈焰）
   for (let f = 0; f < 4; f++) {
     const theta = f * Math.PI / 2 + (seed % 7) * 0.25;
@@ -147,7 +410,7 @@ function drawZhengLong(ctx, cx, cy, s, color, seed) {
     const next = outer[(i + 1) % outer.length];
     const finDx = (ox - cx), finDy = (oy - (cy + 10 * s));
     const finLen = Math.hypot(finDx, finDy) || 1;
-    const finTip = [ox + (finDx / finLen) * 9 * s, oy + (finDy / finLen) * 9 * s];
+    const finTip = [ox + (finDx / finLen) * 9.5 * s, oy + (finDy / finLen) * 9.5 * s];
     tint(ctx, [[ox, oy], finTip, next], '#e5b244', .65, .5, seed + i);
     pen(ctx, [[ox, oy], finTip, next], .9 * s, .8, true);
   }
@@ -219,6 +482,9 @@ function drawZhengLong(ctx, cx, cy, s, color, seed) {
   oval(ctx, cx, headY - 5 * s, 14 * s, 9 * s, color, .85, true);
   oval(ctx, cx - 6 * s, headY - 4 * s, 2.8 * s, 2.2 * s, P.dark, .95, false);
   oval(ctx, cx + 6 * s, headY - 4 * s, 2.8 * s, 2.2 * s, P.dark, .95, false);
+  // 鼻梁横纹怒褶
+  pen(ctx, [[cx - 6 * s, headY - 12 * s], [cx + 6 * s, headY - 12 * s]], 1.1 * s, .65);
+  pen(ctx, [[cx - 8 * s, headY - 8 * s], [cx + 8 * s, headY - 8 * s]], 1.1 * s, .65);
 
   // 正面怒目金睛
   for (const side of [-1, 1]) {
@@ -238,17 +504,19 @@ function drawZhengLong(ctx, cx, cy, s, color, seed) {
   tint(ctx, [[cx - 8 * s, headY + 10 * s], [cx, headY + 27 * s], [cx + 8 * s, headY + 10 * s]], P.red, .86, .5, seed);
   pen(ctx, [[cx, headY + 9 * s], [cx, headY + 28 * s]], 1.6 * s, .9, true);
 
-  // 对称雄浑鹿角
+  // 对称雄浑鹿角（左右高耸展出）
   for (const side of [-1, 1]) {
     const hornRoot = [cx + side * 12 * s, headY - 38 * s];
     const hornMid = [cx + side * 34 * s, headY - 65 * s];
     const hornTip = [cx + side * 56 * s, headY - 96 * s];
     pen(ctx, [hornRoot, hornMid, hornTip], 2.2 * s, .88, true);
+    // 前杈（眉杈）
     pen(ctx, [hornMid, [hornMid[0] + side * 12 * s, hornMid[1] - 16 * s]], 1.5 * s, .84, true);
+    // 梢杈
     pen(ctx, [hornTip, [hornTip[0] - side * 10 * s, hornTip[1] + 8 * s]], 1.2 * s, .8, true);
   }
 
-  // 对称修长龙须
+  // 对称修长龙须（大弯环抱拂向两侧）
   for (const side of [-1, 1]) {
     pen(ctx, [
       [cx + side * 14 * s, headY - 4 * s],
@@ -433,8 +701,9 @@ function drawXingLong(ctx, cx, cy, s, color, direction, seed, isDescending) {
   tint(ctx, headContour, color, .84, 1.2, seed + 1);
   outline(ctx, headContour, 1.7 * s, .88);
 
-  // 朝天鼻孔
+  // 朝天鼻孔与鼻梁横纹
   oval(ctx, hx + d * 44 * s, hy - 8 * s, 3.2 * s, 2.2 * s, P.dark, .9, false);
+  pen(ctx, [[hx + d * 36 * s, hy - 12 * s], [hx + d * 44 * s, hy - 12 * s]], 1.1 * s, .65);
 
   // 上下利齿白獠牙
   pen(ctx, [[hx + d * 42 * s, hy + 1 * s], [hx + d * 44 * s, hy + 8 * s], [hx + d * 46 * s, hy + 1 * s]], 1.1 * s, .9, true);
