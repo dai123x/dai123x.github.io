@@ -27,6 +27,7 @@
         <button class="action" id="season-btn" type="button" aria-label="当前晴日金碧，点击切换光影" title="切换晴日、雪霁与暮霞（S）"><span id="season-icon" class="action-icon" aria-hidden="true">☼</span><span id="season-label">晴日金碧</span></button>
         <button class="action" id="audio-btn" type="button" aria-label="开启雅乐风铃" aria-pressed="false" title="雅乐风铃（M）"><span class="action-icon" aria-hidden="true">♫</span><span id="audio-label">雅乐风铃</span></button>
         <button class="action primary" id="tour-btn" type="button" aria-label="开始中轴漫游" aria-pressed="false" title="中轴九景自动漫游（空格）"><span id="tour-icon" class="action-icon" aria-hidden="true">▷</span><span id="tour-label">中轴漫游</span></button>
+        <button class="action" id="record-video-btn" type="button" aria-label="制作并导出漫游视频" title="一键录制导出 1080P 水墨漫游视频"><span class="action-icon" aria-hidden="true">🎬</span><span id="record-label">制作视频</span></button>
         <button class="action help-action" id="help-btn" type="button" aria-label="图志说明与操作帮助" title="图志说明">?</button>
       </nav>
     </header>
@@ -109,6 +110,21 @@
     <p class="dialog-note">本图志为艺术化建筑与空间示意，册页题诗为创作性文字。实地参观、开放安排与预约信息请以<a href="https://www.dpm.org.cn/" target="_blank" rel="noopener noreferrer">故宫博物院官方网站</a>为准。</p>
     <p><a href="/">← 返回戴璇主页</a></p>
   </dialog>
+  <div id="record-overlay" class="record-overlay" hidden>
+    <div class="record-modal">
+      <div class="record-seal"><span>制</span><span>画</span></div>
+      <h3 id="record-title">正在制作紫禁城水墨漫游视频</h3>
+      <p id="record-subtitle">全景高帧率录制中轴胜景、太和门青铜大狮、三大殿与九龙壁...</p>
+      <div class="record-progress-bar">
+        <div id="record-progress-fill" class="record-progress-fill"></div>
+      </div>
+      <div class="record-status-row">
+        <span id="record-percent">0%</span>
+        <span id="record-scene-name">序幕 · 空间全览</span>
+      </div>
+      <button id="cancel-record-btn" type="button" class="action">取消制作</button>
+    </div>
+  </div>
   <script type="module" src="./app.js?v=20261030-official-beasts"></script>
 </body>
 </html>

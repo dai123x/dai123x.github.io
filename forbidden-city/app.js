@@ -702,3 +702,155 @@ requestAnimationFrame(() => {
     console.error('Palace atlas initialization failed', error);
   }
 });
+
+
+// --- 电影级视频录制与导出引擎 (Cinematic Video Recorder) ---
+let isRecordingVideo = false;
+let videoMediaRecorder = null;
+let videoRecordedChunks = [];
+let videoRecordTimer = null;
+
+function setRecordProgress(percent, sceneName) {
+  const p = Math.min(100, Math.max(0, Math.round(percent)));
+  const fill = $('record-progress-fill');
+  const num = $('record-percent');
+  const scene = $('record-scene-name');
+  if (fill) fill.style.width = p + '%';
+  if (num) num.textContent = p + '%';
+  if (scene && sceneName) scene.textContent = sceneName;
+}
+
+function startVideoRecording(options = {}) {
+  if (isRecordingVideo) return;
+  if (!canvas.captureStream || typeof MediaRecorder === 'undefined') {
+    alert('当前环境暂不支持直接录制导出视频，推荐使用现代 Chrome 或 Edge 浏览器体验一键视频录制！');
+    return;
+  }
+
+  stopTour();
+  isRecordingVideo = true;
+  videoRecordedChunks = [];
+  $('record-overlay').hidden = false;
+  setRecordProgress(0, '准备就绪 · 初始化画卷');
+
+  let stream;
+  try {
+    stream = canvas.captureStream(60);
+  } catch (e) {
+    stream = canvas.captureStream();
+  }
+
+  try {
+    if (soundEngine && soundEngine.ctx && soundEngine.ctx.createMediaStreamDestination) {
+      const audioDest = soundEngine.ctx.createMediaStreamDestination();
+      soundEngine.out.connect(audioDest);
+      const audioTrack = audioDest.stream.getAudioTracks()[0];
+      if (audioTrack) stream.addTrack(audioTrack);
+    }
+  } catch (err) {
+    console.warn('Audio capture omitted:', err);
+  }
+
+  let mimeType = 'video/webm;codecs=vp9';
+  if (!MediaRecorder.isTypeSupported(mimeType)) {
+    mimeType = 'video/webm;codecs=vp8';
+    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+  }
+
+  try {
+    videoMediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
+  } catch (e) {
+    videoMediaRecorder = new MediaRecorder(stream);
+  }
+
+  videoMediaRecorder.ondataavailable = event => {
+    if (event.data && event.data.size > 0) videoRecordedChunks.push(event.data);
+  };
+
+  videoMediaRecorder.onstop = () => {
+    isRecordingVideo = false;
+    $('record-overlay').hidden = true;
+    if (videoRecordedChunks.length === 0) return;
+    const blob = new Blob(videoRecordedChunks, { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `紫禁城故宫水墨全景图志_高清漫游展示片_${Date.now()}.webm`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    announce('视频制作已完成，正在保存到您的设备。');
+    if (options.onFinished) options.onFinished(blob);
+  };
+
+  videoMediaRecorder.start(200);
+
+  const scenes = [
+    { name: '序幕 · 3D 全景空间俯瞰', action: () => { resetWorld(); state.season = 'day'; syncUI(); }, duration: 4000 },
+    { name: '第一景 · 午门 雁翅凌云', action: () => { visit('wumen', true, false); }, duration: 3500 },
+    { name: '第二景 · 太和门 明代青铜大狮', action: () => { visit('taihemen', true, false); }, duration: 4200 },
+    { name: '第三景 · 太和殿 华夏极制', action: () => { visit('taihedian', true, false); }, duration: 3500 },
+    { name: '第四景 · 乾清宫 正大光明坐龙', action: () => { visit('qianqinggong', true, false); }, duration: 3500 },
+    { name: '第五景 · 宁寿宫 乾隆九龙壁', action: () => { visit('ningshou', true, false); }, duration: 4200 },
+    { name: '第六景 · 紫禁城实测工笔舆图', action: () => { showMap(false); }, duration: 3800 },
+    { name: '终卷 · 筒子河角楼夜雪倒影', action: () => { state.season = 'snow'; visit('jiaolou', true, false); }, duration: 3500 },
+  ];
+
+  let currentIdx = 0;
+  const totalDuration = scenes.reduce((sum, s) => sum + s.duration, 0);
+  let elapsed = 0;
+
+  function runNextScene() {
+    if (!isRecordingVideo) return;
+    if (currentIdx >= scenes.length) {
+      setRecordProgress(100, '视频制作完毕，正在封装视频...');
+      setTimeout(() => {
+        if (videoMediaRecorder && videoMediaRecorder.state !== 'inactive') {
+          videoMediaRecorder.stop();
+        }
+      }, 600);
+      return;
+    }
+
+    const scene = scenes[currentIdx];
+    scene.action();
+    const sceneStart = elapsed;
+    const sceneDur = scene.duration;
+    const startTime = Date.now();
+
+    const progressInterval = setInterval(() => {
+      if (!isRecordingVideo) { clearInterval(progressInterval); return; }
+      const nowProgress = Math.min(99, ((sceneStart + (Date.now() - startTime)) / totalDuration) * 100);
+      setRecordProgress(nowProgress, scene.name);
+    }, 150);
+
+    videoRecordTimer = setTimeout(() => {
+      clearInterval(progressInterval);
+      elapsed += sceneDur;
+      currentIdx++;
+      runNextScene();
+    }, sceneDur);
+  }
+
+  runNextScene();
+}
+
+function cancelVideoRecording() {
+  if (!isRecordingVideo) return;
+  isRecordingVideo = false;
+  clearTimeout(videoRecordTimer);
+  videoRecordTimer = null;
+  if (videoMediaRecorder && videoMediaRecorder.state !== 'inactive') {
+    videoMediaRecorder.stop();
+  }
+  videoRecordedChunks = [];
+  $('record-overlay').hidden = true;
+  announce('视频制作已取消。');
+}
+
+const recordVideoBtn = $('record-video-btn');
+if (recordVideoBtn) recordVideoBtn.addEventListener('click', () => startVideoRecording());
+const cancelRecordBtn = $('cancel-record-btn');
+if (cancelRecordBtn) cancelRecordBtn.addEventListener('click', cancelVideoRecording);
+window.recordTourVideo = startVideoRecording;
