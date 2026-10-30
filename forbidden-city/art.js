@@ -557,6 +557,10 @@ function palace(cx, cz, w, d, y0, eavesY, ridgeY, roofType = 'hip', o = {}) {
     }
   }
 
+  if (o.double) {
+    const lower = palace(cx, cz, w * 1.1, d * 1.14, y0, eavesY - 1.2, eavesY + .45, roofType, { ...o, double: false, over: over * .7 });
+    f.push(...lower.faces.filter(item => item.kind === 'roof' || item.kind === 'gable'));
+  }
   return {
     kind: 'palace', cx, cz, y1: ridgeY, faces: [...walls, ...f],
     o: { ...o, w, d, y0, eavesY, ridgeY, roofType, roofCol },
@@ -664,7 +668,12 @@ function faceColor(ob, f, season) {
     if (f.kind === 'roof' || f.kind === 'deck' || f.kind === 'top') return hex('#f2efe8');
     if (f.kind === 'ground' || f.kind === 'path') return hex('#ded8cb');
   }
-  if (f.kind === 'roof') return ob.col ?? C.roofGold;
+  if (ob.kind === 'palace') {
+    if (f.kind === 'roof') return ob.o.roofCol ?? C.roofGold;
+    if (f.kind === 'wall' || f.kind === 'gable') return ob.o.wallCol ?? C.wallRed;
+  }
+  if (ob.col) return ob.col;
+  if (f.kind === 'roof') return C.roofGold;
   if (f.kind === 'wall') return C.wallRed;
   if (f.kind === 'gable') return C.wallRedDark;
   if (f.kind === 'plinth' || f.kind === 'deck' || f.kind === 'bridgeSide') return C.marble;
@@ -702,7 +711,7 @@ function forbiddenCitySite(season = 'day') {
   // ----------------------------------------------------------
   // 1. 大地与基准面 (长 961 米 -> Z: -192 到 +192; 宽 753 米 -> X: -150 到 +150)
   // ----------------------------------------------------------
-  O.push(plane(-190, -240, 190, 240, 0, C.pavePlaza, 'ground', 0, { alpha: 0.5 }));
+  O.push(plane(-190, -240, 190, 240, 0, C.pavePlaza, 'ground', 0, { alpha: 0.24 }));
 
   // ----------------------------------------------------------
   // 2. 筒子河（护城河）：宽 52 米（21 坐标单位）环绕外城
@@ -750,7 +759,7 @@ function forbiddenCitySite(season = 'day') {
   O.push(box(-34, -178, 12, 34, 0, 7.2, { kind: 'wall', col: C.wallRedDark, t0: 0.9 })); // 西雁翅楼城台
   O.push(box(34, -178, 12, 34, 0, 7.2, { kind: 'wall', col: C.wallRedDark, t0: 0.9 }));  // 东雁翅楼城台
   // 午门正殿（重檐庑殿顶）
-  O.push(palace(0, -162, 48, 14, 7.2, 10.4, 14.5, 'hip', { t0: 1.2, over: 1.4 }));
+  O.push(palace(0, -162, 48, 14, 7.2, 10.4, 14.5, 'hip', { t0: 1.2, over: 1.4, double: true }));
   // 雁翅楼四座重檐小楼
   O.push(palace(-34, -190, 10, 9, 7.2, 9.4, 11.6, 'hip', { t0: 1.3 }));
   O.push(palace(34, -190, 10, 9, 7.2, 9.4, 11.6, 'hip', { t0: 1.3 }));
@@ -791,7 +800,7 @@ function forbiddenCitySite(season = 'day') {
   // 9. 【太和门广场与太和门】(Z: -95 到 -75)
   // ----------------------------------------------------------
   O.push(marblePlinth(0, -82, 68, 22, 0, 2.0, 1, { t0: 1.8 }));
-  O.push(palace(0, -82, 58, 16, 2.0, 6.2, 10.4, 'gableHip', { t0: 2.0, over: 1.3 })); // 太和门
+  O.push(palace(0, -82, 58, 16, 2.0, 6.2, 10.4, 'gableHip', { t0: 2.0, over: 1.3, double: true })); // 太和门
   // 昭德门 (东) 与 贞度门 (西)
   O.push(palace(48, -82, 15, 10, 0, 3.8, 6.2, 'hip', { t0: 2.1 }));
   O.push(palace(-48, -82, 15, 10, 0, 3.8, 6.2, 'hip', { t0: 2.1 }));
@@ -813,7 +822,7 @@ function forbiddenCitySite(season = 'day') {
   // 11. 【太和殿（金銮殿）】：天下第一殿 (Z: -42)
   // 实测面阔十一间 64m，进深五间 37m，通高 35.05m
   // ----------------------------------------------------------
-  O.push(palace(0, -42, 50, 26, 4.0, 9.2, 15.0, 'hip', { t0: 2.7, over: 1.6 }));
+  O.push(palace(0, -42, 50, 26, 4.0, 9.2, 15.0, 'hip', { t0: 2.7, over: 1.6, double: true }));
   // 殿前御道九龙丹陛石
   O.push(box(0, -60, 7.5, 12, 0, 4.0, { kind: 'plinth', col: C.marbleDark, t0: 2.9 }));
 
@@ -827,7 +836,7 @@ function forbiddenCitySite(season = 'day') {
   // 13. 【保和殿与度九龙大石雕】(Z: +26)
   // 实测面阔九间 44m，进深 25m，高 29.5m
   // ----------------------------------------------------------
-  O.push(palace(0, 26, 44, 22, 4.0, 8.4, 13.2, 'gableHip', { t0: 3.3, over: 1.4 }));
+  O.push(palace(0, 26, 44, 22, 4.0, 8.4, 13.2, 'gableHip', { t0: 3.3, over: 1.4, double: true }));
   // 保和殿后单块汉白玉“度九龙”大石雕 (长 16.57m，重逾两百吨)
   O.push(box(0, 41, 8.0, 10, 0, 4.0, { kind: 'plinth', col: C.marbleDark, t0: 3.4 }));
 
@@ -840,6 +849,15 @@ function forbiddenCitySite(season = 'day') {
   // 景运门 (东) 与 隆宗门 (西)
   O.push(palace(62, 58, 14, 9, 0, 3.6, 5.8, 'hip', { t0: 3.7 }));
   O.push(palace(-62, 58, 14, 9, 0, 3.6, 5.8, 'hip', { t0: 3.7 }));
+  for (const cx of [-20, 20]) {
+    const faces = [], cz = 56, radius = 2.1, height = 2.8;
+    for (let i = 0; i < 18; i++) {
+      const a = i / 18 * TAU, b = (i + 1) / 18 * TAU;
+      faces.push(face([v(cx + Math.cos(a) * radius, .4, cz + Math.sin(a) * radius), v(cx + Math.cos(b) * radius, .4, cz + Math.sin(b) * radius), v(cx + Math.cos(b) * radius, height, cz + Math.sin(b) * radius), v(cx + Math.cos(a) * radius, height, cz + Math.sin(a) * radius)], 'wall', .65 + .25 * Math.cos(a)));
+    }
+    faces.push(face(Array.from({ length: 18 }, (_, i) => v(cx + Math.cos(-i / 18 * TAU) * radius, height, cz + Math.sin(-i / 18 * TAU) * radius)), 'top'));
+    O.push({ kind: 'urn', cx, cz, y1: height, col: C.gold, faces, fp: { w: 4.2, d: 4.2 }, t0: 3.7 });
+  }
 
   // ----------------------------------------------------------
   // 15. 【西路中翼：养心殿与西六宫、慈宁宫区】
@@ -854,8 +872,13 @@ function forbiddenCitySite(season = 'day') {
     [-92, 104, '太极殿'], [-92, 124, '长春宫'], [-92, 144, '咸福宫']
   ];
   for (const [px, pz] of westSix) {
-    O.push(box(px, pz, 18, 15, 0, 2.8, { kind: 'wall', col: C.wallRed, t0: 4.0 }));
-    O.push(palace(px, pz, 16, 11, 2.8, 4.8, 6.8, 'gableHip', { t0: 4.1 }));
+    O.push(plane(px - 11, pz - 9, px + 11, pz + 9, .02, C.pave, 'plaza', 4));
+    O.push(palace(px, pz + 4, 16, 7, 0, 2.6, 4.6, 'gableHip', { t0: 4.1 }));
+    for (const side of [-1, 1]) {
+      O.push(box(px + side * 11, pz, .8, 18, 0, 1.5, { kind: 'wall', col: C.wallRed }));
+      O.push(palace(px + side * 8.5, pz - 2, 3.5, 9, 0, 1.9, 3.2, 'hip', { t0: 4.1 }));
+    }
+    O.push(palace(px, pz - 8, 5, 3, 0, 1.8, 3.1, 'hip', { t0: 4.1 }));
   }
 
   // 慈宁宫与寿康宫区 (X: -110, Z: +40 到 +80)
@@ -867,7 +890,7 @@ function forbiddenCitySite(season = 'day') {
   // ----------------------------------------------------------
   O.push(marblePlinth(0, 110, 46, 76, 0, 1.8, 1, { t0: 4.4 }));
   // 乾清宫 (面阔九间 54m，进深 27m，高 20m)
-  O.push(palace(0, 86, 42, 22, 1.8, 7.2, 11.8, 'hip', { t0: 4.5, over: 1.3 }));
+  O.push(palace(0, 86, 42, 22, 1.8, 7.2, 11.8, 'hip', { t0: 4.5, over: 1.3, double: true }));
   // 交泰殿 (方形攒尖顶)
   O.push(palace(0, 110, 18, 18, 1.8, 5.8, 9.2, 'pyramid', { t0: 4.6, over: 1.0 }));
   // 坤宁宫 (后廷中宫正寝)
@@ -882,8 +905,13 @@ function forbiddenCitySite(season = 'day') {
     [78, 104, '延禧宫'], [78, 124, '永和宫'], [78, 144, '景阳宫']
   ];
   for (const [px, pz] of eastSix) {
-    O.push(box(px, pz, 18, 15, 0, 2.8, { kind: 'wall', col: C.wallRed, t0: 4.8 }));
-    O.push(palace(px, pz, 16, 11, 2.8, 4.8, 6.8, 'gableHip', { t0: 4.9 }));
+    O.push(plane(px - 11, pz - 9, px + 11, pz + 9, .02, C.pave, 'plaza', 4.8));
+    O.push(palace(px, pz + 4, 16, 7, 0, 2.6, 4.6, 'gableHip', { t0: 4.9 }));
+    for (const side of [-1, 1]) {
+      O.push(box(px + side * 11, pz, .8, 18, 0, 1.5, { kind: 'wall', col: C.wallRed }));
+      O.push(palace(px + side * 8.5, pz - 2, 3.5, 9, 0, 1.9, 3.2, 'hip', { t0: 4.9 }));
+    }
+    O.push(palace(px, pz - 8, 5, 3, 0, 1.8, 3.1, 'hip', { t0: 4.9 }));
   }
 
   // 宁寿宫区（乾隆归政太上皇宫殿：皇极门、皇极殿、九龙壁、畅音阁 X: +118, Z: +50 到 +160）
@@ -926,10 +954,24 @@ function forbiddenCitySite(season = 'day') {
   O.push(palace(0, 200, 46, 14, 6.6, 9.8, 13.8, 'gableHip', { t0: 6.0, over: 1.2 }));
 
   // 景山五峰（紫禁城正北风水靠山，海拔 88 米，俯瞰紫禁城全貌）
-  O.push(box(0, 238, 140, 24, 0, 12.0, { kind: 'wall', col: hex('#486842'), t0: 6.1 }));
+  const ridge = [[-70, 1], [-36, 8], [0, 12], [36, 8], [70, 1]], hillFaces = [];
+  for (let i = 0; i < ridge.length - 1; i++) {
+    const [x0, y0] = ridge[i], [x1, y1] = ridge[i + 1];
+    hillFaces.push(face([v(x0, 0, 226), v(x0, y0, 238), v(x1, y1, 238), v(x1, 0, 226)], 'terrain', .9));
+    hillFaces.push(face([v(x1, 0, 250), v(x1, y1, 238), v(x0, y0, 238), v(x0, 0, 250)], 'terrain', .72));
+  }
+  O.push({ kind: 'hill', cx: 0, cz: 238, y1: 12, col: hex('#879b72'), faces: hillFaces, t0: 6.1 });
   O.push(palace(0, 238, 18, 18, 12.0, 15.6, 19.4, 'round', { t0: 6.2 })); // 景山顶万春亭
 
   return O;
+}
+
+function orderScene(objs, cam) {
+  return objs.map((ob, index) => ({ ob, index, d: cam.depth(v(ob.cx, (ob.y1 ?? 2) * .5, ob.cz)) })).sort((a, b) => {
+    const ap = a.ob.kind === 'plane', bp = b.ob.kind === 'plane';
+    if (ap !== bp) return ap ? -1 : 1;
+    return ap ? a.index - b.index : b.d - a.d;
+  });
 }
 
 // ---------- 场景光栅与水墨渲染 ----------
@@ -940,7 +982,7 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
 
   paper(ctx, W, H, tint, snow);
 
-  const list = objs.map(ob => ({ ob, d: cam.depth(v(ob.cx, (ob.y1 ?? 2) * 0.5, ob.cz)) })).sort((a, b) => b.d - a.d);
+  const list = orderScene(objs, cam);
 
   for (const { ob } of list) {
     const start = ob.t0 ?? 0;
@@ -963,6 +1005,7 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
         a: ob.alpha ?? 0.45, j: 22, layers: 3, seed: 11 + (ob.cx | 0), freq: 0.005
       });
       ctx.restore();
+      o.detail?.(ctx, ob, cam, { season });
       continue;
     }
 
@@ -1005,18 +1048,19 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
         if (!c) continue;
         const R = cam.ortho ? Math.max(6, cr.r * cam.ortho) : Math.max(8, cr.r * cam.focal / c.z);
         ctx.save();
-        const pal = [C.leafL, C.leaf, C.leafD];
+        const pal = season === 'snow' ? [mix3(C.leafL, PAPER, .58), mix3(C.leaf, PAPER, .35), C.leafD] : [C.leafL, C.leaf, C.leafD];
         for (let k = 0; k < 3; k++) {
           wash(ctx, ellipse(c.x + (k - 1) * R * 0.24, c.y - R * 0.2 + k * R * 0.2, R * (0.8 + k * 0.05), R * (0.6 + k * 0.05), 14), pal[k], { a: 0.32, j: R * 0.2, layers: 2, seed: 90 + k + (cr.seed | 0) });
         }
         const rr = rng(cr.seed);
-        const N = Math.round(clamp(R * 0.6, 16, 60));
+        const N = Math.round(clamp(R * 1.1, 35, 120));
         for (let i = 0; i < N; i++) {
           const ang = rr() * TAU, dd = Math.sqrt(rr()) * R;
-          dab(ctx, c.x + Math.cos(ang) * dd, c.y + Math.sin(ang) * dd * 0.85, 3 + rr() * R * 0.12, rr() * TAU, pal[(rr() * 3) | 0], 0.3 + rr() * 0.35, (cr.seed * 7 + i) | 0);
+          dab(ctx, c.x + Math.cos(ang) * dd, c.y + Math.sin(ang) * dd * 0.85, 1.2 + rr() * R * 0.07, rr() * TAU, pal[(rr() * 3) | 0], 0.26 + rr() * 0.28, (cr.seed * 7 + i) | 0);
         }
         ctx.restore();
       }
+      o.detail?.(ctx, ob, cam, { season });
       continue;
     }
 
@@ -1028,7 +1072,7 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
     }).sort((a, b) => b.d - a.d);
 
     // 建筑遮挡留白（Paper occlusion）
-    if (ob.kind === 'palace' || ob.kind === 'wall' || ob.kind === 'bridge') {
+    if (ob.kind === 'palace' || ob.kind === 'wall' || ob.kind === 'bridge' || ob.kind === 'urn') {
       const all = [];
       for (const { f } of fs) for (const p of f.pts) { const q = cam.p(p); if (q) all.push([q.x, q.y]); }
       if (all.length > 3) {
@@ -1045,6 +1089,7 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
       }
     }
 
+    const drawnEdges = new Set();
     for (const { f, cc } of fs) {
       const n = nrm(crossv(sub(f.pts[1], f.pts[0]), sub(f.pts[2], f.pts[0])));
       const twoSided = f.kind === 'water' || f.kind === 'ground' || f.kind === 'plaza';
@@ -1053,11 +1098,11 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
       const pts = f.pts.map(p => cam.p(p));
       if (pts.some(p => !p)) continue;
       const poly = pts.map(p => [p.x, p.y]);
-      const baseCol = ob.col ?? faceColor(ob, f, season);
+      const baseCol = faceColor(ob, f, season);
       const lit = clamp(0.55 + 0.45 * Math.max(0, dot(n, nrm(v(-0.45, 0.8, 0.5)))), 0.35, 1);
 
       ctx.save();
-      const fa = (f.shade ?? 1) * 0.55;
+      const fa = (f.shade ?? 1) * 0.67;
       wash(ctx, poly, mix3(baseCol, C3COOL, (1 - lit) * 0.35), {
         a: fa, j: 4.5, layers: 2, seed: 40 + ((ob.cx | 0) * 3 + (ob.cz | 0))
       });
@@ -1069,9 +1114,12 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
         for (let i = 0; i < poly.length; i++) {
           const a = poly[i], b = poly[(i + 1) % poly.length];
           if (Math.hypot(a[0] - b[0], a[1] - b[1]) < 4) continue;
+          const edgeKey = [a, b].map(point => point.map(value => Math.round(value * 10)).join(',')).sort().join('|');
+          if (drawnEdges.has(edgeKey)) continue;
+          drawnEdges.add(edgeKey);
           ink(ctx, [v(a[0], a[1], 0), v(b[0], b[1], 0)], {
-            w: f.kind === 'roof' ? 2.2 : 2.5, wob: 1.1, over: 5, seed: 50 + i + (ob.cx | 0) * 3, p: ip
-          }, 0.95);
+            w: f.kind === 'roof' ? 1.25 : 1.45, wob: .45, over: 1.8, seed: 50 + i + (ob.cx | 0) * 3, p: ip
+          }, .76);
         }
       }
       if (f.kind === 'roof' && f.pts.length === 4 && ob.kind === 'palace') {
@@ -1095,823 +1143,23 @@ function renderScene(ctx, objs, cam, t, W, H, o = {}) {
         if (a && b) ink(ctx, [v(a.x, a.y, 0), v(b.x, b.y, 0)], { w: 1.5, wob: .4, over: 1, seed: 500 + i }, .64);
       }
     }
+    o.detail?.(ctx, ob, cam, { season });
   }
 }
 
 
-// ============================================================
-// 紫禁城 1:1 实测全域工笔舆图 (2D Architectural Master Map · 按 R 键切换)
-// 依据故宫实测比例：南北 961 米，东西 753 米，精确落位所有宫殿院落
-// ============================================================
-
-function routeMap() {
-  const c = document.createElement('canvas');
-  c.width = 3000;
-  c.height = 2000;
-  const ctx = c.getContext('2d');
-
-  // 坐标变换系统：将故宫建筑坐标 (X: -190~190, Z: -240~240) 映射到 3000x2000 画布
-  // 比例尺严格对齐：1 真实米 ≈ 1.8 画布像素
-  const mx = x => 1500 + x * 6.8;
-  const my = z => 1020 - z * 3.65;
-
-  const RC = {
-    paper: hex('#f5eede'),
-    earth: hex('#dfd7c6'),
-    pave: hex('#cebeaa'),
-    wallRed: hex('#9e2d22'),
-    roofGold: hex('#d49726'),
-    roofBlack: hex('#282b30'), // 文渊阁
-    marble: hex('#ebe5d8'),
-    water: hex('#588e84'),
-    moat: hex('#487b72'),
-    gardenGreen: hex('#547c4b'),
-    ink: hex('#2b2520')
-  };
-
-  const rmRect = (gx0, gz0, gx1, gz1, col, a, seed, j = 3) => {
-    const x0 = mx(gx0), x1 = mx(gx1), y0 = my(gz1), y1 = my(gz0);
-    wash(ctx, [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], col, { a, j, layers: 2, seed });
-  };
-
-  const rmOutline = (gx0, gz0, gx1, gz1, w, a, seed) => {
-    const x0 = mx(gx0), x1 = mx(gx1), y0 = my(gz1), y1 = my(gz0);
-    const poly = [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]];
-    const st = penStroke(poly, { w, seed, gap: 0.2, wob: 0.8 });
-    drawPen(ctx, st, 1, RC.ink, a);
-  };
-
-  const rmLabel = (txt, px, py, size, a = 0.85, rot = 0, bold = false) => {
-    ctx.save();
-    ctx.translate(px, py);
-    ctx.rotate(rot);
-    ctx.font = `${bold ? 'bold ' : ''}${size}px "KaiTi","楷体","STKaiti",serif`;
-    ctx.fillStyle = rgba(RC.ink, a);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(txt, 0, 0);
-    ctx.restore();
-  };
-
-  // 1. 底色宣纸
-  ctx.fillStyle = '#f5eede';
-  ctx.fillRect(0, 0, c.width, c.height);
-  rmRect(-210, -250, 210, 250, RC.earth, 0.35, 10, 8);
-
-  // 2. 筒子河（52 米宽护城河环绕）
-  const MW_O = 184, MW_I = 158;
-  const ML_O = 226, ML_I = 200;
-  rmRect(-MW_O, -ML_O, -MW_I, ML_O, RC.moat, 0.65, 20); // 西筒子河
-  rmRect(MW_I, -ML_O, MW_O, ML_O, RC.moat, 0.65, 21);  // 东筒子河
-  rmRect(-MW_O, -ML_O, MW_O, -ML_I, RC.moat, 0.65, 22); // 南外金水河
-  rmRect(-MW_O, ML_I, MW_O, ML_O, RC.moat, 0.65, 23);  // 北筒子河
-
-  // 3. 紫禁城外城垣红墙（高 9.9 米，底宽 8.6 米）
-  rmRect(-MW_I, -ML_I, MW_I, ML_I, RC.pave, 0.5, 30);
-  rmOutline(-MW_I, -ML_I, MW_I, ML_I, 4.0, 0.95, 31);
-
-  // 4. 四大角楼（玲珑九梁十八柱七十二条脊）
-  const corners = [
-    [-MW_I, -ML_I, '西南角楼'], [MW_I, -ML_I, '东南角楼'],
-    [-MW_I, ML_I, '西北角楼'], [MW_I, ML_I, '东北角楼']
-  ];
-  for (const [cx, cz, lbl] of corners) {
-    rmRect(cx - 7, cz - 7, cx + 7, cz + 7, RC.roofGold, 0.85, 35);
-    rmOutline(cx - 7, cz - 7, cx + 7, cz + 7, 2.2, 0.9, 36);
-    rmLabel(lbl, mx(cx + (cx < 0 ? -18 : 18)), my(cz), 19, 0.85);
+// Capture the new plate artwork in independent colour, pen, lettering and seal layers.
+function capturePlate(page, draw) {
+  if (!Number.isInteger(page) || page < 1 || page > 16 || typeof draw !== 'function') {
+    throw new RangeError('A palace plate number from 1 to 16 and a drawing function are required');
   }
-
-  // 5. 东华门与西华门
-  rmRect(MW_I - 4, -92, MW_I + 4, -68, RC.roofGold, 0.85, 38);
-  rmOutline(MW_I - 4, -92, MW_I + 4, -68, 2, 0.9, 39);
-  rmLabel('东华门', mx(MW_I + 16), my(-80), 18, 0.85);
-
-  rmRect(-MW_I - 4, -92, -MW_I + 4, -68, RC.roofGold, 0.85, 38);
-  rmOutline(-MW_I - 4, -92, -MW_I + 4, -68, 2, 0.9, 39);
-  rmLabel('西华门', mx(-MW_I - 16), my(-80), 18, 0.85);
-
-  // 6. 午门广场与午门城台五凤楼
-  rmRect(-40, -188, 40, -150, RC.wallRed, 0.85, 40);
-  rmRect(-40, -196, -28, -150, RC.roofGold, 0.8, 41); // 西雁翅
-  rmRect(28, -196, 40, -150, RC.roofGold, 0.8, 42);  // 东雁翅
-  rmOutline(-40, -188, 40, -150, 3.0, 0.95, 43);
-  rmLabel('午门（紫禁正阙 · 五凤楼）', mx(0), my(-172), 24, 0.98, 0, true);
-
-  // 7. 内金水河与五座白玉内金水桥
-  rmRect(-78, -135, 78, -118, RC.water, 0.65, 50);
-  rmOutline(-78, -135, 78, -118, 2.0, 0.8, 51);
-  const bridges = [-26, -13, 0, 13, 26];
-  for (const bx of bridges) {
-    rmRect(bx - 3.2, -138, bx + 3.2, -115, RC.marble, 0.92, 55 + bx);
-    rmOutline(bx - 3.2, -138, bx + 3.2, -115, 1.8, 0.9, 56 + bx);
-  }
-  rmLabel('内金水河 · 五座白玉桥', mx(42), my(-126), 19, 0.9);
-
-  // 8. 西路南翼：武英殿区
-  rmRect(-118, -145, -66, -110, RC.wallRed, 0.4, 60);
-  rmRect(-102, -138, -78, -120, RC.roofGold, 0.85, 61);
-  rmOutline(-118, -145, -66, -110, 1.8, 0.75, 62);
-  rmLabel('武英殿区', mx(-92), my(-128), 20, 0.9, 0, true);
-  rmLabel('（敬思殿 · 宝蕴楼 · 断虹桥）', mx(-92), my(-116), 14, 0.7);
-
-  // 9. 东路南翼：文华殿与文渊阁
-  rmRect(66, -145, 118, -110, RC.wallRed, 0.4, 65);
-  rmRect(78, -138, 102, -120, RC.roofGold, 0.85, 66);
-  // 文渊阁特写（黑瓦绿剪边藏书阁）
-  rmRect(80, -114, 104, -102, RC.roofBlack, 0.9, 67);
-  rmOutline(66, -145, 118, -110, 1.8, 0.75, 68);
-  rmLabel('文华殿区', mx(92), my(-128), 20, 0.9, 0, true);
-  rmLabel('（文渊阁 · 四库全书藏书楼）', mx(92), my(-116), 14, 0.7);
-
-  // 10. 太和门广场与太和门
-  rmRect(-42, -92, 42, -72, RC.roofGold, 0.88, 70);
-  rmOutline(-42, -92, 42, -72, 2.6, 0.9, 71);
-  rmLabel('太和门', mx(0), my(-82), 24, 0.98, 0, true);
-  rmLabel('昭德门', mx(56), my(-82), 17, 0.8);
-  rmLabel('贞度门', mx(-56), my(-82), 17, 0.8);
-  rmLabel('体仁阁', mx(68), my(-40), 18, 0.85);
-  rmLabel('弘义阁', mx(-68), my(-40), 18, 0.85);
-
-  // 11. 外朝三大殿工字形三层大汉白玉台基
-  rmRect(-44, -62, 44, 42, RC.marble, 0.65, 80);
-  rmOutline(-44, -62, 44, 42, 2.8, 0.92, 81);
-
-  // 太和殿 (金銮宝殿)
-  rmRect(-32, -54, 32, -28, RC.roofGold, 0.95, 82);
-  rmOutline(-32, -54, 32, -28, 3.0, 0.98, 83);
-  rmLabel('太和殿（金銮宝殿 · 重檐庑殿）', mx(0), my(-41), 26, 0.98, 0, true);
-
-  // 中和殿
-  rmRect(-13, -18, 13, 2, RC.roofGold, 0.9, 84);
-  rmOutline(-13, -18, 13, 2, 2.2, 0.92, 85);
-  rmLabel('中和殿（攒尖宝顶）', mx(0), my(-8), 20, 0.92, 0, true);
-
-  // 保和殿与大石雕
-  rmRect(-28, 14, 28, 38, RC.roofGold, 0.95, 86);
-  rmOutline(-28, 14, 28, 38, 2.8, 0.98, 87);
-  rmLabel('保和殿（殿试策天 · 重檐歇山）', mx(0), my(26), 24, 0.98, 0, true);
-  rmLabel('度九龙大石雕', mx(0), my(44), 16, 0.85);
-
-  // 12. 乾清门与红墙界线
-  rmRect(-68, 55, 68, 62, RC.wallRed, 0.85, 90);
-  rmRect(-24, 52, 24, 64, RC.roofGold, 0.9, 91);
-  rmLabel('乾清门（御门听政 · 门海铜缸）', mx(0), my(58), 21, 0.95, 0, true);
-  rmLabel('景运门', mx(76), my(58), 16, 0.8);
-  rmLabel('隆宗门', mx(-76), my(58), 16, 0.8);
-
-  // 13. 西路中翼：养心殿、慈宁宫、西六宫
-  // 养心殿 (八代帝王寝宫与政治中枢)
-  rmRect(-66, 74, -42, 98, RC.wallRed, 0.65, 100);
-  rmRect(-62, 80, -46, 94, RC.roofGold, 0.9, 101);
-  rmOutline(-66, 74, -42, 98, 2.0, 0.85, 102);
-  rmLabel('养心殿', mx(-54), my(87), 20, 0.95, 0, true);
-  rmLabel('（三希堂 · 垂帘听政）', mx(-54), my(77), 13, 0.7);
-
-  // 慈宁宫与寿康宫 (太后寝宫)
-  rmRect(-135, 42, -90, 92, RC.wallRed, 0.45, 105);
-  rmOutline(-135, 42, -90, 92, 2.0, 0.8, 106);
-  rmLabel('慈宁宫 · 寿康宫', mx(-112), my(67), 19, 0.9, 0, true);
-  rmLabel('（太后太妃寝居 · 慈宁花园）', mx(-112), my(55), 14, 0.7);
-
-  // 西六宫院落
-  rmRect(-102, 98, -42, 160, RC.pave, 0.45, 110);
-  rmOutline(-102, 98, -42, 160, 2.0, 0.85, 111);
-  rmLabel('西六宫', mx(-72), my(154), 21, 0.95, 0, true);
-  rmLabel('永寿宫', mx(-56), my(108), 16, 0.8);
-  rmLabel('翊坤宫', mx(-56), my(126), 16, 0.8);
-  rmLabel('储秀宫', mx(-56), my(144), 16, 0.8);
-  rmLabel('太极殿', mx(-88), my(108), 16, 0.8);
-  rmLabel('长春宫', mx(-88), my(126), 16, 0.8);
-  rmLabel('咸福宫', mx(-88), my(144), 16, 0.8);
-
-  // 14. 内廷后三宫：乾清宫、交泰殿、坤宁宫
-  rmRect(-30, 74, 30, 146, RC.marble, 0.6, 120);
-  rmOutline(-30, 74, 30, 146, 2.4, 0.92, 121);
-
-  rmRect(-26, 76, 26, 96, RC.roofGold, 0.95, 122);
-  rmLabel('乾清宫（正大光明 · 皇帝正寝）', mx(0), my(86), 22, 0.98, 0, true);
-
-  rmRect(-12, 102, 12, 118, RC.roofGold, 0.9, 123);
-  rmLabel('交泰殿（廿五宝玺）', mx(0), my(110), 19, 0.92, 0, true);
-
-  rmRect(-24, 124, 24, 144, RC.roofGold, 0.95, 124);
-  rmLabel('坤宁宫（中宫正寝 · 大婚洞房）', mx(0), my(134), 21, 0.95, 0, true);
-
-  // 15. 东路中翼：奉先殿、东六宫、宁寿宫区（乾隆小紫禁城）
-  // 奉先殿 (钟表馆)
-  rmRect(46, 16, 76, 44, RC.wallRed, 0.45, 130);
-  rmLabel('奉先殿（钟表馆）', mx(61), my(30), 17, 0.85);
-
-  // 东六宫院落
-  rmRect(42, 98, 92, 160, RC.pave, 0.45, 135);
-  rmOutline(42, 98, 92, 160, 2.0, 0.85, 136);
-  rmLabel('东六宫', mx(67), my(154), 21, 0.95, 0, true);
-  rmLabel('景仁宫', mx(54), my(108), 16, 0.8);
-  rmLabel('承乾宫', mx(54), my(126), 16, 0.8);
-  rmLabel('钟粹宫', mx(54), my(144), 16, 0.8);
-  rmLabel('延禧宫', mx(80), my(108), 16, 0.8);
-  rmLabel('永和宫', mx(80), my(126), 16, 0.8);
-  rmLabel('景阳宫', mx(80), my(144), 16, 0.8);
-
-  // 宁寿宫区（乾隆花园 · 极尽奢华太上皇宫殿群）
-  rmRect(98, 48, 148, 178, RC.pave, 0.5, 140);
-  rmOutline(98, 48, 148, 178, 2.2, 0.9, 141);
-  rmLabel('宁寿宫全区（乾隆太上皇宫殿群）', mx(123), my(172), 19, 0.95, 0, true);
-  rmLabel('九龙壁 · 皇极门', mx(123), my(58), 16, 0.85);
-  rmLabel('皇极殿（宁寿正殿）', mx(123), my(84), 17, 0.9);
-  rmLabel('宁寿宫 · 养性殿', mx(123), my(112), 16, 0.85);
-  rmLabel('畅音阁大戏台 · 珍妃井', mx(123), my(140), 16, 0.85);
-
-  // 16. 御花园
-  rmRect(-42, 154, 42, 192, RC.gardenGreen, 0.5, 150);
-  rmOutline(-42, 154, 42, 192, 2.2, 0.9, 151);
-  rmLabel('御花园', mx(0), my(186), 22, 0.98, 0, true);
-  rmLabel('钦安殿', mx(0), my(172), 18, 0.9);
-  rmLabel('万春亭', mx(-24), my(168), 16, 0.85);
-  rmLabel('千秋亭', mx(24), my(168), 16, 0.85);
-  rmLabel('堆秀山 · 御景亭', mx(24), my(184), 16, 0.85);
-
-  // 17. 神武门与北景山风水靠山
-  rmRect(-34, 194, 34, 206, RC.roofGold, 0.9, 160);
-  rmOutline(-34, 194, 34, 206, 2.5, 0.95, 161);
-  rmLabel('神武门（玄武北门）', mx(0), my(200), 22, 0.98, 0, true);
-
-  // 景山
-  rmRect(-68, 230, 68, 252, RC.gardenGreen, 0.65, 170);
-  rmOutline(-68, 230, 68, 252, 2.0, 0.8, 171);
-  rmLabel('景山（万春亭 · 俯瞰紫禁城全貌）', mx(0), my(241), 22, 0.95, 0, true);
-
-  // 18. 经典中轴参访动线（朱砂红虚线）
-  const tourPoints = [
-    [0, -200], [0, -162], [0, -125], [0, -82],
-    [-92, -128], [0, -41], [0, -8], [0, 26], [0, 58],
-    [-54, 87], [0, 86], [0, 110], [0, 134],
-    [123, 84], [0, 172], [0, 200], [0, 241]
-  ];
-  ctx.save();
-  ctx.setLineDash([18, 14]);
-  ctx.strokeStyle = 'rgba(168, 52, 40, 0.9)';
-  ctx.lineWidth = 5.0;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(mx(tourPoints[0][0]), my(tourPoints[0][1]));
-  for (let i = 1; i < tourPoints.length; i++) {
-    ctx.lineTo(mx(tourPoints[i][0]), my(tourPoints[i][1]));
-  }
-  ctx.stroke();
-  ctx.restore();
-
-  // 19. 舆图主标题、乾隆御笔钤印与比例尺
-  rmLabel('紫禁城全域工笔舆图', 1500, 75, 42, 0.98, 0, true);
-  rmLabel('红墙黄瓦 · 中轴宫阙 · 艺术化空间示意', 1500, 118, 19, 0.75);
-  rmLabel('（按 R 键返回三维透视场景）', 1500, 1945, 17, 0.65);
-
-  // 比例尺 (Scale Bar) 0 ~ 200m
-  const scX = 220, scY = 1920;
-  rmOutline(scX - 10, scY - 20, scX + 210, scY + 16, 1.5, 0.7, 180);
-  ink(ctx, [v(scX, scY, 0), v(scX + 200, scY, 0)], { w: 3, seed: 181 });
-  ink(ctx, [v(scX, scY - 8, 0), v(scX, scY + 8, 0)], { w: 2, seed: 182 });
-  ink(ctx, [v(scX + 100, scY - 6, 0), v(scX + 100, scY + 6, 0)], { w: 2, seed: 183 });
-  ink(ctx, [v(scX + 200, scY - 8, 0), v(scX + 200, scY + 8, 0)], { w: 2, seed: 184 });
-  rmLabel('0', scX, scY - 14, 15, 0.85);
-  rmLabel('100m', scX + 100, scY - 14, 15, 0.85);
-  rmLabel('空间示意 · 非测绘比例', scX + 180, scY - 14, 15, 0.85);
-
-  // 八卦罗盘指南 (Compass)
-  const cpX = 2780, cpY = 220;
-  rmOutline(cpX - 55, cpY - 55, cpX + 55, cpY + 55, 2.0, 0.85, 185);
-  rmLabel('子北 ↑', cpX, cpY - 32, 20, 0.95, 0, true);
-  rmLabel('午南 ↓', cpX, cpY + 32, 20, 0.95, 0, true);
-  rmLabel('卯东 →', cpX + 32, cpY, 18, 0.85);
-  rmLabel('← 酉西', cpX - 32, cpY, 18, 0.85);
-
-  // 朱砂印章
-  sealStamp(ctx, '紫禁全图', 260, 160, 76, { p: 1, baiwen: true, seed: 99 });
-  sealStamp(ctx, '乾隆御览', 260, 260, 60, { p: 1, baiwen: false, seed: 88 });
-
-  return c;
-}
-
-
-// ============================================================
-// 故宫十六景实测速写册页 (Sixteen Iconic Imperial Plates)
-// ============================================================
-
-const W_PLATE = 2400, H_PLATE = 1350;
-
-function newPlate() {
-  const c = document.createElement('canvas');
-  c.width = W_PLATE; c.height = H_PLATE;
-  const ctx = c.getContext('2d');
-  if (activePlateCapture) activePlateCapture.ctx = ctx;
-  return { canvas: c, ctx, strokes: [], texts: [], seals: [] };
-}
-
-// 1. 午门 · 雁翅凌云
-function plateWumen() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[-40, -40], [2440, -40], [2440, 520], [-40, 560]], hex('#688da6'), { a: 0.22, j: 60, layers: 2, seed: 101 });
-
-  const wx0 = 360, wx1 = 2040, wy0 = 620, wy1 = 1140;
-  wash(ctx, [[wx0, wy0], [wx1, wy0], [wx1, wy1], [wx0, wy1]], C.wallRedDark, { a: 0.72, j: 10, layers: 3, seed: 102 });
-  wash(ctx, [[200, 680], [wx0 + 40, 680], [wx0 + 40, 1260], [200, 1260]], C.wallRed, { a: 0.65, j: 8, seed: 103 });
-  wash(ctx, [[wx1 - 40, 680], [2200, 680], [2200, 1260], [wx1 - 40, 1260]], C.wallRed, { a: 0.65, j: 8, seed: 104 });
-
-  for (let i = -1; i <= 1; i++) {
-    const gx = 1200 + i * 260, gy = 1040, gw = 100, gh = 150;
-    const arch = Array.from({ length: 15 }, (_, j) => {
-      const angle = Math.PI + j / 14 * Math.PI;
-      return [gx + Math.cos(angle) * gw / 2, gy - 20 + Math.sin(angle) * gh * .45];
-    });
-    const gatePoly = [...arch, [gx + gw / 2, gy + gh * 0.6], [gx - gw / 2, gy + gh * 0.6]];
-    wash(ctx, gatePoly, hex('#28201a'), { a: 0.92, j: 2, layers: 2, seed: 110 + i });
-    ink(ctx, gatePoly.map(([x, y]) => v(x, y, 0)), { w: 2.8, seed: 115 + i });
-  }
-
-  const rx0 = 620, rx1 = 1780, ry0 = 340, ry1 = 620;
-  wash(ctx, [[rx0 - 60, 520], [rx1 + 60, 520], [rx1 + 30, 630], [rx0 - 30, 630]], C.roofGold, { a: 0.85, j: 6, layers: 2, seed: 120 });
-  wash(ctx, [[rx0, ry0 + 70], [rx1, ry0 + 70], [rx1 + 80, 520], [rx0 - 80, 520]], C.roofGold, { a: 0.92, j: 7, layers: 3, seed: 121 });
-  wash(ctx, [[rx0 + 120, ry0], [rx1 - 120, ry0], [rx1, ry0 + 70], [rx0, ry0 + 70]], C.roofLight, { a: 0.88, j: 5, seed: 122 });
-
-  ink(ctx, [v(wx0, wy0, 0), v(wx1, wy0, 0), v(wx1, wy1, 0), v(wx0, wy1, 0), v(wx0, wy0, 0)], { w: 3.2, seed: 130 });
-  ink(ctx, [v(rx0 - 80, 520, 0), v(rx1 + 80, 520, 0)], { w: 3.0, seed: 131 });
-  ink(ctx, [v(rx0 + 120, ry0, 0), v(rx1 - 120, ry0, 0)], { w: 3.4, seed: 132 });
-
-  const R = rng(140);
-  for (let i = 0; i < 9; i++) {
-    const px = 800 + R() * 800, py = 220 + R() * 200;
-    ink(ctx, [v(px - 14, py - 6, 0), v(px, py, 0), v(px + 14, py - 6, 0)], { w: 1.6, seed: 141 + i });
-  }
-
-  handwrite(ctx, { text: '午门 · 雁翅凌云', size: 44, x: 280, y: 180, vertical: true }, 1);
-  handwrite(ctx, { text: '城阙辅三秦，云韶导五门。白玉初分御道，千官拜舞九重天。', size: 21, x: 210, y: 190, vertical: true }, 1);
-  sealStamp(ctx, '紫禁正阙', 280, 540, 58, { baiwen: true, seed: 105 });
-
-  return P.canvas;
-}
-
-// 2. 内金水桥 · 玉带浮春
-function plateJinshui() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[-40, 480], [2440, 480], [2440, 1100], [-40, 1100]], C.water, { a: 0.68, j: 20, layers: 3, seed: 201 });
-  for (let i = 0; i < 18; i++) {
-    const R = rng(205 + i), y = 540 + R() * 500, x = 100 + R() * 2100;
-    ink(ctx, [v(x, y, 0), v(x + 120 + R() * 100, y + (R() - 0.5) * 6, 0)], { w: 1.2, gap: 0.5, seed: 210 + i }, 0.4);
-  }
-
-  const by0 = 420;
-  for (let i = 0; i < 5; i++) {
-    const cx = 520 + i * 340, cw = 260;
-    wash(ctx, [[cx - cw/2, by0 + 80], [cx + cw/2, by0 + 80], [cx + cw/2, by0 + 260], [cx - cw/2, by0 + 260]], C.marble, { a: 0.88, j: 6, layers: 2, seed: 220 + i });
-    const archHole = ellipse(cx, by0 + 260, cw * 0.32, 70, 14, Math.PI);
-    wash(ctx, archHole, hex('#344e47'), { a: 0.85, j: 3, seed: 225 + i });
-    ink(ctx, [v(cx - cw/2, by0 + 80, 0), v(cx + cw/2, by0 + 80, 0)], { w: 2.6, seed: 230 + i });
-    ink(ctx, archHole.map(([x, y]) => v(x, y, 0)), { w: 2.2, seed: 235 + i });
-    for (let k = 0; k < 6; k++) {
-      const px = cx - cw/2 + k * (cw / 5);
-      ink(ctx, [v(px, by0 + 80, 0), v(px, by0 + 55, 0)], { w: 2.2, seed: 240 + i * 6 + k });
-    }
-  }
-
-  handwrite(ctx, { text: '内金水桥 · 玉带浮春', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '玉带横波绕九重，汉白千寻印九天。五桥如意浮碧水，金波溶溶映朱颜。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '金水浮碧', 280, 520, 58, { baiwen: false, seed: 202 });
-
-  return P.canvas;
-}
-
-// 3. 武英殿 · 断虹卧波 (NEW)
-function plateWuying() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  // 断虹桥与武英殿飞檐
-  wash(ctx, [[420, 560], [1980, 560], [1980, 1180], [420, 1180]], C.water, { a: 0.65, j: 16, seed: 250 });
-
-  // 汉白玉断虹桥石拱与栏板
-  const bx = 1200, by = 640;
-  wash(ctx, [[bx - 420, by], [bx + 420, by], [bx + 440, by + 260], [bx - 440, by + 260]], C.marble, { a: 0.9, j: 6, seed: 251 });
-  ink(ctx, [v(bx - 420, by, 0), v(bx + 420, by, 0)], { w: 3.2, seed: 252 });
-
-  // 故宫最负盛名的“捂裆萌狮”雕塑特写
-  const sx = 940, sy = by - 80;
-  wash(ctx, ellipse(sx, sy, 55, 75, 16), C.marbleDark, { a: 0.92, j: 4, seed: 255 });
-  ink(ctx, ellipse(sx, sy, 55, 75, 16).map(([x, y]) => v(x, y, 0)), { w: 2.4, seed: 256 });
-
-  // 武英殿主殿歇山顶
-  wash(ctx, [[620, 240], [1780, 240], [1920, 480], [480, 480]], C.roofGold, { a: 0.9, j: 8, seed: 260 });
-  ink(ctx, [v(480, 480, 0), v(1920, 480, 0)], { w: 3.0, seed: 261 });
-
-  handwrite(ctx, { text: '武英殿 · 断虹卧波', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '断虹桥上望龙楼，神狮憨态百千愁。武英修书开殿版，沧桑阅尽古今秋。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '武英藏珍', 280, 520, 58, { baiwen: true, seed: 253 });
-
-  return P.canvas;
-}
-
-// 4. 文华殿 · 文渊书香 (NEW)
-function plateWenhua() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  // 文渊阁特写：独特的黑琉璃瓦绿剪边（五行属水，以水克火藏书阁）
-  wash(ctx, [[540, 260], [1860, 260], [1960, 540], [440, 540]], C.roofBlack, { a: 0.95, j: 6, layers: 3, seed: 270 });
-  // 绿色琉璃瓦剪边
-  wash(ctx, [[440, 540], [1960, 540], [1920, 580], [480, 580]], C.roofGreen, { a: 0.92, j: 3, seed: 271 });
-
-  // 阁身两层彩画硬山
-  wash(ctx, [[520, 580], [1880, 580], [1880, 960], [520, 960]], C.wallRedDark, { a: 0.85, j: 6, seed: 272 });
-  // 阁前碧水水池
-  wash(ctx, [[620, 980], [1780, 980], [1780, 1240], [620, 1240]], C.water, { a: 0.75, j: 8, seed: 275 });
-
-  ink(ctx, [v(440, 540, 0), v(1960, 540, 0)], { w: 3.2, seed: 276 });
-  ink(ctx, [v(540, 260, 0), v(1860, 260, 0)], { w: 3.4, seed: 277 });
-
-  handwrite(ctx, { text: '文华殿 · 文渊书香', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '黑瓦绿剪纳清凉，四库全书万卷藏。经筵日讲启天子，文渊阁外桂花香。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '四库全书', 280, 520, 58, { baiwen: false, seed: 274 });
-
-  return P.canvas;
-}
-
-// 5. 太和门 · 威仪万方
-function plateTaihemen() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[-40, 720], [2440, 720], [2440, 1400], [-40, 1400]], C.pavePlaza, { a: 0.55, j: 18, layers: 2, seed: 301 });
-  wash(ctx, [[420, 480], [1980, 480], [1980, 820], [420, 820]], C.marble, { a: 0.78, j: 8, layers: 2, seed: 302 });
-  wash(ctx, [[480, 240], [1920, 240], [2020, 520], [380, 520]], C.roofGold, { a: 0.92, j: 8, layers: 3, seed: 303 });
-
-  const lx = 740, ly = 860;
-  wash(ctx, [[lx - 120, ly + 140], [lx + 120, ly + 140], [lx + 140, ly + 340], [lx - 140, ly + 340]], C.marbleDark, { a: 0.88, j: 4, seed: 310 });
-  wash(ctx, ellipse(lx, ly + 20, 95, 120, 18), C.bronze, { a: 0.95, j: 5, layers: 3, seed: 311 });
-  wash(ctx, ellipse(lx + 50, ly - 70, 70, 65, 16), C.bronze, { a: 0.95, j: 4, layers: 2, seed: 312 });
-  wash(ctx, ellipse(lx + 70, ly + 110, 42, 42, 14), hex('#324a3e'), { a: 0.9, j: 2, seed: 313 });
-
-  ink(ctx, ellipse(lx, ly + 20, 95, 120, 18).map(([x, y]) => v(x, y, 0)), { w: 2.6, seed: 315 });
-  ink(ctx, ellipse(lx + 50, ly - 70, 70, 65, 16).map(([x, y]) => v(x, y, 0)), { w: 2.8, seed: 316 });
-  ink(ctx, [v(lx - 140, ly + 140, 0), v(lx + 140, ly + 140, 0), v(lx + 140, ly + 340, 0), v(lx - 140, ly + 340, 0), v(lx - 140, ly + 140, 0)], { w: 2.8, seed: 317 });
-
-  handwrite(ctx, { text: '太和门 · 威仪万方', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '金扉玉锁开阊阖，日色初临万国尊。铜狮傲峙御道侧，气吞河岳镇乾坤。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '皇极之门', 280, 520, 58, { baiwen: true, seed: 305 });
-
-  return P.canvas;
-}
-
-// 6. 太和殿 · 金銮九五
-function plateTaihedian() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[-40, -40], [2440, -40], [2440, 480], [-40, 520]], hex('#e8c67c'), { a: 0.28, j: 60, layers: 2, seed: 401 });
-
-  wash(ctx, [[280, 920], [2120, 920], [2200, 1180], [200, 1180]], C.marble, { a: 0.85, j: 8, layers: 2, seed: 402 });
-  wash(ctx, [[360, 800], [2040, 800], [2120, 920], [280, 920]], C.marble, { a: 0.88, j: 7, layers: 2, seed: 403 });
-  wash(ctx, [[440, 680], [1960, 680], [2040, 800], [360, 800]], C.marble, { a: 0.92, j: 6, layers: 2, seed: 404 });
-
-  const ramp = [[1100, 680], [1300, 680], [1340, 1180], [1060, 1180]];
-  wash(ctx, ramp, hex('#ded5c4'), { a: 0.95, j: 4, layers: 2, seed: 405 });
-  for (let k = 0; k < 7; k++) {
-    const ry = 720 + k * 65;
-    ink(ctx, [v(1120, ry, 0), v(1280, ry - 12, 0)], { w: 1.4, wob: 1.5, seed: 408 + k }, 0.6);
-  }
-  ink(ctx, ramp.map(([x, y]) => v(x, y, 0)), { w: 2.6, seed: 409 });
-
-  wash(ctx, [[540, 460], [1860, 460], [1860, 680], [540, 680]], C.wallRed, { a: 0.85, j: 6, layers: 2, seed: 410 });
-  wash(ctx, [[460, 440], [1940, 440], [1880, 520], [520, 520]], C.roofGold, { a: 0.92, j: 6, layers: 2, seed: 411 });
-  wash(ctx, [[620, 200], [1780, 200], [1980, 440], [420, 440]], C.roofGold, { a: 0.96, j: 8, layers: 3, seed: 412 });
-  wash(ctx, [[800, 180], [1600, 180], [1780, 200], [620, 200]], C.roofLight, { a: 0.9, j: 4, seed: 413 });
-
-  ink(ctx, [v(420, 440, 0), v(1980, 440, 0)], { w: 3.5, seed: 420 });
-  ink(ctx, [v(800, 180, 0), v(1600, 180, 0)], { w: 3.8, seed: 421 });
-  for (let s of [-1, 1]) {
-    const sx0 = s < 0 ? 420 : 1980;
-    for (let b = 0; b < 10; b++) {
-      const bx = sx0 + s * (-35 - b * 16), by = 440 - 15 - b * 11;
-      ink(ctx, [v(bx, by + 12, 0), v(bx, by, 0)], { w: 2.2, seed: 430 + b });
-    }
-  }
-
-  handwrite(ctx, { text: '太和殿 · 建极绥猷', size: 44, x: 280, y: 150, vertical: true }, 1);
-  handwrite(ctx, { text: '金銮九五至尊居，重檐万象耀乾坤。建极绥猷平四海，巍巍三台镇万年。', size: 21, x: 210, y: 160, vertical: true }, 1);
-  sealStamp(ctx, '金銮九五', 280, 520, 62, { baiwen: true, seed: 405 });
-
-  return P.canvas;
-}
-
-// 7. 中和殿 · 执两用中
-function plateZhonghedian() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[620, 780], [1780, 780], [1780, 1080], [620, 1080]], C.marble, { a: 0.85, j: 6, layers: 2, seed: 501 });
-  wash(ctx, [[740, 520], [1660, 520], [1660, 780], [740, 780]], C.wallRed, { a: 0.85, j: 5, layers: 2, seed: 502 });
-  wash(ctx, [[660, 520], [1740, 520], [1200, 260]], C.roofGold, { a: 0.95, j: 6, layers: 3, seed: 503 });
-  wash(ctx, ellipse(1200, 240, 36, 42, 16), C.gold, { a: 0.98, j: 2, seed: 504 });
-  ink(ctx, ellipse(1200, 240, 36, 42, 16).map(([x, y]) => v(x, y, 0)), { w: 2.8, seed: 505 });
-
-  ink(ctx, [v(660, 520, 0), v(1740, 520, 0), v(1200, 260, 0), v(660, 520, 0)], { w: 3.2, seed: 506 });
-  ink(ctx, [v(1200, 260, 0), v(1200, 520, 0)], { w: 2.2, seed: 507 });
-
-  handwrite(ctx, { text: '中和殿 · 执两用中', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '执两用中平九野，垂拱无为体至和。天子驻跸更朝服，大典行前正穆穆。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '允执其中', 280, 520, 58, { baiwen: false, seed: 502 });
-
-  return P.canvas;
-}
-
-// 8. 保和殿 · 策天殿试
-function plateBaohedian() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  const sx0 = 680, sx1 = 1720, sy0 = 380, sy1 = 1180;
-  wash(ctx, [[sx0, sy0], [sx1, sy0], [sx1, sy1], [sx0, sy1]], hex('#ded7c8'), { a: 0.92, j: 6, layers: 3, seed: 601 });
-
-  for (let i = 0; i < 9; i++) {
-    const dy = sy0 + 60 + i * 80;
-    const pts = [
-      v(sx0 + 80, dy, 0), v(sx0 + 260, dy - 24, 0),
-      v(sx0 + 520, dy + 20, 0), v(sx0 + 780, dy - 18, 0),
-      v(sx0 + 960, dy, 0)
-    ];
-    ink(ctx, pts, { w: 2.4, wob: 1.8, seed: 610 + i }, 0.85);
-  }
-  for (let k = 0; k < 5; k++) {
-    const cx = sx0 + 120 + k * 180;
-    ink(ctx, ellipse(cx, sy1 - 40, 75, 45, 12, Math.PI).map(([x, y]) => v(x, y, 0)), { w: 2.0, seed: 620 + k }, 0.7);
-  }
-  ink(ctx, [v(sx0, sy0, 0), v(sx1, sy0, 0), v(sx1, sy1, 0), v(sx0, sy1, 0), v(sx0, sy0, 0)], { w: 3.2, seed: 630 });
-
-  handwrite(ctx, { text: '保和殿 · 策天殿试', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '天下殿试策天子，百丈云龙起巨石。保合太和万象新，三百年间育栋梁。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '保合太和', 280, 520, 58, { baiwen: true, seed: 605 });
-
-  return P.canvas;
-}
-
-// 9. 鎏金铜缸 · 门海生辉
-function plateTonggang() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[-40, 180], [2440, 180], [2440, 840], [-40, 840]], C.wallRed, { a: 0.65, j: 12, layers: 2, seed: 701 });
-
-  const gx = 1200, gy = 760, gr = 240, gh = 280;
-  wash(ctx, [[gx - gr * 1.1, gy + gh * 0.4], [gx + gr * 1.1, gy + gh * 0.4], [gx + gr * 1.2, gy + gh * 0.9], [gx - gr * 1.2, gy + gh * 0.9]], C.marble, { a: 0.9, j: 4, seed: 705 });
-
-  const body = ellipse(gx, gy, gr, gh * 0.6, 22);
-  wash(ctx, body, hex('#bfa03a'), { a: 0.95, j: 6, layers: 3, seed: 710 });
-  wash(ctx, ellipse(gx - 40, gy - 20, gr * 0.7, gh * 0.45, 18), hex('#dfc458'), { a: 0.75, j: 5, seed: 711 });
-
-  for (let s of [-1, 1]) {
-    const rx = gx + s * (gr * 0.92), ry = gy;
-    wash(ctx, ellipse(rx, ry + 40, 36, 48, 14), hex('#8a7028'), { a: 0.9, j: 2, seed: 715 + s });
-    ink(ctx, ellipse(rx, ry + 40, 36, 48, 14).map(([x, y]) => v(x, y, 0)), { w: 2.6, seed: 718 + s });
-  }
-  ink(ctx, body.map(([x, y]) => v(x, y, 0)), { w: 3.2, seed: 720 });
-
-  handwrite(ctx, { text: '门海生辉 · 岁岁永安', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '大铜缸上沧桑痕，金甲深处岁月深。门海蓄水分水患，吉祥永镇紫禁城。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '太平有象', 280, 520, 58, { baiwen: false, seed: 702 });
-
-  return P.canvas;
-}
-
-// 10. 养心殿 · 垂帘三希 (NEW)
-function plateYangxin() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  // 养心殿东暖阁垂帘听政与西暖阁三希堂特写
-  wash(ctx, [[420, 240], [1980, 240], [1980, 1160], [420, 1160]], hex('#452b1e'), { a: 0.88, j: 8, seed: 730 });
-
-  // 乾隆“三希堂”斗方木匾
-  wash(ctx, [[880, 340], [1520, 340], [1520, 480], [880, 480]], hex('#1f2d3a'), { a: 0.95, j: 4, seed: 735 });
-  handwrite(ctx, { text: '三希堂', size: 72, x: 1040, y: 440, gold: true }, 1);
-
-  // 楠木御案与王羲之《快雪时晴帖》法帖长卷
-  wash(ctx, [[720, 720], [1680, 720], [1740, 1080], [660, 1080]], hex('#75482e'), { a: 0.92, j: 6, seed: 740 });
-  // 法帖白宣纸卷
-  wash(ctx, [[880, 760], [1520, 760], [1520, 880], [880, 880]], hex('#fdfbf7'), { a: 0.95, j: 2, seed: 745 });
-  handwrite(ctx, { text: '羲之顿首：快雪时晴，佳想安善', size: 28, x: 920, y: 830 }, 1);
-
-  handwrite(ctx, { text: '养心殿 · 垂帘三希', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '八代帝王寝政枢，三希法帖墨香浮。冬暖夏凉梅坞小，翻覆乾坤一念殊。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '三希堂珍', 280, 520, 58, { baiwen: true, seed: 732 });
-
-  return P.canvas;
-}
-
-// 11. 乾清宫 · 正大光明
-function plateQianqinggong() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[420, 240], [1980, 240], [1980, 1140], [420, 1140]], hex('#422216'), { a: 0.85, j: 10, layers: 3, seed: 801 });
-
-  const bx0 = 840, bx1 = 1560, by0 = 320, by1 = 480;
-  wash(ctx, [[bx0, by0], [bx1, by0], [bx1, by1], [bx0, by1]], hex('#2a3e52'), { a: 0.95, j: 4, layers: 2, seed: 805 });
-  ink(ctx, [v(bx0, by0, 0), v(bx1, by0, 0), v(bx1, by1, 0), v(bx0, by1, 0), v(bx0, by0, 0)], { w: 3.8, seed: 806 });
-  ink(ctx, [v(bx0 + 16, by0 + 16, 0), v(bx1 - 16, by0 + 16, 0), v(bx1 - 16, by1 - 16, 0), v(bx0 + 16, by1 - 16, 0), v(bx0 + 16, by0 + 16, 0)], { w: 1.8, seed: 807 });
-  handwrite(ctx, { text: '正大光明', size: 68, x: 920, y: 425, gold: true }, 1);
-
-  wash(ctx, [[960, 680], [1440, 680], [1480, 1020], [920, 1020]], C.gold, { a: 0.92, j: 6, layers: 3, seed: 810 });
-  ink(ctx, [v(960, 680, 0), v(1440, 680, 0), v(1480, 1020, 0), v(920, 1020, 0), v(960, 680, 0)], { w: 2.8, seed: 815 });
-
-  handwrite(ctx, { text: '乾清宫 · 正大光明', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '正大光明悬玉座，乾清内宇秘储匣。历数兴衰沧海转，中轴龙脉续长青。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '乾元资始', 280, 520, 58, { baiwen: true, seed: 802 });
-
-  return P.canvas;
-}
-
-// 12. 交泰殿 · 廿五宝玺
-function plateJiaotaidian() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[620, 420], [1780, 420], [1780, 1080], [620, 1080]], hex('#684832'), { a: 0.8, j: 8, layers: 2, seed: 901 });
-
-  const sx = 1200, sy = 720, sw = 220, sh = 180;
-  wash(ctx, [[sx - sw/2, sy], [sx + sw/2, sy], [sx + sw/2, sy + sh], [sx - sw/2, sy + sh]], hex('#567868'), { a: 0.92, j: 4, layers: 3, seed: 905 });
-  wash(ctx, ellipse(sx, sy - 50, 90, 65, 16), hex('#4a6c5c'), { a: 0.95, j: 3, seed: 906 });
-  ink(ctx, ellipse(sx, sy - 50, 90, 65, 16).map(([x, y]) => v(x, y, 0)), { w: 2.6, seed: 907 });
-  ink(ctx, [v(sx - sw/2, sy, 0), v(sx + sw/2, sy, 0), v(sx + sw/2, sy + sh, 0), v(sx - sw/2, sy + sh, 0), v(sx - sw/2, sy, 0)], { w: 3.2, seed: 908 });
-
-  sealStamp(ctx, '受命之宝', 1560, 720, 130, { baiwen: true, seed: 915 });
-
-  handwrite(ctx, { text: '交泰殿 · 廿五宝玺', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '无为泰和藏宝玺，交泰承天日月长。二十五方青玉印，千秋法度鉴兴亡。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '无为泰和', 280, 520, 58, { baiwen: false, seed: 902 });
-
-  return P.canvas;
-}
-
-// 13. 宁寿宫 · 九龙壁影 (NEW)
-function plateNingshou() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  // 乾隆朝五彩琉璃九龙壁特写：江崖海水、五彩蟠龙跃出水面
-  const wallX0 = 360, wallX1 = 2040, wallY0 = 460, wallY1 = 980;
-  wash(ctx, [[wallX0, wallY0], [wallX1, wallY0], [wallX1, wallY1], [wallX0, wallY1]], hex('#d97232'), { a: 0.88, j: 6, layers: 2, seed: 950 });
-
-  // 琉璃瓦黄色歇山顶盖
-  wash(ctx, [[wallX0 - 40, wallY0 - 40], [wallX1 + 40, wallY0 - 40], [wallX1, wallY0], [wallX0, wallY0]], C.roofGold, { a: 0.95, j: 4, seed: 951 });
-
-  // 九条琉璃巨龙浮雕线条（金龙居中，青白蓝红诸龙腾跃）
-  const dragonColors = [hex('#f2b84b'), hex('#3a7896'), hex('#ffffff'), hex('#bd3228'), hex('#d99826')];
-  for (let i = 0; i < 9; i++) {
-    const dx = wallX0 + 100 + i * 180, dy = 660 + Math.sin(i * 0.9) * 60;
-    wash(ctx, ellipse(dx, dy, 75, 55, 14), dragonColors[i % 5], { a: 0.92, j: 6, seed: 955 + i });
-    ink(ctx, [v(dx - 60, dy + 20, 0), v(dx, dy - 30, 0), v(dx + 60, dy + 20, 0)], { w: 2.8, wob: 1.6, seed: 960 + i });
-  }
-
-  handwrite(ctx, { text: '宁寿宫 · 九龙壁影', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '九龙翻江耀五彩，琉璃照壁映云台。太上皇居颐养地，畅音阁里戏声催。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '九龙浮翠', 280, 520, 58, { baiwen: true, seed: 952 });
-
-  return P.canvas;
-}
-
-// 14. 御花园 · 堆秀万春
-function plateYuhuayuan() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  for (let tier = 0; tier < 6; tier++) {
-    const count = 3 + tier;
-    for (let i = 0; i < count; i++) {
-      const R = rng(1005 + tier * 20 + i);
-      const span = 180 + tier * 135;
-      const rx = 1200 - span / 2 + (i + .3 + R() * .4) / count * span;
-      const ry = 440 + tier * 90 + R() * 32;
-      const rock = ellipse(rx, ry, 55 + R() * 45, 40 + R() * 35, 8).map(([x, y]) => [x + (R() - .5) * 30, y + (R() - .5) * 24]);
-      wash(ctx, rock, hex(tier % 2 ? '#92947d' : '#a5a28c'), { a: .48, j: 9, layers: 2, seed: 1010 + tier * 20 + i });
-      ink(ctx, rock.slice(0, 6).map(([x, y]) => v(x, y, 0)), { w: 1.4, wob: 1, seed: 1070 + tier * 20 + i }, .48);
-      ink(ctx, [v(rx - 20, ry - 25, 0), v(rx - 6, ry, 0), v(rx + 24, ry + 16, 0)], { w: 1.1, seed: 1100 + i }, .35);
-    }
-  }
-
-  wash(ctx, [[1040, 360], [1360, 360], [1200, 240]], C.roofGold, { a: 0.95, j: 4, seed: 1020 });
-  ink(ctx, [v(1040, 360, 0), v(1360, 360, 0), v(1200, 240, 0), v(1040, 360, 0)], { w: 2.8, seed: 1021 });
-  wash(ctx, [[1100, 365], [1300, 365], [1300, 450], [1100, 450]], C.wallRed, { a: .42, j: 3, seed: 1022 });
-  for (let i = 0; i < 4; i++) ink(ctx, [v(1110 + i * 60, 365, 0), v(1110 + i * 60, 450, 0)], { w: 3, seed: 1023 + i }, .6);
-
-  const pines = [[640, 780, 80], [1760, 760, 90]];
-  for (const [px, py, pr] of pines) {
-    wash(ctx, [[px - 25, py + 340], [px - 15, py], [px + 15, py], [px + 25, py + 340]], C.woodDark, { a: 0.85, j: 4, seed: 1030 + px });
-    for (let k = 0; k < 5; k++) {
-      wash(ctx, ellipse(px + (k - 2) * 45, py - k * 35, pr * (0.8 + k * 0.1), pr * 0.6, 14), C.leafD, { a: 0.8, j: 15, seed: 1035 + k });
-    }
-  }
-
-  handwrite(ctx, { text: '御花园 · 堆秀万春', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '堆秀山前探古柏，万春亭畔坐清风。奇石千叠通幽径，落红深处锁春浓。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '万汇迎春', 280, 520, 58, { baiwen: true, seed: 1002 });
-
-  return P.canvas;
-}
-
-// 15. 角楼 · 临波照影
-function plateJiaolou() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE, 0.8);
-
-  wash(ctx, [[-40, -40], [2440, -40], [2440, 680], [-40, 720]], hex('#e88a56'), { a: 0.35, j: 70, layers: 2, seed: 1101 });
-  wash(ctx, [[-40, 320], [2440, 320], [2440, 780], [-40, 820]], hex('#8d6a9f'), { a: 0.22, j: 60, seed: 1102 });
-  wash(ctx, [[-40, 720], [2440, 720], [2440, 1400], [-40, 1400]], hex('#4a6e6b'), { a: 0.72, j: 20, layers: 3, seed: 1105 });
-
-  const kx = 1200, ky = 680;
-  wash(ctx, [[kx - 260, ky - 80], [kx + 260, ky - 80], [kx + 280, ky + 120], [kx - 280, ky + 120]], C.wallRedDark, { a: 0.88, j: 5, seed: 1110 });
-  wash(ctx, [[kx - 320, ky - 80], [kx + 320, ky - 80], [kx + 200, ky - 200], [kx - 200, ky - 200]], C.roofGold, { a: 0.95, j: 6, seed: 1111 });
-  wash(ctx, [[kx - 240, ky - 200], [kx + 240, ky - 200], [kx + 140, ky - 310], [kx - 140, ky - 310]], C.roofGold, { a: 0.95, j: 5, seed: 1112 });
-  wash(ctx, [[kx - 160, ky - 310], [kx + 160, ky - 310], [kx, ky - 440]], C.roofLight, { a: 0.98, j: 4, seed: 1113 });
-  wash(ctx, ellipse(kx, ky - 450, 24, 28, 14), C.gold, { a: 0.98, j: 2, seed: 1114 });
-
-  ink(ctx, [v(kx - 320, ky - 80, 0), v(kx + 320, ky - 80, 0)], { w: 3.2, seed: 1120 });
-  ink(ctx, [v(kx - 240, ky - 200, 0), v(kx + 240, ky - 200, 0)], { w: 2.8, seed: 1121 });
-  ink(ctx, [v(kx - 160, ky - 310, 0), v(kx + 160, ky - 310, 0)], { w: 2.6, seed: 1122 });
-  ink(ctx, [v(kx, ky - 440, 0), v(kx, ky - 470, 0)], { w: 3.0, seed: 1123 });
-
-  wash(ctx, [[kx - 220, ky + 160], [kx + 220, ky + 160], [kx + 160, ky + 420], [kx - 160, ky + 420]], hex('#6b4c38'), { a: 0.35, j: 25, seed: 1130 });
-
-  handwrite(ctx, { text: '角楼 · 临波照影', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '九梁十八柱七十二条脊，筒子河畔倒影浮金。暮霞落日千重阙，玲珑神构冠古今。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '玲珑巧构', 280, 520, 58, { baiwen: false, seed: 1102 });
-
-  return P.canvas;
-}
-
-// 16. 故宫御猫 · 锦衣狸奴
-function plateCat() {
-  const P = newPlate(), ctx = P.ctx;
-  paper(ctx, W_PLATE, H_PLATE);
-
-  wash(ctx, [[-40, 160], [2440, 160], [2440, 820], [-40, 820]], C.wallRed, { a: 0.68, j: 12, layers: 2, seed: 1201 });
-  wash(ctx, [[-40, 820], [2440, 820], [2440, 1400], [-40, 1400]], C.pavePlaza, { a: 0.6, j: 15, seed: 1202 });
-
-  const cx = 1200, cy = 820;
-  wash(ctx, ellipse(cx, cy + 40, 180, 120, 20), hex('#ebd8b5'), { a: 0.95, j: 8, layers: 3, seed: 1210 });
-  wash(ctx, ellipse(cx - 50, cy + 20, 90, 70, 14), hex('#c98236'), { a: 0.85, j: 6, seed: 1211 });
-  wash(ctx, ellipse(cx + 60, cy + 30, 80, 60, 14), hex('#c98236'), { a: 0.82, j: 6, seed: 1212 });
-  wash(ctx, ellipse(cx - 120, cy - 20, 85, 80, 18), hex('#ebd8b5'), { a: 0.96, j: 6, seed: 1215 });
-  wash(ctx, ellipse(cx - 120, cy - 40, 65, 45, 14), hex('#c98236'), { a: 0.8, j: 4, seed: 1216 });
-  wash(ctx, [[cx - 170, cy - 70], [cx - 145, cy - 135], [cx - 110, cy - 85]], hex('#d97e42'), { a: 0.9, j: 3, seed: 1220 });
-  wash(ctx, [[cx - 105, cy - 85], [cx - 75, cy - 135], [cx - 50, cy - 70]], hex('#d97e42'), { a: 0.9, j: 3, seed: 1221 });
-  wash(ctx, ellipse(cx - 65, cy + 25, 18, 18, 12), C.gold, { a: 0.98, j: 1, seed: 1225 });
-  ink(ctx, ellipse(cx - 65, cy + 25, 18, 18, 12).map(([x, y]) => v(x, y, 0)), { w: 2.2, seed: 1226 });
-
-  const tail = [
-    v(cx + 160, cy + 60, 0), v(cx + 250, cy + 40, 0),
-    v(cx + 290, cy - 20, 0), v(cx + 260, cy - 70, 0), v(cx + 220, cy - 50, 0)
-  ];
-  ink(ctx, tail, { w: 18, wob: 1.2, seed: 1230, smooth: true }, 0.85);
-  ink(ctx, [v(cx - 160, cy - 15, 0), v(cx - 230, cy - 25, 0)], { w: 1.2, seed: 1235 });
-  ink(ctx, [v(cx - 160, cy - 5, 0), v(cx - 235, cy - 5, 0)], { w: 1.2, seed: 1236 });
-  ink(ctx, [v(cx - 160, cy + 5, 0), v(cx - 225, cy + 15, 0)], { w: 1.2, seed: 1237 });
-
-  handwrite(ctx, { text: '故宫御猫 · 锦衣狸奴', size: 44, x: 280, y: 160, vertical: true }, 1);
-  handwrite(ctx, { text: '琉璃瓦下闲卧客，红墙根畔守宫阙。金缕红绳铃声脆，锦衣御前最风流。', size: 21, x: 210, y: 170, vertical: true }, 1);
-  sealStamp(ctx, '大明锦衣', 280, 520, 58, { baiwen: true, seed: 1205 });
-
-  return P.canvas;
-}
-
-const PLATES_MAP = {
-  1: plateWumen,
-  2: plateJinshui,
-  3: plateWuying,
-  4: plateWenhua,
-  5: plateTaihemen,
-  6: plateTaihedian,
-  7: plateZhonghedian,
-  8: plateBaohedian,
-  9: plateTonggang,
-  10: plateYangxin,
-  11: plateQianqinggong,
-  12: plateJiaotaidian,
-  13: plateNingshou,
-  14: plateYuhuayuan,
-  15: plateJiaolou,
-  16: plateCat
-};
-
-// Capture colour, pen strokes, lettering and seals separately. The layered approach
-// follows the user-supplied Pen & Wash reference; this version stays on Canvas 2D.
-function capturePlate(page, decorate) {
-  const capture = { ctx: null, strokes: [], texts: [], seals: [] };
+  const color = document.createElement('canvas');
+  color.width = 2400; color.height = 1350;
+  const ctx = color.getContext('2d');
+  const capture = { ctx, strokes: [], texts: [], seals: [] };
   activePlateCapture = capture;
   try {
-    const color = PLATES_MAP[page]();
-    decorate?.(capture.ctx, page);
+    draw(ctx, page);
     return { color, strokes: capture.strokes, texts: capture.texts, seals: capture.seals };
   } finally {
     activePlateCapture = null;
@@ -1919,6 +1167,7 @@ function capturePlate(page, decorate) {
 }
 
 export {
-  clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene, routeMap, palaceSound,
+  clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene, palaceSound,
   capturePlate, drawPen, handwrite, sealStamp, rng, fbm, ink, wash, ellipse, hex, v, dab,
+  paper, pathPoly, palace, faceColor, orderScene,
 };

@@ -86,6 +86,9 @@ a { color: var(--red); text-underline-offset: 4px; }
 .home-link:hover { color: var(--red); }
 .reading { position: absolute; bottom: 25px; left: 50%; width: min(600px, calc(100% - 52px)); transform: translateX(-50%); padding: 20px 25px 15px; background: #fcf9f1f5; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 35px #48341d0a; z-index: 2; }
 .reading-meta { display: flex; justify-content: space-between; color: var(--red); font-size: 10px; letter-spacing: .15em; }
+.reading-actions { display: flex; align-items: center; gap: 12px; }
+.reading-actions button { background: #eee2cc; color: var(--red-dark); border: 1px solid #ccbaa0; border-radius: 4px; min-height: 28px; padding: 0 9px; font-size: 11px; letter-spacing: .04em; }
+.reading-actions button:hover { background: #e8d7b8; }
 .reading h2 { margin: 10px 0 8px; font: 24px/1.4 var(--serif); letter-spacing: .1em; }
 .reading p { margin: 0; font: 13px/1.8 var(--serif); color: #786b59; }
 .reading-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
@@ -161,6 +164,7 @@ dialog p { font-size: 13px; line-height: 1.9; color: #6c6255; }
   .tour-status progress { width: 105px; }
 }
 @media (max-width: 460px) {
+  .reading-actions #reading-category { display: none; }
   .masthead { padding-inline: 13px; gap: 7px; }
   .brand { gap: 9px; }
   .brand h1 { font-size: 21px; }

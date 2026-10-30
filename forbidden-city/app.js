@@ -1,9 +1,11 @@
 import {
   clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene,
-  routeMap, palaceSound,
-} from './art.js';
-import { SPOTS } from './spots.js';
-import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js';
+  palaceSound,
+} from './art.js?v=20261030-drawing3';
+import { SPOTS } from './spots.js?v=20261030-drawing3';
+import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-drawing3';
+import { routeMap } from './map-art.js?v=20261030-drawing3';
+import { drawWorldDetails } from './world-details.js?v=20261030-drawing3';
 
 const $ = id => document.getElementById(id);
 const canvas = $('c');
@@ -41,6 +43,7 @@ let flatRect;
 let returnFocus;
 let ready = false;
 let portraitArtwork = false;
+let worldQuality = 0;
 let plateStarted = 0;
 let returnPaper = 0;
 
@@ -55,13 +58,17 @@ function requestRender() {
 
 function buildWorld() {
   // A fixed artwork surface is reused across viewport changes; only its fit changes.
-  world.width = 1900;
-  world.height = 1500;
+  const quality = narrow.matches ? 1 : 1.45;
+  worldQuality = quality;
+  world.width = Math.round(1900 * quality);
+  world.height = Math.round(1500 * quality);
   portraitArtwork = narrow.matches && width < 600 && height > width;
   const eye = portraitArtwork ? { x: -60, y: 900, z: -280 } : { x: -320, y: 440, z: -650 };
-  const camera = perspCam(eye, { x: 0, y: 0, z: 0 }, 40, world.width, world.height);
+  const camera = perspCam(eye, { x: 0, y: 0, z: 0 }, 40, 1900, 1500);
   const objects = forbiddenCitySite(state.season);
-  renderScene(world.getContext('2d'), objects, camera, 999, world.width, world.height, { season: state.season });
+  const worldContext = world.getContext('2d');
+  worldContext.setTransform(quality, 0, 0, quality, 0, 0);
+  renderScene(worldContext, objects, camera, 999, 1900, 1500, { season: state.season, detail: drawWorldDetails });
   const projected = objects.flatMap(object => (object.faces ?? []).flatMap(face => face.pts.map(point => camera.p(point)))).filter(Boolean);
   worldBounds = {
     left: Math.min(...projected.map(point => point.x)) - 25,
@@ -103,7 +110,7 @@ function resize() {
   dpr = nextDpr;
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
-  if (ready && portraitArtwork !== (narrow.matches && width < 600 && height > width)) {
+  if (ready && (portraitArtwork !== (narrow.matches && width < 600 && height > width) || worldQuality !== (narrow.matches ? 1 : 1.45))) {
     view.zoom = 1;
     buildWorld();
   } else fitWorld();
@@ -125,7 +132,7 @@ function drawWorld() {
   ctx.translate(origin.x, origin.y);
   ctx.scale(scale, scale);
   ctx.translate(-view.x, -view.y);
-  ctx.drawImage(world, 0, 0);
+  ctx.drawImage(world, 0, 0, 1900, 1500);
   ctx.restore();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -579,6 +586,25 @@ for (const id of ['world-btn', 'mobile-world']) $(id).addEventListener('click', 
 for (const id of ['route-btn', 'mobile-map']) $(id).addEventListener('click', () => showMap());
 $('previous-spot').addEventListener('click', () => stepSpot(-1));
 $('next-spot').addEventListener('click', () => stepSpot(1));
+$('detail-plate').addEventListener('click', () => {
+  if (state.mode !== 'plate') return;
+  const focus = {
+    wumen: [1290, 510, 2.3], jinshui: [1270, 1000, 2.4], wuying: [710, 840, 3],
+    wenhua: [1260, 560, 2.1], taihemen: [730, 930, 2.8], taihedian: [1300, 580, 2.3],
+    zhonghedian: [1280, 530, 2.4], baohedian: [1280, 910, 2.5], tonggang: [1260, 790, 2.5],
+    yangxin: [1450, 840, 2.6], qianqinggong: [1350, 800, 2.5], jiaotaidian: [1190, 850, 2.8],
+    ningshou: [1320, 675, 3.2], yuhuayuan: [1420, 850, 2.3], jiaolou: [1350, 560, 2.2], cat: [1070, 940, 2.9],
+  }[state.spot.id];
+  stopTour();
+  const area = imageArea(), image = plateImage.surface;
+  const scale = Math.min(area.width / image.width, area.height / image.height) * focus[2];
+  flat.zoom = focus[2];
+  flat.x = (image.width / 2 - focus[0]) * scale;
+  flat.y = (image.height / 2 - focus[1]) * scale;
+  plateStarted = Math.min(plateStarted, performance.now() - REVEAL_DURATION * 1000);
+  announce(`正在查看${state.spot.name}的绘图细部，点复位可查看整幅。`);
+  requestRender();
+});
 $('replay-plate').addEventListener('click', () => {
   if (state.mode !== 'plate') return;
   stopTour();

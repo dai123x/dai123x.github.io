@@ -1,5 +1,5 @@
-import { capturePlate, drawPen, handwrite, sealStamp, clamp, ss, fbm } from './art.js';
-import { decoratePlate } from './plate-details.js';
+import { capturePlate, drawPen, handwrite, sealStamp, clamp, ss, fbm } from './art.js?v=20261030-drawing3';
+import { decoratePlate } from './plate-details.js?v=20261030-drawing3';
 
 export const REVEAL_DURATION = 3.2;
 
