@@ -1,12 +1,12 @@
 import {
   clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene,
   palaceSound,
-} from './art.js?v=20261030-detail4';
-import { SPOTS } from './spots.js?v=20261030-detail4';
-import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-detail4';
-import { routeMap } from './map-art.js?v=20261030-detail4';
-import { drawWorldDetails } from './world-details.js?v=20261030-detail4';
-import { PLATE_DETAILS, detailView } from './plate-focus.js?v=20261030-detail4';
+} from './art.js?v=20261030-imperial-v6';
+import { SPOTS } from './spots.js?v=20261030-imperial-v6';
+import { preparePlate, renderPlate, resetPlate, REVEAL_DURATION } from './wash-reveal.js?v=20261030-imperial-v6';
+import { routeMap } from './map-art.js?v=20261030-imperial-v6';
+import { drawWorldDetails } from './world-details.js?v=20261030-imperial-v6';
+import { PLATE_DETAILS, detailView } from './plate-focus.js?v=20261030-imperial-v6';
 
 const $ = id => document.getElementById(id);
 const canvas = $('c');
@@ -173,7 +173,7 @@ function drawFlat(image) {
   const area = imageArea();
   let baseScale = Math.min(area.width / image.width, area.height / image.height);
   if (isRecordingVideo) {
-    baseScale = Math.max(area.width / image.width, area.height / image.height);
+    baseScale = Math.min(area.width / image.width, area.height / image.height);
   }
   const scale = baseScale * flat.zoom;
   const w = image.width * scale, h = image.height * scale;
@@ -250,6 +250,9 @@ function render(now) {
   }
   if (isRecordingVideo && videoCaption) {
     drawVideoOverlay(ctx, width, height, videoCaption);
+  }
+  if (isRecordingVideo) {
+    requestRender();
   }
   updateZoomButtons();
 }
@@ -1010,12 +1013,12 @@ function startVideoRecording(options = {}) {
         };
         videoSubTimers.push(setTimeout(() => {
           focusPlateSmooth(2, 1400);
-        }, 1200));
+        }, 2000));
       }
     },
     {
       name: '第二景 · 太和门 明代青铜大狮规制特写',
-      duration: 8000,
+      duration: 8500,
       run: () => {
         visit('taihemen', true, false);
         palaceSound.playBell(196.00, 4.5, 0.20);
@@ -1032,7 +1035,7 @@ function startVideoRecording(options = {}) {
             subtitle: '右爪踩踏镂空八宝绣球与流苏锦带 · 卷发四十五九五之尊 · 威肃立耳',
             badge: '官方规制 · 雄狮'
           };
-        }, 1200));
+        }, 2200));
         videoSubTimers.push(setTimeout(() => {
           focusPlateSmooth(1, 1500);
           videoCaption = {
@@ -1040,12 +1043,12 @@ function startVideoRecording(options = {}) {
             subtitle: '左爪轻柔抚按仰卧朝天戏水幼狮 · 母子相亲 · 寓意子嗣昌盛延绵',
             badge: '官方规制 · 雌狮'
           };
-        }, 4500));
+        }, 5300));
       }
     },
     {
       name: '第三景 · 太和殿 华夏极制与保和殿云龙大石雕',
-      duration: 6500,
+      duration: 7000,
       run: () => {
         visit('taihedian', true, false);
         palaceSound.playBell(220.00, 4.0, 0.18);
@@ -1062,12 +1065,12 @@ function startVideoRecording(options = {}) {
             subtitle: '长十六米余二百五十吨华夏最大石雕，九龙戏珠蟠绕于祥云海浪江山砥柱',
             badge: '华夏巨石规制'
           };
-        }, 2500));
+        }, 3000));
       }
     },
     {
       name: '第四景 · 乾清宫 官方皇家五爪正龙真容',
-      duration: 7000,
+      duration: 7200,
       run: () => {
         visit('qianqinggong', true, false);
         palaceSound.playBell(349.23, 4.5, 0.20);
@@ -1084,12 +1087,12 @@ function startVideoRecording(options = {}) {
             subtitle: '鹿角鲤须 · 虎目狮鬃 · 蜃腹鹰爪 · 五爪出锋 · 烈焰火珠环伺',
             badge: '官方正龙极制'
           };
-        }, 1400));
+        }, 2200));
       }
     },
     {
       name: '第五景 · 宁寿宫 乾隆极盛七彩九龙壁',
-      duration: 7500,
+      duration: 7800,
       run: () => {
         visit('ningshou', true, false);
         palaceSound.playBell(392.00, 4.5, 0.20);
@@ -1105,7 +1108,7 @@ function startVideoRecording(options = {}) {
             subtitle: '正黄色盘龙居中端坐，足踏波涛，头顶五彩祥云，威严端正',
             badge: '九龙之首'
           };
-        }, 1500));
+        }, 2200));
         videoSubTimers.push(setTimeout(() => {
           focusPlateSmooth(1, 1500);
           videoCaption = {
@@ -1113,7 +1116,7 @@ function startVideoRecording(options = {}) {
             subtitle: '白蓝紫绿升降群龙戏珠腾云，第三白龙腹留楠木代琉璃之历史名工痕迹',
             badge: '寿山福海'
           };
-        }, 4500));
+        }, 5200));
       }
     },
     {

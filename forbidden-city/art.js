@@ -1243,5 +1243,5 @@ function capturePlate(page, draw) {
 export {
   clamp, lerp, ss, TAU, perspCam, forbiddenCitySite, renderScene, palaceSound,
   capturePlate, drawPen, handwrite, sealStamp, rng, fbm, ink, wash, ellipse, hex, v, dab,
-  paper, pathPoly, palace, faceColor, orderScene, underpaint,
+  paper, pathPoly, rough, palace, faceColor, orderScene, underpaint,
 };

@@ -1,6 +1,6 @@
-import { forbiddenCitySite, rng, ellipse, dab, hex, paper } from './art.js?v=20261030-detail4';
-import { SPOTS } from './spots.js?v=20261030-detail4';
-import { P, pen, tint, rect, outline, text } from './drawing-kit.js?v=20261030-detail4';
+import { forbiddenCitySite, rng, ellipse, dab, hex, paper } from './art.js?v=20261030-imperial-v6';
+import { SPOTS } from './spots.js?v=20261030-imperial-v6';
+import { P, pen, tint, rect, outline, text } from './drawing-kit.js?v=20261030-imperial-v6';
 
 const mx = x => 1400 + x * 3.6;
 const my = z => 1120 - z * 3.6;

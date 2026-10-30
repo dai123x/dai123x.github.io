@@ -1,10 +1,12 @@
-import { ink, wash, hex, v, ellipse, rng, dab, lerp, clamp, handwrite, paper, sealStamp, underpaint } from './art.js?v=20261030-detail4';
+import { ink, wash, hex, v, ellipse, rng, dab, lerp, clamp, handwrite, paper, sealStamp, underpaint, rough, pathPoly } from './art.js?v=20261030-imperial-v6';
 
 export const P = {
   red: '#a54432', redDark: '#703728', redLight: '#c27155', gold: '#d5a64b', goldLight: '#ecd28a',
   goldDark: '#a6762e', stone: '#e8dfc8', stoneDark: '#aea58e', green: '#62765b', greenLight: '#a0aa79',
   water: '#92b2a5', waterDark: '#587e76', ink: '#45453b', wood: '#a17b53', woodDark: '#66513a',
   blue: '#527d80', jade: '#729187', paper: '#f5eede', dark: '#343e38', sky: '#b8c7c4',
+  bronzePatina: '#7fa594', bronzeMid: '#52695c', bronzeDark: '#324037', bronzeGold: '#a88a4e',
+  dragonGold: '#f7ca45', dragonFlame: '#c83b27', dragonBelly: '#f6ecce', dragonHorn: '#d8aa58',
 };
 export const col = value => typeof value === 'string' ? hex(value) : value;
 export function pen(ctx, points, w = 1.6, alpha = .7, smooth = false, seed) {
@@ -15,6 +17,91 @@ export function pen(ctx, points, w = 1.6, alpha = .7, smooth = false, seed) {
 export function tint(ctx, points, color, alpha = .5, jitter = 3, seed = 7, solid = false) {
   if (solid) underpaint(ctx, points);
   wash(ctx, points, col(color), { a: alpha, j: jitter, layers: 2, edge: .18, seed });
+}
+
+// 水墨淡彩双色线性晕染渐变（保留古法宣纸渗透层次与积墨边缘）
+export function gradientTint(ctx, points, color0, color1, p0, p1, alpha = .65, jitter = 2.5, seed = 7, solid = false) {
+  if (!points || points.length < 3) return;
+  if (solid) underpaint(ctx, points);
+  let x0 = p0?.[0], y0 = p0?.[1], x1 = p1?.[0], y1 = p1?.[1];
+  if (x0 === undefined) {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const [px, py] of points) {
+      if (px < minX) minX = px;
+      if (px > maxX) maxX = px;
+      if (py < minY) minY = py;
+      if (py > maxY) maxY = py;
+    }
+    x0 = (minX + maxX) / 2; y0 = minY;
+    x1 = (minX + maxX) / 2; y1 = maxY;
+  }
+  const c0 = col(color0), c1 = col(color1);
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+
+  // 第一层：自然水迹渗化晕染
+  const poly1 = rough(points, jitter, seed, Math.max(5, jitter * 1.3), 0.02);
+  let fill1 = `rgba(${c0[0]},${c0[1]},${c0[2]},${alpha * 0.95})`;
+  if (ctx.createLinearGradient) {
+    const grad1 = ctx.createLinearGradient(x0, y0, x1, y1);
+    grad1.addColorStop(0, `rgba(${c0[0]},${c0[1]},${c0[2]},${alpha * 0.95})`);
+    grad1.addColorStop(1, `rgba(${c1[0]},${c1[1]},${c1[2]},${alpha * 0.88})`);
+    fill1 = grad1;
+  }
+  ctx.fillStyle = fill1;
+  pathPoly(ctx, poly1);
+  ctx.fill();
+
+  // 第二层：交错微噪点层次，产生国画矿物颜料颗粒感
+  const poly2 = rough(points, jitter * 1.35, seed + 37, Math.max(5, jitter * 1.5), 0.02);
+  let fill2 = `rgba(${c1[0]},${c1[1]},${c1[2]},${alpha * 0.65})`;
+  if (ctx.createLinearGradient) {
+    const grad2 = ctx.createLinearGradient(x0, y0, x1, y1);
+    grad2.addColorStop(0, `rgba(${c0[0]},${c0[1]},${c0[2]},${alpha * 0.45})`);
+    grad2.addColorStop(0.5, `rgba(${Math.round((c0[0] + c1[0]) / 2)},${Math.round((c0[1] + c1[1]) / 2)},${Math.round((c0[2] + c1[2]) / 2)},${alpha * 0.55})`);
+    grad2.addColorStop(1, `rgba(${c1[0]},${c1[1]},${c1[2]},${alpha * 0.65})`);
+    fill2 = grad2;
+  }
+  ctx.fillStyle = fill2;
+  pathPoly(ctx, poly2);
+  ctx.fill();
+
+  // 宣纸边缘微深积水水渍（暗边水线）
+  ctx.strokeStyle = `rgba(${Math.round(c1[0] * 0.72)},${Math.round(c1[1] * 0.72)},${Math.round(c1[2] * 0.72)},${alpha * 0.32})`;
+  ctx.lineWidth = 1.3;
+  ctx.lineJoin = 'round';
+  pathPoly(ctx, poly2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// 水墨淡彩同心圆放射晕染（如意、龙珠、螺髻、莲心、神兽光泽）
+export function radialGradientTint(ctx, points, colorCenter, colorEdge, center, radius, alpha = .7, jitter = 2, seed = 7, solid = false) {
+  if (!points || points.length < 3) return;
+  if (solid) underpaint(ctx, points);
+  const cx = center[0], cy = center[1], r = radius;
+  const c0 = col(colorCenter), c1 = col(colorEdge);
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  const poly = rough(points, jitter, seed, Math.max(4, jitter * 1.2), 0.02);
+  let fill = `rgba(${c0[0]},${c0[1]},${c0[2]},${alpha})`;
+  if (ctx.createRadialGradient) {
+    const grad = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r);
+    grad.addColorStop(0, `rgba(${c0[0]},${c0[1]},${c0[2]},${alpha})`);
+    grad.addColorStop(0.7, `rgba(${Math.round((c0[0] + c1[0]) / 2)},${Math.round((c0[1] + c1[1]) / 2)},${Math.round((c0[2] + c1[2]) / 2)},${alpha * 0.85})`);
+    grad.addColorStop(1, `rgba(${c1[0]},${c1[1]},${c1[2]},${alpha * 0.65})`);
+    fill = grad;
+  }
+  ctx.fillStyle = fill;
+  pathPoly(ctx, poly);
+  ctx.fill();
+  ctx.restore();
+}
+
+export function gradientOval(ctx, x, y, rx, ry, color0, color1, alpha = .65, line = true, seed = 7) {
+  const points = ellipse(x, y, rx, ry, 28);
+  gradientTint(ctx, points, color0, color1, [x, y - ry], [x, y + ry], alpha, Math.max(1, Math.min(rx, ry) * .025), seed, line);
+  if (line) pen(ctx, [...points, points[0]], 1.5, .62, true);
 }
 export const rect = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
 export function outline(ctx, points, w = 1.6, alpha = .65) { pen(ctx, [...points, points[0]], w, alpha); }
@@ -113,7 +200,9 @@ export function fascia(ctx, x, y, w, h, bays = 9) {
   bracket(ctx, x + w, y + h + 2, Math.min(1, w / bays / 72));
 }
 export function facade(ctx, x, y, w, h, bays = 9, options = {}) {
-  tint(ctx, rect(x, y, w, h), options.color ?? P.red, .7, 3, 7, true);
+  const wallLight = options.colorLight ?? P.redLight;
+  const wallDark = options.colorDark ?? P.redDark;
+  gradientTint(ctx, rect(x, y, w, h), wallLight, wallDark, [x, y], [x, y + h], .76, 2.5, 7, true);
   tint(ctx, rect(x + 8, y + 16, w - 16, h * .14), P.redDark, .38, 1);
   const bw = w / bays;
   for (let i = 0; i < bays; i++) {
@@ -156,8 +245,10 @@ export function roof(ctx, x, y, w, h, options = {}) {
   const eaveY = t => y + h * (.8 + .2 * Math.sin(Math.PI * t));
   const edge = [[x - 20, y + h * .77], [x + w * .07, y + h * .95], [x + w * .5, y + h], [x + w * .93, y + h * .95], [x + w + 20, y + h * .77]];
   const polygon = [[ridgeL, y], [ridgeR, y], ...edge.toReversed()];
-  tint(ctx, polygon, tone, .68, 4, Math.round(x + y), true);
-  tint(ctx, [[ridgeL, y], [x + w * .48, y + h * .97], [x + 20, y + h * .8]], options.dark ?? P.goldDark, .19, 4);
+  const goldTop = options.colorLight ?? (tone === P.gold ? P.goldLight : tone);
+  const goldBot = options.colorDark ?? (tone === P.gold ? P.goldDark : P.woodDark);
+  gradientTint(ctx, polygon, goldTop, goldBot, [x + w / 2, y], [x + w / 2, y + h], .76, 3.5, Math.round(x + y), true);
+  tint(ctx, [[ridgeL, y], [x + w * .48, y + h * .97], [x + 20, y + h * .8]], options.dark ?? P.goldDark, .24, 4);
   pen(ctx, [[ridgeL - 8, y - 5], [ridgeL + 20, y + 2], [ridgeR - 20, y + 2], [ridgeR + 8, y - 5]], 3, .84, true);
   if (ridgeR - ridgeL > 60) {
     for (let px = ridgeL + 25; px < ridgeR - 25; px += 16) pen(ctx, [[px, y - 3], [px + 6, y - 8], [px + 12, y - 3]], .8, .55, true);
@@ -221,13 +312,13 @@ export function terrace(ctx, cx, y, width, height = 170, tiers = 3) {
   for (let i = tiers - 1; i >= 0; i--) {
     const yy = y + (tiers - 1 - i) * height / tiers, ww = width + (tiers - 1 - i) * 88;
     const points = [[cx - ww / 2, yy], [cx + ww / 2, yy], [cx + ww / 2 + 24, yy + height / tiers], [cx - ww / 2 - 24, yy + height / tiers]];
-    tint(ctx, points, P.stone, .66, 3, i + 700, true);
+    gradientTint(ctx, points, '#f6f2e6', '#c9bfa8', [cx, yy], [cx, yy + height / tiers], .74, 2.5, i + 700, true);
     outline(ctx, points, 1.8, .55);
     railing(ctx, cx - ww / 2 + 10, cx - 145, yy - 43, 42, Math.max(3, Math.round(ww / 110)));
     railing(ctx, cx + 145, cx + ww / 2 - 10, yy - 43, 42, Math.max(3, Math.round(ww / 110)));
   }
   const topW = 135, bottomW = 200;
-  tint(ctx, [[cx - topW, y], [cx + topW, y], [cx + bottomW, y + height + 8], [cx - bottomW, y + height + 8]], '#d3c8b1', .55, 2);
+  gradientTint(ctx, [[cx - topW, y], [cx + topW, y], [cx + bottomW, y + height + 8], [cx - bottomW, y + height + 8]], '#dfd5be', '#b5a78c', [cx, y], [cx, y + height], .62, 2);
   for (let i = 0; i < 16; i++) {
     const u = i / 15, w = lerp(topW, bottomW, u), yy = y + u * height;
     pen(ctx, [[cx - w, yy], [cx - 38, yy]], .9, .52);
