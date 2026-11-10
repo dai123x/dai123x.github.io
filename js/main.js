@@ -138,7 +138,6 @@
     initCardPointerGlow();
     initFooterYear();
     initLastMod();
-    initBootScreen();
     initWelcomeIdentity();
     initCyberTwin();
     initCommandPalette();
@@ -148,7 +147,6 @@
     initSpotlightCards();
     initStealthToggle();
     initSidebarVisitorSync();
-    initKeyboardCards();
   });
 
   /* --------------------------------------------------------------------------
@@ -297,6 +295,7 @@
     const viewBtns = Array.from(projects.querySelectorAll('[data-project-view]'));
     const normalize = value => String(value || '').normalize('NFKC').toLocaleLowerCase('zh-CN').replace(/\s+/g, ' ').trim();
     const categories = new Set(btns.map(btn => btn.dataset.filter));
+    const categoryAliases = { history: 'culture', reading: 'culture' };
     const index = cards.map(card => ({ card, text: normalize(card.textContent), categories: (card.dataset.category || '').split(/\s+/) }));
     let category = 'all';
     let view = 'grid';
@@ -322,17 +321,21 @@
     function update(save = true) {
       const query = normalize(search?.value);
       const terms = query.split(' ').filter(Boolean);
-      let visible = 0;
+      const visibleCards = [];
       index.forEach(({ card, text, categories: cardCategories }) => {
         const match = (category === 'all' || cardCategories.includes(category)) && terms.every(term => text.includes(term));
         card.hidden = !match;
         card.classList.toggle('is-hidden', !match);
-        card.classList.remove('is-fading');
+        card.classList.remove('is-fading', 'is-spotlight');
         if (match) {
           card.classList.add('is-visible');
-          visible += 1;
+          visibleCards.push(card);
         }
       });
+      if (view === 'grid' && visibleCards.length % 2 === 1) {
+        visibleCards[0].classList.add('is-spotlight');
+      }
+      const visible = visibleCards.length;
       btns.forEach(btn => {
         const selected = btn.dataset.filter === category;
         btn.classList.toggle('active', selected);
@@ -365,12 +368,30 @@
       }
     }
 
+    function revealHashTarget() {
+      const rawHash = window.location.hash;
+      if (!rawHash || rawHash.length < 2) return;
+      let id;
+      try { id = decodeURIComponent(rawHash.slice(1)); } catch (e) { return; }
+      const targetCard = cards.find(card => card.id === id);
+      if (!targetCard || !targetCard.hidden) return;
+      category = 'all';
+      if (search) search.value = '';
+      update();
+      requestAnimationFrame(() => {
+        targetCard.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
+
     function readLocation(initial = false) {
       const params = new URLSearchParams(window.location.search);
-      category = categories.has(params.get('category')) ? params.get('category') : 'all';
+      const rawCat = params.get('category');
+      const resolvedCat = categoryAliases[rawCat] || rawCat;
+      category = categories.has(resolvedCat) ? resolvedCat : 'all';
       if (search) search.value = params.get('q') || '';
       view = validView(params.get('view')) ? params.get('view') : (initial ? storedView() : 'grid');
       update(initial);
+      revealHashTarget();
     }
     btns.forEach(btn => btn.addEventListener('click', () => { category = btn.dataset.filter; update(); }));
     search?.addEventListener('input', () => update());
@@ -394,6 +415,7 @@
       update();
     }));
     window.addEventListener('popstate', () => readLocation());
+    window.addEventListener('hashchange', revealHashTarget);
     readLocation(true);
   }
 
@@ -487,7 +509,7 @@
   }
 
   let toastTimer = null;
-  function showToast(message) {
+  function showToast(message, duration = 2400) {
     let toast = document.getElementById('toast');
     if (!toast) {
       toast = document.createElement('div');
@@ -501,7 +523,7 @@
     toast.classList.add('show');
 
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
   }
 
   /* --------------------------------------------------------------------------
@@ -624,7 +646,7 @@
      -------------------------------------------------------------------------- */
   function initReveal() {
     const targets = document.querySelectorAll(
-      '.section-header, .bento-card, .edu-card, .internship-card, .skill-category-card, ' +
+      '.section-header, .bento-card, .internship-card, ' +
       '.award-card, .project-card, .contact-box'
     );
     if (!targets.length) return;
@@ -768,8 +790,7 @@
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
     document.querySelectorAll(
-      '.bento-card, .edu-card, .internship-card, .award-card, ' +
-      '.skill-category-card, .competition-hero-card'
+      '.bento-card, .internship-card, .award-card, .competition-hero-card'
     ).forEach(card => {
       card.addEventListener('pointermove', (e) => {
         if (prefersReducedMotion) return;
@@ -798,54 +819,6 @@
     if (isNaN(d.getTime())) return;
     const pad = (n) => String(n).padStart(2, '0');
     el.textContent = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  }
-
-  /* --------------------------------------------------------------------------
-     15. 开场加载幕：星轨启动动画（本会话仅一次，支持深链跳过与双保险兜底）
-     -------------------------------------------------------------------------- */
-  function initBootScreen() {
-    const boot = document.getElementById('boot-screen');
-    if (!boot) return;
-    if (!boot.getClientRects().length) { boot.remove(); return; }
-
-    let skip = prefersReducedMotion || !!window.location.hash;
-    try {
-      if (skip || sessionStorage.getItem('dx_booted')) skip = true;
-      else sessionStorage.setItem('dx_booted', '1');
-    } catch (e) { /* 隐私模式无法使用 sessionStorage，按可播放处理 */ }
-
-    if (skip) { boot.remove(); return; }
-
-    let done = false;
-    const finish = () => {
-      if (done) return;
-      done = true;
-      boot.classList.add('is-done');
-      setTimeout(() => boot.remove(), 600);
-    };
-
-    const fill = document.getElementById('boot-bar-fill');
-    const pct = document.getElementById('boot-pct');
-    const status = document.getElementById('boot-status-text');
-    const phases = ['正在校准星轨', '正在点亮星海', '正在装载作品集', '即将抵达'];
-    const DURATION = 1250;
-    const t0 = performance.now();
-
-    function tick(now) {
-      if (done) return;
-      const p = Math.min((now - t0) / DURATION, 1);
-      const eased = 1 - Math.pow(1 - p, 2);
-      const val = Math.round(eased * 100);
-      if (fill) fill.style.width = `${val}%`;
-      if (pct) pct.textContent = `${val}%`;
-      if (status) status.textContent = phases[Math.min(phases.length - 1, Math.floor(p * phases.length))];
-      if (p < 1) requestAnimationFrame(tick);
-      else finish();
-    }
-
-    requestAnimationFrame(tick);
-    // 后台标签页 rAF 可能被节流，超时兜底确保加载幕必然退场
-    setTimeout(finish, DURATION + 900);
   }
 
   /* --------------------------------------------------------------------------
@@ -978,7 +951,7 @@
     drawer.setAttribute('aria-modal', 'false');
     if (log) { log.setAttribute('role', 'log'); log.setAttribute('aria-live', 'polite'); }
 
-    const QUICK = ['极客画像', '核心进化', '丰田实习', '雪线之上', '价值心法', '星空足迹', '怎么联系？'];
+    const QUICK = ['极客画像', '核心进化', '丰田实习', '雪线之上', '紫禁城', '明史平台', '怎么联系？'];
 
     const KB = [
       {
@@ -999,7 +972,7 @@
       },
       {
         keys: ['足迹', '点亮', '星辰', '星星'],
-        a: '✨ 戴璇主页新上线了<strong>「星空足迹」</strong>交互功能！在主页<a href="#star-footprint">星空足迹</a>区点击「点亮我的星星」，即可生成专属天球坐标与星徽！还可以一键前往<a href="galaxy/">3D 璇玑星海宇宙</a>沉浸式漫游～'
+        a: '✨ 戴璇主页上线了<strong>「星空足迹」</strong>交互功能！在主页<a href="#star-footprint">星空足迹</a>区点击「点亮我的星星」，即可生成专属天球坐标与星徽！还可以一键前往<a href="galaxy/">3D 璇玑星海宇宙</a>沉浸式漫游～'
       },
       {
         keys: ['音乐', 'bgm', '歌', '播放'],
@@ -1011,11 +984,39 @@
       },
       {
         keys: ['实习', '丰田', '派格', 'intern', '工作'],
-        a: '两段制造企业实战：🏭 <strong>一汽丰田发动机</strong>——产线作业测定、时间研究与 AGV 物流路径优化；🏭 <strong>长春派格</strong>——注塑车间 VOCs 环境治理与离心式屋顶风机选型。细节在<a href="#internships">实习实践经历</a>。'
+        a: '两段制造企业实战：🏭 <strong>一汽丰田发动机</strong>——产线作业测定、时间研究与 AGV 物流路径优化；🏭 <strong>长春派格</strong>——注塑车间 VOCs 环境治理与离心式屋顶风机选型。细节在<a href="#internships">实习实践经历</a>，完整复盘见<a href="#work-toyota">案例区</a>。'
       },
       {
         keys: ['项目', '作品', 'project', '雪线', 'aurora', '地图', '案例'],
-        a: '三个代表作：❄️ <strong>雪线之上</strong>（吉林省冰雪经济可视化交互系统，Canvas 3D + 原生 SVG）、🛰️ <strong>Aurora Chat</strong>（纯前端 AI 聊天工作台，MIT 开源）、🗺️ <strong>长工大全景立体地图</strong>（Three.js · 84 处建筑漫游）。滚到<a href="#projects">精选项目</a>，或进<a href="galaxy/">璇玑星海</a>沉浸式逛～'
+        a: '共收录 <strong>17 项作品</strong>：涵盖统计案例（产线节拍 ARIMA、雪线之上冰雪经济、专精特新信贷预警、数据实验室）、工业工程复盘（一汽丰田、派格通风）、三维交互（长工大 3D 校园、紫禁城水墨图志）以及 Aurora Chat、明史资料平台、朗读室、学迹等。点<a href="#projects">作品索引</a>筛选浏览，或进<a href="galaxy/">璇玑星海</a>沉浸式漫游～'
+      },
+      {
+        keys: ['明史', '南明', '文献', '历史'],
+        a: '📜 <strong>明史资料平台</strong>以 7 部明史著作目录为骨架（108 章 · 1,667 条全站检索），整合 149 条大事年表、23 年号换算、100 个权力结构主题与 24 张统计图表，还带本地 PDF/TXT 阅读器。<a href="ming-history/" target="_blank" rel="noopener noreferrer">进入平台 ↗</a> 或查看<a href="#work-ming">作品卡片</a>。'
+      },
+      {
+        keys: ['紫禁城', '故宫', '水墨', '古建'],
+        a: '🏯 <strong>紫禁城 · 故宫全景水墨淡彩图志</strong>基于故宫 961m×753m 实测数据 1:1 复原空间拓扑，自研原生钢笔水墨淡彩渲染，配 16 幅速写特写册页与全域工笔舆图。<a href="forbidden-city/" target="_blank" rel="noopener noreferrer">进入全景 ↗</a> 或看<a href="#work-forbidden-city">作品卡片</a>。'
+      },
+      {
+        keys: ['朗读室', '经济学人', '英文', '英语', 'words'],
+        a: '✍️ <strong>朗读室</strong>收录 30 篇经典英文演讲与 30 个《经济学人》行文装置（60 条精读库），支持浏览器本地 TTS 朗读、背诵挖空与中英对照。<a href="words/" target="_blank" rel="noopener noreferrer">进入朗读室 ↗</a>'
+      },
+      {
+        keys: ['沙盒', '实验室', 'stats-lab', 'bootstrap', '辛普森', '中心极限定理'],
+        a: '🧪 <strong>数据实验室 · 交互统计沙盒</strong>把中心极限定理、Bootstrap、稳健性与辛普森悖论做成拖动即重算的交互实验，随机种子写入链接可 100% 复现。<a href="stats-lab/" target="_blank" rel="noopener noreferrer">打开沙盒 ↗</a>'
+      },
+      {
+        keys: ['学迹', '绩点', 'gpa', '综测', '评分', '学生综合评分'],
+        a: '🎓 学业评估类有两款独立工具：面向高校个人的<a href="xueji/" target="_blank" rel="noopener noreferrer">学迹 · 综测与绩点管理 ↗</a>，以及面向中学班级的<a href="student-score/" target="_blank" rel="noopener noreferrer">学生综合评分系统 ↗</a>，纯前端运行、数据仅存本机浏览器。'
+      },
+      {
+        keys: ['防封', 'claude', '风控', '合规'],
+        a: '🛡️ <strong>AI 与 GitHub 开发者防封指南与风控自测</strong>覆盖双模健康自测、WebRTC 穿透自检、Git Pre-Commit 私钥泄露拦截与官方申诉工单生成。<a href="claude-anti-ban/" target="_blank" rel="noopener noreferrer">查看指南 ↗</a>'
+      },
+      {
+        keys: ['云资源', 'gpu', '算力', 'latex', '数模', '华为杯'],
+        a: '🐙 GitHub 开源方向包含<a href="https://github.com/dai123x/ai-cloud-resource-ops-analysis" target="_blank" rel="noopener noreferrer">AI 云资源运营与算力成本优化分析 ↗</a>与<a href="https://github.com/dai123x/2026-" target="_blank" rel="noopener noreferrer">华为杯研究生数模 LaTeX 模板 ↗</a>，可在<a href="#projects">作品索引</a>按「开源仓库」筛选。'
       },
       {
         keys: ['联系', '邮箱', 'email', 'contact', '微信', 'github', '找到'],
@@ -1035,7 +1036,7 @@
       },
       {
         keys: ['技能', 'skill', 'stack', '会什么'],
-        a: '技能池横跨三栏：R / Python 数据建模、ARIMA-GARCH 时间序列、FlexSim / CATIA 仿真制图、Three.js / WebGL 3D 研发、原生 SVG 图表渲染。完整清单见<a href="#skills">专业技能矩阵</a>。'
+        a: '技能池横跨四大领域：R / Python 数据建模、ARIMA-GARCH 时间序列与生存分析、精益产线与 FlexSim 仿真、Three.js / WebGL 与原生 SVG 可视化研发。完整清单见<a href="#skills">技术能力矩阵</a>。'
       },
       {
         keys: ['竞赛', '获奖', 'award', '荣誉'],
@@ -1167,16 +1168,25 @@
         keywords: 'resume cv jianli',
         items: [
           { icon: '📄', label: '在线简历（附 PDF 下载）', href: 'resume/', keywords: 'resume cv jianli 简历' },
-          { icon: '🛡️', label: 'Claude 防封完全指南 · 风控自测体检仪', href: 'claude-anti-ban/', keywords: 'claude anti ban 防封 账号 风控 申诉 退款 persona' },
-          { icon: '📊', label: '学生综合评分系统 · 五育并举/学科成绩/日常表现', href: 'student-score/', keywords: 'student score 学生评分 成绩 班级 五育 成绩单' },
+          { icon: '🏭', label: '案例 · 智能制造产线节拍异常诊断（ARIMA）', href: 'case-studies/smart-manufacturing-takt-time-analysis.html', keywords: 'case ie 制造 takt arima 节拍' },
+          { icon: '❄️', label: '雪线之上 · 吉林冰雪经济可视化交互系统', href: 'snow-viz/', keywords: 'snow viz 3d 可视化 冰雪 回归 省赛' },
+          { icon: '📘', label: '雪线之上 · 作品说明书与指标口径', href: 'snow-viz/documentation.html', keywords: 'documentation 说明书 指标 口径' },
+          { icon: '🏦', label: '案例 · 专精特新信贷违约风险预警（Cox / DML）', href: 'case-studies/applied-statistics-credit-risk.html', keywords: 'case 统计 信贷 risk cox dml shap' },
+          { icon: '🧪', label: '数据实验室 · 交互统计沙盒', href: 'stats-lab/', keywords: 'stats lab clt bootstrap simpson 沙盒 统计实验' },
+          { icon: '🚗', label: '案例 · 一汽丰田发动机产线与 AGV 物流优化', href: 'case-studies/toyota-engine-line-agv.html', keywords: 'toyota agv muda mod 丰田 产线 工业工程' },
+          { icon: '🌿', label: '案例 · 注塑厂房 VOCs 通风系统选型', href: 'case-studies/injection-molding-ventilation.html', keywords: 'ventilation vocs 派格 注塑 通风 离心风机' },
+          { icon: '☁️', label: '开源 · AI 云资源运营与算力成本优化', href: 'https://github.com/dai123x/ai-cloud-resource-ops-analysis', keywords: 'cloud gpu cpu pandas sql 算力 云资源' },
+          { icon: '🗺️', label: '长春工业大学 · 全景立体地图系统', href: 'campus-map/', keywords: 'campus map 3d 校园地图 漫游' },
+          { icon: '🏯', label: '紫禁城 · 故宫全景水墨淡彩图志', href: 'forbidden-city/', keywords: 'forbidden city gugong 故宫 紫禁城 水墨 古建 3d' },
           { icon: '🌌', label: 'Aurora Chat · 极光 AI 聊天工作台', href: 'aurora-chat/', keywords: 'aurora chat ai 聊天 大模型 glm deepseek arena 对比' },
+          { icon: '📊', label: '学生综合评分系统 · 五育并举/学科成绩/日常表现', href: 'student-score/', keywords: 'student score 学生评分 成绩 班级 五育 成绩单' },
+          { icon: '🎓', label: '学迹 · 大学生综测与绩点管理', href: 'xueji/', keywords: 'xueji gpa 绩点 综测 奖学金 保研 学分' },
+          { icon: '📐', label: '开源 · 华为杯研究生数模 LaTeX 模板', href: 'https://github.com/dai123x/2026-', keywords: 'latex 华为杯 数模 数学建模 overleaf 模板' },
+          { icon: '🛡️', label: 'AI 与 GitHub 开发者防封完全指南与自测', href: 'claude-anti-ban/', keywords: 'claude github anti ban 防封 账号 风控 申诉 git hook webrtc' },
+          { icon: '📜', label: '明史资料平台 · 明代文献索引与研读工具', href: 'ming-history/', keywords: 'ming history 明史 南明 年号 权力结构 文献' },
+          { icon: '✍️', label: '朗读室 · 英文演讲与《经济学人》句式', href: 'words/', keywords: 'words economist 朗读室 英文演讲 经济学人 挖空' },
           { icon: '✦', label: '璇玑星海 · 沉浸式记忆星系', href: 'galaxy/', keywords: 'galaxy 星海 星系 3d 粒子 彩蛋 沉浸 留言' },
           { icon: '🏫', label: '工大印记 · 长春工业大学', href: 'school/', keywords: 'school 工大 长春工业大学 ccut 校园 校训 足迹' },
-          { icon: '❄️', label: '雪线之上 · 冰雪经济可视化系统', href: 'snow-viz/index.html', keywords: 'snow viz 3d 可视化 冰雪' },
-          { icon: '📘', label: '雪线之上 · 作品说明书', href: 'snow-viz/documentation.html', keywords: 'documentation 说明书 指标' },
-          { icon: '🗺️', label: '长春工业大学全景立体地图', href: 'campus-map/', keywords: 'campus map 3d 校园地图' },
-          { icon: '🏭', label: '案例 · 智能制造产线节拍异常诊断', href: 'case-studies/smart-manufacturing-takt-time-analysis.html', keywords: 'case ie 制造 takt' },
-          { icon: '🏦', label: '案例 · 信贷违约风险预警与数智定价', href: 'case-studies/applied-statistics-credit-risk.html', keywords: 'case 统计 信贷 risk' },
           { icon: '🐙', label: 'GitHub 主页 @dai123x', href: 'https://github.com/dai123x', keywords: 'github 代码 repo' },
           { icon: '⬇️', label: '下载简历 PDF', href: 'resume/resume.pdf', keywords: 'download pdf 简历下载' }
         ]
@@ -1185,17 +1195,17 @@
         label: '本页章节',
         keywords: 'section',
         items: [
-          { icon: '🏠', label: '首页 Hero', href: '#hero', keywords: 'home hero 首页' },
-          { icon: '🎯', label: '极客画像 // GEEK_PROFILE', href: '#geek-profile', keywords: 'geek profile 极客画像 长期主义 效率工程 3D 统计' },
-          { icon: '📜', label: '核心进化档案 · 思维基石', href: '#education', keywords: 'evolution 进化 档案 硕士 工业工程' },
-          { icon: '💼', label: '实习经历', href: '#internships', keywords: 'internship 实习 丰田 派格' },
-          { icon: '📊', label: '极客深度矩阵 · 领域系统解构', href: '#skills', keywords: 'matrix 深度矩阵 技能 统计 制造' },
-          { icon: '🏆', label: '竞赛荣誉', href: '#awards', keywords: 'awards 获奖 挑战杯' },
-          { icon: '🖥️', label: '参赛作品 · 雪线之上', href: '#competition', keywords: 'competition 虚拟现实大赛 冰雪' },
-          { icon: '📂', label: '精选项目', href: '#projects', keywords: 'projects 项目 作品' },
-          { icon: '🌟', label: '价值观 · 人格模型 · 热爱', href: '#values', keywords: 'values 价值 哲学 平衡人格 爱好' },
-          { icon: '✨', label: '星空足迹 · 点亮专属星辰', href: '#star-footprint', keywords: 'star footprint 星空 足迹 点亮 星辰' },
-          { icon: '📡', label: '连接矩阵 · 安全通讯信道', href: '#contact', keywords: 'matrix terminal 连接 留言 微信' }
+          { icon: '🏠', label: '个人概况 · 用数据理解现实', href: '#hero', keywords: 'home hero 首页' },
+          { icon: '📂', label: '作品索引 · 把探索做成作品', href: '#projects', keywords: 'projects 项目 作品' },
+          { icon: '🎯', label: '极客画像 · 我如何思考与实践', href: '#geek-profile', keywords: 'geek profile 极客画像 长期主义 效率工程 3D 统计' },
+          { icon: '📜', label: '核心进化档案 · 教育背景与成长经历', href: '#education', keywords: 'evolution 进化 档案 硕士 工业工程 教育' },
+          { icon: '💼', label: '实习实践经历 · 制造一线现场改善', href: '#internships', keywords: 'internship 实习 丰田 派格' },
+          { icon: '📊', label: '技术能力矩阵 · 从分析到实现', href: '#skills', keywords: 'matrix 深度矩阵 技能 统计 制造' },
+          { icon: '🏆', label: '竞赛荣誉与获奖经历', href: '#awards', keywords: 'awards 获奖 挑战杯 荣誉' },
+          { icon: '🖥️', label: '参赛作品 · 雪线之上（吉林省VR大赛）', href: '#competition', keywords: 'competition 虚拟现实大赛 冰雪' },
+          { icon: '🌟', label: '价值观与人格模型 · 工作之外', href: '#values', keywords: 'values 价值 哲学 平衡人格 爱好' },
+          { icon: '✨', label: '星空足迹 · 点亮属于你的星辰', href: '#star-footprint', keywords: 'star footprint 星空 足迹 点亮 星辰' },
+          { icon: '📡', label: '连接矩阵 · 保持联系与留言', href: '#contact', keywords: 'matrix terminal 连接 留言 微信 联系' }
         ]
       },
       {
@@ -1741,15 +1751,7 @@
       return legacy();
     };
 
-    const toast = document.getElementById('toast');
-    let toastTimer = null;
-    const say = (msg, ms = 4600) => {
-      if (!toast) return;
-      toast.textContent = msg;
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
-    };
+    const say = (msg, ms = 4600) => showToast(msg, ms);
 
     const setFeedback = (msg, kind) => {
       if (!feedback) return;
@@ -1985,22 +1987,6 @@
     update();
     window.addEventListener('storage', update);
     document.addEventListener('dx:identity-updated', update);
-  }
-
-  /* --------------------------------------------------------------------------
-     24. 键盘可达性：让「整卡可点」的元素也能用 Enter / Space 触发
-     —— 首页 bento 媒体卡此前只有 onclick，键盘与读屏用户无法进入
-     -------------------------------------------------------------------------- */
-  function initKeyboardCards() {
-    const cards = document.querySelectorAll('.stage-bento-card[role="link"]');
-    cards.forEach((card) => {
-      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
-      card.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
-        e.preventDefault();
-        card.click();
-      });
-    });
   }
 
 })();
