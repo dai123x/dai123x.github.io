@@ -6,11 +6,11 @@
 
 ## 站点入口
 
-当前 `sitemap.xml` 收录以下 17 个页面：
+当前 `sitemap.xml` 收录以下 19 个页面：
 
 | 页面 | 内容 |
 | --- | --- |
-| [首页](https://daixuan.cloud/) | 个人介绍、作品分类与项目入口 |
+| [首页](https://daixuan.cloud/) | 个人介绍、17 项作品分类筛选与项目入口 |
 | [璇玑星海](https://daixuan.cloud/galaxy/) | 个人经历与作品的交互星系 |
 | [工大印记](https://daixuan.cloud/school/) | 长春工业大学主题页面 |
 | [智能制造案例](https://daixuan.cloud/case-studies/smart-manufacturing-takt-time-analysis.html) | 工序节拍分析与产线改善情景展示 |
@@ -20,13 +20,15 @@
 | [全景立体校园地图](https://daixuan.cloud/campus-map/) | 校园空间示意、建筑检索与三维漫游 |
 | [雪线之上](https://daixuan.cloud/snow-viz/) | 吉林冰雪经济目标可视化交互系统 |
 | [雪线之上作品说明书](https://daixuan.cloud/snow-viz/documentation.html) | 作品方法、数据与交互说明 |
-| [统计游乐场](https://daixuan.cloud/stats-lab/) | 可交互的统计概念演示 |
+| [数据实验室（统计游乐场）](https://daixuan.cloud/stats-lab/) | 可交互的统计概念演示 |
 | [Aurora Chat · 极光](https://daixuan.cloud/aurora-chat/) | 浏览器端 AI 聊天工作台 |
 | [明史资料平台](https://daixuan.cloud/ming-history/) | 文献索引与研读工具 |
 | [简历](https://daixuan.cloud/resume/) | 在线简历与打印页面 |
 | [防封指南](https://daixuan.cloud/claude-anti-ban/) | AI 与 GitHub 开发者风控自测与合规路径 |
 | [学生综合评分系统](https://daixuan.cloud/student-score/) | 五育并举 / 学科成绩 / 日常表现三维评分 |
+| [学迹 · 综测与绩点管理](https://daixuan.cloud/xueji/) | 大学生加权绩点与综合测评自算工具 |
 | [朗读室](https://daixuan.cloud/words/) | 30 篇英文演讲与 30 个《经济学人》句式精读（共 60 条，支持语音朗读、背诵挖空与金句复制） |
+| [紫禁城 · 水墨图志](https://daixuan.cloud/forbidden-city/) | 故宫中轴线复原、全画幅水墨淡彩渲染与漫游导出 |
 
 `snow-viz/vr_twin.html` 是冰雪作品的附属三维 / VR 页面；`404.html` 提供站点错误页。
 
@@ -34,21 +36,25 @@
 
 ```text
 .
-├── index.html                 # 首页内容、作品卡片和导航
+├── index.html                 # 首页内容、17 项作品卡片筛选和导航
 ├── css/                       # 首页样式（style.css、refresh.css）
-├── js/                        # 首页交互与图片查看器
+├── js/                        # 首页交互、筛选、命令面板与数字分身
 ├── assets/                    # 共享图片、图标和音频；site-index.css 为全站「站内索引」样式
 ├── galaxy/                    # 星系页面及 comments.json
 ├── school/                    # 学校主题页面
-├── case-studies/              # 两篇统计案例、说明与保存结果
+├── case-studies/              # 四篇统计与工业工程案例、说明与保存结果
 ├── campus-map/                # 三维校园示意、模型数据和本地 Three.js
 ├── snow-viz/                  # 冰雪作品、说明书、VR 页面及 CSV/JSON 数据
-├── stats-lab/                 # 统计演示、样式与中英文文案
+├── stats-lab/                 # 数据实验室（统计演示、样式与中英文文案）
 ├── aurora-chat/               # 聊天工作台、本地第三方库及许可声明
 ├── ming-history/              # 明史页面、交互逻辑及 data-*.js 资料
 ├── resume/                    # 简历页面
+├── claude-anti-ban/           # AI 与 GitHub 开发者防封指南与风控自测
+├── student-score/             # 学生综合评分系统
+├── xueji/                     # 学迹 · 大学生综测与绩点管理工具
 ├── words/                     # 朗读室：演讲与句式内容、样式与交互
-├── scripts/                   # 站点检查、部署打包及已有分析辅助文件
+├── forbidden-city/            # 紫禁城 · 故宫全景水墨淡彩图志
+├── scripts/                   # 站点检查、单元测试、部署打包及分析辅助文件
 ├── .github/workflows/         # GitHub Actions 校验与部署
 ├── sitemap.xml                # 公开页面索引
 ├── robots.txt                 # 搜索引擎抓取配置

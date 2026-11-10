@@ -658,10 +658,10 @@
             <div class="project-body">
               <span class="project-eyebrow">07 / 数据分析 / RESOURCE OPERATIONS</span>
               <h3 class="project-title">AI 云资源运营与算力成本优化分析系统</h3>
-              <div class="project-metric-badge blue">📊 算力聚类分析 · 闲置成本削减</div>
-              <p class="project-desc">从 GPU / CPU 运行日志提取算力指标，结合 SQL 与 pandas 分析闲置资源，形成成本测算和容量规划建议。</p>
-              <div class="project-tags"><span class="tag-badge">Python / pandas</span><span class="tag-badge">SQLite / SQL</span><span class="tag-badge">算力聚类分析</span><span class="tag-badge">容量规划</span></div>
-              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">基于大规模 GPU/CPU 算力集群运行日志与资源流水数据，利用 SQLite 与高阶 SQL 提取多维算力指标；结合 Python (pandas) 对低利用率闲置算力进行精准聚类与潜在浪费成本测算，输出面向生产环境的弹性容量规划与降本增效建议。</div></details>
+              <div class="project-metric-badge blue">📊 56天合成流水 · 窗口函数 · 闲置阈值估算</div>
+              <p class="project-desc">基于 56 天（896 条）合成 GPU / CPU 使用与费用记录，结合 SQL 窗口函数与 pandas 阈值估算闲置算力成本，并给出 14 日均值缓冲容量建议。</p>
+              <div class="project-tags"><span class="tag-badge">Python / pandas</span><span class="tag-badge">SQLite 窗口函数</span><span class="tag-badge">合成数据演示</span><span class="tag-badge">CI 复现验证</span></div>
+              <details class="project-details"><summary>查看完整说明</summary><div class="project-details-content">以 56 天、896 条合成 GPU / CPU 资源流水为基础（SQLite + CSV），通过 SQL 窗口函数计算 7 日滚动费用；使用 pandas 对利用率低于 20% 的记录进行阈值识别与闲置成本估算，并以最近 14 天平均 GPU 分配量加 15% 缓冲推算推荐容量（71 GPU），附 unittest 与 GitHub Actions 自动复现校验（合成数据示例，不作真实账单依据）。</div></details>
               <div class="project-footer">
                 <button class="project-permalink" type="button" data-copy="https://daixuan.cloud/#work-cloud" aria-label="复制AI 云资源运营与算力成本优化分析系统的直达链接" title="复制作品链接">复制链接</button>
                 <span class="text-meta">仓库：ai-cloud-resource-ops-analysis</span>
